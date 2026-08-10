@@ -1,0 +1,175 @@
+package dev.tabcode.app.ui.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import dev.tabcode.app.AppContainer
+import dev.tabcode.app.ui.AppViewModelFactory
+import dev.tabcode.app.ui.WorkspaceViewModelFactory
+import dev.tabcode.app.ui.appViewModel
+import dev.tabcode.app.ui.foundation.NavTransitions
+import dev.tabcode.app.ui.screens.home.HomeScreen
+import dev.tabcode.app.ui.screens.home.HomeViewModel
+import dev.tabcode.app.ui.screens.newproject.NewProjectScreen
+import dev.tabcode.app.ui.screens.newproject.NewProjectViewModel
+import dev.tabcode.app.ui.screens.onboarding.OnboardingScreen
+import dev.tabcode.app.ui.screens.settings.SettingsScreen
+import dev.tabcode.app.ui.screens.settings.SettingsViewModel
+import dev.tabcode.app.ui.screens.workspace.WorkspaceScreen
+import dev.tabcode.app.ui.screens.workspace.WorkspaceViewModel
+
+/**
+ * Top-level nav graph. Home is the stack root; everything else is one level
+ * deep - see docs/ui-shell/arch.md "Navigation flow".
+ */
+@Composable
+fun AppNavHost(
+    startAtOnboarding: Boolean,
+    motionEnabled: Boolean,
+    container: AppContainer,
+    viewModelFactory: AppViewModelFactory,
+    onOnboardingComplete: () -> Unit,
+    navController: NavHostController = rememberNavController(),
+) {
+    val transitions = NavTransitions(motionEnabled)
+
+    NavHost(
+        navController = navController,
+        startDestination = if (startAtOnboarding) Destination.Onboarding.route else Destination.Home.route,
+        enterTransition = transitions.enter(),
+        exitTransition = transitions.exit(),
+        popEnterTransition = transitions.popEnter(),
+        popExitTransition = transitions.popExit(),
+    ) {
+        composable(Destination.Onboarding.route) {
+            OnboardingScreen(
+                onContinue = {
+                    onOnboardingComplete()
+                    navController.navigate(Destination.Home.route) {
+                        popUpTo(Destination.Onboarding.route) { inclusive = true }
+                    }
+                },
+            )
+        }
+
+        composable(Destination.Home.route) {
+            val viewModel: HomeViewModel = appViewModel(viewModelFactory)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            HomeScreen(
+                uiState = uiState,
+                onOpenProject = { item ->
+                    viewModel.onProjectOpened(item.project.id)
+                    navController.navigate(Destination.Workspace.routeFor(item.project.id))
+                },
+                onNewProject = { navController.navigate(Destination.NewProject.route) },
+                onOpenSettings = { navController.navigate(Destination.Settings.route) },
+            )
+        }
+
+        composable(Destination.Workspace.route) { backStackEntry ->
+            val projectId = backStackEntry.arguments?.getString(Destination.Workspace.ARG_PROJECT_ID).orEmpty()
+            val homeViewModel: HomeViewModel = appViewModel(viewModelFactory)
+            val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
+            val project = homeState.items.find { it.project.id == projectId }?.project
+
+            // Wait for the project record: its environment id decides which
+            // rootfs the terminal runs in, and guessing would start the wrong one.
+            val environmentId = project?.environmentId
+            if (environmentId != null) {
+            val workspaceViewModel: WorkspaceViewModel = viewModel(
+                key = projectId,
+                factory = WorkspaceViewModelFactory(container, projectId, environmentId),
+            )
+            val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
+
+            WorkspaceScreen(
+                projectName = project.name,
+                uiState = uiState,
+                callbacks = dev.tabcode.app.ui.screens.workspace.WorkspaceCallbacks(
+                    onFileOpened = workspaceViewModel::onFileOpened,
+                    onDirectoryToggled = workspaceViewModel::onDirectoryToggled,
+                    onRefreshTree = workspaceViewModel::refreshTree,
+                    onTabSelected = workspaceViewModel::onTabSelected,
+                    onTabClosed = workspaceViewModel::onTabClosed,
+                    onContentChanged = workspaceViewModel::onContentChanged,
+                    onTogglePreview = workspaceViewModel::onTogglePreview,
+                    onSave = workspaceViewModel::onSaveActiveTab,
+                    onCreateFile = workspaceViewModel::onCreateFile,
+                    onCreateFolder = workspaceViewModel::onCreateFolder,
+                    onRename = workspaceViewModel::onRename,
+                    onDelete = workspaceViewModel::onDelete,
+                    onCopyToClipboard = workspaceViewModel::onCopyToClipboard,
+                    onPaste = workspaceViewModel::onPaste,
+                    absolutePathOf = workspaceViewModel::absolutePathOf,
+                    onTerminalInputChanged = workspaceViewModel::onTerminalInputChanged,
+                    onTerminalSubmit = workspaceViewModel::onTerminalSubmit,
+                    onTerminalKey = workspaceViewModel::onTerminalKey,
+                    onCancelCommand = workspaceViewModel::onCancelCommand,
+                    onNewTerminal = workspaceViewModel::onNewTerminal,
+                    onSelectTerminal = workspaceViewModel::onSelectTerminal,
+                    onCloseTerminal = workspaceViewModel::onCloseTerminal,
+                    onInstallLinux = workspaceViewModel::onInstallLinux,
+                    onStatusShown = workspaceViewModel::onStatusShown,
+                    onBack = { navController.popBackStack() },
+                ),
+            )
+            }
+        }
+
+        composable(Destination.Settings.route) {
+            val viewModel: SettingsViewModel = appViewModel(viewModelFactory)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
+
+            SettingsScreen(
+                uiState = uiState,
+                errorMessage = errorMessage,
+                externalFolderSync = container.externalFolderSync,
+                onThemeSelected = viewModel::onThemeSelected,
+                onDefaultEnvironmentSelected = viewModel::onDefaultEnvironmentSelected,
+                onDeleteEnvironment = viewModel::onDeleteEnvironment,
+                onDefaultProjectsFolderChosen = viewModel::onDefaultProjectsFolderChosen,
+                onDefaultProjectsFolderPickFailed = viewModel::onDefaultProjectsFolderPickFailed,
+                onErrorShown = viewModel::onErrorShown,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(Destination.NewProject.route) {
+            val viewModel: NewProjectViewModel = appViewModel(viewModelFactory)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            // Navigate onward only once creation actually succeeded, so a
+            // failure keeps the user on the form with the error visible.
+            LaunchedEffect(uiState.createdProjectId) {
+                val id = uiState.createdProjectId ?: return@LaunchedEffect
+                navController.navigate(Destination.Workspace.routeFor(id)) {
+                    popUpTo(Destination.NewProject.route) { inclusive = true }
+                }
+            }
+
+            NewProjectScreen(
+                uiState = uiState,
+                externalFolderSync = container.externalFolderSync,
+                onProjectNameChanged = viewModel::onProjectNameChanged,
+                onChoiceChanged = viewModel::onChoiceChanged,
+                onEnvironmentSelected = viewModel::onEnvironmentSelected,
+                onNewEnvironmentLabelChanged = viewModel::onNewEnvironmentLabelChanged,
+                onBackendSelected = viewModel::onBackendSelected,
+                onImageSelected = viewModel::onImageSelected,
+                onExternalFolderChosen = viewModel::onExternalFolderChosen,
+                onExternalFolderCleared = viewModel::onExternalFolderCleared,
+                onExternalFolderPickFailed = viewModel::onExternalFolderPickFailed,
+                onSubmit = viewModel::submit,
+                onBack = { navController.popBackStack() },
+            )
+        }
+    }
+}

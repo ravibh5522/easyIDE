@@ -1,0 +1,9 @@
+dev.tabcode.sandbox.sandbox-runtime-pngs-0 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/build/generated/res/pngs/debug
+dev.tabcode.sandbox.sandbox-runtime-updated_navigation_xml-1 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/build/generated/updated_navigation_xml/debug
+dev.tabcode.sandbox.sandbox-runtime-mergeDebugResources-2 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
+dev.tabcode.sandbox.sandbox-runtime-mergeDebugResources-3 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+dev.tabcode.sandbox.sandbox-runtime-debug-4 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/build/intermediates/merged_res/debug/mergeDebugResources
+dev.tabcode.sandbox.sandbox-runtime-debug-5 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/build/intermediates/packaged_res/debug/packageDebugResources
+dev.tabcode.sandbox.sandbox-runtime-debug-6 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/debug/res
+dev.tabcode.sandbox.sandbox-runtime-main-7 /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/res
+gradleHome-0 /home/ravi/.gradle

@@ -1,0 +1,9 @@
+<resources>
+    <!--
+      Minimal platform theme required as the Activity's window theme before Compose
+      takes over. All real theming (colors, typography, the six-theme system) lives
+      in Kotlin under ui/theme per docs/design-system/arch.md — this XML theme is
+      intentionally not the source of truth for app colors.
+    -->
+    <style name="Theme.TabCode" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

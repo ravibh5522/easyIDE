@@ -1,0 +1,37 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="dev.tabcode.sandbox" >
+4
+5    <uses-sdk android:minSdkVersion="26" />
+5-->INJECTED
+5-->INJECTED
+6
+7    <!--
+8      The sandbox process tree must survive app backgrounding, which requires a
+9      foreground service - see docs/sandbox-runtime/arch.md SS4 "App lifecycle
+10      state machine". dataSync is the closest standard type; revisit against
+11      Play policy before shipping (tracked in the sandbox-runtime tracker).
+12    -->
+13    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+13-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:9:5-77
+13-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:9:22-74
+14    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+14-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:10:5-87
+14-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:10:22-84
+15    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+15-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:11:5-77
+15-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:11:22-74
+16
+17    <application>
+17-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:13:5-18:19
+18        <service
+18-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:14:9-17:56
+19            android:name="dev.tabcode.sandbox.service.SandboxForegroundService"
+19-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:15:13-61
+20            android:exported="false"
+20-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:16:13-37
+21            android:foregroundServiceType="dataSync" />
+21-->/home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:17:13-53
+22    </application>
+23
+24</manifest>
