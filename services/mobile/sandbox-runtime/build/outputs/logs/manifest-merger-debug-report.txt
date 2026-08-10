@@ -20,7 +20,7 @@ ADDED from /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/
 		ADDED from /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:11:22-74
 application
 ADDED from /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:13:5-18:19
-service#dev.tabcode.sandbox.service.SandboxForegroundService
+service#dev.easyide.sandbox.service.SandboxForegroundService
 ADDED from /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:14:9-17:56
 	android:exported
 		ADDED from /home/ravi/Desktop/tab-code/services/mobile/sandbox-runtime/src/main/AndroidManifest.xml:16:13-37

@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox
+package dev.easyide.sandbox
 
 /**
  * Failures callers are expected to handle. Anything not represented here is a

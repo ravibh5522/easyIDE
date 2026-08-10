@@ -1,8 +1,8 @@
-package dev.tabcode.app
+package dev.easyide.app
 
 import android.app.Application
 
-class TabCodeApplication : Application() {
+class EasyIdeApplication : Application() {
 
     lateinit var container: AppContainer
         private set

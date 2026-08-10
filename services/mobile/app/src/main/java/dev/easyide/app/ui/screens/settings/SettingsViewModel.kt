@@ -1,14 +1,14 @@
-package dev.tabcode.app.ui.screens.settings
+package dev.easyide.app.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.net.Uri
-import dev.tabcode.app.data.UiPreferences
-import dev.tabcode.app.ui.theme.ThemeMode
-import dev.tabcode.sandbox.EnvironmentManager
-import dev.tabcode.sandbox.ProjectManager
-import dev.tabcode.sandbox.external.ExternalFolderSync
-import dev.tabcode.sandbox.model.SandboxEnvironment
+import dev.easyide.app.data.UiPreferences
+import dev.easyide.app.ui.theme.ThemeMode
+import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.external.ExternalFolderSync
+import dev.easyide.sandbox.model.SandboxEnvironment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

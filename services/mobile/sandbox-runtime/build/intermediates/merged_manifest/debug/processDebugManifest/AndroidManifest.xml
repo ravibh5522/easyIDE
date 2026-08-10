@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.tabcode.sandbox" >
+    package="dev.easyide.sandbox" >
 
     <uses-sdk android:minSdkVersion="26" />
 
@@ -16,7 +16,7 @@
 
     <application>
         <service
-            android:name="dev.tabcode.sandbox.service.SandboxForegroundService"
+            android:name="dev.easyide.sandbox.service.SandboxForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
     </application>

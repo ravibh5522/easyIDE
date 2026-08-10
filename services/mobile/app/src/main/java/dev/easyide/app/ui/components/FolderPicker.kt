@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.components
+package dev.easyide.app.ui.components
 
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -6,7 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import dev.tabcode.sandbox.external.ExternalFolderSync
+import dev.easyide.sandbox.external.ExternalFolderSync
 
 /**
  * Launches the system folder picker (Storage Access Framework) and takes a

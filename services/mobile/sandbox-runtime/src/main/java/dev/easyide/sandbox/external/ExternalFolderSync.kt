@@ -1,10 +1,10 @@
-package dev.tabcode.sandbox.external
+package dev.easyide.sandbox.external
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import dev.tabcode.sandbox.SandboxError
+import dev.easyide.sandbox.SandboxError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -14,7 +14,7 @@ import java.io.File
  * storage (SD card, "Internal storage" as the OS shows it, a cloud-backed
  * `DocumentsProvider`) via the Storage Access Framework.
  *
- * This exists because of one hard constraint: [dev.tabcode.sandbox.backend.ProotLauncher]
+ * This exists because of one hard constraint: [dev.easyide.sandbox.backend.ProotLauncher]
  * enters a project by bind-mounting its directory into the guest rootfs, and a
  * bind mount needs a real filesystem path. A SAF tree is reachable only as a
  * `content://` URI - there is no path to mount. So the project's *working*

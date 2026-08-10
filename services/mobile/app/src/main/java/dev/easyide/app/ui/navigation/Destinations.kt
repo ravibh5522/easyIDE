@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.navigation
+package dev.easyide.app.ui.navigation
 
 /**
  * Single source of truth for nav routes - see docs/ui-shell/arch.md

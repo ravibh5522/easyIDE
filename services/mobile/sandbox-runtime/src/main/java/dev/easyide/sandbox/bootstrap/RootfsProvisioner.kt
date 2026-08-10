@@ -1,6 +1,6 @@
-package dev.tabcode.sandbox.bootstrap
+package dev.easyide.sandbox.bootstrap
 
-import dev.tabcode.sandbox.SandboxError
+import dev.easyide.sandbox.SandboxError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File

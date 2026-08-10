@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.settings
+package dev.easyide.app.ui.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -42,12 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.R
-import dev.tabcode.app.ui.components.EnvironmentBadge
-import dev.tabcode.app.ui.components.rememberFolderPicker
-import dev.tabcode.app.ui.foundation.motionSpec
-import dev.tabcode.app.ui.theme.ThemeMode
-import dev.tabcode.sandbox.external.ExternalFolderSync
+import dev.easyide.app.R
+import dev.easyide.app.ui.components.EnvironmentBadge
+import dev.easyide.app.ui.components.rememberFolderPicker
+import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.theme.ThemeMode
+import dev.easyide.sandbox.external.ExternalFolderSync
 
 /**
  * Settings: theme selection plus environment management. Environments are

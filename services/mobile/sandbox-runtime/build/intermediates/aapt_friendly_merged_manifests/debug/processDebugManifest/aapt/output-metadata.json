@@ -4,7 +4,7 @@
     "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "dev.tabcode.sandbox",
+  "applicationId": "dev.easyide.sandbox",
   "variantName": "debug",
   "elements": [
     {

@@ -1,13 +1,13 @@
-package dev.tabcode.sandbox
+package dev.easyide.sandbox
 
 import android.os.Build
-import dev.tabcode.sandbox.bootstrap.ProgressReporter
-import dev.tabcode.sandbox.bootstrap.ProotInstaller
-import dev.tabcode.sandbox.bootstrap.RootfsProvisioner
-import dev.tabcode.sandbox.model.SandboxImage
-import dev.tabcode.sandbox.shell.SandboxShell
-import dev.tabcode.sandbox.shell.ShellRunner
-import dev.tabcode.sandbox.shell.TerminalProcess
+import dev.easyide.sandbox.bootstrap.ProgressReporter
+import dev.easyide.sandbox.bootstrap.ProotInstaller
+import dev.easyide.sandbox.bootstrap.RootfsProvisioner
+import dev.easyide.sandbox.model.SandboxImage
+import dev.easyide.sandbox.shell.SandboxShell
+import dev.easyide.sandbox.shell.ShellRunner
+import dev.easyide.sandbox.shell.TerminalProcess
 import kotlinx.coroutines.CoroutineDispatcher
 import java.io.File
 
@@ -173,7 +173,7 @@ class LinuxEnvironment(
          * for proot's own `--link2symlink` flakiness (see [ProotLauncher]) -
          * most failures during setup were actually a leaked host `TMPDIR`
          * breaking guest postinst scripts, fixed at the source in
-         * [dev.tabcode.sandbox.shell.SandboxShell]. This stays as a modest
+         * [dev.easyide.sandbox.shell.SandboxShell]. This stays as a modest
          * margin, not the primary fix.
          */
         const val SETUP_RETRY_LIMIT = 3

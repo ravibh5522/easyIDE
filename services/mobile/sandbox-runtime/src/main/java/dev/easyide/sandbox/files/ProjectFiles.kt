@@ -1,7 +1,7 @@
-package dev.tabcode.sandbox.files
+package dev.easyide.sandbox.files
 
-import dev.tabcode.sandbox.SandboxError
-import dev.tabcode.sandbox.SandboxPaths
+import dev.easyide.sandbox.SandboxError
+import dev.easyide.sandbox.SandboxPaths
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -265,7 +265,7 @@ class ProjectFiles(
     private fun starterReadme(projectName: String) = """
         # $projectName
 
-        Created with **tab-code**. The tree, this editor and the terminal all
+        Created with **easyIDE**. The tree, this editor and the terminal all
         work on *real files* in this project directory.
 
         ## Formatting
@@ -307,7 +307,7 @@ class ProjectFiles(
 
         val STARTER_PYTHON = """
             def main():
-                print("hello from tab-code")
+                print("hello from easyIDE")
 
 
             if __name__ == "__main__":

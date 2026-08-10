@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.home
+package dev.easyide.app.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -34,12 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.R
-import dev.tabcode.app.ui.components.EmptyState
-import dev.tabcode.app.ui.components.EnvironmentBadge
-import dev.tabcode.app.ui.foundation.WidthClass
-import dev.tabcode.app.ui.foundation.motionSpec
-import dev.tabcode.app.ui.foundation.LocalWindowSize
+import dev.easyide.app.R
+import dev.easyide.app.ui.components.EmptyState
+import dev.easyide.app.ui.components.EnvironmentBadge
+import dev.easyide.app.ui.foundation.WidthClass
+import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.foundation.LocalWindowSize
 
 /**
  * Project List (Home) - the nav root. Adaptive per

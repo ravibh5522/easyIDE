@@ -1,4 +1,4 @@
-package dev.tabcode.app
+package dev.easyide.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,16 +13,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import dev.tabcode.app.ui.AppViewModelFactory
-import dev.tabcode.app.ui.foundation.LocalMotionEnabled
-import dev.tabcode.app.ui.foundation.LocalWindowSize
-import dev.tabcode.app.ui.foundation.currentWindowSize
-import dev.tabcode.app.ui.foundation.systemMotionEnabled
-import dev.tabcode.app.ui.navigation.AppNavHost
-import dev.tabcode.app.ui.theme.LocalEditorColors
-import dev.tabcode.app.ui.theme.TabCodeTheme
-import dev.tabcode.app.ui.theme.ThemeMode
-import dev.tabcode.app.ui.theme.editorColorsFor
+import dev.easyide.app.ui.AppViewModelFactory
+import dev.easyide.app.ui.foundation.LocalMotionEnabled
+import dev.easyide.app.ui.foundation.LocalWindowSize
+import dev.easyide.app.ui.foundation.currentWindowSize
+import dev.easyide.app.ui.foundation.systemMotionEnabled
+import dev.easyide.app.ui.navigation.AppNavHost
+import dev.easyide.app.ui.theme.LocalEditorColors
+import dev.easyide.app.ui.theme.EasyIdeTheme
+import dev.easyide.app.ui.theme.ThemeMode
+import dev.easyide.app.ui.theme.editorColorsFor
 import kotlinx.coroutines.launch
 
 /**
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val container = (application as TabCodeApplication).container
+        val container = (application as EasyIdeApplication).container
         val factory = AppViewModelFactory(container)
 
         setContent {
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
             val windowSize = currentWindowSize()
             val editorColors = editorColorsFor(themeMode, isSystemInDarkTheme())
 
-            TabCodeTheme(themeMode = themeMode) {
+            EasyIdeTheme(themeMode = themeMode) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,

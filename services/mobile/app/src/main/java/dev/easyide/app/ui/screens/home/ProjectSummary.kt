@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.home
+package dev.easyide.app.ui.screens.home
 
 /**
  * Row shape for the Home project list. Populated from the Room DB project

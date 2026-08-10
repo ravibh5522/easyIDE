@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.theme
+package dev.easyide.app.ui.theme
 
 import androidx.compose.material3.Shapes
 
@@ -6,4 +6,4 @@ import androidx.compose.material3.Shapes
  * Material 3's default shape scale. Overridden per-component only if a
  * concrete need arises - no speculative customization yet.
  */
-val TabCodeShapes = Shapes()
+val EasyIdeShapes = Shapes()

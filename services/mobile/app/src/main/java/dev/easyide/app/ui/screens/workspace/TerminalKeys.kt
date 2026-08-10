@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue

@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,8 +39,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.R
-import dev.tabcode.app.ui.theme.editorColors
+import dev.easyide.app.R
+import dev.easyide.app.ui.theme.editorColors
 
 /**
  * Terminal panel: tabs across the top, one scrollback below, and an accessory

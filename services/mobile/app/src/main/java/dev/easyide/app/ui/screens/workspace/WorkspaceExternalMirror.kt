@@ -1,6 +1,6 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
-import dev.tabcode.sandbox.ProjectManager
+import dev.easyide.sandbox.ProjectManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.foundation
+package dev.easyide.app.ui.foundation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition

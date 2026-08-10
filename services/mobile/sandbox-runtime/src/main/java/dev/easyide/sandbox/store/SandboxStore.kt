@@ -1,10 +1,10 @@
-package dev.tabcode.sandbox.store
+package dev.easyide.sandbox.store
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
-import dev.tabcode.sandbox.SandboxError
+import dev.easyide.sandbox.SandboxError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

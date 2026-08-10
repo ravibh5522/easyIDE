@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.ui.theme.editorColors
+import dev.easyide.app.ui.theme.editorColors
 
 /**
  * The accessory key row that sits between the scrollback and the keyboard.

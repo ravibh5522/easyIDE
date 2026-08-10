@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox
+package dev.easyide.sandbox
 
 import android.os.Build
 import java.io.File

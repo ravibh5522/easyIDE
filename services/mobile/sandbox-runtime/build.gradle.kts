@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.tabcode.sandbox"
+    namespace = "dev.easyide.sandbox"
     compileSdk = 37
 
     defaultConfig {

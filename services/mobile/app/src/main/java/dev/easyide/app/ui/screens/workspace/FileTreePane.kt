@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -34,8 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.ui.theme.editorColors
-import dev.tabcode.sandbox.files.FileNode
+import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.sandbox.files.FileNode
 
 /**
  * The explorer: a header with new-file / new-folder / refresh, then the tree.

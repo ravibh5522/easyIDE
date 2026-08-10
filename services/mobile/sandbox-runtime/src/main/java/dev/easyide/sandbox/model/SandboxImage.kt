@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox.model
+package dev.easyide.sandbox.model
 
 /**
  * A selectable sandbox preset: which rootfs tarball to unpack, and what to run

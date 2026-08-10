@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.theme
+package dev.easyide.app.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -56,7 +56,7 @@ private fun resolveColorScheme(mode: ThemeMode, useDarkPalette: Boolean): ColorS
 }
 
 @Composable
-fun TabCodeTheme(
+fun EasyIdeTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM_DEFAULT,
     content: @Composable () -> Unit,
 ) {
@@ -65,8 +65,8 @@ fun TabCodeTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = TabCodeTypography,
-        shapes = TabCodeShapes,
+        typography = EasyIdeTypography,
+        shapes = EasyIdeShapes,
         content = content,
     )
 }

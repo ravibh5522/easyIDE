@@ -1,7 +1,7 @@
-package dev.tabcode.sandbox.store
+package dev.easyide.sandbox.store
 
-import dev.tabcode.sandbox.model.ProjectRecord
-import dev.tabcode.sandbox.model.SandboxEnvironment
+import dev.easyide.sandbox.model.ProjectRecord
+import dev.easyide.sandbox.model.SandboxEnvironment
 
 /**
  * Everything the sandbox layer persists, as one immutable snapshot. Small

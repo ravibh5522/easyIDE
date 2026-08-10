@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.theme
+package dev.easyide.app.ui.theme
 
 /**
  * The curated theme set from docs/design-system/arch.md. Deliberately closed

@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.onboarding
+package dev.easyide.app.ui.screens.onboarding
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -27,10 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.R
-import dev.tabcode.app.ui.components.EmptyState
-import dev.tabcode.app.ui.foundation.LocalMotionEnabled
-import dev.tabcode.app.ui.foundation.MotionTokens
+import dev.easyide.app.R
+import dev.easyide.app.ui.components.EmptyState
+import dev.easyide.app.ui.foundation.LocalMotionEnabled
+import dev.easyide.app.ui.foundation.MotionTokens
 
 /**
  * First-run welcome. Content rises in on entry so the first screen of the app

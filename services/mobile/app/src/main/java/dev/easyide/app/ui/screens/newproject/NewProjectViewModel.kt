@@ -1,15 +1,15 @@
-package dev.tabcode.app.ui.screens.newproject
+package dev.easyide.app.ui.screens.newproject
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.net.Uri
-import dev.tabcode.app.data.SandboxImages
-import dev.tabcode.sandbox.EnvironmentManager
-import dev.tabcode.sandbox.ProjectManager
-import dev.tabcode.sandbox.external.ExternalFolderSync
-import dev.tabcode.sandbox.model.SandboxBackend
-import dev.tabcode.sandbox.model.SandboxEnvironment
-import dev.tabcode.sandbox.model.SandboxImage
+import dev.easyide.app.data.SandboxImages
+import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.external.ExternalFolderSync
+import dev.easyide.sandbox.model.SandboxBackend
+import dev.easyide.sandbox.model.SandboxEnvironment
+import dev.easyide.sandbox.model.SandboxImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,7 +41,7 @@ data class NewProjectUiState(
     val selectedImageId: String = SandboxImages.DEFAULT.id,
     /**
      * SAF tree URI files are mirrored to, or null for app storage only. See
-     * [dev.tabcode.sandbox.external.ExternalFolderSync] for why this is a
+     * [dev.easyide.sandbox.external.ExternalFolderSync] for why this is a
      * mirror, not the location the project actually runs from.
      */
     val externalFolderUri: String? = null,

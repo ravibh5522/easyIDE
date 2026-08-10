@@ -1,16 +1,16 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.tabcode.sandbox.EnvironmentManager
-import dev.tabcode.sandbox.LinuxEnvironment
-import dev.tabcode.sandbox.ProjectManager
-import dev.tabcode.sandbox.files.FileContent
-import dev.tabcode.sandbox.files.FileNode
-import dev.tabcode.sandbox.files.FilePolicy
-import dev.tabcode.sandbox.files.ProjectFiles
-import dev.tabcode.sandbox.model.SandboxImage
+import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.LinuxEnvironment
+import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.files.FileContent
+import dev.easyide.sandbox.files.FileNode
+import dev.easyide.sandbox.files.FilePolicy
+import dev.easyide.sandbox.files.ProjectFiles
+import dev.easyide.sandbox.model.SandboxImage
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -233,7 +233,7 @@ class WorkspaceViewModel(
                     updateTab(tab.relativePath) { it.copy(savedContent = it.content) }
                     setStatus("Saved ${tab.name}")
                     refreshTree()
-                    mirrorWrite(tab.relativePath, tab.content.toByteArray())
+                    externalMirror.write(tab.relativePath, tab.content.toByteArray())
                 }
                 .onFailure { cause -> setStatus(cause.message ?: "Could not save ${tab.name}") }
         }
@@ -250,14 +250,14 @@ class WorkspaceViewModel(
     fun onCreateFile(parentDir: String, name: String) {
         val path = joinPath(parentDir, name)
         runFileAction(name) {
-            projectFiles.createFile(projectId, path).onSuccess { mirrorWrite(path, ByteArray(0)) }
+            projectFiles.createFile(projectId, path).onSuccess { externalMirror.write(path, ByteArray(0)) }
         }
     }
 
     fun onCreateFolder(parentDir: String, name: String) {
         val path = joinPath(parentDir, name)
         runFileAction(name) {
-            projectFiles.createDirectory(projectId, path).onSuccess { mirrorCreateDirectory(path) }
+            projectFiles.createDirectory(projectId, path).onSuccess { externalMirror.createDirectory(path) }
         }
     }
 
@@ -274,8 +274,8 @@ class WorkspaceViewModel(
                         )
                     }
                     refreshTree()
-                    mirrorDelete(node.relativePath)
-                    mirrorPath(newPath)
+                    externalMirror.delete(node.relativePath)
+                    externalMirror.path(newPath)
                 }
                 .onFailure { cause -> setStatus(cause.message ?: "Could not rename ${node.name}") }
         }
@@ -288,7 +288,7 @@ class WorkspaceViewModel(
                     onTabClosed(node.relativePath)
                     refreshTree()
                     setStatus("Deleted ${node.name}")
-                    mirrorDelete(node.relativePath)
+                    externalMirror.delete(node.relativePath)
                 }
                 .onFailure { cause -> setStatus(cause.message ?: "Could not delete ${node.name}") }
         }
@@ -311,8 +311,8 @@ class WorkspaceViewModel(
                 .onSuccess { newPath ->
                     if (clipboard.isCut) _uiState.update { it.copy(clipboard = null) }
                     refreshTree()
-                    if (clipboard.isCut) mirrorDelete(clipboard.relativePath)
-                    mirrorPath(newPath)
+                    if (clipboard.isCut) externalMirror.delete(clipboard.relativePath)
+                    externalMirror.path(newPath)
                 }
                 .onFailure { cause -> setStatus(cause.message ?: "Paste failed") }
         }
@@ -320,40 +320,12 @@ class WorkspaceViewModel(
 
     // ---------------------------------------------------- external folder
 
-    /**
-     * Every mirror call below is fire-and-forget on purpose: the app-private
-     * write this follows has already succeeded by the time these run, so a
-     * sync problem (permission revoked, SD card removed, provider rejected
-     * the write) is surfaced as a status message, never as a failure of the
-     * save/create/rename/delete the user actually asked for.
-     */
-    private fun mirrorWrite(relativePath: String, content: ByteArray) {
-        viewModelScope.launch {
-            projectManager.mirrorWrite(projectId, relativePath, content).onFailure(::reportSyncFailure)
-        }
-    }
-
-    private fun mirrorCreateDirectory(relativePath: String) {
-        viewModelScope.launch {
-            projectManager.mirrorCreateDirectory(projectId, relativePath).onFailure(::reportSyncFailure)
-        }
-    }
-
-    private fun mirrorDelete(relativePath: String) {
-        viewModelScope.launch {
-            projectManager.mirrorDelete(projectId, relativePath).onFailure(::reportSyncFailure)
-        }
-    }
-
-    private fun mirrorPath(relativePath: String) {
-        viewModelScope.launch {
-            projectManager.mirrorPath(projectId, relativePath).onFailure(::reportSyncFailure)
-        }
-    }
-
-    private fun reportSyncFailure(cause: Throwable) {
-        setStatus("Folder sync: ${cause.message ?: "failed"}")
-    }
+    private val externalMirror = WorkspaceExternalMirror(
+        projectManager = projectManager,
+        projectId = projectId,
+        scope = viewModelScope,
+        onSyncFailed = { reason -> setStatus("Folder sync: $reason") },
+    )
 
     /** Absolute path as seen from inside the sandbox, which is what a shell needs. */
     fun absolutePathOf(node: FileNode): String =
@@ -436,7 +408,7 @@ class WorkspaceViewModel(
     /**
      * Streams the command's output as it arrives instead of buffering it to
      * completion, so a long build shows progress and never looks frozen.
-     * Batching happens inside [dev.tabcode.sandbox.shell.TerminalProcess].
+     * Batching happens inside [dev.easyide.sandbox.shell.TerminalProcess].
      */
     private fun launchCommand(sessionId: String, command: String) {
         viewModelScope.launch {

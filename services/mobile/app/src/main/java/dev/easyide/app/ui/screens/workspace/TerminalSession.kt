@@ -1,7 +1,7 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.ui.text.input.TextFieldValue
-import dev.tabcode.sandbox.shell.TerminalProcess
+import dev.easyide.sandbox.shell.TerminalProcess
 import kotlinx.coroutines.Job
 
 data class TerminalLine(val text: String, val isCommand: Boolean)

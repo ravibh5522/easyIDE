@@ -1,8 +1,8 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import dev.tabcode.app.ui.theme.EditorColors
+import dev.easyide.app.ui.theme.EditorColors
 
 /**
  * Regex-based token colouring - comments, strings, numbers and keywords.

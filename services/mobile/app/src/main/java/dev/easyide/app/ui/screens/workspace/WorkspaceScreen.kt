@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -35,13 +35,13 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.ui.foundation.HeightClass
-import dev.tabcode.app.ui.foundation.LocalWindowSize
-import dev.tabcode.app.ui.foundation.MotionTokens
-import dev.tabcode.app.ui.foundation.WidthClass
-import dev.tabcode.app.ui.foundation.motionSpec
-import dev.tabcode.app.ui.theme.editorColors
-import dev.tabcode.sandbox.files.FileNode
+import dev.easyide.app.ui.foundation.HeightClass
+import dev.easyide.app.ui.foundation.LocalWindowSize
+import dev.easyide.app.ui.foundation.MotionTokens
+import dev.easyide.app.ui.foundation.WidthClass
+import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.sandbox.files.FileNode
 
 /** Which naming dialog is open, if any. */
 private sealed interface PendingPrompt {

@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "dev.tabcode.app"
+    namespace = "dev.easyide.app"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "dev.tabcode.app"
+        applicationId = "dev.easyide.app"
         minSdk = 26
         targetSdk = 37
         versionCode = 1

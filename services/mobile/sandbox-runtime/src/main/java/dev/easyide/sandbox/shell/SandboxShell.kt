@@ -1,8 +1,8 @@
-package dev.tabcode.sandbox.shell
+package dev.easyide.sandbox.shell
 
-import dev.tabcode.sandbox.backend.LaunchRequest
-import dev.tabcode.sandbox.backend.ProotLauncher
-import dev.tabcode.sandbox.bootstrap.ProotInstaller
+import dev.easyide.sandbox.backend.LaunchRequest
+import dev.easyide.sandbox.backend.ProotLauncher
+import dev.easyide.sandbox.bootstrap.ProotInstaller
 import kotlinx.coroutines.CoroutineDispatcher
 import java.io.File
 

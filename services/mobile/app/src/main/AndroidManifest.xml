@@ -4,19 +4,19 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".TabCodeApplication"
+        android:name=".EasyIdeApplication"
         android:extractNativeLibs="true"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.TabCode"
+        android:theme="@style/Theme.EasyIde"
         android:supportsRtl="true">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard"
-            android:theme="@style/Theme.TabCode">
+            android:theme="@style/Theme.EasyIde">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

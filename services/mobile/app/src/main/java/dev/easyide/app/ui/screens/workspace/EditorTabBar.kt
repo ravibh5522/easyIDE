@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -24,8 +24,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.ui.foundation.motionSpec
-import dev.tabcode.app.ui.theme.editorColors
+import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.theme.editorColors
 
 /**
  * Editor tab strip. A dirty buffer shows a dot in place of the close button

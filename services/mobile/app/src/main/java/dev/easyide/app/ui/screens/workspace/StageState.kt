@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,8 +7,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.LaunchedEffect
-import dev.tabcode.app.ui.foundation.WidthClass
-import dev.tabcode.app.ui.foundation.WindowSize
+import dev.easyide.app.ui.foundation.WidthClass
+import dev.easyide.app.ui.foundation.WindowSize
 
 /**
  * Which stages are currently showing. Held as UI state rather than derived

@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.components
+package dev.easyide.app.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -18,8 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.ui.foundation.motionSpec
-import dev.tabcode.sandbox.model.EnvironmentState
+import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.sandbox.model.EnvironmentState
 
 /**
  * Shows an environment's provisioning state and, when shared, how many other

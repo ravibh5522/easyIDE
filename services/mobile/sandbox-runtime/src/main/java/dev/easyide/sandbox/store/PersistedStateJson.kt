@@ -1,9 +1,9 @@
-package dev.tabcode.sandbox.store
+package dev.easyide.sandbox.store
 
-import dev.tabcode.sandbox.model.EnvironmentState
-import dev.tabcode.sandbox.model.ProjectRecord
-import dev.tabcode.sandbox.model.SandboxBackend
-import dev.tabcode.sandbox.model.SandboxEnvironment
+import dev.easyide.sandbox.model.EnvironmentState
+import dev.easyide.sandbox.model.ProjectRecord
+import dev.easyide.sandbox.model.SandboxBackend
+import dev.easyide.sandbox.model.SandboxEnvironment
 import org.json.JSONArray
 import org.json.JSONObject
 

@@ -1,11 +1,11 @@
-package dev.tabcode.app.ui.screens.home
+package dev.easyide.app.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.tabcode.sandbox.EnvironmentManager
-import dev.tabcode.sandbox.ProjectManager
-import dev.tabcode.sandbox.model.ProjectRecord
-import dev.tabcode.sandbox.model.SandboxEnvironment
+import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.model.ProjectRecord
+import dev.easyide.sandbox.model.SandboxEnvironment
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine

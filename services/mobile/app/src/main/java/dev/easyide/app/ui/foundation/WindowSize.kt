@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.foundation
+package dev.easyide.app.ui.foundation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable

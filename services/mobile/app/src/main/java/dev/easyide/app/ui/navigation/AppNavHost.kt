@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.navigation
+package dev.easyide.app.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,20 +9,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import dev.tabcode.app.AppContainer
-import dev.tabcode.app.ui.AppViewModelFactory
-import dev.tabcode.app.ui.WorkspaceViewModelFactory
-import dev.tabcode.app.ui.appViewModel
-import dev.tabcode.app.ui.foundation.NavTransitions
-import dev.tabcode.app.ui.screens.home.HomeScreen
-import dev.tabcode.app.ui.screens.home.HomeViewModel
-import dev.tabcode.app.ui.screens.newproject.NewProjectScreen
-import dev.tabcode.app.ui.screens.newproject.NewProjectViewModel
-import dev.tabcode.app.ui.screens.onboarding.OnboardingScreen
-import dev.tabcode.app.ui.screens.settings.SettingsScreen
-import dev.tabcode.app.ui.screens.settings.SettingsViewModel
-import dev.tabcode.app.ui.screens.workspace.WorkspaceScreen
-import dev.tabcode.app.ui.screens.workspace.WorkspaceViewModel
+import dev.easyide.app.AppContainer
+import dev.easyide.app.ui.AppViewModelFactory
+import dev.easyide.app.ui.WorkspaceViewModelFactory
+import dev.easyide.app.ui.appViewModel
+import dev.easyide.app.ui.foundation.NavTransitions
+import dev.easyide.app.ui.screens.home.HomeScreen
+import dev.easyide.app.ui.screens.home.HomeViewModel
+import dev.easyide.app.ui.screens.newproject.NewProjectScreen
+import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
+import dev.easyide.app.ui.screens.onboarding.OnboardingScreen
+import dev.easyide.app.ui.screens.settings.SettingsScreen
+import dev.easyide.app.ui.screens.settings.SettingsViewModel
+import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
+import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
 
 /**
  * Top-level nav graph. Home is the stack root; everything else is one level
@@ -92,7 +92,7 @@ fun AppNavHost(
             WorkspaceScreen(
                 projectName = project.name,
                 uiState = uiState,
-                callbacks = dev.tabcode.app.ui.screens.workspace.WorkspaceCallbacks(
+                callbacks = dev.easyide.app.ui.screens.workspace.WorkspaceCallbacks(
                     onFileOpened = workspaceViewModel::onFileOpened,
                     onDirectoryToggled = workspaceViewModel::onDirectoryToggled,
                     onRefreshTree = workspaceViewModel::refreshTree,

@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox.shell
+package dev.easyide.sandbox.shell
 
 import kotlinx.coroutines.CoroutineDispatcher
 import java.io.File

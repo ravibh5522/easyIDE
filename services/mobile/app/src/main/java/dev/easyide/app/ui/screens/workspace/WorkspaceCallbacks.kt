@@ -1,7 +1,7 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.ui.text.input.TextFieldValue
-import dev.tabcode.sandbox.files.FileNode
+import dev.easyide.sandbox.files.FileNode
 
 /**
  * Every action the workspace can raise, in one holder.

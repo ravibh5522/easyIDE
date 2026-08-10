@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.foundation
+package dev.easyide.app.ui.foundation
 
 import android.animation.ValueAnimator
 import androidx.compose.animation.core.FiniteAnimationSpec

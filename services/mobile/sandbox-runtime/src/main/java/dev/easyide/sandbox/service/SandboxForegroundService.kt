@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox.service
+package dev.easyide.sandbox.service
 
 import android.app.Notification
 import android.app.NotificationChannel

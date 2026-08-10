@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox.files
+package dev.easyide.sandbox.files
 
 /**
  * Outcome of asking to open a file. Opening is a policy decision, not just a

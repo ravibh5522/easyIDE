@@ -1,15 +1,15 @@
-package dev.tabcode.app.ui
+package dev.easyide.app.ui
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.tabcode.app.AppContainer
-import dev.tabcode.app.ui.screens.home.HomeViewModel
-import dev.tabcode.app.ui.screens.newproject.NewProjectViewModel
-import dev.tabcode.app.ui.screens.settings.SettingsViewModel
-import dev.tabcode.app.ui.screens.workspace.WorkspaceViewModel
+import dev.easyide.app.AppContainer
+import dev.easyide.app.ui.screens.home.HomeViewModel
+import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
+import dev.easyide.app.ui.screens.settings.SettingsViewModel
+import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
 
 /**
  * Bridges the manually-wired [AppContainer] into ViewModel construction.

@@ -1,6 +1,6 @@
-package dev.tabcode.app.data
+package dev.easyide.app.data
 
-import dev.tabcode.sandbox.model.SandboxImage
+import dev.easyide.sandbox.model.SandboxImage
 
 /**
  * The sandbox presets offered when creating an environment.

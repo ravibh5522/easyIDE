@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.components
+package dev.easyide.app.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.foundation.motionSpec
 
 /**
  * A selectable option with a title, an explanation, and optional trailing

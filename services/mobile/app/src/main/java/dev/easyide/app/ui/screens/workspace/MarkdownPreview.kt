@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -29,8 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.tabcode.app.ui.theme.EditorColors
-import dev.tabcode.app.ui.theme.editorColors
+import dev.easyide.app.ui.theme.EditorColors
+import dev.easyide.app.ui.theme.editorColors
 
 /** One rendered markdown block. */
 private sealed interface MarkdownBlock {

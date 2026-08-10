@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
@@ -12,7 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import dev.tabcode.sandbox.files.FileNode
+import dev.easyide.sandbox.files.FileNode
 
 /** What the explorer's long-press menu can do to a node. */
 enum class FileAction {

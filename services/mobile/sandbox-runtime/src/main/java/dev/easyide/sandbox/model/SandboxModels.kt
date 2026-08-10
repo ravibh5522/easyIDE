@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox.model
+package dev.easyide.sandbox.model
 
 /**
  * Which isolation mechanism an environment runs under.
@@ -59,7 +59,7 @@ data class ProjectRecord(
      * A SAF tree URI (as a string) the project's files are mirrored to, or
      * null when the project lives only in app-private storage. The mirror is
      * one-directional and best-effort - see
-     * [dev.tabcode.sandbox.external.ExternalFolderSync] for why the app-private
+     * [dev.easyide.sandbox.external.ExternalFolderSync] for why the app-private
      * copy, not this folder, is what the sandbox actually runs against.
      */
     val externalFolderUri: String? = null,

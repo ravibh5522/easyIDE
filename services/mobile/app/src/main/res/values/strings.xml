@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">tab-code</string>
+    <string name="app_name">easyIDE</string>
 
     <string name="nav_home">Projects</string>
     <string name="nav_workspace">Workspace</string>

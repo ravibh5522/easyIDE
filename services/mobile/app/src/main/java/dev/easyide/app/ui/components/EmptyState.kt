@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.components
+package dev.easyide.app.ui.components
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -24,8 +24,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import dev.tabcode.app.ui.foundation.LocalMotionEnabled
-import dev.tabcode.app.ui.foundation.MotionTokens
+import dev.easyide.app.ui.foundation.LocalMotionEnabled
+import dev.easyide.app.ui.foundation.MotionTokens
 
 /**
  * Shared empty state. The icon breathes slowly to keep an otherwise dead screen

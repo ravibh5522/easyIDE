@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox.bootstrap
+package dev.easyide.sandbox.bootstrap
 
 import android.content.Context
 import java.io.File

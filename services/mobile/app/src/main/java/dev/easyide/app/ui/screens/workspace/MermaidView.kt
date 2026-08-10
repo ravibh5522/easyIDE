@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.screens.workspace
+package dev.easyide.app.ui.screens.workspace
 
 import android.annotation.SuppressLint
 import android.webkit.JavascriptInterface
@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import dev.tabcode.app.ui.theme.editorColors
+import dev.easyide.app.ui.theme.editorColors
 
 /**
  * Renders a mermaid diagram with the bundled mermaid.js (MIT, v11.16.1) inside
@@ -128,7 +128,7 @@ private fun Color.luminance(): Float = RED_WEIGHT * red + GREEN_WEIGHT * green +
 private fun String.escapeHtml(): String =
     replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-private const val BRIDGE_NAME = "TabCodeMermaid"
+private const val BRIDGE_NAME = "EasyIdeMermaid"
 private const val ASSET_BASE_URL = "file:///android_asset/"
 private const val MERMAID_ASSET = "web/mermaid.min.js"
 private const val MIME_TYPE = "text/html"

@@ -1,4 +1,4 @@
-package dev.tabcode.app.ui.theme
+package dev.easyide.app.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

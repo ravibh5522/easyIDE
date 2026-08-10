@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox
+package dev.easyide.sandbox
 
 import java.io.File
 

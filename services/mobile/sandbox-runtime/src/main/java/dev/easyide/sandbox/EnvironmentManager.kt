@@ -1,11 +1,11 @@
-package dev.tabcode.sandbox
+package dev.easyide.sandbox
 
-import dev.tabcode.sandbox.bootstrap.BootstrapSource
-import dev.tabcode.sandbox.bootstrap.TarGzExtractor
-import dev.tabcode.sandbox.model.EnvironmentState
-import dev.tabcode.sandbox.model.SandboxBackend
-import dev.tabcode.sandbox.model.SandboxEnvironment
-import dev.tabcode.sandbox.store.SandboxStore
+import dev.easyide.sandbox.bootstrap.BootstrapSource
+import dev.easyide.sandbox.bootstrap.TarGzExtractor
+import dev.easyide.sandbox.model.EnvironmentState
+import dev.easyide.sandbox.model.SandboxBackend
+import dev.easyide.sandbox.model.SandboxEnvironment
+import dev.easyide.sandbox.store.SandboxStore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

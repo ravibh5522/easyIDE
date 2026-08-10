@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "tab-code-mobile"
+rootProject.name = "easyIDE-mobile"
 
 include(":app")
 include(":sandbox-runtime")

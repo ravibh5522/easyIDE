@@ -1,4 +1,4 @@
-package dev.tabcode.sandbox.bootstrap
+package dev.easyide.sandbox.bootstrap
 
 import java.io.IOException
 import java.io.InputStream

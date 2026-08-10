@@ -1,4 +1,4 @@
-package dev.tabcode.app.data
+package dev.easyide.app.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import dev.tabcode.app.ui.theme.ThemeMode
+import dev.easyide.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map

@@ -1,12 +1,12 @@
-package dev.tabcode.sandbox
+package dev.easyide.sandbox
 
 import android.net.Uri
-import dev.tabcode.sandbox.external.ExternalFolderSync
-import dev.tabcode.sandbox.files.FileNode
-import dev.tabcode.sandbox.files.ProjectFiles
-import dev.tabcode.sandbox.model.EnvironmentState
-import dev.tabcode.sandbox.model.ProjectRecord
-import dev.tabcode.sandbox.store.SandboxStore
+import dev.easyide.sandbox.external.ExternalFolderSync
+import dev.easyide.sandbox.files.FileNode
+import dev.easyide.sandbox.files.ProjectFiles
+import dev.easyide.sandbox.model.EnvironmentState
+import dev.easyide.sandbox.model.ProjectRecord
+import dev.easyide.sandbox.store.SandboxStore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
