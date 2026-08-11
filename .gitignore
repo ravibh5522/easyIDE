@@ -1,2 +1,24 @@
 /.claude
 /docs
+
+# Gradle / Android build output
+build/
+.gradle/
+local.properties
+*.apk
+*.aab
+*.aar
+*.ap_
+*.dex
+captures/
+.cxx/
+
+# Signing material -- never commit these
+*.jks
+*.keystore
+keystore.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store

@@ -97,7 +97,7 @@ private fun MarkdownBlockView(block: MarkdownBlock) {
                     .padding(end = 10.dp)
                     .width(QUOTE_BAR_DP.dp)
                     .height(QUOTE_BAR_HEIGHT_DP.dp)
-                    .background(colors.keyword),
+                    .background(colors.syntax.keyword),
             )
             Text(
                 text = block.text,
@@ -277,7 +277,7 @@ private fun inline(text: String, colors: EditorColors): AnnotatedString {
         when (kind) {
             InlineKind.CODE -> builder.appendStyled(
                 found.value.trim('`'),
-                SpanStyle(fontFamily = FontFamily.Monospace, color = colors.string),
+                SpanStyle(fontFamily = FontFamily.Monospace, color = colors.syntax.string),
             )
 
             InlineKind.BOLD -> builder.appendStyled(
@@ -300,7 +300,7 @@ private fun inline(text: String, colors: EditorColors): AnnotatedString {
                         url = url,
                         styles = TextLinkStyles(
                             style = SpanStyle(
-                                color = colors.keyword,
+                                color = colors.syntax.keyword,
                                 textDecoration = TextDecoration.Underline,
                             ),
                         ),

@@ -21,6 +21,10 @@ redistributing these.
 | [libandroid-shmem](https://github.com/termux/libandroid-shmem) | `assets/sandbox/*/libandroid-shmem.so` | BSD-3-Clause | 2026-08-10, repo metadata |
 | [Mermaid](https://github.com/mermaid-js/mermaid) 11.16.1 | `assets/web/mermaid.min.js` | MIT | 2026-08-10, npm registry |
 | Kotlin, AndroidX, Jetpack Compose, Material 3, Material Symbols | Gradle dependencies | Apache-2.0 | 2026-08-10 |
+| [kotlin-textmate](https://github.com/ivan-magda/kotlin-textmate) 0.2.0 (TextMate tokenizer) | Gradle dependency | MIT | 2026-08-11, upstream `LICENSE` |
+| [joni](https://github.com/jruby/joni) + jcodings (Oniguruma regex, pulled in by the tokenizer) | Gradle dependency | MIT | 2026-08-11, upstream `LICENSE` |
+| Gson | Gradle dependency | Apache-2.0 | 2026-08-11 |
+| **229 TextMate grammars** via [tm-grammars](https://github.com/shikijs/textmate-grammars-themes) (MIT packaging) | `assets/grammars/*.json` | MIT x194, Apache-2.0 x22, TextMate-permissive x8, MPL-2.0 x3, ISC x1, BSD-3-Clause x1 | 2026-08-11, per-grammar from the `tm-grammars` NOTICE |
 
 ### Obligations this creates
 
@@ -36,6 +40,35 @@ redistributing these.
   bound by the GPL and LGPL terms for these two components.
 - If PRoot is ever **linked into** the app process rather than exec'd, this
   analysis no longer holds and the licensing model must be revisited.
+
+#### Bundled grammars: what was deliberately excluded
+
+The grammar set is filtered by licence at build time by
+[tools/build-grammars.py](tools/build-grammars.py), because easyIDE is sold
+commercially ([decision 0008](docs/decision/0008-noncommercial-source-available-licensing.md)).
+**31 of the 260 upstream grammars are not shipped**: 5 are GPL-3.0 (`ada`,
+`gnuplot`, `nginx`, `org`, `racket`), 1 is marked `GNU` (`ahk2`), and 25 have no
+licence that could be established from the upstream repository. Those 25 are not
+a licensing judgement, only an unresolved question -- each can be added once its
+upstream terms are confirmed.
+
+The 8 grammars recorded as `TextMate-permissive` come from `github.com/textmate/*`
+bundles, whose stated terms are: *"Permission to copy, use, modify, sell and
+distribute this software is granted."* Verified 2026-08-11 against
+`textmate/yaml.tmbundle`.
+
+The MPL-2.0 grammars (`bird2`, `hcl`, `terraform`) are file-level copyleft: they
+may be shipped unmodified alongside proprietary code, and only those files carry
+the obligation.
+
+Four grammars (`jinja`, `xml`, `stata`, `wikitext`) are **structurally repaired**
+at build time -- their `captures` blocks deviate from the TextMate schema and do
+not parse otherwise. The repair is mechanical and recorded in the build script;
+no grammar rules are changed.
+
+[GitHub Linguist](https://github.com/github-linguist/linguist) (MIT) supplies the
+extension-to-scope mapping. It is read at **build time only** and no Linguist
+code or data ships in the APK.
 
 ## Downloaded at runtime, not bundled
 

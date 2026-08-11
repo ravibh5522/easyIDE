@@ -53,8 +53,20 @@ object FilePolicy {
     /** How much of an oversized file the read-only viewer loads. */
     const val TEXT_VIEW_PREFIX_BYTES = 2L * 1024 * 1024
 
-    /** Syntax colouring is disabled above this; it costs O(size) per keystroke. */
-    const val HIGHLIGHT_MAX_BYTES = 128L * 1024
+    /**
+     * Syntax colouring is disabled above this, and the tab says so.
+     *
+     * Deliberately equal to [TEXT_EDIT_MAX_BYTES]: **anything the editor will
+     * let you edit, it will colour.** That only became affordable once the
+     * tokenizer stopped costing O(size) per change - it now keeps per-line state
+     * so an edit re-scans from the changed line, and only styles the lines in
+     * the viewport, so cost tracks what is on screen rather than file length.
+     *
+     * The binding limit above this is the text field itself, not colouring:
+     * a single field holding more than this stalls layout regardless of spans,
+     * which is what [TEXT_EDIT_MAX_BYTES] already encodes.
+     */
+    const val HIGHLIGHT_MAX_BYTES = TEXT_EDIT_MAX_BYTES
 
     /** Binaries above this are refused outright rather than hex-dumped. */
     const val BINARY_PREVIEW_MAX_BYTES = 128L * 1024

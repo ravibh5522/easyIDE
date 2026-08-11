@@ -48,6 +48,19 @@ internal object GuestEnvironment {
     const val DEFAULT_TERM = "xterm-256color"
     const val DEFAULT_LANG = "C.UTF-8"
 
+    /**
+     * The unprivileged user `RootfsProvisioner.createDefaultUser` writes into
+     * every rootfs, and that `SandboxShell.interactiveParams` switches
+     * interactive shells to via `su` when it is present. Named once here so
+     * both agree - see `createDefaultUser`'s doc comment for why this is
+     * cosmetic (prompt/`whoami` only), not a real privilege boundary.
+     */
+    const val DEFAULT_USER = "dev"
+    const val DEFAULT_UID = 1000
+
+    /** Where a session with no bound project lands - root's own home, matching a real login. */
+    const val GUEST_HOME = "/root"
+
     fun defaults(home: String): Map<String, String> = mapOf(
         HOME to home,
         PATH to DEFAULT_PATH,

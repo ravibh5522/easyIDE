@@ -25,13 +25,11 @@ data class EditorColors(
     val statusBarText: Color,
     val tabActive: Color,
     val tabInactive: Color,
-    val keyword: Color,
-    val string: Color,
-    val comment: Color,
-    val number: Color,
     val plainText: Color,
+    val syntax: SyntaxColors,
     val terminalText: Color,
     val terminalPrompt: Color,
+    val terminalBackground: Color,
 )
 
 private val DarkEditorColors = EditorColors(
@@ -45,13 +43,14 @@ private val DarkEditorColors = EditorColors(
     statusBarText = Color(0xFFFFFFFF),
     tabActive = Color(0xFF1E1E1E),
     tabInactive = Color(0xFF2D2D2D),
-    keyword = Color(0xFF569CD6),
-    string = Color(0xFFCE9178),
-    comment = Color(0xFF6A9955),
-    number = Color(0xFFB5CEA8),
     plainText = Color(0xFFD4D4D4),
+    syntax = DarkSyntaxColors,
     terminalText = Color(0xFFCCCCCC),
     terminalPrompt = Color(0xFF4EC9B0),
+    // Matches com.termux.terminal.TerminalColorScheme's own default
+    // background - the vendored terminal-emulator paints its own colors
+    // natively and isn't theme-aware yet, so this is fixed, not derived.
+    terminalBackground = Color(0xFF000000),
 )
 
 private val LightEditorColors = EditorColors(
@@ -65,13 +64,11 @@ private val LightEditorColors = EditorColors(
     statusBarText = Color(0xFFFFFFFF),
     tabActive = Color(0xFFFFFFFF),
     tabInactive = Color(0xFFECECEC),
-    keyword = Color(0xFF0000FF),
-    string = Color(0xFFA31515),
-    comment = Color(0xFF008000),
-    number = Color(0xFF098658),
     plainText = Color(0xFF000000),
+    syntax = LightSyntaxColors,
     terminalText = Color(0xFF333333),
     terminalPrompt = Color(0xFF007ACC),
+    terminalBackground = Color(0xFF000000),
 )
 
 /** True-black variant so the AMOLED theme stays consistent inside the editor. */

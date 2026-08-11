@@ -49,6 +49,7 @@ private sealed interface PendingPrompt {
     data class NewFolder(val parentDir: String) : PendingPrompt
     data class Rename(val node: FileNode) : PendingPrompt
     data class Delete(val node: FileNode) : PendingPrompt
+    data class RenameTerminal(val tabId: String, val currentTitle: String) : PendingPrompt
 }
 
 /**
@@ -132,17 +133,14 @@ fun WorkspaceScreen(
                                 Column {
                                     HorizontalDividerLine()
                                     TerminalPane(
-                                        sessions = uiState.terminals,
-                                        activeSessionId = uiState.activeTerminalId,
+                                        tabs = uiState.terminals,
+                                        activeTabId = uiState.activeTerminalId,
                                         linuxReady = uiState.linuxReady,
                                         isInstalling = uiState.isInstalling,
-                                        onInputChanged = callbacks.onTerminalInputChanged,
-                                        onSubmit = callbacks.onTerminalSubmit,
-                                        onKey = callbacks.onTerminalKey,
-                                        onCancelCommand = callbacks.onCancelCommand,
-                                        onNewSession = callbacks.onNewTerminal,
-                                        onSelectSession = callbacks.onSelectTerminal,
-                                        onCloseSession = callbacks.onCloseTerminal,
+                                        onNewTab = callbacks.onNewTerminal,
+                                        onSelectTab = callbacks.onSelectTerminal,
+                                        onCloseTab = callbacks.onCloseTerminal,
+                                        onRenameTab = { id, title -> prompt = PendingPrompt.RenameTerminal(id, title) },
                                         onInstallLinux = callbacks.onInstallLinux,
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -243,6 +241,14 @@ private fun PromptDialogs(
         is PendingPrompt.Delete -> ConfirmDeleteDialog(
             node = prompt.node,
             onConfirm = { callbacks.onDelete(prompt.node); onDismiss() },
+            onDismiss = onDismiss,
+        )
+
+        is PendingPrompt.RenameTerminal -> NameInputDialog(
+            title = "Rename terminal",
+            initialValue = prompt.currentTitle,
+            confirmLabel = "Rename",
+            onConfirm = { name -> callbacks.onRenameTerminal(prompt.tabId, name); onDismiss() },
             onDismiss = onDismiss,
         )
     }

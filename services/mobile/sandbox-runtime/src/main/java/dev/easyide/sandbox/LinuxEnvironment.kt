@@ -5,6 +5,7 @@ import dev.easyide.sandbox.bootstrap.ProgressReporter
 import dev.easyide.sandbox.bootstrap.ProotInstaller
 import dev.easyide.sandbox.bootstrap.RootfsProvisioner
 import dev.easyide.sandbox.model.SandboxImage
+import dev.easyide.sandbox.shell.PtyShellParams
 import dev.easyide.sandbox.shell.SandboxShell
 import dev.easyide.sandbox.shell.ShellRunner
 import dev.easyide.sandbox.shell.TerminalProcess
@@ -148,6 +149,26 @@ class LinuxEnvironment(
         provisioner.ensureGuestDefaults(rootfsFor(environmentId))
         return SandboxShell(installation, ioDispatcher).start(
             command = command,
+            rootfs = rootfsFor(environmentId),
+            hostProjectDir = hostProjectDir,
+            guestProjectPath = paths.guestProjectPath(),
+        )
+    }
+
+    /**
+     * Params for a real, pty-backed interactive shell - see
+     * [SandboxShell.interactiveParams]. Same proot-ready-or-fallback choice as
+     * [start], since a real terminal is strictly better than the line-based
+     * one for either backend and the caller should not need to care which
+     * world it is in any more than [start]'s callers do.
+     */
+    suspend fun interactiveShellParams(environmentId: String, hostProjectDir: File): PtyShellParams {
+        if (!isReady(environmentId)) {
+            return fallbackShell.interactiveParams(hostProjectDir)
+        }
+        val installation = prootInstaller.ensureInstalled(paths.runtimeDir).getOrThrow()
+        provisioner.ensureGuestDefaults(rootfsFor(environmentId))
+        return SandboxShell(installation, ioDispatcher).interactiveParams(
             rootfs = rootfsFor(environmentId),
             hostProjectDir = hostProjectDir,
             guestProjectPath = paths.guestProjectPath(),

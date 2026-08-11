@@ -28,7 +28,10 @@ import kotlinx.coroutines.flow.first
  */
 class AppContainer(context: Context) {
 
-    private val appContext = context.applicationContext
+    // Public and safe to hold anywhere: this is the Application context
+    // itself, not an Activity - PtyTerminalTab sessions need it for
+    // clipboard access and outlive any single screen.
+    val appContext: Context = context.applicationContext
 
     /** Outlives any screen; sandbox state must survive navigation. */
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)

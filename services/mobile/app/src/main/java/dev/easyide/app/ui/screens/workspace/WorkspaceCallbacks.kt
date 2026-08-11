@@ -1,6 +1,5 @@
 package dev.easyide.app.ui.screens.workspace
 
-import androidx.compose.ui.text.input.TextFieldValue
 import dev.easyide.sandbox.files.FileNode
 
 /**
@@ -30,13 +29,10 @@ data class WorkspaceCallbacks(
     val onPaste: (String) -> Unit,
     val absolutePathOf: (FileNode) -> String,
 
-    val onTerminalInputChanged: (TextFieldValue) -> Unit,
-    val onTerminalSubmit: () -> Unit,
-    val onTerminalKey: (TerminalKey) -> Unit,
-    val onCancelCommand: () -> Unit,
     val onNewTerminal: () -> Unit,
     val onSelectTerminal: (String) -> Unit,
     val onCloseTerminal: (String) -> Unit,
+    val onRenameTerminal: (String, String) -> Unit,
 
     val onInstallLinux: () -> Unit,
     val onStatusShown: () -> Unit,

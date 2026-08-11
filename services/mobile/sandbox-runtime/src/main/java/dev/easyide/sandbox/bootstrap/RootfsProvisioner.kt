@@ -1,6 +1,7 @@
 package dev.easyide.sandbox.bootstrap
 
 import dev.easyide.sandbox.SandboxError
+import dev.easyide.sandbox.backend.GuestEnvironment
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -65,6 +66,7 @@ class RootfsProvisioner(
         runCatching { configureDns(rootfs) }
         runCatching { installSudoShim(rootfs) }
         runCatching { removePaxHeaderArtifacts(rootfs) }
+        runCatching { createDefaultUser(rootfs) }
     }
 
     /**
@@ -167,6 +169,52 @@ class RootfsProvisioner(
         if (sudo.isFile && sudo.readText() == SUDO_SHIM) return
         sudo.writeText(SUDO_SHIM)
         sudo.setExecutable(true, false)
+    }
+
+    /**
+     * Adds a real, unprivileged `dev` user (uid/gid [DEFAULT_UID]) that
+     * [SandboxShell.interactiveParams] switches to via `su` for interactive
+     * shells, so `whoami` and the prompt no longer say root by default.
+     *
+     * **No longer switched to for interactive shells.** The claim that used to
+     * sit here - that permission checks inside a `su`'d shell still resolve to
+     * uid 0 under proot - is wrong. Measured on a Xiaomi Pad 6: after
+     * `su - dev`, `id -u` reports `1000`, and `apt-get install` fails with
+     * `dpkg: error: requested operation requires superuser privilege`. `sudo`
+     * did not help either, because [installSudoShim] is a pass-through that
+     * assumes its caller is already root. The sandbox could not install
+     * anything, so `SandboxShell.interactiveParams` now runs the guest's root
+     * shell directly.
+     *
+     * The user is still created: it costs nothing, and a non-root account is
+     * wanted by tools that refuse to run as root. Anything switching to it
+     * needs real `sudo` first, not the shim.
+     *
+     * Written directly rather than via `useradd` so it does not depend on
+     * `shadow-utils` being installed for a given preset - every distro rootfs
+     * ships `/etc/passwd`, even a minimal one.
+     */
+    private fun createDefaultUser(rootfs: File) {
+        val user = GuestEnvironment.DEFAULT_USER
+        val uid = GuestEnvironment.DEFAULT_UID
+        val passwd = File(rootfs, "etc/passwd")
+        if (!passwd.isFile) return
+        if (passwd.readLines().any { it.startsWith("$user:") }) return
+
+        passwd.appendText("$user:x:$uid:$uid::/home/$user:/bin/sh\n")
+        File(rootfs, "etc/group").takeIf { it.isFile }
+            ?.appendText("$user:x:$uid:\n")
+        // No real authentication ever happens - `su` invoked by (fake) root
+        // needs no password - so the shadow entry only has to exist, not work.
+        File(rootfs, "etc/shadow").takeIf { it.isFile }
+            ?.appendText("$user:!:::::::\n")
+
+        val home = File(rootfs, "home/$user").apply { mkdirs() }
+        // Matches what `useradd -m` does: without this, `su -` still works
+        // but lands in an empty home with no .profile, so the shell falls
+        // back to dash's bare built-in prompt instead of the distro's own.
+        File(rootfs, "etc/skel").takeIf { it.isDirectory }
+            ?.copyRecursively(home, overwrite = false)
     }
 
     private companion object {

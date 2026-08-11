@@ -2,9 +2,10 @@ package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,227 +13,179 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.termux.view.TerminalView
 import dev.easyide.app.R
 import dev.easyide.app.ui.theme.editorColors
 
 /**
- * Terminal panel: tabs across the top, one scrollback below, and an accessory
- * key row pinned to the bottom.
+ * Terminal panel: tabs across the top, a real pty-backed terminal below, and
+ * an accessory key row pinned to the bottom.
  *
- * The prompt is the last row of the scrollback rather than a separate input
- * box, so typing happens where the output is - the way a real terminal reads.
- * Tapping anywhere in the scrollback focuses the prompt.
+ * "Real" here means [TerminalView] (from the vendored `terminal-view`
+ * library) owns the whole screen - cursor, scrollback, ANSI colors, full
+ * -screen programs like `vim` or `htop` - the way a genuine terminal
+ * emulator does. There is no separate input row: typing happens wherever the
+ * shell's own cursor is, exactly like a desktop terminal, because this
+ * *is* one now rather than a scrolling list of captured output lines.
  */
 @Composable
 fun TerminalPane(
-    sessions: List<TerminalSession>,
-    activeSessionId: String?,
+    tabs: List<PtyTerminalTab>,
+    activeTabId: String?,
     linuxReady: Boolean,
     isInstalling: Boolean,
-    onInputChanged: (TextFieldValue) -> Unit,
-    onSubmit: () -> Unit,
-    onKey: (TerminalKey) -> Unit,
-    onCancelCommand: () -> Unit,
-    onNewSession: () -> Unit,
-    onSelectSession: (String) -> Unit,
-    onCloseSession: (String) -> Unit,
+    onNewTab: () -> Unit,
+    onSelectTab: (String) -> Unit,
+    onCloseTab: (String) -> Unit,
+    onRenameTab: (String, String) -> Unit,
     onInstallLinux: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = editorColors
-    val session = sessions.find { it.id == activeSessionId } ?: sessions.firstOrNull()
-    val listState = rememberLazyListState()
-    val focusRequester = remember { FocusRequester() }
-
-    // Follow output, and keep the prompt visible while typing.
-    LaunchedEffect(session?.id, session?.lines?.size) {
-        val count = session?.lines?.size ?: 0
-        if (count > 0) listState.animateScrollToItem(count)
-    }
+    val tab = tabs.find { it.id == activeTabId } ?: tabs.firstOrNull()
 
     Column(modifier = modifier.fillMaxSize().background(colors.background)) {
         TerminalTabBar(
-            sessions = sessions,
-            activeSessionId = session?.id,
+            tabs = tabs,
+            activeTabId = tab?.id,
             linuxReady = linuxReady,
             isInstalling = isInstalling,
-            onSelectSession = onSelectSession,
-            onCloseSession = onCloseSession,
-            onNewSession = onNewSession,
+            onSelectTab = onSelectTab,
+            onCloseTab = onCloseTab,
+            onRenameTab = onRenameTab,
+            onNewTab = onNewTab,
             onInstallLinux = onInstallLinux,
         )
 
-        if (session == null) return@Column
+        if (tab == null) return@Column
 
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clickable(
-                    // No ripple: this is a big invisible tap target for focus,
-                    // not a button.
-                    indication = null,
-                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                ) { focusRequester.requestFocus() }
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-        ) {
-            itemsIndexed(session.lines) { _, line ->
-                Text(
-                    text = line.text,
-                    style = codeTextStyle().copy(
-                        color = if (line.isCommand) colors.terminalPrompt else colors.terminalText,
-                    ),
-                )
-            }
+        EasyTerminalView(
+            tab = tab,
+            modifier = Modifier.fillMaxWidth().weight(1f),
+        )
 
-            item {
-                PromptRow(
-                    input = session.input,
-                    isRunning = session.isRunning,
-                    focusRequester = focusRequester,
-                    onInputChanged = onInputChanged,
-                    onSubmit = onSubmit,
-                    onCancelCommand = onCancelCommand,
-                )
-            }
-        }
-
-        TerminalKeyRow(onKey = onKey)
+        // Writing to a TerminalSession is a plain, synchronous, non-suspending
+        // queue push - no ViewModel round trip needed, the same way a tap
+        // inside MermaidView's WebView does not need one either.
+        TerminalKeyRow(onKey = { key -> tab.session.write(key.bytes) })
     }
 }
 
 /**
- * The prompt stays editable while a command runs: Enter then writes to the
- * process's stdin, which is how an interactive program gets answered. The
- * spinner and Stop are what mark the difference.
+ * Hosts a single [TerminalView] (a plain Android `View`, wrapped the same way
+ * [MermaidView] wraps a `WebView`) and keeps it attached to whichever tab is
+ * active. Text size is set once up front - the view needs it before its first
+ * real layout pass, since `attachSession()` calls `updateSize()` immediately
+ * and that dereferences the renderer.
  */
 @Composable
-private fun PromptRow(
-    input: TextFieldValue,
-    isRunning: Boolean,
-    focusRequester: FocusRequester,
-    onInputChanged: (TextFieldValue) -> Unit,
-    onSubmit: () -> Unit,
-    onCancelCommand: () -> Unit,
-) {
+private fun EasyTerminalView(tab: PtyTerminalTab, modifier: Modifier = Modifier) {
+    val density = LocalDensity.current
+    val textSizePx = remember(density) { with(density) { TERMINAL_FONT_SP.sp.roundToPx() } }
+    val client = remember { EasyTerminalViewClient() }
     val colors = editorColors
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Text(text = PROMPT, style = codeTextStyle().copy(color = colors.terminalPrompt))
-
-        if (isRunning) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(PROGRESS_DP.dp),
-                strokeWidth = PROGRESS_STROKE_DP.dp,
-                color = colors.terminalPrompt,
-            )
-        }
-
-        BasicTextField(
-            value = input,
-            onValueChange = onInputChanged,
-            singleLine = true,
-            textStyle = codeTextStyle().copy(color = colors.terminalText),
-            cursorBrush = SolidColor(colors.terminalText),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-            keyboardActions = KeyboardActions(onGo = { onSubmit() }),
-            modifier = Modifier
-                .weight(1f)
-                .focusRequester(focusRequester),
-        )
-
-        if (isRunning) {
-            TextButton(
-                onClick = onCancelCommand,
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.terminal_stop),
-                    style = MaterialTheme.typography.labelSmall,
-                )
+    AndroidView(
+        factory = { context ->
+            TerminalView(context, null).apply {
+                isFocusable = true
+                isFocusableInTouchMode = true
+                setTerminalViewClient(client)
+                setTextSize(textSizePx)
+                // The client raises the soft keyboard on tap and needs the view
+                // to do it; the view does not hand itself to the client.
+                client.terminalView = this
             }
-        }
-    }
+        },
+        update = { view ->
+            // TerminalView does not redraw itself when the session's screen
+            // buffer changes - it has to be told to. Reassigned on every
+            // recomposition (idempotent) rather than only on attach, so this
+            // stays correct if Compose ever recreates the AndroidView.
+            tab.client.onScreenChanged = { view.onScreenUpdated(); view.invalidate() }
+            // attachSession() itself no-ops (returns false) when already
+            // attached to this exact session, so this only steals focus on a
+            // real tab switch, not on every unrelated recomposition.
+            if (view.attachSession(tab.session)) view.requestFocus()
+        },
+        // TerminalView ignores Android View padding entirely (it lays out
+        // columns from measured width, not padding-adjusted width), so the
+        // margin has to come from Compose padding around it instead - with a
+        // matching background so the margin reads as inset, not a mismatched
+        // strip next to the terminal's own black canvas.
+        modifier = modifier
+            .background(colors.terminalBackground)
+            .padding(horizontal = TERMINAL_HORIZONTAL_PADDING_DP.dp),
+    )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TerminalTabBar(
-    sessions: List<TerminalSession>,
-    activeSessionId: String?,
+    tabs: List<PtyTerminalTab>,
+    activeTabId: String?,
     linuxReady: Boolean,
     isInstalling: Boolean,
-    onSelectSession: (String) -> Unit,
-    onCloseSession: (String) -> Unit,
-    onNewSession: () -> Unit,
+    onSelectTab: (String) -> Unit,
+    onCloseTab: (String) -> Unit,
+    onRenameTab: (String, String) -> Unit,
+    onNewTab: () -> Unit,
     onInstallLinux: () -> Unit,
 ) {
     val colors = editorColors
 
     Row(
         modifier = Modifier.fillMaxWidth().background(colors.panel),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
         // Tabs scroll; the install action stays pinned. weight() cannot live
         // inside the scrolling row - its width constraint is unbounded there.
         Row(
             modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
         ) {
-        sessions.forEach { session ->
-            val active = session.id == activeSessionId
+        tabs.forEach { tab ->
+            val active = tab.id == activeTabId
             Row(
                 modifier = Modifier
                     .background(if (active) colors.tabActive else colors.panel)
-                    .clickable { onSelectSession(session.id) }
+                    .combinedClickable(
+                        onClick = { onSelectTab(tab.id) },
+                        onLongClick = { onRenameTab(tab.id, tab.title) },
+                    )
                     .padding(horizontal = 10.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
-                    text = session.title,
+                    text = tab.title,
                     style = MaterialTheme.typography.labelSmall,
                     color = if (active) colors.plainText else colors.gutterText,
                 )
-                if (sessions.size > 1) {
+                if (tabs.size > 1) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Close ${session.title}",
+                        contentDescription = "Close ${tab.title}",
                         tint = colors.gutterText,
                         modifier = Modifier
                             .size(TAB_ICON_DP.dp)
-                            .clickable { onCloseSession(session.id) },
+                            .clickable { onCloseTab(tab.id) },
                     )
                 }
             }
@@ -245,11 +198,14 @@ private fun TerminalTabBar(
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .size(TAB_ICON_DP.dp)
-                .clickable(onClick = onNewSession),
+                .clickable(onClick = onNewTab),
         )
         }
 
         if (!linuxReady) {
+            // Install progress prints as real scrolling output into the
+            // terminal tab itself (see WorkspaceViewModel.appendInstallLog) -
+            // this button is just the start action plus a busy indicator.
             TextButton(
                 onClick = onInstallLinux,
                 enabled = !isInstalling,
@@ -268,7 +224,6 @@ private fun TerminalTabBar(
     }
 }
 
-private const val PROMPT = "$"
-private const val PROGRESS_DP = 14
-private const val PROGRESS_STROKE_DP = 2
 private const val TAB_ICON_DP = 14
+private const val TERMINAL_FONT_SP = 13
+private const val TERMINAL_HORIZONTAL_PADDING_DP = 8

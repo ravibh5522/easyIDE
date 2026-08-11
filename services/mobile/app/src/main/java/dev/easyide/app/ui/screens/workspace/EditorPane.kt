@@ -20,10 +20,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.OffsetMapping
@@ -32,8 +35,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.app.ui.theme.EditorColors
 import dev.easyide.app.ui.theme.editorColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import androidx.compose.ui.platform.LocalDensity
 
 /**
  * The code surface. Three modes, picked by what the tab holds:
@@ -76,10 +84,8 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
     val verticalScroll = rememberScrollState()
     val horizontalScroll = rememberScrollState()
 
-    val lineNumbers = remember(tab.content) {
-        (1..(tab.content.count { it == '\n' } + 1)).joinToString("\n")
-    }
-    val transformation = rememberHighlightTransformation(tab, colors)
+    val totalLines = remember(tab.content) { tab.content.count { it == '\n' } + 1 }
+    val lineNumbers = remember(totalLines) { (1..totalLines).joinToString("\n") }
 
     // The text field is only as large as its text, so tapping beside a short
     // line or below the last line used to hit nothing and the caret never
@@ -88,6 +94,15 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val viewportHeight = maxHeight
         val textMinWidth = maxWidth - GUTTER_WIDTH_DP.dp
+        val viewportPx = with(LocalDensity.current) { viewportHeight.toPx() }
+
+        val window = rememberVisibleLineWindow(
+            scrollOffsetPx = verticalScroll.value,
+            maxScrollPx = verticalScroll.maxValue,
+            viewportPx = viewportPx,
+            totalLines = totalLines,
+        )
+        val transformation = rememberHighlightTransformation(tab, colors, window)
 
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
             Text(
@@ -153,20 +168,107 @@ private fun ReadOnlySurface(tab: EditorTab) {
     }
 }
 
+/** Typing pause before re-colouring, so a burst of keystrokes costs one pass. */
+private const val HIGHLIGHT_DEBOUNCE_MS = 120L
+
+/** Lines coloured beyond the viewport, so a normal scroll never outruns the colour. */
+private const val HIGHLIGHT_OVERSCAN_LINES = 150
+
 /**
- * Memoised so colouring runs once per buffer change rather than on every
- * recomposition. Identity transform when highlighting is disabled.
+ * Scroll re-quantised to blocks of this many lines. Without it the window would
+ * change on every line crossed and re-key the highlight pass mid-fling.
+ */
+private const val HIGHLIGHT_WINDOW_BLOCK = 250
+
+/** Fallback window when the text has not been laid out yet and line height is unknown. */
+private const val HIGHLIGHT_INITIAL_LINES = 400
+
+/**
+ * The span of lines worth colouring right now.
+ *
+ * Quantised so that scrolling within a block does not restart the pass, and
+ * held as a value class so it can key [produceState] by equality.
+ */
+private data class LineWindow(val first: Int, val last: Int)
+
+/**
+ * Which lines are on screen, derived from the scroll state rather than from a
+ * measured text layout.
+ *
+ * `maxValue + viewport` is the full scrollable content height, and every line in
+ * a monospace editor is the same height, so the visible range follows from the
+ * scroll offset and the line count alone. An earlier version read the line
+ * height out of `onTextLayout`; that value never propagated, the window stayed
+ * pinned at its initial guess, and colour stopped after the first few hundred
+ * lines. This has no such dependency.
+ */
+@Composable
+private fun rememberVisibleLineWindow(
+    scrollOffsetPx: Int,
+    maxScrollPx: Int,
+    viewportPx: Float,
+    totalLines: Int,
+): LineWindow = remember(scrollOffsetPx, maxScrollPx, viewportPx, totalLines) {
+    val contentPx = maxScrollPx + viewportPx
+    if (totalLines <= 0 || contentPx <= 0f) return@remember LineWindow(0, HIGHLIGHT_INITIAL_LINES)
+
+    val lineHeightPx = contentPx / totalLines
+    if (lineHeightPx <= 0f) return@remember LineWindow(0, HIGHLIGHT_INITIAL_LINES)
+
+    val firstVisible = (scrollOffsetPx / lineHeightPx).toInt()
+    val visibleCount = (viewportPx / lineHeightPx).toInt() + 1
+    val rawFirst = (firstVisible - HIGHLIGHT_OVERSCAN_LINES).coerceAtLeast(0)
+    val rawLast = firstVisible + visibleCount + HIGHLIGHT_OVERSCAN_LINES
+
+    LineWindow(
+        first = rawFirst / HIGHLIGHT_WINDOW_BLOCK * HIGHLIGHT_WINDOW_BLOCK,
+        last = (rawLast / HIGHLIGHT_WINDOW_BLOCK + 1) * HIGHLIGHT_WINDOW_BLOCK,
+    )
+}
+
+/**
+ * Colouring runs off the composition thread, incrementally, over the visible
+ * window only.
+ *
+ * Three things keep this off the critical path, and all three are needed:
+ * the pass runs on [Dispatchers.Default] after a debounce; the tokenizer keeps
+ * per-line state so an edit only re-scans from the line that changed; and only
+ * the lines in [window] get spans, so the styled-span count stays flat however
+ * long the file is.
  */
 @Composable
 private fun rememberHighlightTransformation(
     tab: EditorTab,
     colors: EditorColors,
-): VisualTransformation = remember(tab.content, tab.name, tab.highlightingEnabled, colors) {
-    if (!tab.highlightingEnabled) {
-        VisualTransformation.None
-    } else {
-        val highlighted = SyntaxHighlighter.highlight(tab.content, tab.name, colors)
-        VisualTransformation { TransformedText(highlighted, OffsetMapping.Identity) }
+    window: LineWindow,
+): VisualTransformation {
+    val plain = remember(tab.content) { AnnotatedString(tab.content) }
+    val highlighted by produceState(
+        plain, tab.content, tab.relativePath, tab.highlightingEnabled, colors, window,
+    ) {
+        if (!tab.highlightingEnabled) {
+            value = plain
+            return@produceState
+        }
+        delay(HIGHLIGHT_DEBOUNCE_MS)
+        value = withContext(Dispatchers.Default) {
+            TextMateHighlighter.highlight(
+                key = tab.relativePath,
+                source = tab.content,
+                fileName = tab.name,
+                colors = colors.syntax,
+                firstLine = window.first,
+                lastLine = window.last,
+            )
+        }
+    }
+    return remember(highlighted) {
+        VisualTransformation { current ->
+            // A pass that finished against an older buffer must not be applied:
+            // VisualTransformation requires the text to match the field exactly.
+            val styled = if (highlighted.text == current.text) highlighted else current
+            TransformedText(styled, OffsetMapping.Identity)
+        }
     }
 }
 
@@ -222,3 +324,6 @@ private const val GUTTER_WIDTH_DP = 52
 private const val GUTTER_DIGIT_DP = 8
 private const val CODE_FONT_SP = 13
 private const val CODE_LINE_HEIGHT_SP = 20
+
+
+

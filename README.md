@@ -18,15 +18,22 @@ Per-component detail and evidence lives in the `tracker.md` files under [docs/](
   `apt-get update` fetches, `apt-get install git` completes, `dpkg --audit` comes back clean.
 - **Environment presets** -- bare Ubuntu, build tools, Node.js, or Python -- sharing one cached
   base tarball ([decision 0007](docs/decision/0007-sandbox-image-catalog-and-custom-rootfs.md)).
+- **A real PTY terminal.** Full-screen ncurses programs run: `cmatrix` was installed with
+  `apt-get` and rendered its animation live, then `^C` restored the shell with scrollback
+  intact. An Esc/Ctrl accessory row sits above the soft keyboard for the keys a touch
+  keyboard hides.
 - **A streaming, interactive terminal.** Output arrives as it is produced (~60 ms batches, so a
   long build never looks frozen), stdin stays open so commands that prompt actually work, and
   `\r` is handled as overwrite so progress bars collapse instead of flooding the scrollback.
   Multiple tabs, `^C`, command history, and an accessory key row for the shell symbols a soft
   keyboard buries two menus deep.
 - **A native IDE shell** ([decision 0006](docs/decision/0006-native-ide-shell-before-theia.md)):
-  activity rail, lazy-expanding file explorer, tabbed editor with a line-number gutter and
-  regex syntax colouring, and a status bar -- operating on real files. Saves survive a full
-  app restart.
+  activity rail, lazy-expanding file explorer, tabbed editor with a line-number gutter, and a
+  status bar -- operating on real files. Saves survive a full app restart.
+- **Syntax highlighting for 229 languages** using the same TextMate grammars VS Code uses,
+  bundled in the APK (1.35 MB) so it works offline with no download. All 229 grammars are
+  verified to compile, and the tokenizer is a real scope-aware parser -- `#include` is a
+  preprocessor directive in C, `//` is a division operator in Python.
 - **Markdown preview** with headings, lists, blockquotes, fenced code, tappable links, and
   **mermaid diagrams rendered offline** from a bundled copy of mermaid.
 - **Projects and environments** as separate things: environments are shareable and projects
@@ -40,12 +47,9 @@ Per-component detail and evidence lives in the `tracker.md` files under [docs/](
 
 Stated plainly, because a README that oversells is worse than one that is short:
 
-- **No PTY.** The terminal is an honest command runner, not a pseudo-terminal. `vim`, `htop`,
-  and any full-screen TUI will not work, and there is no Esc/Ctrl key row because there is
-  nothing to deliver those keystrokes to.
-- **No language intelligence.** No LSP, no completion, no diagnostics. Syntax colouring is a
-  set of regexes, not a parser. [Eclipse Theia](https://theia-ide.org/) is the planned
-  language/extension layer but is not integrated yet.
+- **No language intelligence.** No LSP, no completion, no diagnostics, no go-to-definition.
+  Syntax highlighting is real (see above), but it is lexical only -- it does not know what a
+  symbol *means*. Language servers are the planned next step.
 - **The Claude Code CLI is not wired up.** Installing and verifying it inside the sandbox is
   planned, not done.
 - **No git UI, no credential helper, no tmux session persistence, no ssh-agent.**

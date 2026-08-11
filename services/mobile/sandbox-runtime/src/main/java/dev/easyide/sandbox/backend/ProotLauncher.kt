@@ -34,12 +34,12 @@ class ProotLauncher(
                 addAll(listOf(ARG_BIND, "${host.absolutePath}:${request.guestProjectPath}"))
             }
 
-            addAll(listOf(ARG_CWD, request.hostProjectDir?.let { request.guestProjectPath } ?: GUEST_HOME))
+            addAll(listOf(ARG_CWD, request.hostProjectDir?.let { request.guestProjectPath } ?: GuestEnvironment.GUEST_HOME))
             addAll(request.command)
         }
 
         val environment = buildMap {
-            putAll(GuestEnvironment.defaults(GUEST_HOME))
+            putAll(GuestEnvironment.defaults(GuestEnvironment.GUEST_HOME))
             loaderDir?.let { put(ENV_PROOT_LOADER, it.absolutePath) }
             put(ENV_PROOT_TMP, request.rootfs.parentFile?.absolutePath ?: request.rootfs.absolutePath)
             putAll(request.extraEnvironment)
@@ -57,8 +57,6 @@ class ProotLauncher(
 
         const val ENV_PROOT_LOADER = "PROOT_LOADER"
         const val ENV_PROOT_TMP = "PROOT_TMP_DIR"
-
-        const val GUEST_HOME = "/root"
 
         val PASSTHROUGH_MOUNTS = listOf("/dev", "/proc", "/sys")
 

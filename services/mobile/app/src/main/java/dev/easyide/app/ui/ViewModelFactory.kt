@@ -68,6 +68,7 @@ class WorkspaceViewModelFactory(
             linuxEnvironment = container.linuxEnvironment,
             environmentManager = container.environmentManager,
             projectManager = container.projectManager,
+            appContext = container.appContext,
             imageProvider = container::imageFor,
         ) as T
     }

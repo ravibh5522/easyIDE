@@ -1,6 +1,9 @@
 package dev.easyide.app.ui.screens.workspace
 
-import androidx.compose.ui.text.input.TextFieldValue
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import com.termux.terminal.TerminalSession
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.easyide.sandbox.EnvironmentManager
@@ -9,16 +12,16 @@ import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.files.FileContent
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.sandbox.files.FilePolicy
+import dev.easyide.sandbox.files.ProjectFileWatcher
 import dev.easyide.sandbox.files.ProjectFiles
 import dev.easyide.sandbox.model.SandboxImage
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.UUID
-import kotlin.coroutines.coroutineContext
 
 /**
  * An open editor tab. [savedContent] is what is on disk; [content] is the
@@ -55,7 +58,7 @@ data class WorkspaceUiState(
     val childrenByDir: Map<String, List<FileNode>> = emptyMap(),
     val openTabs: List<EditorTab> = emptyList(),
     val activeTabPath: String? = null,
-    val terminals: List<TerminalSession> = emptyList(),
+    val terminals: List<PtyTerminalTab> = emptyList(),
     val activeTerminalId: String? = null,
     val statusMessage: String? = null,
     val linuxReady: Boolean = false,
@@ -63,7 +66,7 @@ data class WorkspaceUiState(
     val clipboard: FileClipboard? = null,
 ) {
     val activeTab: EditorTab? get() = openTabs.find { it.relativePath == activeTabPath }
-    val activeTerminal: TerminalSession? get() = terminals.find { it.id == activeTerminalId }
+    val activeTerminal: PtyTerminalTab? get() = terminals.find { it.id == activeTerminalId }
 }
 
 /**
@@ -78,32 +81,34 @@ class WorkspaceViewModel(
     private val linuxEnvironment: LinuxEnvironment,
     private val environmentManager: EnvironmentManager,
     private val projectManager: ProjectManager,
+    private val appContext: Context,
     private val imageProvider: suspend (String) -> SandboxImage,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WorkspaceUiState())
     val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
+    private val mainHandler = Handler(Looper.getMainLooper())
 
-    private val terminalJobs = TerminalJobs()
+    // The terminal writes straight to the bind-mounted project directory,
+    // entirely outside every method below - nothing here runs when a shell
+    // command creates or deletes a file, so the explorer needs its own signal
+    // that the disk changed. See ProjectFileWatcher's doc comment.
+    private val fileWatcher = ProjectFileWatcher(onChanged = ::relistChangedDirs)
 
     init {
         refreshTree()
-        val ready = linuxEnvironment.isReady(environmentId)
-        val first = WorkspaceTerminals.newSession(0, UUID.randomUUID().toString(), banner(ready))
-        _uiState.update {
-            it.copy(linuxReady = ready, terminals = listOf(first), activeTerminalId = first.id)
-        }
+        _uiState.update { it.copy(linuxReady = linuxEnvironment.isReady(environmentId)) }
+        createTerminalTab()
+        fileWatcher.watch(projectFiles.projectRoot(projectId), emptySet())
     }
 
     override fun onCleared() {
-        terminalJobs.cancelAll()
+        // A pty subprocess is a real Linux process, not something garbage
+        // collection reclaims - it needs an explicit SIGKILL or it keeps
+        // running (and holding the pty) after the workspace is gone.
+        _uiState.value.terminals.forEach { it.session.finishIfRunning() }
+        fileWatcher.stop()
         super.onCleared()
-    }
-
-    private fun banner(ready: Boolean) = if (ready) {
-        "Ubuntu sandbox - apt, dpkg, sudo available"
-    } else {
-        "Android shell (toybox). Use \"Install Linux\" for apt/dpkg."
     }
 
     // ---------------------------------------------------------------- tree
@@ -123,22 +128,55 @@ class WorkspaceViewModel(
         }
     }
 
+    /**
+     * [ProjectFileWatcher]'s targeted counterpart to [refreshTree]: re-lists
+     * only the directories that actually fired a filesystem event, instead of
+     * every expanded directory - a `touch` two levels deep otherwise re-reads
+     * the whole visible tree from disk for no reason.
+     */
+    private fun relistChangedDirs(dirs: Set<File>) {
+        val root = projectFiles.projectRoot(projectId)
+        viewModelScope.launch {
+            dirs.forEach { dir ->
+                val relative = dir.relativeTo(root).path.replace(File.separatorChar, '/')
+                if (relative.isEmpty() || relative == ".") {
+                    projectFiles.list(projectId).onSuccess { nodes ->
+                        _uiState.update { it.copy(tree = nodes) }
+                    }
+                } else if (relative in _uiState.value.expandedDirs) {
+                    projectFiles.list(projectId, relative).onSuccess { children ->
+                        _uiState.update { it.copy(childrenByDir = it.childrenByDir + (relative to children)) }
+                    }
+                }
+            }
+        }
+    }
+
     fun onDirectoryToggled(node: FileNode) {
         val expanded = _uiState.value.expandedDirs
         if (node.relativePath in expanded) {
-            _uiState.update { it.copy(expandedDirs = expanded - node.relativePath) }
+            val remaining = expanded - node.relativePath
+            _uiState.update { it.copy(expandedDirs = remaining) }
+            syncFileWatcher(remaining)
             return
         }
         viewModelScope.launch {
             projectFiles.list(projectId, node.relativePath).onSuccess { children ->
+                val expandedNow = _uiState.value.expandedDirs + node.relativePath
                 _uiState.update {
                     it.copy(
-                        expandedDirs = it.expandedDirs + node.relativePath,
+                        expandedDirs = expandedNow,
                         childrenByDir = it.childrenByDir + (node.relativePath to children),
                     )
                 }
+                syncFileWatcher(expandedNow)
             }
         }
+    }
+
+    private fun syncFileWatcher(expandedDirs: Set<String>) {
+        val root = projectFiles.projectRoot(projectId)
+        fileWatcher.watch(root, expandedDirs.map { File(root, it) }.toSet())
     }
 
     // -------------------------------------------------------------- editor
@@ -344,185 +382,129 @@ class WorkspaceViewModel(
         if (parentDir.isEmpty()) name else "$parentDir/$name"
 
     // ----------------------------------------------------------- terminals
-
-    fun onTerminalInputChanged(value: TextFieldValue) {
-        val id = _uiState.value.activeTerminalId ?: return
-        updateTerminal(id) { it.copy(input = value, historyCursor = null) }
-    }
-
-    /** A press on the accessory row: either types a symbol or drives the prompt. */
-    fun onTerminalKey(key: TerminalKey) {
-        val session = _uiState.value.activeTerminal ?: return
-        when (key) {
-            is TerminalKey.Insert -> updateTerminal(session.id) {
-                it.copy(input = TerminalInput.insert(it.input, key.text), historyCursor = null)
-            }
-
-            is TerminalKey.Command -> when (key.action) {
-                TerminalKeyAction.CARET_LEFT ->
-                    updateTerminal(session.id) { it.copy(input = TerminalInput.moveCaret(it.input, -1)) }
-
-                TerminalKeyAction.CARET_RIGHT ->
-                    updateTerminal(session.id) { it.copy(input = TerminalInput.moveCaret(it.input, 1)) }
-
-                TerminalKeyAction.HISTORY_BACK ->
-                    updateTerminal(session.id) { WorkspaceTerminals.historyUp(it) }
-
-                TerminalKeyAction.HISTORY_FORWARD ->
-                    updateTerminal(session.id) { WorkspaceTerminals.historyDown(it) }
-
-                TerminalKeyAction.INTERRUPT -> onCancelCommand()
-
-                TerminalKeyAction.CLEAR -> updateTerminal(session.id) { it.copy(lines = emptyList()) }
-            }
-        }
-    }
+    //
+    // There is no input-mediation left here (no prompt buffer, no history, no
+    // per-tab "is a command running" flag) - a real TerminalSession/TerminalView
+    // owns typing, scrollback and process state entirely (see TerminalPane).
+    // The ViewModel's job is just the tab list: create one on request, retire
+    // its process when a tab closes or the workspace does, and keep the tab
+    // title in step with what the shell itself reports.
 
     /**
-     * Enter does one of two things: with nothing running it starts a command;
-     * with a command running it feeds the line to that process's stdin, which
-     * is what makes interactive programs answerable.
+     * Resolves proot-or-fallback shell params off the main thread, then
+     * constructs the real `TerminalSession` and adds it as a new tab. Async
+     * because [LinuxEnvironment.interactiveShellParams] may need to install
+     * proot on first use - the same reason [onInstallLinux] is a coroutine.
      */
-    fun onTerminalSubmit() {
-        val session = _uiState.value.activeTerminal ?: return
-        val typed = session.input.text
-
-        if (session.isRunning) {
-            val process = terminalJobs.processFor(session.id) ?: return
-            process.send(typed)
-            // Echo it: the child's stdin is not echoed back to us, so without
-            // this the user's own typing would vanish.
-            updateTerminal(session.id) {
-                it.appended(listOf(TerminalLine(typed, isCommand = true)), WorkspaceTerminals.MAX_LINES)
-                    .copy(input = TextFieldValue())
-            }
-            return
-        }
-
-        val command = typed.trim()
-        if (command.isEmpty()) return
-        updateTerminal(session.id) { WorkspaceTerminals.startCommand(it, command) }
-        launchCommand(session.id, command)
-    }
-
-    /**
-     * Streams the command's output as it arrives instead of buffering it to
-     * completion, so a long build shows progress and never looks frozen.
-     * Batching happens inside [dev.easyide.sandbox.shell.TerminalProcess].
-     */
-    private fun launchCommand(sessionId: String, command: String) {
+    private fun createTerminalTab() {
         viewModelScope.launch {
-            val process = runCatching {
-                linuxEnvironment.start(
-                    command = command,
-                    environmentId = environmentId,
-                    hostProjectDir = projectFiles.projectRoot(projectId),
-                )
+            val params = runCatching {
+                linuxEnvironment.interactiveShellParams(environmentId, projectFiles.projectRoot(projectId))
             }.getOrElse { cause ->
-                appendToTerminal(sessionId, listOf(TerminalLine(cause.message ?: "failed to start", false)))
-                updateTerminal(sessionId) { it.copy(isRunning = false) }
+                setStatus(cause.message ?: "Could not start a terminal")
                 return@launch
             }
 
-            terminalJobs.put(sessionId, coroutineContext[Job]!!, process)
-
-            val exit = process.stream { lines ->
-                // Capped: a single pathological line (a minified bundle, a
-                // progress bar with no newlines) would otherwise be laid out in
-                // full on the UI thread.
-                appendToTerminal(
-                    sessionId,
-                    lines.map { TerminalLine(it.take(WorkspaceTerminals.MAX_LINE_LENGTH), isCommand = false) },
-                )
-            }
-            if (exit != 0) {
-                appendToTerminal(sessionId, listOf(TerminalLine("[exit $exit]", isCommand = false)))
-            }
-
-            terminalJobs.finish(sessionId)
-            updateTerminal(sessionId) { it.copy(isRunning = false) }
-            // A command may have created or removed files.
-            refreshTree()
-        }
-    }
-
-    private fun appendToTerminal(sessionId: String, lines: List<TerminalLine>) {
-        if (lines.isEmpty()) return
-        updateTerminal(sessionId) { it.appended(lines, WorkspaceTerminals.MAX_LINES) }
-    }
-
-    fun onCancelCommand() {
-        val id = _uiState.value.activeTerminalId ?: return
-        terminalJobs.cancel(id)
-        updateTerminal(id) {
-            it.appended(listOf(TerminalLine("^C", isCommand = false)), WorkspaceTerminals.MAX_LINES)
-                .copy(isRunning = false)
-        }
-    }
-
-    fun onNewTerminal() {
-        _uiState.update { state ->
-            val session = WorkspaceTerminals.newSession(
-                index = state.terminals.size,
-                id = UUID.randomUUID().toString(),
-                banner = banner(state.linuxReady),
+            val id = UUID.randomUUID().toString()
+            val client = EasyTerminalSessionClient(
+                context = appContext,
+                onTitleChanged = { changed -> retitleTerminal(id, changed.title) },
+                onSessionFinished = { /* frozen scrollback with the exit message is the desired end state */ },
             )
-            state.copy(terminals = state.terminals + session, activeTerminalId = session.id)
+            val session = TerminalSession(
+                params.shellPath,
+                params.cwd,
+                params.args.toTypedArray(),
+                params.env.map { (key, value) -> "$key=$value" }.toTypedArray(),
+                null,
+                client,
+            )
+            val tab = PtyTerminalTab(
+                id = id,
+                title = "sh ${_uiState.value.terminals.size + 1}",
+                session = session,
+                client = client,
+            )
+            _uiState.update { it.copy(terminals = it.terminals + tab, activeTerminalId = tab.id) }
         }
     }
+
+    private fun retitleTerminal(id: String, title: String?) {
+        if (title.isNullOrBlank()) return
+        _uiState.update { state ->
+            state.copy(terminals = state.terminals.map { if (it.id == id) it.copy(title = title) else it })
+        }
+    }
+
+    fun onNewTerminal() = createTerminalTab()
+
+    /** User-driven rename, distinct from [retitleTerminal] which tracks the shell's own OSC title. */
+    fun onRenameTerminal(id: String, title: String) = retitleTerminal(id, title)
 
     fun onSelectTerminal(id: String) = _uiState.update { it.copy(activeTerminalId = id) }
 
+    /** The last tab is never closed, so the panel always has something to show. */
     fun onCloseTerminal(id: String) {
-        terminalJobs.cancel(id)
-        _uiState.update { state ->
-            val (remaining, active) = WorkspaceTerminals.close(state.terminals, state.activeTerminalId, id)
-            state.copy(terminals = remaining, activeTerminalId = active)
+        val state = _uiState.value
+        if (state.terminals.size <= 1) return
+        state.terminals.find { it.id == id }?.session?.finishIfRunning()
+        _uiState.update { current ->
+            val remaining = current.terminals.filterNot { it.id == id }
+            val active = if (current.activeTerminalId == id) remaining.lastOrNull()?.id else current.activeTerminalId
+            current.copy(terminals = remaining, activeTerminalId = active)
         }
-    }
-
-    private fun updateTerminal(id: String, transform: (TerminalSession) -> TerminalSession) {
-        _uiState.update { it.copy(terminals = WorkspaceTerminals.updateSession(it.terminals, id, transform)) }
     }
 
     // ------------------------------------------------------------- linux
 
     fun onInstallLinux() {
         if (_uiState.value.isInstalling || _uiState.value.linuxReady) return
+        val targetTabId = _uiState.value.activeTerminalId
         _uiState.update { it.copy(isInstalling = true) }
-        val terminalId = _uiState.value.activeTerminalId
 
         viewModelScope.launch {
-            linuxEnvironment.install(environmentId, imageProvider(environmentId)) { message ->
-                terminalId?.let { id ->
-                    updateTerminal(id) {
-                        it.appended(
-                            listOf(
-                                TerminalLine(
-                                    message.take(WorkspaceTerminals.MAX_LINE_LENGTH),
-                                    isCommand = false,
-                                )
-                            ),
-                            WorkspaceTerminals.MAX_LINES,
-                        )
-                    }
-                }
-            }.onSuccess {
-                environmentManager.markProvisioned(environmentId)
-            }.onFailure { cause ->
-                environmentManager.markProvisioned(environmentId, cause.message ?: INSTALL_FAILED)
-                terminalId?.let { id ->
-                    updateTerminal(id) {
-                        it.appended(
-                            listOf(TerminalLine("install failed: ${cause.message}", isCommand = false)),
-                            WorkspaceTerminals.MAX_LINES,
-                        )
-                    }
-                }
+            // Progress lines print straight into the terminal tab that was
+            // active when install started - real scrolling log output, not a
+            // Snackbar (install() reports dozens of lines: download %, every
+            // apt/dpkg line) and not a single truncated status line either.
+            // `write()` is stdin and would be typed *at* the shell; this goes
+            // through the emulator's own output path instead, exactly the way
+            // real process output reaches the screen - see appendInstallLog.
+            linuxEnvironment.install(environmentId, imageProvider(environmentId)) { line ->
+                appendInstallLog(targetTabId, line)
             }
+                .onSuccess {
+                    environmentManager.markProvisioned(environmentId)
+                    setStatus("Linux ready. Open a new terminal tab to use it.")
+                }
+                .onFailure { cause ->
+                    environmentManager.markProvisioned(environmentId, cause.message ?: INSTALL_FAILED)
+                    setStatus("Install failed: ${cause.message}")
+                }
             _uiState.update {
                 it.copy(isInstalling = false, linuxReady = linuxEnvironment.isReady(environmentId))
             }
+        }
+    }
+
+    /**
+     * Feeds one line of install progress into a terminal's screen buffer as
+     * if it were real process output - not `session.write()`, which is stdin
+     * and would be typed *at* the shell. `install()`'s progress callback fires
+     * from a background (IO) dispatcher, but `TerminalEmulator`/`TerminalBuffer`
+     * are not thread-safe (Termux's own pty-read loop only ever touches them
+     * from the main thread via its `Handler`), so this hops to the main
+     * thread before touching either. Falls back to whatever terminal tab is
+     * still open if the one active at install-start was since closed.
+     */
+    private fun appendInstallLog(tabId: String?, line: String) {
+        mainHandler.post {
+            val tab = _uiState.value.terminals.find { it.id == tabId }
+                ?: _uiState.value.terminals.firstOrNull()
+                ?: return@post
+            val bytes = "$line\r\n".toByteArray()
+            tab.session.emulator?.append(bytes, bytes.size)
+            tab.client.onTextChanged(tab.session)
         }
     }
 
