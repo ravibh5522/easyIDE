@@ -12,6 +12,9 @@ import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.files.FileContent
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.sandbox.files.FilePolicy
+import dev.easyide.sandbox.git.GitService
+import dev.easyide.sandbox.git.GitResult
+import dev.easyide.sandbox.git.GitStatus
 import dev.easyide.sandbox.files.ProjectFileWatcher
 import dev.easyide.sandbox.files.ProjectFiles
 import dev.easyide.sandbox.model.SandboxImage
@@ -83,17 +86,26 @@ class WorkspaceViewModel(
     private val projectManager: ProjectManager,
     private val appContext: Context,
     private val imageProvider: suspend (String) -> SandboxImage,
+    private val gitService: GitService,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WorkspaceUiState())
     val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
+
+    private val _gitState = MutableStateFlow(GitPanelState())
+    val gitState: StateFlow<GitPanelState> = _gitState.asStateFlow()
     private val mainHandler = Handler(Looper.getMainLooper())
 
     // The terminal writes straight to the bind-mounted project directory,
     // entirely outside every method below - nothing here runs when a shell
     // command creates or deletes a file, so the explorer needs its own signal
     // that the disk changed. See ProjectFileWatcher's doc comment.
-    private val fileWatcher = ProjectFileWatcher(onChanged = ::relistChangedDirs)
+    private val fileWatcher = ProjectFileWatcher(onChanged = { dirs ->
+        relistChangedDirs(dirs)
+        // The watcher already debounces, and git status is cheap next to the
+        // re-list it fires alongside, so this needs no throttle of its own.
+        refreshGit()
+    })
 
     init {
         refreshTree()
@@ -190,6 +202,29 @@ class WorkspaceViewModel(
             projectFiles.open(projectId, node.relativePath)
                 .onSuccess { content -> openContent(node, content) }
                 .onFailure { cause -> setStatus(cause.message ?: "Could not open ${node.name}") }
+        }
+    }
+
+    /**
+     * Opens by project-relative path, for callers that hold a path rather than
+     * a tree node - the source-control panel lists changes git reported, which
+     * may not be in the (lazily expanded) tree at all.
+     */
+    fun openFileByPath(relativePath: String) {
+        if (_uiState.value.openTabs.any { it.relativePath == relativePath }) {
+            _uiState.update { it.copy(activeTabPath = relativePath) }
+            return
+        }
+        val node = FileNode(
+            name = relativePath.substringAfterLast('/'),
+            relativePath = relativePath,
+            isDirectory = false,
+            sizeBytes = 0,
+        )
+        viewModelScope.launch {
+            projectFiles.open(projectId, relativePath)
+                .onSuccess { content -> openContent(node, content) }
+                .onFailure { cause -> setStatus(cause.message ?: "Could not open $relativePath") }
         }
     }
 
@@ -429,6 +464,85 @@ class WorkspaceViewModel(
         }
     }
 
+
+    // ---- source control ----------------------------------------------------
+
+    /**
+     * Re-reads status (and history) from disk.
+     *
+     * Called on every watcher event, so it must stay cheap and must not fight
+     * with itself: [GitPanelState.busy] gates the UI's own actions, not this,
+     * because a refresh triggered by an external write (the terminal, Claude
+     * Code) has to land even while a commit is in flight.
+     */
+    fun refreshGit() {
+        val root = projectFiles.projectRoot(projectId)
+        viewModelScope.launch {
+            val isRepo = gitService.isRepository(root)
+            if (!isRepo) {
+                _gitState.update { it.copy(isRepository = false, status = null, commits = emptyList()) }
+                return@launch
+            }
+            when (val result = gitService.status(root)) {
+                is GitResult.Success -> {
+                    val commits = gitService.log(root).valueOrNull().orEmpty()
+                    _gitState.update {
+                        it.copy(isRepository = true, status = result.value, commits = commits, error = null)
+                    }
+                }
+                is GitResult.Failure ->
+                    _gitState.update { it.copy(isRepository = true, error = result.message) }
+                GitResult.NotARepository ->
+                    _gitState.update { it.copy(isRepository = false, status = null) }
+            }
+        }
+    }
+
+    fun onGitMessageChanged(message: String) = _gitState.update { it.copy(commitMessage = message) }
+
+    fun stageGit(paths: Collection<String>) = gitAction { gitService.stage(it, paths) }
+
+    fun unstageGit(paths: Collection<String>) = gitAction { gitService.unstage(it, paths) }
+
+    fun discardGit(paths: Collection<String>) = gitAction { gitService.discard(it, paths) }
+
+    fun initGitRepository() = gitAction { gitService.createRepository(it) }
+
+    /**
+     * Commits, then clears the message only on success - a failed commit that
+     * silently ate the message the user typed is the worst possible outcome.
+     */
+    fun commitGit() {
+        val message = _gitState.value.commitMessage
+        if (message.isBlank()) return
+        gitAction(onSuccess = { _gitState.update { it.copy(commitMessage = "") } }) { root ->
+            gitService.commit(root, message, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL)
+        }
+    }
+
+    private fun gitAction(
+        onSuccess: () -> Unit = {},
+        block: suspend (File) -> GitResult<GitStatus>,
+    ) {
+        val root = projectFiles.projectRoot(projectId)
+        viewModelScope.launch {
+            _gitState.update { it.copy(busy = true, error = null) }
+            when (val result = block(root)) {
+                is GitResult.Success -> {
+                    onSuccess()
+                    val commits = gitService.log(root).valueOrNull().orEmpty()
+                    _gitState.update {
+                        it.copy(isRepository = true, status = result.value, commits = commits, busy = false)
+                    }
+                }
+                is GitResult.Failure ->
+                    _gitState.update { it.copy(busy = false, error = result.message) }
+                GitResult.NotARepository ->
+                    _gitState.update { it.copy(busy = false, isRepository = false, status = null) }
+            }
+        }
+    }
+
     private fun retitleTerminal(id: String, title: String?) {
         if (title.isNullOrBlank()) return
         _uiState.update { state ->
@@ -515,5 +629,10 @@ class WorkspaceViewModel(
     private companion object {
         const val GUEST_WORKSPACE = "/workspace"
         const val INSTALL_FAILED = "install failed"
+
+        // Placeholder identity until a git settings screen exists; a commit
+        // must have an author, and refusing to commit would be worse.
+        const val GIT_AUTHOR_NAME = "easyIDE"
+        const val GIT_AUTHOR_EMAIL = "dev@easyide.local"
     }
 }

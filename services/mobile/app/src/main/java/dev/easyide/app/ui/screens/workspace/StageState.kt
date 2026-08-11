@@ -34,6 +34,9 @@ class WorkspaceStageState(
      * Narrow windows can only afford one side stage; opening one closes the
      * other rather than squeezing both into unusable slivers.
      */
+    /** Opens the left stage without toggling - the rail switches panels with it. */
+    fun showLeft() { leftVisible = true }
+
     fun toggleLeft(exclusive: Boolean) {
         leftVisible = !leftVisible
         if (leftVisible && exclusive) rightVisible = false
@@ -82,3 +85,6 @@ private val WorkspaceStageStateSaver = androidx.compose.runtime.saveable.listSav
     save = { listOf(it.leftVisible, it.rightVisible, it.bottomVisible) },
     restore = { WorkspaceStageState(it[0], it[1], it[2]) },
 )
+
+/** What the left stage is showing. The rail switches between these. */
+enum class SidePanel { EXPLORER, SOURCE_CONTROL }

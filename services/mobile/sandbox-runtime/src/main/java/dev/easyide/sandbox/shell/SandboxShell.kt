@@ -29,12 +29,14 @@ class SandboxShell(
         rootfs: File,
         hostProjectDir: File?,
         guestProjectPath: String,
+        extraEnvironment: Map<String, String> = emptyMap(),
     ): TerminalProcess {
         val spec = launcher.buildLaunchSpec(
             LaunchRequest(
                 rootfs = rootfs,
                 hostProjectDir = hostProjectDir,
                 guestProjectPath = guestProjectPath,
+                extraEnvironment = extraEnvironment,
                 // Through the guest's own shell so pipes, redirects and globs
                 // behave the way the user expects.
                 command = listOf(GUEST_SHELL, GUEST_SHELL_FLAG, command),

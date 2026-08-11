@@ -28,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,8 +62,11 @@ fun WorkspaceScreen(
     projectName: String,
     uiState: WorkspaceUiState,
     callbacks: WorkspaceCallbacks,
+    gitState: GitPanelState,
+    gitCallbacks: SourceControlCallbacks,
     modifier: Modifier = Modifier,
 ) {
+    val onRefreshGit = gitCallbacks.onRefresh
     val windowSize = LocalWindowSize.current
     val colors = editorColors
     val stages = rememberWorkspaceStageState(windowSize)
@@ -78,15 +82,28 @@ fun WorkspaceScreen(
         callbacks.onStatusShown()
     }
 
+    var sidePanel by rememberSaveable { mutableStateOf(SidePanel.EXPLORER) }
+
     Box(modifier = modifier.fillMaxSize().background(colors.background)) {
         Column(
             modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars),
         ) {
             Row(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 ActivityBar(
-                    explorerVisible = stages.leftVisible,
+                    explorerVisible = stages.leftVisible && sidePanel == SidePanel.EXPLORER,
+                    sourceControlVisible = stages.leftVisible && sidePanel == SidePanel.SOURCE_CONTROL,
                     terminalVisible = stages.bottomVisible,
-                    onToggleExplorer = { stages.toggleLeft(exclusive = false) },
+                    // Clicking the active destination collapses the panel;
+                    // clicking the other one switches to it, which is how every
+                    // rail of this shape behaves.
+                    onToggleExplorer = {
+                        if (sidePanel == SidePanel.EXPLORER) stages.toggleLeft(exclusive = false)
+                        else { sidePanel = SidePanel.EXPLORER; stages.showLeft() }
+                    },
+                    onToggleSourceControl = {
+                        if (sidePanel == SidePanel.SOURCE_CONTROL) stages.toggleLeft(exclusive = false)
+                        else { sidePanel = SidePanel.SOURCE_CONTROL; stages.showLeft(); onRefreshGit() }
+                    },
                     onToggleTerminal = stages::toggleBottom,
                     onBack = callbacks.onBack,
                 )
@@ -100,6 +117,9 @@ fun WorkspaceScreen(
                                 width = windowSize.width.explorerWidth(),
                                 uiState = uiState,
                                 callbacks = callbacks,
+                                sidePanel = sidePanel,
+                                gitState = gitState,
+                                gitCallbacks = gitCallbacks,
                                 onNodeMenu = { menuNode = it },
                                 onNewFile = { prompt = PendingPrompt.NewFile("") },
                                 onNewFolder = { prompt = PendingPrompt.NewFolder("") },
@@ -157,6 +177,9 @@ fun WorkspaceScreen(
                             width = windowSize.width.explorerWidth(),
                             uiState = uiState,
                             callbacks = callbacks,
+                            sidePanel = sidePanel,
+                            gitState = gitState,
+                            gitCallbacks = gitCallbacks,
                             onNodeMenu = { menuNode = it },
                             onNewFile = { prompt = PendingPrompt.NewFile("") },
                             onNewFolder = { prompt = PendingPrompt.NewFolder("") },
@@ -167,6 +190,7 @@ fun WorkspaceScreen(
 
             StatusBar(
                 projectName = projectName,
+                branch = gitState.status?.branch,
                 activeTab = uiState.activeTab,
                 onSave = callbacks.onSave,
             )
@@ -260,6 +284,9 @@ private fun RowScope.ExplorerColumn(
     width: Dp,
     uiState: WorkspaceUiState,
     callbacks: WorkspaceCallbacks,
+    sidePanel: SidePanel,
+    gitState: GitPanelState,
+    gitCallbacks: SourceControlCallbacks,
     onNodeMenu: (FileNode) -> Unit,
     onNewFile: () -> Unit,
     onNewFolder: () -> Unit,
@@ -274,16 +301,23 @@ private fun RowScope.ExplorerColumn(
             fadeOut(motionSpec()),
     ) {
         Row {
-            FileTreePane(
-                state = uiState,
-                onFileOpened = callbacks.onFileOpened,
-                onDirectoryToggled = callbacks.onDirectoryToggled,
-                onNodeMenu = onNodeMenu,
-                onNewFile = onNewFile,
-                onNewFolder = onNewFolder,
-                onRefresh = callbacks.onRefreshTree,
-                modifier = Modifier.width(width).fillMaxHeight(),
-            )
+            when (sidePanel) {
+                SidePanel.EXPLORER -> FileTreePane(
+                    state = uiState,
+                    onFileOpened = callbacks.onFileOpened,
+                    onDirectoryToggled = callbacks.onDirectoryToggled,
+                    onNodeMenu = onNodeMenu,
+                    onNewFile = onNewFile,
+                    onNewFolder = onNewFolder,
+                    onRefresh = callbacks.onRefreshTree,
+                    modifier = Modifier.width(width).fillMaxHeight(),
+                )
+                SidePanel.SOURCE_CONTROL -> SourceControlPane(
+                    state = gitState,
+                    callbacks = gitCallbacks,
+                    modifier = Modifier.width(width).fillMaxHeight(),
+                )
+            }
             VerticalDivider()
         }
     }
@@ -296,6 +330,9 @@ private fun ExplorerOverlay(
     width: Dp,
     uiState: WorkspaceUiState,
     callbacks: WorkspaceCallbacks,
+    sidePanel: SidePanel,
+    gitState: GitPanelState,
+    gitCallbacks: SourceControlCallbacks,
     onNodeMenu: (FileNode) -> Unit,
     onNewFile: () -> Unit,
     onNewFolder: () -> Unit,
@@ -310,16 +347,23 @@ private fun ExplorerOverlay(
             fadeOut(motionSpec()),
     ) {
         Row {
-            FileTreePane(
-                state = uiState,
-                onFileOpened = callbacks.onFileOpened,
-                onDirectoryToggled = callbacks.onDirectoryToggled,
-                onNodeMenu = onNodeMenu,
-                onNewFile = onNewFile,
-                onNewFolder = onNewFolder,
-                onRefresh = callbacks.onRefreshTree,
-                modifier = Modifier.width(width).fillMaxHeight(),
-            )
+            when (sidePanel) {
+                SidePanel.EXPLORER -> FileTreePane(
+                    state = uiState,
+                    onFileOpened = callbacks.onFileOpened,
+                    onDirectoryToggled = callbacks.onDirectoryToggled,
+                    onNodeMenu = onNodeMenu,
+                    onNewFile = onNewFile,
+                    onNewFolder = onNewFolder,
+                    onRefresh = callbacks.onRefreshTree,
+                    modifier = Modifier.width(width).fillMaxHeight(),
+                )
+                SidePanel.SOURCE_CONTROL -> SourceControlPane(
+                    state = gitState,
+                    callbacks = gitCallbacks,
+                    modifier = Modifier.width(width).fillMaxHeight(),
+                )
+            }
             VerticalDivider()
         }
     }

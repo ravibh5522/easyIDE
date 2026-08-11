@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Difference
 import androidx.compose.material.icons.filled.FolderCopy
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Terminal
@@ -35,8 +36,10 @@ import dev.easyide.app.ui.theme.editorColors
 @Composable
 fun ActivityBar(
     explorerVisible: Boolean,
+    sourceControlVisible: Boolean,
     terminalVisible: Boolean,
     onToggleExplorer: () -> Unit,
+    onToggleSourceControl: () -> Unit,
     onToggleTerminal: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -53,6 +56,7 @@ fun ActivityBar(
     ) {
         ActivityBarButton(Icons.AutoMirrored.Filled.ArrowBack, "Back to projects", false, onBack)
         ActivityBarButton(Icons.Filled.FolderCopy, "Explorer", explorerVisible, onToggleExplorer)
+        ActivityBarButton(Icons.Filled.Difference, "Source control", sourceControlVisible, onToggleSourceControl)
         ActivityBarButton(Icons.Filled.Terminal, "Terminal", terminalVisible, onToggleTerminal)
     }
 }
@@ -100,6 +104,7 @@ private fun ActivityBarButton(
 @Composable
 fun StatusBar(
     projectName: String,
+    branch: String?,
     activeTab: EditorTab?,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,

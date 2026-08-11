@@ -21,4 +21,5 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.documentfile)
+    implementation(libs.jgit)
 }

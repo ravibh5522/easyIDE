@@ -88,10 +88,22 @@ fun AppNavHost(
                 factory = WorkspaceViewModelFactory(container, projectId, environmentId),
             )
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
+            val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
 
             WorkspaceScreen(
                 projectName = project.name,
                 uiState = uiState,
+                gitState = gitState,
+                gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
+                    onMessageChanged = workspaceViewModel::onGitMessageChanged,
+                    onCommit = workspaceViewModel::commitGit,
+                    onStage = workspaceViewModel::stageGit,
+                    onUnstage = workspaceViewModel::unstageGit,
+                    onDiscard = workspaceViewModel::discardGit,
+                    onInitRepository = workspaceViewModel::initGitRepository,
+                    onRefresh = workspaceViewModel::refreshGit,
+                    onOpenFile = workspaceViewModel::openFileByPath,
+                ),
                 callbacks = dev.easyide.app.ui.screens.workspace.WorkspaceCallbacks(
                     onFileOpened = workspaceViewModel::onFileOpened,
                     onDirectoryToggled = workspaceViewModel::onDirectoryToggled,

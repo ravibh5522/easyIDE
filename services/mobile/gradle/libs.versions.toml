@@ -10,6 +10,7 @@ datastore = "1.2.1"
 coroutines = "1.10.2"
 documentfile = "1.1.0"
 kotlinTextmate = "0.2.0"
+jgit = "7.7.1.202607240634-r"
 annotation = "1.9.1"
 
 [libraries]
@@ -33,6 +34,7 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 kotlin-textmate-core = { group = "io.github.ivan-magda", name = "kotlin-textmate-core", version.ref = "kotlinTextmate" }
+jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

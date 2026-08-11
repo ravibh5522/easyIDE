@@ -139,6 +139,7 @@ class LinuxEnvironment(
         command: String,
         environmentId: String,
         hostProjectDir: File,
+        extraEnvironment: Map<String, String> = emptyMap(),
     ): TerminalProcess {
         if (!isReady(environmentId)) {
             return fallbackShell.start(command, hostProjectDir)
@@ -152,6 +153,7 @@ class LinuxEnvironment(
             rootfs = rootfsFor(environmentId),
             hostProjectDir = hostProjectDir,
             guestProjectPath = paths.guestProjectPath(),
+            extraEnvironment = extraEnvironment,
         )
     }
 

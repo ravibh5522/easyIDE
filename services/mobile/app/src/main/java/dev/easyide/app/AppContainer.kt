@@ -1,6 +1,8 @@
 package dev.easyide.app
 
 import android.content.Context
+import dev.easyide.sandbox.git.GitCredentials
+import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
 import dev.easyide.sandbox.EnvironmentManager
@@ -28,6 +30,8 @@ import kotlinx.coroutines.flow.first
  */
 class AppContainer(context: Context) {
 
+    val gitService = GitService(ioDispatcher = Dispatchers.IO)
+
     // Public and safe to hold anywhere: this is the Application context
     // itself, not an Activity - PtyTerminalTab sessions need it for
     // clipboard access and outlive any single screen.
@@ -37,6 +41,8 @@ class AppContainer(context: Context) {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val uiPreferences: UiPreferences = UiPreferences(appContext)
+
+    val gitCredentials = GitCredentials(appContext)
 
     private val paths = SandboxPaths(appContext.filesDir)
 

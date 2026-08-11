@@ -40,6 +40,10 @@ Per-component detail and evidence lives in the `tracker.md` files under [docs/](
   bind into them ([decision 0005](docs/decision/0005-sandbox-environment-sharing-model.md)).
 - **Link a real folder** on internal storage or an SD card through SAF, so your code is not
   trapped in app-private storage.
+- **Source control.** JGit-backed: initialise, stage/unstage/discard per file, commit, branch
+  in the status bar, and a changes list that updates itself when files change - including
+  files written by the terminal, not just the editor. Repositories it creates are read
+  correctly by real `git`.
 - **Six Material 3 themes**, persisted, responsive across window size classes, and honouring
   the system reduce-motion setting.
 
@@ -52,7 +56,10 @@ Stated plainly, because a README that oversells is worse than one that is short:
   symbol *means*. Language servers are the planned next step.
 - **The Claude Code CLI is not wired up.** Installing and verifying it inside the sandbox is
   planned, not done.
-- **No git UI, no credential helper, no tmux session persistence, no ssh-agent.**
+- **Git stops at the network.** Clone, push, pull and the auth flow are not built; neither is
+  a diff view, the commit graph or a merge editor. Commits are attributed to a placeholder
+  identity until a settings screen exists.
+- **No credential helper, no tmux session persistence, no ssh-agent.**
 - **The chroot+BusyBox backend for rooted devices builds its argv but has never been executed.**
 - No checksum verification on the downloaded rootfs tarball.
 
