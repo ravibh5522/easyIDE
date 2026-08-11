@@ -95,8 +95,17 @@ infra/           intentionally empty -- CI/deploy config, when there is any
 
 ```
 cd services/mobile
-./gradlew :app:assembleDebug
+./gradlew :app:assembleDebug     # local development
+./gradlew :app:assembleCanary    # tip of main, installs alongside a stable build
+./gradlew :app:assembleRelease   # stable
 ```
+
+Canary builds use applicationId `dev.easyide.app.canary` and are labelled **easyIDE
+Canary**, so you can run the tip of `main` on the same tablet as a build you rely on.
+Every push to `main` publishes one to the rolling
+[`canary` release](https://github.com/ravibh5522/easyIDE/releases/tag/canary); tagging
+`v*` cuts a stable one. Channels, versioning and signing secrets:
+[infra/README.md](infra/README.md).
 
 Needs a **full JDK 17+**, not a JRE -- `javac` must be on the toolchain. If the system Java is a
 JRE, pass one for the invocation: `JAVA_HOME=/path/to/jdk ./gradlew :app:assembleDebug`.
