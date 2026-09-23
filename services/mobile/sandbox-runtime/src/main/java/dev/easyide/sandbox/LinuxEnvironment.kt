@@ -190,6 +190,39 @@ class LinuxEnvironment(
         )
     }
 
+    /**
+     * Starts a long-lived guest process on plain pipes - see
+     * [SandboxShell.startPiped] - for [dev.easyide.sandbox.shell.ServerProcessFactory].
+     * Same proot preparation and extension binds as [start], but no fallback
+     * to Android's shell: language servers live in the guest, so an
+     * environment that is not ready is an error, not a degraded mode.
+     *
+     * @throws SandboxError.EnvironmentNotReady if the rootfs has no shell yet.
+     */
+    suspend fun startPiped(
+        environmentId: String,
+        hostProjectDir: File,
+        command: List<String>,
+        extraEnvironment: Map<String, String>,
+    ): Process {
+        if (!isReady(environmentId)) {
+            throw SandboxError.EnvironmentNotReady(environmentId, "rootfs has no $GUEST_SHELL_RELATIVE")
+        }
+        val installation = prootInstaller.ensureInstalled(paths.runtimeDir).getOrThrow()
+        provisioner.ensureGuestDefaults(rootfsFor(environmentId))
+        val binds = bindsFor(environmentId)
+        return withContext(ioDispatcher) {
+            SandboxShell(installation, ioDispatcher).startPiped(
+                command = command,
+                rootfs = rootfsFor(environmentId),
+                hostProjectDir = hostProjectDir,
+                guestProjectPath = paths.guestProjectPath(),
+                extraEnvironment = extraEnvironment,
+                extraBinds = binds,
+            )
+        }
+    }
+
     /** Resolved per launch (filesystem reads), so it runs on the I/O dispatcher. */
     private suspend fun bindsFor(environmentId: String): List<GuestBind> =
         withContext(ioDispatcher) { guestBinds.bindsFor(environmentId) }

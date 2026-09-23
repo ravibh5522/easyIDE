@@ -123,6 +123,54 @@ class SandboxShell(
         )
     }
 
+    /**
+     * Starts [command] (a guest argv, no shell string) with three separate
+     * plain pipes: no pty, stderr NOT merged into stdout. A language server
+     * speaks byte-exact `Content-Length` framing on stdout, which a pty's
+     * `\n` -> `\r\n` translation or interleaved log text would corrupt - see
+     * docs/extension-sdk/lld/lsp-client.md sec 3.1.
+     *
+     * The environment is cleared exactly as in [start]: the process sees the
+     * launcher's guest defaults, [extraEnvironment], and the proot loader
+     * variables, nothing from the Android app process (no git token, decision
+     * 0012).
+     */
+    fun startPiped(
+        command: List<String>,
+        rootfs: File,
+        hostProjectDir: File?,
+        guestProjectPath: String,
+        extraEnvironment: Map<String, String>,
+        extraBinds: List<GuestBind>,
+    ): Process {
+        val spec = launcher.buildLaunchSpec(
+            LaunchRequest(
+                rootfs = rootfs,
+                hostProjectDir = hostProjectDir,
+                guestProjectPath = guestProjectPath,
+                command = command,
+                extraEnvironment = extraEnvironment,
+                extraBinds = extraBinds,
+            )
+        )
+        val builder = ProcessBuilder(spec.argv)
+            .directory(spec.workingDir)
+            .redirectErrorStream(false)
+        builder.environment().apply {
+            clear()
+            putAll(spec.environment)
+            putAll(prootHostEnvironment())
+        }
+        return builder.start()
+    }
+
+    /** What proot itself needs from the host: its loaders and the libtalloc beside it. */
+    private fun prootHostEnvironment(): Map<String, String> = mapOf(
+        ENV_PROOT_LOADER to installation.loader.absolutePath,
+        ENV_PROOT_LOADER_32 to installation.loader32.absolutePath,
+        ENV_LD_LIBRARY_PATH to installation.libraryDir.absolutePath,
+    )
+
     private companion object {
         const val GUEST_SHELL = "/bin/sh"
         const val GUEST_SHELL_FLAG = "-c"

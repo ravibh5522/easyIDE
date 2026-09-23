@@ -23,8 +23,8 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | Brackets, auto-close, surround, comment toggle, indent/onEnter rules | done | basic: auto-close, overtype, surround, enter/indent rules, comment toggle fn, matching bracket; pair colourization not done |
 | Snippets + word completion | not-started | |
 | **M2 LSP core** | | |
-| JSON-RPC transport + path mapping + doc sync | not-started | |
-| Server lifecycle, memory budget, crash backoff | not-started | |
+| JSON-RPC transport + path mapping + doc sync | in-progress | `:lsp` core, typed features and `ServerProcessFactory` done with JVM tests; app ports/bridge and on-device proot pipe test not yet |
+| Server lifecycle, memory budget, crash backoff | in-progress | `LanguageServerManager` + state machine done with JVM tests; RSS probe (needs server pid discovery on Android) and `onTrimMemory` wiring are app work |
 | Python end to end (diagnostics, completion, hover, definition) | not-started | |
 | **M3 declarative extensions** | | |
 | Manifest loader + contribution registry | in-progress | :extensions core done (schema+validator, parser, semver, 23 contribution stores, when-clauses, context keys, activation, crash journal/safe mode, enablement; 123 tests). App adapters + descriptor cache next |
