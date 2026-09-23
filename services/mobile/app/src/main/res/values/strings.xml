@@ -60,4 +60,58 @@
     <string name="terminal_new">New terminal</string>
     <string name="terminal_installing">Installing…</string>
     <string name="terminal_install_linux">Install Linux</string>
+
+    <!-- Settings schema (data/settings/SettingsSchema.kt) -->
+    <string name="settings_category_editor">Editor</string>
+    <string name="settings_category_terminal">Terminal</string>
+    <string name="settings_search_hint">Search settings</string>
+    <string name="setting_reset">Reset to default</string>
+    <string name="setting_increase">Increase</string>
+    <string name="setting_decrease">Decrease</string>
+    <string name="setting_theme_mode_title">Theme</string>
+    <string name="setting_theme_mode_desc">Color theme for the app, editor and terminal.</string>
+    <string name="setting_editor_font_size_title">Editor font size</string>
+    <string name="setting_editor_font_size_desc">Code text size, in sp.</string>
+    <string name="setting_editor_line_height_title">Editor line height</string>
+    <string name="setting_editor_line_height_desc">Height of each code line, in sp. Never smaller than the font size.</string>
+    <string name="setting_terminal_font_size_title">Terminal font size</string>
+    <string name="setting_terminal_font_size_desc">Terminal text size, in sp.</string>
+    <string name="theme_mode_system_default">System default</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_mode_dynamic">Dynamic</string>
+    <string name="theme_mode_amoled_black">AMOLED black</string>
+    <string name="theme_mode_high_contrast">High contrast</string>
+
+    <!-- Commands (ui/commands) -->
+    <string name="command_show_commands">Command palette</string>
+    <string name="command_save">Save</string>
+    <string name="command_save_all">Save all</string>
+    <string name="command_close_editor">Close editor tab</string>
+    <string name="command_next_editor">Next editor tab</string>
+    <string name="command_previous_editor">Previous editor tab</string>
+    <string name="command_toggle_markdown_preview">Toggle Markdown preview</string>
+    <string name="command_toggle_explorer">Toggle explorer</string>
+    <string name="command_toggle_source_control">Toggle source control</string>
+    <string name="command_refresh_explorer">Refresh explorer</string>
+    <string name="command_toggle_terminal">Toggle terminal</string>
+    <string name="command_new_terminal">New terminal</string>
+    <string name="palette_hint">Type a command</string>
+    <string name="palette_empty">No matching commands</string>
+
+    <string name="editor_close_tab">Close %1$s</string>
+    <string name="editor_close_unsaved_tab">Close %1$s (unsaved changes)</string>
+    <string name="unsaved_title_one">Save changes to %1$s?</string>
+    <plurals name="unsaved_title_many">
+        <item quantity="one">Save changes to %1$d file?</item>
+        <item quantity="other">Save changes to %1$d files?</item>
+    </plurals>
+    <string name="unsaved_body">Unsaved changes are lost if you don\'t save them.</string>
+    <string name="unsaved_save">Save</string>
+    <string name="unsaved_save_all">Save all</string>
+    <string name="unsaved_discard">Discard</string>
+
+    <string name="workspace_project_not_found_title">Project not found</string>
+    <string name="workspace_project_not_found_body">This project may have been deleted.</string>
+    <string name="workspace_back_home">Back to projects</string>
 </resources>

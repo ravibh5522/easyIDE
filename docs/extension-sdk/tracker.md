@@ -15,12 +15,12 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | Design doc set (arch, sdk-reference, HLD, LLDs, threat model, rules, tests) | done | cross-checked for consistency 2026-09-24; map in [arch.md](arch.md#document-map) |
 | ux-overhaul ADR-B editor engine | not-started | blocks all editor decorations |
 | **M0 prerequisites** | | |
-| Command registry + keymap | not-started | shared with ux-overhaul Pillar 4 |
-| Settings schema + layering | not-started | shared with ux-overhaul Pillar 5 |
+| Command registry + keymap | in-progress | see ux-overhaul tracker |
+| Settings schema + layering | in-progress | global layer only |
 | Editor decoration layers (squiggles, inlay, popups, gutter) | blocked | on ADR-B |
 | **M1 no-server language features** | | |
-| language-configuration.json bundled with grammars | not-started | extend tools/build-grammars.py |
-| Brackets, auto-close, surround, comment toggle, indent/onEnter rules | not-started | |
+| language-configuration.json bundled with grammars | done | 57/229 languages from VS Code 1.139.0 (MIT), generic fallback for the rest |
+| Brackets, auto-close, surround, comment toggle, indent/onEnter rules | done | basic: auto-close, overtype, surround, enter/indent rules, comment toggle fn, matching bracket; pair colourization not done |
 | Snippets + word completion | not-started | |
 | **M2 LSP core** | | |
 | JSON-RPC transport + path mapping + doc sync | not-started | |

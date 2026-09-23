@@ -2,8 +2,22 @@
     <!--
       Minimal platform theme required as the Activity's window theme before Compose
       takes over. All real theming (colors, typography, the six-theme system) lives
-      in Kotlin under ui/theme per docs/design-system/arch.md — this XML theme is
-      intentionally not the source of truth for app colors.
+      in Kotlin under ui/theme per docs/design-system/arch.md - this XML theme is
+      intentionally not the source of truth for app colors. Its only job is a
+      window background that matches the first Compose frame, so there is no
+      flash. The parent flips with the system night mode via values-night.
     -->
-    <style name="Theme.EasyIde" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.EasyIde" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
+    <!--
+      Launch theme: holds the splash until MainActivity has read the theme and
+      onboarding preferences, then swaps to Theme.EasyIde.
+    -->
+    <style name="Theme.EasyIde.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/window_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.EasyIde</item>
+    </style>
 </resources>

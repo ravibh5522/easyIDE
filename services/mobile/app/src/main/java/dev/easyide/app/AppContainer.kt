@@ -5,6 +5,8 @@ import dev.easyide.sandbox.git.GitCredentials
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
+import dev.easyide.app.data.preferencesStore
+import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.RootDetector
@@ -41,6 +43,8 @@ class AppContainer(context: Context) {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val uiPreferences: UiPreferences = UiPreferences(appContext)
+
+    val settingsStore: SettingsStore = SettingsStore(appContext.preferencesStore)
 
     val gitCredentials = GitCredentials(appContext)
 

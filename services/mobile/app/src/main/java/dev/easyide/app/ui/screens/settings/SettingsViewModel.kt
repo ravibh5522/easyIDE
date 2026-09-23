@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.net.Uri
 import dev.easyide.app.data.UiPreferences
-import dev.easyide.app.ui.theme.ThemeMode
+import dev.easyide.app.data.settings.Setting
+import dev.easyide.app.data.settings.SettingsSnapshot
+import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.external.ExternalFolderSync
@@ -24,7 +26,7 @@ data class EnvironmentListItem(
 )
 
 data class SettingsUiState(
-    val themeMode: ThemeMode = ThemeMode.SYSTEM_DEFAULT,
+    val settings: SettingsSnapshot = SettingsSnapshot.DEFAULTS,
     val environments: List<EnvironmentListItem> = emptyList(),
     /** Pre-selected when creating a project. */
     val defaultEnvironmentId: String? = null,
@@ -35,24 +37,25 @@ data class SettingsUiState(
 
 class SettingsViewModel(
     private val uiPreferences: UiPreferences,
+    private val settingsStore: SettingsStore,
     private val environmentManager: EnvironmentManager,
     private val externalFolderSync: ExternalFolderSync,
     projectManager: ProjectManager,
-) : ViewModel() {
+) : ViewModel(), SettingActions {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     val uiState: StateFlow<SettingsUiState> = combine(
-        uiPreferences.themeMode,
+        settingsStore.snapshot,
         environmentManager.environments,
         projectManager.projects,
         uiPreferences.defaultEnvironmentId,
         uiPreferences.defaultProjectsFolderUri,
-    ) { theme, environments, projects, defaultEnvironmentId, folderUri ->
+    ) { settings, environments, projects, defaultEnvironmentId, folderUri ->
         val usage = projects.groupingBy { it.environmentId }.eachCount()
         SettingsUiState(
-            themeMode = theme,
+            settings = settings,
             environments = environments.map { environment ->
                 EnvironmentListItem(environment, usage[environment.id] ?: 0)
             },
@@ -72,8 +75,12 @@ class SettingsViewModel(
         initialValue = SettingsUiState(),
     )
 
-    fun onThemeSelected(mode: ThemeMode) {
-        viewModelScope.launch { uiPreferences.setThemeMode(mode) }
+    override fun <T> set(setting: Setting<T>, value: T) {
+        viewModelScope.launch { settingsStore.set(setting, value) }
+    }
+
+    override fun reset(setting: Setting<*>) {
+        viewModelScope.launch { settingsStore.reset(setting) }
     }
 
     /** Tapping the current default clears it, so the choice is reversible. */

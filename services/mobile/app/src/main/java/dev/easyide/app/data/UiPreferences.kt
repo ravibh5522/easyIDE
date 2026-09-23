@@ -1,22 +1,21 @@
 package dev.easyide.app.data
 
 import android.content.Context
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import dev.easyide.app.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-private val Context.preferencesStore: DataStore<Preferences> by preferencesDataStore(name = "ui_preferences")
-
-/** UI-layer preferences. Sandbox state lives separately, owned by :sandbox-runtime. */
+/**
+ * UI-layer app state. User-facing settings (theme, fonts) live in
+ * [dev.easyide.app.data.settings.SettingsStore] on the same file; sandbox
+ * state lives separately, owned by :sandbox-runtime.
+ */
 class UiPreferences(private val context: Context) {
 
     private val flow: Flow<Preferences> = context.preferencesStore.data
@@ -25,11 +24,6 @@ class UiPreferences(private val context: Context) {
             // taking down the app on launch.
             if (cause is IOException) emit(emptyPreferences()) else throw cause
         }
-
-    val themeMode: Flow<ThemeMode> = flow.map { prefs ->
-        val stored = prefs[KEY_THEME_MODE]
-        ThemeMode.entries.find { it.name == stored } ?: ThemeMode.SYSTEM_DEFAULT
-    }
 
     val onboardingComplete: Flow<Boolean> = flow.map { prefs ->
         prefs[KEY_ONBOARDING_COMPLETE] ?: false
@@ -52,10 +46,6 @@ class UiPreferences(private val context: Context) {
         prefs[KEY_DEFAULT_PROJECTS_FOLDER]?.takeIf { it.isNotEmpty() }
     }
 
-    suspend fun setThemeMode(mode: ThemeMode) {
-        context.preferencesStore.edit { it[KEY_THEME_MODE] = mode.name }
-    }
-
     suspend fun setOnboardingComplete(complete: Boolean) {
         context.preferencesStore.edit { it[KEY_ONBOARDING_COMPLETE] = complete }
     }
@@ -73,7 +63,6 @@ class UiPreferences(private val context: Context) {
     }
 
     private companion object {
-        val KEY_THEME_MODE = stringPreferencesKey("theme_mode")
         val KEY_ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val KEY_DEFAULT_ENVIRONMENT = stringPreferencesKey("default_environment_id")
         val KEY_DEFAULT_PROJECTS_FOLDER = stringPreferencesKey("default_projects_folder_uri")

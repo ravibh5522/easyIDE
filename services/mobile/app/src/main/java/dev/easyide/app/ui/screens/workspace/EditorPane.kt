@@ -35,6 +35,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.app.ui.theme.EditorColors
 import dev.easyide.app.ui.theme.editorColors
@@ -43,6 +45,25 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.foundation.ScrollState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import dev.easyide.app.ui.screens.workspace.edit.EditCommands
+import dev.easyide.app.ui.screens.workspace.edit.LanguageConfig
+import dev.easyide.app.ui.screens.workspace.edit.TextState
+import dev.easyide.app.ui.screens.workspace.edit.TypingOptions
+import dev.easyide.app.ui.screens.workspace.edit.TypingRules
+import dev.easyide.app.ui.screens.workspace.syntax.LanguageConfigs
+import kotlinx.coroutines.flow.filterNotNull
 
 /**
  * The code surface. Three modes, picked by what the tab holds:
@@ -85,8 +106,23 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
     val verticalScroll = rememberScrollState()
     val horizontalScroll = rememberScrollState()
 
-    val totalLines = remember(tab.content) { tab.content.count { it == '\n' } + 1 }
+    val totalLines = LineCount.of(tab.content)
     val lineNumbers = remember(totalLines) { (1..totalLines).joinToString("\n") }
+    val config by produceState(LanguageConfig.GENERIC, tab.name) {
+        value = withContext(Dispatchers.IO) { LanguageConfigs.forFile(tab.name) }
+    }
+
+    // Text comes from the tab; selection and IME composition are local, the
+    // same split BasicTextField's String overload makes internally. Owning the
+    // selection is what lets typing rules see and move the caret.
+    var selection by remember(tab.relativePath) { mutableStateOf(TextRange.Zero) }
+    var composition by remember(tab.relativePath) { mutableStateOf<TextRange?>(null) }
+    val field = TextFieldValue(tab.content, selection, composition)
+    val bracketPair = remember(tab.content, field.selection, config) {
+        if (field.selection.collapsed) EditCommands.matchingBracket(tab.content, field.selection.start, config.brackets)
+        else null
+    }
+    var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     // The text field is only as large as its text, so tapping beside a short
     // line or below the last line used to hit nothing and the caret never
@@ -97,12 +133,7 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
         val textMinWidth = maxWidth - GUTTER_WIDTH_DP.dp
         val viewportPx = with(LocalDensity.current) { viewportHeight.toPx() }
 
-        val window = rememberVisibleLineWindow(
-            scrollOffsetPx = verticalScroll.value,
-            maxScrollPx = verticalScroll.maxValue,
-            viewportPx = viewportPx,
-            totalLines = totalLines,
-        )
+        val window = rememberSettledLineWindow(verticalScroll, viewportPx, totalLines)
         val transformation = rememberHighlightTransformation(tab, colors, window)
 
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
@@ -118,17 +149,51 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
 
             Box(modifier = Modifier.horizontalScroll(horizontalScroll)) {
                 BasicTextField(
-                    value = tab.content,
-                    onValueChange = onContentChanged,
+                    value = field,
+                    onValueChange = { next ->
+                        val old = TextState(field.text, field.selection.start, field.selection.end)
+                        val typed = TextState(next.text, next.selection.start, next.selection.end)
+                        val result = TypingRules.onChange(old, typed, config, TYPING_OPTIONS)
+                        if (result === typed) {
+                            selection = next.selection
+                            composition = next.composition
+                        } else {
+                            // A rewritten edit no longer lines up with the IME's composing region.
+                            selection = TextRange(result.selectionStart, result.selectionEnd)
+                            composition = null
+                        }
+                        if (result.text != field.text) onContentChanged(result.text)
+                    },
                     textStyle = codeTextStyle().copy(color = colors.plainText),
                     cursorBrush = SolidColor(colors.plainText),
                     visualTransformation = transformation,
+                    onTextLayout = { layout = it },
                     modifier = Modifier
                         .defaultMinSize(minWidth = textMinWidth, minHeight = viewportHeight)
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch),
                 )
             }
         }
+    }
+}
+
+/**
+ * Boxes the bracket pair at the caret. Drawn from the existing text layout
+ * rather than as spans in the visual transformation: a span change would make
+ * the field re-lay-out the whole buffer on every caret move.
+ */
+private fun Modifier.drawBracketMatch(
+    pair: Pair<Int, Int>?,
+    layout: () -> TextLayoutResult?,
+    color: Color,
+): Modifier = if (pair == null) this else drawBehind {
+    val result = layout() ?: return@drawBehind
+    val length = result.layoutInput.text.length
+    for (offset in intArrayOf(pair.first, pair.second)) {
+        if (offset >= length) continue
+        val box = result.getBoundingBox(offset)
+        drawRect(color, topLeft = box.topLeft, size = box.size)
     }
 }
 
@@ -137,7 +202,13 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
 private fun ReadOnlySurface(tab: EditorTab) {
     val colors = editorColors
     val horizontalScroll = rememberScrollState()
-    val lines = remember(tab.content) { tab.content.lines() }
+    // Read-only tabs are the multi-megabyte ones; splitting them on the main
+    // thread was a visible stall on open. The result is tagged with its source
+    // so a tab switch never shows the previous file's lines for a frame.
+    val split by produceState<Pair<String, List<String>>?>(null, tab.content) {
+        value = tab.content to withContext(Dispatchers.Default) { tab.content.lines() }
+    }
+    val lines = split?.takeIf { it.first === tab.content }?.second ?: return
     val gutterWidth = remember(lines.size) {
         // Widen the gutter for files with many lines so numbers never clip.
         (GUTTER_WIDTH_DP + (lines.size.toString().length - 2).coerceAtLeast(0) * GUTTER_DIGIT_DP).dp
@@ -173,16 +244,23 @@ private fun ReadOnlySurface(tab: EditorTab) {
 private const val HIGHLIGHT_DEBOUNCE_MS = 120L
 
 /** Lines coloured beyond the viewport, so a normal scroll never outruns the colour. */
-private const val HIGHLIGHT_OVERSCAN_LINES = 150
+private const val HIGHLIGHT_OVERSCAN_LINES = 250
 
 /**
  * Scroll re-quantised to blocks of this many lines. Without it the window would
- * change on every line crossed and re-key the highlight pass mid-fling.
+ * change on every line crossed and restart the highlight pass.
  */
 private const val HIGHLIGHT_WINDOW_BLOCK = 250
 
 /** Fallback window when the text has not been laid out yet and line height is unknown. */
 private const val HIGHLIGHT_INITIAL_LINES = 400
+
+/**
+ * Typing behaviour until the settings schema supplies `editor.autoClosingBrackets`,
+ * `editor.autoSurround`, `editor.autoIndent` and `editor.tabSize`
+ * (docs/extension-sdk/sdk-reference.md); the defaults match those keys' defaults.
+ */
+private val TYPING_OPTIONS = TypingOptions()
 
 /**
  * The span of lines worth colouring right now.
@@ -210,28 +288,48 @@ private class HighlightPass(val path: String, val source: String, val styled: An
  * pinned at its initial guess, and colour stopped after the first few hundred
  * lines. This has no such dependency.
  */
-@Composable
-private fun rememberVisibleLineWindow(
-    scrollOffsetPx: Int,
-    maxScrollPx: Int,
-    viewportPx: Float,
-    totalLines: Int,
-): LineWindow = remember(scrollOffsetPx, maxScrollPx, viewportPx, totalLines) {
+private fun visibleLineWindow(scrollOffsetPx: Int, maxScrollPx: Int, viewportPx: Float, totalLines: Int): LineWindow {
     val contentPx = maxScrollPx + viewportPx
-    if (totalLines <= 0 || contentPx <= 0f) return@remember LineWindow(0, HIGHLIGHT_INITIAL_LINES)
+    if (totalLines <= 0 || contentPx <= 0f) return LineWindow(0, HIGHLIGHT_INITIAL_LINES)
 
     val lineHeightPx = contentPx / totalLines
-    if (lineHeightPx <= 0f) return@remember LineWindow(0, HIGHLIGHT_INITIAL_LINES)
+    if (lineHeightPx <= 0f) return LineWindow(0, HIGHLIGHT_INITIAL_LINES)
 
     val firstVisible = (scrollOffsetPx / lineHeightPx).toInt()
     val visibleCount = (viewportPx / lineHeightPx).toInt() + 1
     val rawFirst = (firstVisible - HIGHLIGHT_OVERSCAN_LINES).coerceAtLeast(0)
     val rawLast = firstVisible + visibleCount + HIGHLIGHT_OVERSCAN_LINES
 
-    LineWindow(
+    return LineWindow(
         first = rawFirst / HIGHLIGHT_WINDOW_BLOCK * HIGHLIGHT_WINDOW_BLOCK,
         last = (rawLast / HIGHLIGHT_WINDOW_BLOCK + 1) * HIGHLIGHT_WINDOW_BLOCK,
     )
+}
+
+/**
+ * The window the highlighter should colour, updated only once scrolling stops.
+ *
+ * The scroll offset is read inside [derivedStateOf] and a snapshot flow, never
+ * directly in composition, so a scroll frame recomposes nothing unless the
+ * quantised window actually moves. While a drag or fling is in progress the
+ * last window is kept: re-keying mid-fling cancelled and restarted the pass on
+ * every block crossed, burning the CPU the fling needed. The wider overscan
+ * covers the lines a short fling reveals before the pass catches up.
+ */
+@Composable
+private fun rememberSettledLineWindow(scroll: ScrollState, viewportPx: Float, totalLines: Int): LineWindow {
+    val live = remember(scroll, viewportPx, totalLines) {
+        derivedStateOf { visibleLineWindow(scroll.value, scroll.maxValue, viewportPx, totalLines) }
+    }
+    // Seeded without a read observation, or composition would subscribe to
+    // every window change and the point of settling would be lost.
+    val settled = remember { mutableStateOf(Snapshot.withoutReadObservation { live.value }) }
+    LaunchedEffect(live) {
+        snapshotFlow { if (scroll.isScrollInProgress) null else live.value }
+            .filterNotNull()
+            .collect { settled.value = it }
+    }
+    return settled.value
 }
 
 /**
@@ -331,16 +429,20 @@ private fun EmptyEditor(modifier: Modifier) {
 
 /** One definition so the gutter and buffer share a line height and never drift. */
 @Composable
-fun codeTextStyle(): TextStyle = TextStyle(
-    fontFamily = FontFamily.Monospace,
-    fontSize = CODE_FONT_SP.sp,
-    lineHeight = CODE_LINE_HEIGHT_SP.sp,
-)
+fun codeTextStyle(): TextStyle {
+    val settings = LocalSettings.current
+    val fontSize = settings[SettingsSchema.editorFontSize]
+    return TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontSize = fontSize.sp,
+        // Both are independent settings; a line shorter than its glyphs would
+        // overlap neighbouring lines, so the font size is the floor.
+        lineHeight = settings[SettingsSchema.editorLineHeight].coerceAtLeast(fontSize).sp,
+    )
+}
 
 private const val GUTTER_WIDTH_DP = 52
 private const val GUTTER_DIGIT_DP = 8
-private const val CODE_FONT_SP = 13
-private const val CODE_LINE_HEIGHT_SP = 20
 
 
 

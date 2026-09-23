@@ -39,6 +39,8 @@ object TextMateHighlighter {
     /** Touches identifiers, calls, strings, numbers and comments - the patterns most grammars reach first. */
     private const val PREWARM_SAMPLE = "value = call(\"text\", 42) // note"
 
+    private lateinit var assets: AssetManager
+    private var indexLoadAttempted = false
     private var index: GrammarIndex? = null
     private var registry: Registry? = null
 
@@ -59,17 +61,25 @@ object TextMateHighlighter {
     }
 
     /**
-     * Called once from the Application. Only the index is read eagerly (44 KB);
-     * grammars themselves are pulled in on first use.
+     * Called once from the Application. Only remembers where the assets are:
+     * reading the index is deferred to the first [highlight] or [prewarm],
+     * both of which run off the main thread, so launch pays nothing for it.
      */
     @Synchronized
     fun init(context: Context) {
-        if (index != null) return
-        val manager: AssetManager = context.applicationContext.assets
+        assets = context.applicationContext.assets
+    }
+
+    /** Reads the index (44 KB) once; grammars themselves are pulled in on first use. Caller holds the lock. */
+    private fun loadedIndex(): GrammarIndex? {
+        if (indexLoadAttempted) return index
+        indexLoadAttempted = true
+        val manager = assets
         index = runCatching { GrammarIndex.load(manager) }
             .onFailure { Log.e(TAG, "grammar index unreadable, highlighting disabled", it) }
             .getOrNull()
-        val loaded = index ?: return
+        val loaded = index ?: return null
+        LanguageConfigs.init(manager, loaded)
         registry = Registry(
             grammarSource = { scope ->
                 val asset = loaded.assetFor(scope) ?: return@Registry null
@@ -78,11 +88,18 @@ object TextMateHighlighter {
                 }.onFailure { Log.w(TAG, "grammar $scope unreadable", it) }.getOrNull()
             },
         )
+        return loaded
     }
 
-    /** True when a grammar exists for this file, so callers can label the language. */
+    /**
+     * Loads the index if nothing has yet, so [LanguageConfigs] works for a tab
+     * opened before its first highlight pass. Always takes this lock before
+     * [LanguageConfigs]' own, which is what keeps the two from deadlocking.
+     */
     @Synchronized
-    fun supports(fileName: String): Boolean = index?.scopeFor(fileName) != null
+    internal fun ensureIndexLoaded() {
+        loadedIndex()
+    }
 
     /**
      * Colour [source] for the window of lines `[firstLine, lastLine]`.
@@ -124,7 +141,7 @@ object TextMateHighlighter {
      */
     fun prewarm(fileNames: Collection<String>) {
         val scopes = synchronized(this) {
-            fileNames.mapNotNull { index?.scopeFor(it) }.distinct().take(MAX_PREWARM_GRAMMARS)
+            fileNames.mapNotNull { loadedIndex()?.scopeFor(it) }.distinct().take(MAX_PREWARM_GRAMMARS)
         }
         for (scope in scopes) {
             synchronized(this) {
@@ -135,7 +152,7 @@ object TextMateHighlighter {
     }
 
     private fun grammarFor(fileName: String): Grammar? =
-        index?.scopeFor(fileName)?.let(::grammarForScope)
+        loadedIndex()?.scopeFor(fileName)?.let(::grammarForScope)
 
     private fun grammarForScope(scope: String): Grammar? {
         if (scope in unavailable) return null

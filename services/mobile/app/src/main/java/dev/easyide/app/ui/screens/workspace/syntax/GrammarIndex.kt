@@ -13,11 +13,15 @@ import org.json.JSONObject
  */
 internal class GrammarIndex private constructor(
     private val scopeToFile: Map<String, String>,
+    private val scopeToConfig: Map<String, String>,
     private val byExtension: Map<String, String>,
     private val byFilename: Map<String, String>,
 ) {
 
     fun assetFor(scopeName: String): String? = scopeToFile[scopeName]
+
+    /** The grammar's `language-configuration` asset; absent where VS Code ships none. */
+    fun configFor(scopeName: String): String? = scopeToConfig[scopeName]
 
     /** Filename wins over extension - `Makefile` and `Dockerfile` carry no suffix. */
     fun scopeFor(fileName: String): String? {
@@ -36,13 +40,15 @@ internal class GrammarIndex private constructor(
             val root = JSONObject(json)
 
             val files = HashMap<String, String>()
+            val configs = HashMap<String, String>()
             val grammars = root.getJSONArray("grammars")
             for (i in 0 until grammars.length()) {
                 val entry = grammars.getJSONObject(i)
                 files[entry.getString("scope")] = entry.getString("file")
+                entry.optString("config").takeIf { it.isNotEmpty() }?.let { configs[entry.getString("scope")] = it }
             }
 
-            return GrammarIndex(files, root.readMap("byExtension"), root.readMap("byFilename"))
+            return GrammarIndex(files, configs, root.readMap("byExtension"), root.readMap("byFilename"))
         }
 
         private fun JSONObject.readMap(key: String): Map<String, String> {

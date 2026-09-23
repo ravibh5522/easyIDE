@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Difference
 import androidx.compose.material.icons.filled.FolderCopy
+import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Icon
@@ -27,8 +28,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.easyide.app.R
 import dev.easyide.app.ui.foundation.motionSpec
 import dev.easyide.app.ui.theme.editorColors
 
@@ -41,6 +44,7 @@ fun ActivityBar(
     onToggleExplorer: () -> Unit,
     onToggleSourceControl: () -> Unit,
     onToggleTerminal: () -> Unit,
+    onShowCommands: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -58,6 +62,12 @@ fun ActivityBar(
         ActivityBarButton(Icons.Filled.FolderCopy, "Explorer", explorerVisible, onToggleExplorer)
         ActivityBarButton(Icons.Filled.Difference, "Source control", sourceControlVisible, onToggleSourceControl)
         ActivityBarButton(Icons.Filled.Terminal, "Terminal", terminalVisible, onToggleTerminal)
+        ActivityBarButton(
+            Icons.Filled.Keyboard,
+            stringResource(R.string.command_show_commands),
+            false,
+            onShowCommands,
+        )
     }
 }
 
@@ -146,7 +156,7 @@ fun StatusBar(
                 color = colors.statusBarText,
             )
             Text(
-                text = "${activeTab.content.count { it == '\n' } + 1} lines",
+                text = "${LineCount.of(activeTab.content)} lines",
                 style = MaterialTheme.typography.labelSmall,
                 color = colors.statusBarText,
             )

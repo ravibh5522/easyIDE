@@ -1,11 +1,5 @@
 package dev.easyide.app.ui.screens.settings
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,9 +12,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -37,20 +32,26 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
+import dev.easyide.app.data.settings.SettingCategory
+import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.components.EnvironmentBadge
 import dev.easyide.app.ui.components.rememberFolderPicker
-import dev.easyide.app.ui.foundation.motionSpec
-import dev.easyide.app.ui.theme.ThemeMode
 import dev.easyide.sandbox.external.ExternalFolderSync
 
 /**
- * Settings: theme selection plus environment management. Environments are
+ * Settings: schema-driven rows (theme, editor, terminal) with search, plus
+ * project storage and environment management. Environments are
  * listed here because deleting one is a cross-project action - the usage count
  * shown per row is what makes the "in use" refusal understandable.
  */
@@ -60,7 +61,7 @@ fun SettingsScreen(
     uiState: SettingsUiState,
     errorMessage: String?,
     externalFolderSync: ExternalFolderSync,
-    onThemeSelected: (ThemeMode) -> Unit,
+    settingActions: SettingActions,
     onDefaultEnvironmentSelected: (String) -> Unit,
     onDeleteEnvironment: (String) -> Unit,
     onDefaultProjectsFolderChosen: (String?) -> Unit,
@@ -70,6 +71,16 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var query by rememberSaveable { mutableStateOf("") }
+    val resources = LocalContext.current.resources
+    // Search covers title, description and key, as in VS Code's settings UI.
+    val visible = SettingsSchema.all.filter { setting ->
+        query.isBlank() || listOf(
+            resources.getString(setting.title),
+            resources.getString(setting.description),
+            setting.key,
+        ).any { it.contains(query.trim(), ignoreCase = true) }
+    }
     val pickFolder = rememberFolderPicker(
         externalFolderSync = externalFolderSync,
         onPicked = { uri -> onDefaultProjectsFolderChosen(uri.toString()) },
@@ -107,17 +118,35 @@ fun SettingsScreen(
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            item { SectionHeader(stringResource(R.string.settings_theme_section)) }
-
-            items(ThemeMode.entries, key = { it.name }) { mode ->
-                ThemeRow(
-                    mode = mode,
-                    selected = uiState.themeMode == mode,
-                    onClick = { onThemeSelected(mode) },
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    singleLine = true,
+                    placeholder = { Text(stringResource(R.string.settings_search_hint)) },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    modifier = Modifier.contentWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 )
             }
 
-            item { HorizontalDivider(modifier = Modifier.contentWidth().padding(vertical = 8.dp)) }
+            SettingCategory.entries.forEach { category ->
+                val rows = visible.filter { it.category == category }
+                if (rows.isEmpty()) return@forEach
+                item(key = category.name) { SectionHeader(stringResource(category.title)) }
+                items(rows, key = { it.key }) { setting ->
+                    SettingRow(
+                        setting = setting,
+                        snapshot = uiState.settings,
+                        actions = settingActions,
+                        modifier = Modifier.contentWidth(),
+                    )
+                }
+                item { HorizontalDivider(modifier = Modifier.contentWidth().padding(vertical = 8.dp)) }
+            }
+
+            // Storage and environments are not schema settings; while searching
+            // only matching schema rows are shown.
+            if (query.isNotBlank()) return@LazyColumn
 
             item { SectionHeader(stringResource(R.string.settings_storage_section)) }
 
@@ -154,31 +183,6 @@ fun SettingsScreen(
             }
         }
     }
-}
-
-@Composable
-private fun ThemeRow(mode: ThemeMode, selected: Boolean, onClick: () -> Unit) {
-    ListItem(
-        headlineContent = { Text(mode.displayName()) },
-        trailingContent = {
-            // Scale+fade rather than an instant swap so the selection move
-            // between rows reads as one continuous change.
-            AnimatedVisibility(
-                visible = selected,
-                enter = scaleIn(motionSpec()) + fadeIn(motionSpec()),
-                exit = scaleOut(motionSpec()) + fadeOut(motionSpec()),
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
-        modifier = Modifier
-            .contentWidth()
-            .clickable(onClick = onClick),
-    )
 }
 
 @Composable
@@ -294,10 +298,6 @@ private fun SectionHeader(title: String) {
 /** Keeps settings rows readable instead of stretching across a wide tablet. */
 private fun Modifier.contentWidth(): Modifier =
     this.fillMaxWidth().widthIn(max = MAX_CONTENT_WIDTH_DP.dp)
-
-private fun ThemeMode.displayName(): String = name
-    .split('_')
-    .joinToString(" ") { word -> word.lowercase().replaceFirstChar { it.uppercase() } }
 
 private const val MAX_CONTENT_WIDTH_DP = 720
 private const val LIST_BOTTOM_PADDING_DP = 32

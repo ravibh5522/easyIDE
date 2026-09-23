@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.termux.view.TerminalView
 import dev.easyide.app.R
+import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.theme.editorColors
 
 /**
@@ -55,6 +57,7 @@ fun TerminalPane(
     onCloseTab: (String) -> Unit,
     onRenameTab: (String, String) -> Unit,
     onInstallLinux: () -> Unit,
+    onHardwareKey: (android.view.KeyEvent) -> Boolean,
     modifier: Modifier = Modifier,
 ) {
     val colors = editorColors
@@ -77,6 +80,7 @@ fun TerminalPane(
 
         EasyTerminalView(
             tab = tab,
+            onHardwareKey = onHardwareKey,
             modifier = Modifier.fillMaxWidth().weight(1f),
         )
 
@@ -90,14 +94,23 @@ fun TerminalPane(
 /**
  * Hosts a single [TerminalView] (a plain Android `View`, wrapped the same way
  * [MermaidView] wraps a `WebView`) and keeps it attached to whichever tab is
- * active. Text size is set once up front - the view needs it before its first
- * real layout pass, since `attachSession()` calls `updateSize()` immediately
- * and that dereferences the renderer.
+ * active. Text size is set in the factory too - the view needs it before its
+ * first real layout pass, since `attachSession()` calls `updateSize()`
+ * immediately and that dereferences the renderer - and again in `update` when
+ * the `terminal.fontSize` setting changes.
  */
 @Composable
-private fun EasyTerminalView(tab: PtyTerminalTab, modifier: Modifier = Modifier) {
+private fun EasyTerminalView(
+    tab: PtyTerminalTab,
+    onHardwareKey: (android.view.KeyEvent) -> Boolean,
+    modifier: Modifier = Modifier,
+) {
     val density = LocalDensity.current
-    val textSizePx = remember(density) { with(density) { TERMINAL_FONT_SP.sp.roundToPx() } }
+    val fontSp = LocalSettings.current[SettingsSchema.terminalFontSize]
+    val textSizePx = with(density) { fontSp.sp.roundToPx() }
+    // setTextSize() rebuilds the renderer and resizes the emulator, so it runs
+    // only on a real change, not on every recomposition that re-runs update.
+    val appliedTextSize = remember { AppliedTextSize(textSizePx) }
     val client = remember { EasyTerminalViewClient() }
     val colors = editorColors
 
@@ -119,6 +132,12 @@ private fun EasyTerminalView(tab: PtyTerminalTab, modifier: Modifier = Modifier)
             // recomposition (idempotent) rather than only on attach, so this
             // stays correct if Compose ever recreates the AndroidView.
             tab.client.onScreenChanged = { view.onScreenUpdated(); view.invalidate() }
+            client.onHardwareKey = onHardwareKey
+            if (appliedTextSize.px != textSizePx) {
+                appliedTextSize.px = textSizePx
+                view.setTextSize(textSizePx)
+                view.invalidate()
+            }
             // attachSession() itself no-ops (returns false) when already
             // attached to this exact session, so this only steals focus on a
             // real tab switch, not on every unrelated recomposition.
@@ -224,6 +243,8 @@ private fun TerminalTabBar(
     }
 }
 
+/** Last text size handed to the view; plain holder, never observed by Compose. */
+private class AppliedTextSize(var px: Int)
+
 private const val TAB_ICON_DP = 14
-private const val TERMINAL_FONT_SP = 13
 private const val TERMINAL_HORIZONTAL_PADDING_DP = 8

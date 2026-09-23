@@ -11,7 +11,8 @@ import com.termux.view.TerminalViewClient
 /**
  * The client `TerminalView` needs for input routing, modifier keys and
  * logging. Every `onKeyDown`/`onCodePoint` hook returns `false` ("I did not
- * handle this specially") so the view's own, already-correct default
+ * handle this specially"), except `onKeyDown` for a workspace shortcut chord,
+ * so the view's own, already-correct default
  * handling runs - translating arrow keys, Ctrl combinations and Unicode
  * input into the right bytes for the pty itself. There is no soft-keyboard
  * modifier state (a "sticky Ctrl" toggle) here: [TerminalKeyRow] sends raw
@@ -25,6 +26,15 @@ class EasyTerminalViewClient : TerminalViewClient {
      * soft keyboard - see [onSingleTapUp].
      */
     var terminalView: TerminalView? = null
+
+    /**
+     * Workspace shortcut dispatch. A focused interop View receives hardware
+     * keys directly, bypassing Compose's `onPreviewKeyEvent`, so this is the
+     * only place the terminal can offer a key to the keymap first. Returns true
+     * only for chords the keymap allows while the terminal is focused;
+     * everything else (Ctrl+C, Ctrl+D, Ctrl+W...) reaches the shell untouched.
+     */
+    var onHardwareKey: (KeyEvent) -> Boolean = { false }
 
     override fun onScale(scale: Float): Float = 1f
 
@@ -54,7 +64,7 @@ class EasyTerminalViewClient : TerminalViewClient {
 
     override fun copyModeChanged(copyMode: Boolean) {}
 
-    override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession?): Boolean = false
+    override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession?): Boolean = onHardwareKey(e)
 
     override fun onKeyUp(keyCode: Int, e: KeyEvent): Boolean = false
 

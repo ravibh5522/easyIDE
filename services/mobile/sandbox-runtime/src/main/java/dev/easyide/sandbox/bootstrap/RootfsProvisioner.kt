@@ -62,11 +62,13 @@ class RootfsProvisioner(
      * every launch, not just at provision time, so environments created before
      * a fix existed pick it up instead of staying subtly broken.
      */
-    fun ensureGuestDefaults(rootfs: File) {
-        runCatching { configureDns(rootfs) }
-        runCatching { installSudoShim(rootfs) }
-        runCatching { removePaxHeaderArtifacts(rootfs) }
-        runCatching { createDefaultUser(rootfs) }
+    suspend fun ensureGuestDefaults(rootfs: File) {
+        withContext(ioDispatcher) {
+            runCatching { configureDns(rootfs) }
+            runCatching { installSudoShim(rootfs) }
+            runCatching { removePaxHeaderArtifacts(rootfs) }
+            runCatching { createDefaultUser(rootfs) }
+        }
     }
 
     /**

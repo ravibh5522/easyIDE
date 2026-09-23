@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.androidx.baselineprofile)
 }
 
 // Single source of truth for what a build calls itself. CI supplies the build
@@ -62,7 +63,14 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".canary"
             versionNameSuffix = "-canary.$buildNumber+$gitSha"
-            isMinifyEnabled = false
+            // Canary must ship the same R8 output as release, or it cannot
+            // catch a missing keep rule before stable does.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             isDebuggable = false
             signingConfig = publishSigning
             // Library modules only declare debug/release.
@@ -70,7 +78,12 @@ android {
         }
 
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             signingConfig = publishSigning
         }
     }
@@ -94,15 +107,26 @@ android {
     }
 }
 
+// Release and canary run the same code, so one profile in src/main serves
+// both instead of a per-variant copy that can drift.
+baselineProfile {
+    mergeIntoMain = true
+}
+
 dependencies {
     implementation(project(":sandbox-runtime"))
     implementation(project(":terminal-view"))
+    baselineProfile(project(":baselineprofile"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
+    // Installs the baseline profile shipped in the APK on sideloaded and
+    // non-Play installs, where no cloud profile ever arrives.
+    implementation(libs.androidx.profileinstaller)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -114,4 +138,5 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlin.textmate.core)
     debugImplementation(libs.androidx.ui.tooling)
+    testImplementation(libs.junit)
 }

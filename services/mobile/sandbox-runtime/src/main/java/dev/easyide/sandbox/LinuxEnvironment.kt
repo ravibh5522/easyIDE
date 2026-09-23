@@ -10,6 +10,7 @@ import dev.easyide.sandbox.shell.SandboxShell
 import dev.easyide.sandbox.shell.ShellRunner
 import dev.easyide.sandbox.shell.TerminalProcess
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -31,8 +32,9 @@ class LinuxEnvironment(
     fun rootfsFor(environmentId: String): File = paths.rootfsDir(environmentId)
 
     /** A rootfs with a shell in it is the cheapest honest readiness check. */
-    fun isReady(environmentId: String): Boolean =
+    suspend fun isReady(environmentId: String): Boolean = withContext(ioDispatcher) {
         File(rootfsFor(environmentId), GUEST_SHELL_RELATIVE).exists()
+    }
 
     /**
      * Unpacks [image]'s rootfs into the environment, then runs its setup

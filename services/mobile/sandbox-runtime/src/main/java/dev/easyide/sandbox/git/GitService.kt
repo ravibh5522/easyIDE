@@ -7,17 +7,20 @@ import java.io.File
 /**
  * Coroutine-facing entry point for a project's git repository.
  *
- * The repository handle is opened per call rather than held: JGit keeps file
- * descriptors and a cached index, and a long-lived handle would go stale
- * whenever the guest's own `git` (or Claude Code, or the terminal) writes to
- * `.git` behind our back - which in this app is routine, not exceptional.
- * Opening is cheap next to the I/O each operation already does.
+ * One JGit handle is kept per project until [release]: the workspace refreshes
+ * status on every filesystem event, and re-opening per call re-read config,
+ * refs and pack indexes each time. Keeping it is safe against the guest's own
+ * `git` (or Claude Code, or the terminal) writing to `.git` behind our back -
+ * JGit re-checks the index, refs and config against their on-disk snapshots
+ * on every read. A handle whose `.git` was deleted is dropped and re-opened.
  *
  * Every call is a real filesystem boundary, so failures are surfaced as
  * [GitResult] rather than thrown: a corrupt or half-cloned repository must
  * degrade to "no source control" instead of taking the workspace down.
  */
 class GitService(private val ioDispatcher: CoroutineDispatcher) {
+
+    private val openRepositories = mutableMapOf<String, GitRepository>()
 
     suspend fun isRepository(projectDir: File): Boolean = withContext(ioDispatcher) {
         GitRepository.isRepository(projectDir)
@@ -55,8 +58,8 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
         run(projectDir) { it.logAllRefs(limit) }
 
     /**
-     * Opens the repository, creating one when [create] is set, and runs [block]
-     * against it. Anything thrown becomes [GitResult.Failure].
+     * Runs [block] against the project's cached repository, creating one when
+     * [create] is set. Anything thrown becomes [GitResult.Failure].
      */
     private suspend fun <T> run(
         projectDir: File,
@@ -64,9 +67,9 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
         block: (GitRepository) -> T,
     ): GitResult<T> = withContext(ioDispatcher) {
         runCatching {
-            val repo = GitRepository.open(projectDir)
-                ?: if (create) GitRepository.init(projectDir) else return@runCatching null
-            repo.use(block)
+            val repo = repositoryFor(projectDir)
+                ?: if (create) remember(projectDir, GitRepository.init(projectDir)) else return@runCatching null
+            block(repo)
         }.fold(
             onSuccess = { value ->
                 if (value == null) GitResult.NotARepository else GitResult.Success(value)
@@ -79,12 +82,30 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
     suspend fun createRepository(projectDir: File): GitResult<GitStatus> =
         withContext(ioDispatcher) {
             runCatching {
-                GitRepository.init(projectDir).use { it.status() }
+                remember(projectDir, GitRepository.init(projectDir)).status()
             }.fold(
                 onSuccess = { GitResult.Success(it) },
                 onFailure = { GitResult.Failure(it.message ?: it::class.java.simpleName) },
             )
         }
+
+    /** Closes [projectDir]'s cached handle; call when its workspace goes away. */
+    fun release(projectDir: File) {
+        synchronized(openRepositories) { openRepositories.remove(projectDir.absolutePath) }?.close()
+    }
+
+    private fun repositoryFor(projectDir: File): GitRepository? = synchronized(openRepositories) {
+        val key = projectDir.absolutePath
+        val cached = openRepositories[key]
+        if (cached != null && cached.gitDirExists()) return cached
+        openRepositories.remove(key)?.close()
+        GitRepository.open(projectDir)?.also { openRepositories[key] = it }
+    }
+
+    private fun remember(projectDir: File, repo: GitRepository): GitRepository = synchronized(openRepositories) {
+        openRepositories.put(projectDir.absolutePath, repo)?.close()
+        repo
+    }
 
     private companion object {
         const val LOG_LIMIT = 200

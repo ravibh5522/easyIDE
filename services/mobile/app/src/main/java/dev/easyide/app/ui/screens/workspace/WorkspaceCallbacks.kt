@@ -20,6 +20,8 @@ data class WorkspaceCallbacks(
     val onContentChanged: (String, String) -> Unit,
     val onTogglePreview: () -> Unit,
     val onSave: () -> Unit,
+    /** Saves the given tabs, then runs the callback only if every save succeeded. */
+    val onSaveTabs: (Collection<String>, () -> Unit) -> Unit,
 
     val onCreateFile: (String, String) -> Unit,
     val onCreateFolder: (String, String) -> Unit,

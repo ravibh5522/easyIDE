@@ -4,7 +4,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,12 +17,17 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import dev.easyide.app.R
 import dev.easyide.app.ui.foundation.motionSpec
 import dev.easyide.app.ui.theme.editorColors
 
@@ -94,31 +98,37 @@ private fun EditorTabChip(
         modifier = Modifier
             .background(background)
             .clickable(onClick = onSelect)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(start = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
             text = tab.name,
             style = MaterialTheme.typography.labelMedium,
             color = if (active) colors.plainText else colors.gutterText,
         )
-        if (tab.isDirty) {
-            Box(
-                modifier = Modifier
-                    .size(DIRTY_DOT_DP.dp)
-                    .background(colors.plainText, CircleShape)
-                    .clickable(onClick = onClose),
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Filled.Close,
-                contentDescription = "Close ${tab.name}",
-                tint = colors.gutterText,
-                modifier = Modifier
-                    .size(CLOSE_ICON_DP.dp)
-                    .clickable(onClick = onClose),
-            )
+        // The glyph stays small but the target is the 48dp minimum, which also
+        // sets the tab's height - an 8dp dot was too easy to hit by accident.
+        val closeLabel = stringResource(
+            if (tab.isDirty) R.string.editor_close_unsaved_tab else R.string.editor_close_tab,
+            tab.name,
+        )
+        Box(
+            modifier = Modifier
+                .clickable(onClick = onClose)
+                .minimumInteractiveComponentSize()
+                .semantics { contentDescription = closeLabel },
+            contentAlignment = Alignment.Center,
+        ) {
+            if (tab.isDirty) {
+                Box(modifier = Modifier.size(DIRTY_DOT_DP.dp).background(colors.plainText, CircleShape))
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = null,
+                    tint = colors.gutterText,
+                    modifier = Modifier.size(CLOSE_ICON_DP.dp),
+                )
+            }
         }
     }
 }
