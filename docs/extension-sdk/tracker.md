@@ -1,0 +1,46 @@
+# Feature: Extension SDK & Language Intelligence - Tracker
+
+Status legend: not-started / in-progress / done / blocked
+
+Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md). Everything below is PROPOSED as of 2026-09-23.
+
+| Component | Status | Notes |
+|---|---|---|
+| **Decisions** | | |
+| ADR-E SDK shape, manifest, `.easyext` | in-progress | drafted as [0013](../decision/0013-extension-sdk-shape-manifest-easyext.md), Proposed |
+| ADR-F WASM logic layer + runtime | in-progress | drafted as [0014](../decision/0014-wasm-logic-layer-chicory.md); ART spike pending |
+| ADR-G SDK licensing (Apache-2.0 proposal) | in-progress | drafted as [0015](../decision/0015-extension-sdk-licensing-apache.md); app stays under 0008 |
+| ADR-H Registry + signing model | in-progress | drafted as [0016](../decision/0016-extension-registry-static-index-ed25519.md) |
+| ADR-I LSP client + server lifecycle | in-progress | drafted as [0017](../decision/0017-lsp-client-hand-rolled-server-lifecycle.md) |
+| Design doc set (arch, sdk-reference, HLD, LLDs, threat model, rules, tests) | done | cross-checked for consistency 2026-09-24; map in [arch.md](arch.md#document-map) |
+| ux-overhaul ADR-B editor engine | not-started | blocks all editor decorations |
+| **M0 prerequisites** | | |
+| Command registry + keymap | not-started | shared with ux-overhaul Pillar 4 |
+| Settings schema + layering | not-started | shared with ux-overhaul Pillar 5 |
+| Editor decoration layers (squiggles, inlay, popups, gutter) | blocked | on ADR-B |
+| **M1 no-server language features** | | |
+| language-configuration.json bundled with grammars | not-started | extend tools/build-grammars.py |
+| Brackets, auto-close, surround, comment toggle, indent/onEnter rules | not-started | |
+| Snippets + word completion | not-started | |
+| **M2 LSP core** | | |
+| JSON-RPC transport + path mapping + doc sync | not-started | |
+| Server lifecycle, memory budget, crash backoff | not-started | |
+| Python end to end (diagnostics, completion, hover, definition) | not-started | |
+| **M3 declarative extensions** | | |
+| Manifest loader + contribution registry | not-started | |
+| Action vocabulary | not-started | |
+| First-party packs shipped as extensions (Python, themes) | not-started | dogfood |
+| **M4 language packs + customization UI** | | |
+| Additional language servers | not-started | licenses per server to verify |
+| Customization UI (hide/reorder contributions, server overrides, custom servers, profiles, safe mode) | not-started | |
+| **M5 SDK tooling** | | |
+| `easyide-ext` CLI | not-started | |
+| In-app dev loop (create, install from folder, live reload, log) | not-started | |
+| Samples + author docs | not-started | |
+| **M6 registry** | | |
+| Static signed index repo + browse/install UI | not-started | no backend |
+| Open VSX secondary source | not-started | |
+| **M7 WASM layer** | | |
+| Runtime embed, ABI v1, host API, capability enforcement | not-started | |
+| **M8 Node host (conditional)** | | |
+| vscode API subset in sandbox | not-started | only if M3+M7 insufficient |

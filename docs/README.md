@@ -23,6 +23,8 @@ docs/
 | Design system (themes, color, icons, imagery, animation, responsive layout) | [docs/design-system/](design-system/) |
 | Extensions (tree-sitter + LSP language core, declarative contributions, custom stages, sandbox toolchain install, Open VSX) | [docs/extensions/](extensions/) |
 | Git (JGit source control, staging/commits, auto change detection, planned clone/auth/push) | [docs/git/](git/) |
+| UX overhaul (perf, visual identity, layout/input, settings schema, feature roadmap from the 2026-09 audit) | [docs/ux-overhaul/](ux-overhaul/) |
+| Extension SDK & language intelligence (LSP client, no-server language features, declarative + WASM extensions, registry, full customization) | [docs/extension-sdk/](extension-sdk/) |
 
 ## Conventions
 

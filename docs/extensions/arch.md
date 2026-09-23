@@ -1,5 +1,7 @@
 # Feature: Extensions — Architecture
 
+> The detailed, proposed design for the SDK, manifest, WASM layer, LSP client and registry that build on these tiers is in [docs/extension-sdk/](../extension-sdk/arch.md). It moves easyIDE-only manifest keys under a top-level `easyide` object; the Tier 1 sketch below still shows them at the top level.
+
 ## Overview
 
 The ask: real syntax highlighting, code hints, completion and shortcuts; language packs
