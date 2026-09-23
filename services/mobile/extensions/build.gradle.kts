@@ -17,6 +17,17 @@ kotlin {
     }
 }
 
+// The manifest schema is shared with the easyide-ext CLI (R-ENG-05); it is packaged from
+// services/shared so there is exactly one copy.
+sourceSets {
+    main {
+        resources {
+            srcDir("../../shared/extension-schema")
+            include("*.schema.json")
+        }
+    }
+}
+
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)

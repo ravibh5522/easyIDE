@@ -1,0 +1,2 @@
+{ "name": "Graphite Night", "type": "dark", "colors": { "editor.background": "#1e1f22" },
+  "tokenColors": [{ "scope": "comment", "settings": { "foreground": "#7a7e85" } }] }

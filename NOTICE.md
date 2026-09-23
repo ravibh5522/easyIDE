@@ -24,6 +24,9 @@ redistributing these.
 | [kotlin-textmate](https://github.com/ivan-magda/kotlin-textmate) 0.2.0 (TextMate tokenizer) | Gradle dependency | MIT | 2026-08-11, upstream `LICENSE` |
 | [joni](https://github.com/jruby/joni) + jcodings (Oniguruma regex, pulled in by the tokenizer) | Gradle dependency | MIT | 2026-08-11, upstream `LICENSE` |
 | Gson | Gradle dependency | Apache-2.0 | 2026-08-11 |
+| kotlinx-serialization-json 1.11.0, kotlinx-coroutines | Gradle dependencies | Apache-2.0 | 2026-09-24, Maven Central POM |
+| VS Code `language-configuration.json` files (57 languages, tag 1.139.0) | `assets/grammars/config/*.json` | MIT | 2026-09-24, microsoft/vscode LICENSE.txt at tag |
+| easyIDE extension manifest schema (first-party, [decision 0015](docs/decision/0015-extension-sdk-licensing-apache.md)) | `services/shared/extension-schema/` (packaged into `:extensions`) | **Apache-2.0** (unlike the rest of the app) | 2026-09-24 |
 | **229 TextMate grammars** via [tm-grammars](https://github.com/shikijs/textmate-grammars-themes) (MIT packaging) | `assets/grammars/*.json` | MIT x194, Apache-2.0 x22, TextMate-permissive x8, MPL-2.0 x3, ISC x1, BSD-3-Clause x1 | 2026-08-11, per-grammar from the `tm-grammars` NOTICE |
 
 ### Obligations this creates

@@ -27,8 +27,8 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | Server lifecycle, memory budget, crash backoff | not-started | |
 | Python end to end (diagnostics, completion, hover, definition) | not-started | |
 | **M3 declarative extensions** | | |
-| Manifest loader + contribution registry | not-started | |
-| Action vocabulary | not-started | |
+| Manifest loader + contribution registry | in-progress | :extensions core done (schema+validator, parser, semver, 23 contribution stores, when-clauses, context keys, activation, crash journal/safe mode, enablement; 123 tests). App adapters + descriptor cache next |
+| Action vocabulary | in-progress | ActionRunner with full vocabulary over HostPort, variables, SHELL/ARGV/PLAIN quoting, capability checks; app HostPort next |
 | First-party packs shipped as extensions (Python, themes) | not-started | dogfood |
 | **M4 language packs + customization UI** | | |
 | Additional language servers | not-started | licenses per server to verify |
