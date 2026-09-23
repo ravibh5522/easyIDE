@@ -56,6 +56,7 @@ import dev.easyide.app.ui.foundation.WidthClass
 import dev.easyide.app.ui.foundation.motionSpec
 import dev.easyide.app.ui.theme.editorColors
 import dev.easyide.sandbox.files.FileNode
+import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
 
 /** Which naming dialog is open, if any. */
 private sealed interface PendingPrompt {
@@ -79,6 +80,7 @@ fun WorkspaceScreen(
     callbacks: WorkspaceCallbacks,
     gitState: GitPanelState,
     gitCallbacks: SourceControlCallbacks,
+    decorations: DecorationRegistry,
     modifier: Modifier = Modifier,
 ) {
     val onRefreshGit = gitCallbacks.onRefresh
@@ -211,6 +213,7 @@ fun WorkspaceScreen(
                                     onContentChanged = { content ->
                                         uiState.activeTabPath?.let { callbacks.onContentChanged(it, content) }
                                     },
+                                    decorations = uiState.activeTabPath?.let(decorations::model),
                                 )
                             }
 

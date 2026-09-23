@@ -1,6 +1,6 @@
 # 0013 - Extension SDK shape: VS Code-shaped manifest, `.easyext` zip, `easyide` key, fixed action vocabulary
 
-Status: Proposed
+Status: Accepted (2026-09-24)
 
 ## Context
 

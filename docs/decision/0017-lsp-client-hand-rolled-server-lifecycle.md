@@ -1,6 +1,6 @@
 # 0017 - LSP client: hand-rolled JSON-RPC in the app process; one server per (environment, project, server)
 
-Status: Proposed
+Status: Accepted (2026-09-24)
 
 ## Context
 

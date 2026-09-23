@@ -450,6 +450,10 @@ States `NotInstalled`, `Stopped(reason)`, `Starting`, `Initializing`, `Running`,
 
 ### 7.9 UI integration (via ADR-B decoration layers)
 
+ADR-B is [decision 0018](../decision/0018-editor-engine-and-decorations.md). Until the
+line-virtualised editor (PE1) lands, inline inserted text renders as end-of-line ghost text
+and between-line blocks (code lens) as a gutter glyph with a tap-to-list popup.
+
 | Layer | Used by |
 |---|---|
 | underline decorations | diagnostics (severity token colours), document links |

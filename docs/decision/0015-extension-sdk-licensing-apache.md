@@ -1,6 +1,6 @@
 # 0015 - Extension SDK licensing: schema, guest bindings, CLI and samples under Apache-2.0
 
-Status: Proposed
+Status: Accepted (2026-09-24)
 
 ## Context
 

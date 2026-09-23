@@ -13,11 +13,11 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | ADR-H Registry + signing model | in-progress | drafted as [0016](../decision/0016-extension-registry-static-index-ed25519.md) |
 | ADR-I LSP client + server lifecycle | in-progress | drafted as [0017](../decision/0017-lsp-client-hand-rolled-server-lifecycle.md) |
 | Design doc set (arch, sdk-reference, HLD, LLDs, threat model, rules, tests) | done | cross-checked for consistency 2026-09-24; map in [arch.md](arch.md#document-map) |
-| ux-overhaul ADR-B editor engine | not-started | blocks all editor decorations |
+| ux-overhaul ADR-B editor engine | done | [0018](../decision/0018-editor-engine-and-decorations.md) |
 | **M0 prerequisites** | | |
 | Command registry + keymap | in-progress | see ux-overhaul tracker |
 | Settings schema + layering | in-progress | global layer only |
-| Editor decoration layers (squiggles, inlay, popups, gutter) | blocked | on ADR-B |
+| Editor decoration layers (squiggles, inlay, popups, gutter) | in-progress | PLT-05: model, painters, geometry, `EditorPopup` + JVM tests landed (`workspace/decor/`); inlay = end-of-line ghost text, code lens = gutter glyph (0018); token overlay stays in the highlighter; instrumented screenshot checks not run (no device) |
 | **M1 no-server language features** | | |
 | language-configuration.json bundled with grammars | done | 57/229 languages from VS Code 1.139.0 (MIT), generic fallback for the rest |
 | Brackets, auto-close, surround, comment toggle, indent/onEnter rules | done | basic: auto-close, overtype, surround, enter/indent rules, comment toggle fn, matching bracket; pair colourization not done |

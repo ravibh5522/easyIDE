@@ -6,6 +6,7 @@ import android.os.Looper
 import com.termux.terminal.TerminalSession
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.LinuxEnvironment
 import dev.easyide.sandbox.ProjectManager
@@ -48,6 +49,9 @@ class WorkspaceViewModel(
 
     private val git = WorkspaceGitController(gitService, projectFiles.projectRoot(projectId), viewModelScope)
     val gitState: StateFlow<GitPanelState> = git.state
+
+    /** Per-document editor decorations; producers (LSP, find) write, `EditorPane` paints. */
+    val decorations = DecorationRegistry()
     private val mainHandler = Handler(Looper.getMainLooper())
 
     // The terminal writes straight to the bind-mounted project directory,
@@ -233,6 +237,7 @@ class WorkspaceViewModel(
     fun onTabSelected(path: String) = _uiState.update { it.copy(activeTabPath = path) }
 
     fun onTabClosed(path: String) {
+        decorations.remove(path)
         _uiState.update { state ->
             val remaining = state.openTabs.filterNot { it.relativePath == path }
             state.copy(
@@ -319,6 +324,7 @@ class WorkspaceViewModel(
                     // An open tab still points at the old path; retarget it so
                     // saving does not recreate the file under its old name.
                     updateTab(node.relativePath) { it.copy(relativePath = newPath, name = newName) }
+                    decorations.rename(node.relativePath, newPath)
                     _uiState.update { state ->
                         state.copy(
                             activeTabPath = if (state.activeTabPath == node.relativePath) newPath else state.activeTabPath,

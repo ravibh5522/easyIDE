@@ -26,7 +26,7 @@ IDs match [arch.md](arch.md).
 | PF11 Syntax highlighting first paint (memoised scope roles, no debounce on open/tab/scroll, 8-tab tokenizer LRU, grammar prewarm on tree load, cancellable passes) | done | compiles + assembles; not measured on device. SQLite/disk token cache rejected: state stacks are not serialisable and regex compile, not tokenizing, is the cold cost |
 | **Phase 1 — foundations** | | |
 | ADR-A Visual identity | not-started | fonts need primary-source license check |
-| ADR-B Editor engine | not-started | |
+| ADR-B Editor engine | done | [0018](../decision/0018-editor-engine-and-decorations.md); decoration layers landed on the current editor |
 | ADR-C Settings schema + theme import | not-started | |
 | ADR-D Workspace session lifetime | not-started | |
 | Unified `EasyIdeColors` + spacing/radius/elevation tokens | not-started | |
@@ -49,7 +49,7 @@ IDs match [arch.md](arch.md).
 | Living status bar | not-started | |
 | Tab strip (overflow, reorder, MRU, menus) | not-started | |
 | Right-click / hover / pinch zoom | not-started | |
-| PE1 Virtualised editor | not-started | blocked on ADR-B |
+| PE1 Virtualised editor | not-started | direction set by 0018: own line-virtualised Compose editor keeping `EditorGeometry` / decoration seams |
 | Undo/redo, find/replace, go to line | not-started | |
 | **Phase 3 — features** | | |
 | Git remote UI, identity, diff view | not-started | backend exists |

@@ -1,5 +1,7 @@
 package dev.easyide.app.data
 
+import dev.easyide.sandbox.download.Sha256
+import dev.easyide.sandbox.model.RootfsArchive
 import dev.easyide.sandbox.model.SandboxImage
 
 /**
@@ -22,27 +24,27 @@ object SandboxImages {
             id = "ubuntu-24.04",
             label = "Ubuntu 24.04",
             description = "Bare Ubuntu base - apt, dpkg and sudo, nothing else. Fastest to set up.",
-            urlByAbi = UBUNTU_2404,
+            rootfsByAbi = UBUNTU_2404,
         ),
         SandboxImage(
             id = "ubuntu-24.04-dev",
             label = "Ubuntu + build tools",
             description = "git, curl and a C/C++ toolchain. What most native builds need.",
-            urlByAbi = UBUNTU_2404,
+            rootfsByAbi = UBUNTU_2404,
             setupCommands = setupFor("build-essential", "pkg-config"),
         ),
         SandboxImage(
             id = "ubuntu-24.04-node",
             label = "Ubuntu + Node.js",
             description = "Node.js and npm from the Ubuntu archive, plus git.",
-            urlByAbi = UBUNTU_2404,
+            rootfsByAbi = UBUNTU_2404,
             setupCommands = setupFor("nodejs", "npm"),
         ),
         SandboxImage(
             id = "ubuntu-24.04-python",
             label = "Ubuntu + Python",
             description = "Python 3 with pip and venv, plus git.",
-            urlByAbi = UBUNTU_2404,
+            rootfsByAbi = UBUNTU_2404,
             setupCommands = setupFor("python3", "python3-pip", "python3-venv"),
         ),
     )
@@ -55,9 +57,24 @@ object SandboxImages {
 
 private const val UBUNTU_BASE = "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04/release"
 
+/**
+ * Digests copied from the release's SHA256SUMS next to these tarballs
+ * (https://cdimage.ubuntu.com/ubuntu-base/releases/24.04/release/SHA256SUMS,
+ * fetched 2026-09-24). Its detached SHA256SUMS.gpg verified as a good
+ * signature from the "Ubuntu CD Image Automatic Signing Key (2012)", fingerprint
+ * 8439 38DF 228D 22F7 B374 2BC0 D94A A3F0 EFE2 1092; each tarball was also
+ * downloaded and hashed to the same value. Changing a URL here means taking
+ * its line from that same file - the download is refused on any mismatch.
+ */
 private val UBUNTU_2404 = mapOf(
-    "arm64-v8a" to "$UBUNTU_BASE/ubuntu-base-24.04.3-base-arm64.tar.gz",
-    "x86_64" to "$UBUNTU_BASE/ubuntu-base-24.04.3-base-amd64.tar.gz",
+    "arm64-v8a" to RootfsArchive(
+        url = "$UBUNTU_BASE/ubuntu-base-24.04.3-base-arm64.tar.gz",
+        sha256 = Sha256.parse("7b2dced6dd56ad5e4a813fa25c8de307b655fdabc6ea9213175a92c48dabb048"),
+    ),
+    "x86_64" to RootfsArchive(
+        url = "$UBUNTU_BASE/ubuntu-base-24.04.3-base-amd64.tar.gz",
+        sha256 = Sha256.parse("6bc2cde3930ad088b3bb46fa45279e96d25bc3810f209850ecbe4722711874f9"),
+    ),
 )
 
 /**

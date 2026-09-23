@@ -4,15 +4,21 @@ import dev.easyide.sandbox.SandboxError
 import dev.easyide.sandbox.backend.GuestEnvironment
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import dev.easyide.sandbox.download.DownloadError
+import dev.easyide.sandbox.download.DownloadEvent
+import dev.easyide.sandbox.download.DownloadRequest
+import dev.easyide.sandbox.download.VerifiedDownloader
+import dev.easyide.sandbox.model.RootfsArchive
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
 
 /** Progress callback so the caller can stream status into the terminal. */
 typealias ProgressReporter = (String) -> Unit
 
 /**
  * Downloads a distro rootfs tarball and unpacks it into an environment.
+ *
+ * The download goes through [VerifiedDownloader], pinned to the catalog's
+ * sha256: nothing is extracted from bytes that do not match it.
  *
  * Extraction uses the in-repo [TarGzExtractor], not the platform `tar`:
  * Android denies `link(2)` in app-private storage, so `tar` aborts partway
@@ -22,28 +28,29 @@ typealias ProgressReporter = (String) -> Unit
 class RootfsProvisioner(
     private val ioDispatcher: CoroutineDispatcher,
     private val extractor: TarGzExtractor = TarGzExtractor(),
+    private val downloader: VerifiedDownloader = VerifiedDownloader(ioDispatcher),
 ) {
 
     /**
      * @param archive device-level cache location for the image. Shared across
      *   environments, so a second environment from the same image extracts
      *   straight from disk with no download.
+     * @return failure with [SandboxError.ProvisioningFailed] when the download
+     *   fails or its sha256 does not match [RootfsArchive.sha256]; a mismatch
+     *   deletes the partial file, an interruption keeps it for resume.
      */
     suspend fun provision(
-        tarballUrl: String,
+        source: RootfsArchive,
         rootfs: File,
         archive: File,
         onProgress: ProgressReporter,
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             rootfs.mkdirs()
-            archive.parentFile?.mkdirs()
-
-            if (archive.isFile && archive.length() > 0) {
-                onProgress("Using cached image (${archive.length() / MB} MB) - no download needed")
-            } else {
-                download(tarballUrl, archive, onProgress)
-            }
+            // A cached archive is re-hashed, not trusted: images cached by
+            // builds that predate checksums, or damaged on disk, are replaced
+            // instead of being extracted into a broken rootfs.
+            fetch(source, archive, onProgress)
 
             onProgress("Extracting rootfs (this takes a minute)...")
             val result = archive.inputStream().buffered().use { extractor.extract(it, rootfs) }
@@ -96,56 +103,52 @@ class RootfsProvisioner(
         marker.writeText(PAX_REPAIR_NOTE)
     }
 
-    private fun download(url: String, destination: File, onProgress: ProgressReporter) {
-        onProgress("Downloading $url")
-        val connection = (URL(url).openConnection() as HttpURLConnection).apply {
-            connectTimeout = TIMEOUT_MS
-            readTimeout = TIMEOUT_MS
-            instanceFollowRedirects = true
-        }
-
+    /**
+     * Fetches (or re-verifies the cached copy of) [source] into [archive].
+     * Progress is reported per megabyte, not per event, so the terminal does
+     * not drown in progress lines.
+     */
+    private suspend fun fetch(source: RootfsArchive, archive: File, onProgress: ProgressReporter) {
+        var lastReportedMb = -1L
+        val request = DownloadRequest(
+            url = source.url,
+            sha256 = source.sha256,
+            maxBytes = MAX_ROOTFS_BYTES,
+            destination = archive,
+        )
         try {
-            if (connection.responseCode !in HTTP_OK_RANGE) {
-                throw SandboxError.ProvisioningFailed(
-                    destination.name,
-                    "download failed with HTTP ${connection.responseCode}",
-                )
-            }
-            val total = connection.contentLengthLong
-            val partial = File(destination.parentFile, destination.name + PARTIAL_SUFFIX)
-
-            connection.inputStream.use { input ->
-                partial.outputStream().use { output ->
-                    val buffer = ByteArray(DOWNLOAD_BUFFER)
-                    var copied = 0L
-                    var lastReportedMb = -1L
-                    while (true) {
-                        val read = input.read(buffer)
-                        if (read < 0) break
-                        output.write(buffer, 0, read)
-                        copied += read
-                        // Report per megabyte, not per chunk, so the terminal
-                        // does not drown in progress lines.
-                        val mb = copied / MB
+            downloader.download(request).collect { event ->
+                when (event) {
+                    is DownloadEvent.Started -> onProgress(
+                        if (event.resumedFrom > 0) {
+                            "Resuming ${source.url} at ${event.resumedFrom / MB} MB"
+                        } else {
+                            "Downloading ${source.url}"
+                        }
+                    )
+                    is DownloadEvent.Progress -> {
+                        val mb = event.bytes / MB
                         if (mb != lastReportedMb) {
                             lastReportedMb = mb
-                            onProgress(progressLine(mb, total))
+                            onProgress(progressLine(mb, event.totalBytes))
                         }
                     }
+                    is DownloadEvent.Verified -> onProgress(
+                        if (event.fromCache) {
+                            "Using cached image (${event.bytes / MB} MB, sha256 verified) - no download needed"
+                        } else {
+                            "Download verified (sha256 ${source.sha256})"
+                        }
+                    )
                 }
             }
-            // Rename only after a complete download, so an interrupted one is
-            // never mistaken for a usable cached archive.
-            if (!partial.renameTo(destination)) {
-                throw SandboxError.StorageFailure("finalize ${destination.name}")
-            }
-        } finally {
-            connection.disconnect()
+        } catch (e: DownloadError) {
+            throw SandboxError.ProvisioningFailed(archive.name, e.message.orEmpty(), e)
         }
     }
 
-    private fun progressLine(mb: Long, total: Long): String =
-        if (total > 0) "Downloaded $mb / ${total / MB} MB" else "Downloaded $mb MB"
+    private fun progressLine(mb: Long, total: Long?): String =
+        if (total != null) "Downloaded $mb / ${total / MB} MB" else "Downloaded $mb MB"
 
     /** ubuntu-base ships an empty resolv.conf, so DNS fails until this is written. */
     private fun configureDns(rootfs: File) {
@@ -220,12 +223,14 @@ class RootfsProvisioner(
     }
 
     private companion object {
-        const val ARCHIVE_NAME = "rootfs.tar.gz"
-        const val PARTIAL_SUFFIX = ".part"
-        const val TIMEOUT_MS = 30_000
-        const val DOWNLOAD_BUFFER = 64 * 1024
         const val MB = 1024L * 1024
-        val HTTP_OK_RANGE = 200..299
+
+        /**
+         * Ceiling on a rootfs download. ubuntu-base is ~30 MB; a pre-baked
+         * image with a toolchain is a few hundred. Anything past this is not a
+         * rootfs we published and would only fill the tablet's storage.
+         */
+        const val MAX_ROOTFS_BYTES = 1024L * MB
 
         /** Covers both `PaxHeaders` and the older `PaxHeaders.<pid>` naming. */
         const val PAX_HEADER_NAME = "PaxHeaders"

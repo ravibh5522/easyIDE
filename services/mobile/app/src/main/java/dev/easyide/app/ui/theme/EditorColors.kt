@@ -29,6 +29,8 @@ data class EditorColors(
     /** Box behind the bracket at the caret and its partner. */
     val bracketMatch: Color,
     val syntax: SyntaxColors,
+    /** Squiggles, highlights, find matches, inlay hints and gutter icons. */
+    val decorations: DecorationColors,
     val terminalText: Color,
     val terminalPrompt: Color,
     val terminalBackground: Color,
@@ -48,6 +50,7 @@ private val DarkEditorColors = EditorColors(
     plainText = Color(0xFFD4D4D4),
     bracketMatch = Color(0x400064C1),
     syntax = DarkSyntaxColors,
+    decorations = DarkDecorationColors,
     terminalText = Color(0xFFCCCCCC),
     terminalPrompt = Color(0xFF4EC9B0),
     // Matches com.termux.terminal.TerminalColorScheme's own default
@@ -70,6 +73,7 @@ private val LightEditorColors = EditorColors(
     plainText = Color(0xFF000000),
     bracketMatch = Color(0x4000C850),
     syntax = LightSyntaxColors,
+    decorations = LightDecorationColors,
     terminalText = Color(0xFF333333),
     terminalPrompt = Color(0xFF007ACC),
     terminalBackground = Color(0xFF000000),

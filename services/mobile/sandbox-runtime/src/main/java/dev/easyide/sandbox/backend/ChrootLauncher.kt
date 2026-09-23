@@ -28,6 +28,10 @@ class ChrootLauncher(
                 add(mkdirCommand("$rootfs${request.guestProjectPath}"))
                 add(bindCommand(host.absolutePath, "$rootfs${request.guestProjectPath}"))
             }
+            request.extraBinds.forEach { bind ->
+                add(mkdirCommand("$rootfs${bind.guestPath}"))
+                add(bindCommand(bind.host.absolutePath, "$rootfs${bind.guestPath}"))
+            }
             add(chrootCommand(rootfs, request.command))
         }.joinToString(separator = "\n")
 

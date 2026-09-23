@@ -1,9 +1,12 @@
 package dev.easyide.sandbox
 
 import android.os.Build
+import dev.easyide.sandbox.backend.GuestBind
+import dev.easyide.sandbox.backend.GuestBindSource
 import dev.easyide.sandbox.bootstrap.ProgressReporter
 import dev.easyide.sandbox.bootstrap.ProotInstaller
 import dev.easyide.sandbox.bootstrap.RootfsProvisioner
+import dev.easyide.sandbox.extensions.EnvironmentExtensionBinds
 import dev.easyide.sandbox.model.SandboxImage
 import dev.easyide.sandbox.shell.PtyShellParams
 import dev.easyide.sandbox.shell.SandboxShell
@@ -20,6 +23,11 @@ import java.io.File
  * own shell otherwise, so the terminal is useful before setup and powerful
  * after it. Callers do not need to know which world they are in; [isReady]
  * exists only so the UI can offer to install.
+ *
+ * @param guestBinds extra binds for user-facing processes ([start],
+ *   [interactiveShellParams]) - installed environment extensions at
+ *   `/opt/easyide/extensions/<id>`. Setup commands during [install] get none:
+ *   a fresh environment has no extensions yet.
  */
 class LinuxEnvironment(
     private val paths: SandboxPaths,
@@ -27,6 +35,7 @@ class LinuxEnvironment(
     private val provisioner: RootfsProvisioner,
     private val fallbackShell: ShellRunner,
     private val ioDispatcher: CoroutineDispatcher,
+    private val guestBinds: GuestBindSource = EnvironmentExtensionBinds(paths),
 ) {
 
     fun rootfsFor(environmentId: String): File = paths.rootfsDir(environmentId)
@@ -49,7 +58,7 @@ class LinuxEnvironment(
         image: SandboxImage,
         onProgress: ProgressReporter,
     ): Result<Unit> = runCatching {
-        val tarballUrl = image.urlFor(Build.SUPPORTED_ABIS.toList())
+        val rootfsArchive = image.rootfsFor(Build.SUPPORTED_ABIS.toList())
             ?: throw SandboxError.ProvisioningFailed(
                 environmentId,
                 "${image.label} has no rootfs for ${Build.SUPPORTED_ABIS.joinToString()}",
@@ -60,11 +69,11 @@ class LinuxEnvironment(
         val installation = prootInstaller.ensureInstalled(paths.runtimeDir).getOrThrow()
 
         provisioner.provision(
-            tarballUrl = tarballUrl,
+            source = rootfsArchive,
             rootfs = rootfsFor(environmentId),
             // Device-level, not per-environment: the image is downloaded once
             // and every later environment extracts from the same file.
-            archive = paths.cachedImage(imageIdFor(tarballUrl)),
+            archive = paths.cachedImage(imageIdFor(rootfsArchive.url)),
             onProgress = onProgress,
         ).getOrThrow()
 
@@ -156,6 +165,7 @@ class LinuxEnvironment(
             hostProjectDir = hostProjectDir,
             guestProjectPath = paths.guestProjectPath(),
             extraEnvironment = extraEnvironment,
+            extraBinds = bindsFor(environmentId),
         )
     }
 
@@ -176,8 +186,13 @@ class LinuxEnvironment(
             rootfs = rootfsFor(environmentId),
             hostProjectDir = hostProjectDir,
             guestProjectPath = paths.guestProjectPath(),
+            extraBinds = bindsFor(environmentId),
         )
     }
+
+    /** Resolved per launch (filesystem reads), so it runs on the I/O dispatcher. */
+    private suspend fun bindsFor(environmentId: String): List<GuestBind> =
+        withContext(ioDispatcher) { guestBinds.bindsFor(environmentId) }
 
     /**
      * Stable cache key from the URL's file name, so two different images never

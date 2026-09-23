@@ -1,6 +1,6 @@
 # 0014 - WASM logic layer (L2) in-app on Chicory, JSON-over-memory ABI v1 (amends 0009)
 
-Status: Proposed
+Status: Accepted (2026-09-24) - direction approved; stays conditional on the on-device Chicory spike (metering, interruption, host->guest alloc callback). Revert to Proposed if the spike fails.
 
 ## Context
 

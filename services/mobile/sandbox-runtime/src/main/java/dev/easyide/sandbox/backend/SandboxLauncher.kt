@@ -14,11 +14,50 @@ data class LaunchSpec(
 )
 
 /**
+ * A host directory made visible at [guestPath] inside the sandbox.
+ *
+ * Both paths reach proot's `-b host:guest` argument, where `:` is the
+ * separator, and a root shell's `mount` under chroot; the checks below make a
+ * path that would be split or escape its intended location unrepresentable
+ * rather than something each launcher has to remember to reject. Not a
+ * read-only boundary under either backend (decision 0002).
+ */
+data class GuestBind(val host: File, val guestPath: String) {
+    init {
+        require(host.isAbsolute && BIND_SEPARATOR !in host.path) {
+            "Bind source must be an absolute path without '$BIND_SEPARATOR': ${host.path}"
+        }
+        require(guestPath.startsWith("/") && BIND_SEPARATOR !in guestPath) {
+            "Bind target must be an absolute guest path without '$BIND_SEPARATOR': $guestPath"
+        }
+        require(guestPath.split('/').none { it == "." || it == ".." }) {
+            "Bind target must not contain '.' or '..' segments: $guestPath"
+        }
+    }
+
+    private companion object {
+        const val BIND_SEPARATOR = ':'
+    }
+}
+
+/**
+ * Supplies the [GuestBind]s for every process launched into an environment.
+ * Asked at each launch, so a change on disk (an extension's `current` flip)
+ * reaches the next process without any cache to invalidate.
+ */
+fun interface GuestBindSource {
+    fun bindsFor(environmentId: String): List<GuestBind>
+}
+
+/**
  * Everything a launcher needs to know about one entry into a sandbox.
  *
  * [hostProjectDir] is bind-mounted at [guestProjectPath] rather than living
  * inside the rootfs, which is what lets a project move between environments -
  * see docs/decision/0005-sandbox-environment-sharing-model.md.
+ *
+ * [extraBinds] are applied after the project bind, in order; today they carry
+ * installed environment extensions to `/opt/easyide/extensions/<id>`.
  */
 data class LaunchRequest(
     val rootfs: File,
@@ -26,6 +65,7 @@ data class LaunchRequest(
     val guestProjectPath: String,
     val command: List<String>,
     val extraEnvironment: Map<String, String> = emptyMap(),
+    val extraBinds: List<GuestBind> = emptyList(),
 )
 
 /** Builds the argv for one sandbox backend. */

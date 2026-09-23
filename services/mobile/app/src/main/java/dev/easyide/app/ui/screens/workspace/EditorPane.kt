@@ -64,6 +64,25 @@ import dev.easyide.app.ui.screens.workspace.edit.TypingOptions
 import dev.easyide.app.ui.screens.workspace.edit.TypingRules
 import dev.easyide.app.ui.screens.workspace.syntax.LanguageConfigs
 import kotlinx.coroutines.flow.filterNotNull
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.rememberTextMeasurer
+import dev.easyide.app.ui.screens.workspace.decor.DecorationInputs
+import dev.easyide.app.ui.screens.workspace.decor.DecorationMetrics
+import dev.easyide.app.ui.screens.workspace.decor.DecorationModel
+import dev.easyide.app.ui.screens.workspace.decor.DecorationSnapshot
+import dev.easyide.app.ui.screens.workspace.decor.EditorGeometry
+import dev.easyide.app.ui.screens.workspace.decor.EditorPopup
+import dev.easyide.app.ui.screens.workspace.decor.EditorPopupHost
+import dev.easyide.app.ui.screens.workspace.decor.LocalEditorPopupHost
+import dev.easyide.app.ui.screens.workspace.decor.dismissPopupsOnEscape
+import dev.easyide.app.ui.screens.workspace.decor.gutterDecorations
+import dev.easyide.app.ui.screens.workspace.decor.gutterTaps
+import dev.easyide.app.ui.screens.workspace.decor.rememberGutterPainters
+import dev.easyide.app.ui.screens.workspace.decor.textDecorations
 
 /**
  * The code surface. Three modes, picked by what the tab holds:
@@ -81,6 +100,12 @@ fun EditorPane(
     tab: EditorTab?,
     onContentChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
+    /** The open document's decorations; painted on the editable surface only. */
+    decorations: DecorationModel? = null,
+    /** A tap on a gutter line (0-based), for the lightbulb and code lens glyphs. */
+    onGutterTap: ((line: Int) -> Unit)? = null,
+    /** Content laid over the editable text viewport, typically [EditorPopup]s. */
+    overlay: @Composable (EditorGeometry) -> Unit = {},
 ) {
     val colors = editorColors
 
@@ -94,14 +119,20 @@ fun EditorPane(
 
         when {
             tab.isMarkdown && tab.showPreview -> MarkdownPreview(tab.content)
-            tab.editable -> EditableSurface(tab, onContentChanged)
+            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay)
             else -> ReadOnlySurface(tab)
         }
     }
 }
 
 @Composable
-private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) {
+private fun EditableSurface(
+    tab: EditorTab,
+    onContentChanged: (String) -> Unit,
+    decorations: DecorationModel?,
+    onGutterTap: ((line: Int) -> Unit)?,
+    overlay: @Composable (EditorGeometry) -> Unit,
+) {
     val colors = editorColors
     val verticalScroll = rememberScrollState()
     val horizontalScroll = rememberScrollState()
@@ -123,18 +154,47 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
         else null
     }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+    val snapshot = remember(decorations) { decorations?.let(::DecorationSnapshot) }
+    // Before layout and draw of this frame, so the painters see decorations already moved
+    // onto the text being laid out. A no-op when the buffer is unchanged.
+    SideEffect { snapshot?.sync(tab.content) }
+    LaunchedEffect(snapshot) { snapshot?.follow() }
+    val popupHost = remember { EditorPopupHost() }
+    val measurer = rememberTextMeasurer(cacheSize = DecorationMetrics.GHOST_TEXT_MEASURE_CACHE)
+    val gutterPainters = rememberGutterPainters()
+    val gutterWidth = GUTTER_WIDTH_DP.dp + DecorationMetrics.gutterLaneWidth
 
     // The text field is only as large as its text, so tapping beside a short
     // line or below the last line used to hit nothing and the caret never
     // moved. Giving it a minimum size of the viewport makes the whole editor
     // area a tap target, while it still grows for long lines and long files.
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize().dismissPopupsOnEscape(popupHost)) {
         val viewportHeight = maxHeight
-        val textMinWidth = maxWidth - GUTTER_WIDTH_DP.dp
-        val viewportPx = with(LocalDensity.current) { viewportHeight.toPx() }
+        val textMinWidth = maxWidth - gutterWidth
+        val density = LocalDensity.current
+        val viewportPx = with(density) { viewportHeight.toPx() }
 
-        val window = rememberSettledLineWindow(verticalScroll, viewportPx, totalLines)
+        val liveWindow = remember(verticalScroll, viewportPx, totalLines) {
+            derivedStateOf { visibleLineWindow(verticalScroll.value, verticalScroll.maxValue, viewportPx, totalLines) }
+        }
+        val window = rememberSettledLineWindow(verticalScroll, liveWindow)
         val transformation = rememberHighlightTransformation(tab, colors, window)
+        // Painting follows the live window, not the settled one: it is cheap, and a fling
+        // must not outrun the squiggles the way it may briefly outrun colouring.
+        val paint = remember(snapshot, liveWindow) {
+            DecorationInputs(
+                decorations = { snapshot?.value },
+                layout = { layout },
+                visibleLines = { liveWindow.value.let { it.first..it.last } },
+            )
+        }
+        // Keyed by path too: `selection` is a new state per tab and the lambda captures it.
+        val geometry = remember(tab.relativePath, verticalScroll, horizontalScroll, density, gutterWidth) {
+            val origin = with(density) {
+                Offset((gutterWidth + TEXT_PADDING_H_DP.dp).toPx(), TEXT_PADDING_V_DP.dp.toPx())
+            }
+            EditorGeometry({ layout }, { selection }, verticalScroll, horizontalScroll, origin)
+        }
 
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
             Text(
@@ -142,9 +202,11 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
                 style = codeTextStyle().copy(color = colors.gutterText),
                 textAlign = TextAlign.End,
                 modifier = Modifier
-                    .width(GUTTER_WIDTH_DP.dp)
+                    .width(gutterWidth)
                     .background(colors.gutter)
-                    .padding(end = 8.dp, top = 4.dp, bottom = 4.dp),
+                    .gutterDecorations(paint, colors.decorations, gutterPainters, TEXT_PADDING_V_DP.dp)
+                    .gutterTaps({ layout }, TEXT_PADDING_V_DP.dp, onGutterTap)
+                    .padding(end = TEXT_PADDING_H_DP.dp, top = TEXT_PADDING_V_DP.dp, bottom = TEXT_PADDING_V_DP.dp),
             )
 
             Box(modifier = Modifier.horizontalScroll(horizontalScroll)) {
@@ -170,10 +232,18 @@ private fun EditableSurface(tab: EditorTab, onContentChanged: (String) -> Unit) 
                     onTextLayout = { layout = it },
                     modifier = Modifier
                         .defaultMinSize(minWidth = textMinWidth, minHeight = viewportHeight)
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch),
+                        .padding(horizontal = TEXT_PADDING_H_DP.dp, vertical = TEXT_PADDING_V_DP.dp)
+                        .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
+                        .textDecorations(paint, colors.decorations, measurer, codeTextStyle())
+                        // Own layer for the text itself: a decoration redraw then replays
+                        // the recorded paragraph instead of drawing it again.
+                        .graphicsLayer(),
                 )
             }
+        }
+
+        CompositionLocalProvider(LocalEditorPopupHost provides popupHost) {
+            overlay(geometry)
         }
     }
 }
@@ -317,10 +387,7 @@ private fun visibleLineWindow(scrollOffsetPx: Int, maxScrollPx: Int, viewportPx:
  * covers the lines a short fling reveals before the pass catches up.
  */
 @Composable
-private fun rememberSettledLineWindow(scroll: ScrollState, viewportPx: Float, totalLines: Int): LineWindow {
-    val live = remember(scroll, viewportPx, totalLines) {
-        derivedStateOf { visibleLineWindow(scroll.value, scroll.maxValue, viewportPx, totalLines) }
-    }
+private fun rememberSettledLineWindow(scroll: ScrollState, live: State<LineWindow>): LineWindow {
     // Seeded without a read observation, or composition would subscribe to
     // every window change and the point of settling would be lost.
     val settled = remember { mutableStateOf(Snapshot.withoutReadObservation { live.value }) }
@@ -442,6 +509,14 @@ fun codeTextStyle(): TextStyle {
 }
 
 private const val GUTTER_WIDTH_DP = 52
+
+/**
+ * Inset of the text inside the editable surface. Named because three things must agree on
+ * it: the text field, the gutter (so line numbers and glyphs sit on their lines) and
+ * [EditorGeometry]'s viewport mapping.
+ */
+private const val TEXT_PADDING_H_DP = 8
+private const val TEXT_PADDING_V_DP = 4
 private const val GUTTER_DIGIT_DP = 8
 
 

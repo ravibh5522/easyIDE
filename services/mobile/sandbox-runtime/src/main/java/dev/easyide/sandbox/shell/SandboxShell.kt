@@ -1,5 +1,6 @@
 package dev.easyide.sandbox.shell
 
+import dev.easyide.sandbox.backend.GuestBind
 import dev.easyide.sandbox.backend.GuestEnvironment
 import dev.easyide.sandbox.backend.LaunchRequest
 import dev.easyide.sandbox.backend.ProotLauncher
@@ -30,6 +31,7 @@ class SandboxShell(
         hostProjectDir: File?,
         guestProjectPath: String,
         extraEnvironment: Map<String, String> = emptyMap(),
+        extraBinds: List<GuestBind> = emptyList(),
     ): TerminalProcess {
         val spec = launcher.buildLaunchSpec(
             LaunchRequest(
@@ -37,6 +39,7 @@ class SandboxShell(
                 hostProjectDir = hostProjectDir,
                 guestProjectPath = guestProjectPath,
                 extraEnvironment = extraEnvironment,
+                extraBinds = extraBinds,
                 // Through the guest's own shell so pipes, redirects and globs
                 // behave the way the user expects.
                 command = listOf(GUEST_SHELL, GUEST_SHELL_FLAG, command),
@@ -92,12 +95,18 @@ class SandboxShell(
      * no isolation to set against that. Running as the guest's root is what
      * proot-distro and Termux do too.
      */
-    fun interactiveParams(rootfs: File, hostProjectDir: File?, guestProjectPath: String): PtyShellParams {
+    fun interactiveParams(
+        rootfs: File,
+        hostProjectDir: File?,
+        guestProjectPath: String,
+        extraBinds: List<GuestBind> = emptyList(),
+    ): PtyShellParams {
         val spec = launcher.buildLaunchSpec(
             LaunchRequest(
                 rootfs = rootfs,
                 hostProjectDir = hostProjectDir,
                 guestProjectPath = guestProjectPath,
+                extraBinds = extraBinds,
                 command = listOf(GUEST_SHELL),
             )
         )
