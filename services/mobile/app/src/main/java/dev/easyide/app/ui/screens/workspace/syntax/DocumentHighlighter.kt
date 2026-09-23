@@ -31,7 +31,7 @@ internal class StyledSpan(val start: Int, val end: Int, val role: SyntaxRole)
  * This is the same shape VS Code uses, and it is what makes file size stop
  * mattering for the cost of an edit.
  */
-internal class DocumentHighlighter(private val grammar: Grammar) {
+internal class DocumentHighlighter(val grammar: Grammar) {
 
     private var lines: List<String> = emptyList()
     private var lineStarts = IntArray(0)
@@ -69,8 +69,15 @@ internal class DocumentHighlighter(private val grammar: Grammar) {
         return reusable
     }
 
-    /** Tokenize far enough to have spans for every line up to and including [through]. */
-    fun tokenizeThrough(through: Int) {
+    /**
+     * Tokenize far enough to have spans for every line up to and including [through].
+     *
+     * [checkCancelled] runs between lines so a superseded pass stops instead of
+     * holding the highlighter lock while the fresh pass waits. Each line's state
+     * and spans are appended together, so stopping between lines leaves the
+     * cache consistent.
+     */
+    fun tokenizeThrough(through: Int, checkCancelled: () -> Unit = {}) {
         val target = through.coerceAtMost(lines.lastIndex)
         if (target < 0) return
 
@@ -78,6 +85,7 @@ internal class DocumentHighlighter(private val grammar: Grammar) {
         var state = if (index == 0) initialState() else endStates[index - 1]
 
         while (index <= target) {
+            checkCancelled()
             val line = lines[index]
             if (line.length > MAX_LINE_LENGTH) {
                 // Advance the machine on a truncated copy so later lines stay
@@ -109,12 +117,18 @@ internal class DocumentHighlighter(private val grammar: Grammar) {
      * window keeps the styled-span count flat (hundreds) no matter how long the
      * file is, which is what a large `AnnotatedString` actually chokes on.
      */
-    fun annotate(text: String, colors: SyntaxColors, from: Int, to: Int): AnnotatedString {
+    fun annotate(
+        text: String,
+        colors: SyntaxColors,
+        from: Int,
+        to: Int,
+        checkCancelled: () -> Unit = {},
+    ): AnnotatedString {
         val first = from.coerceAtLeast(0)
         val last = to.coerceAtMost(lines.lastIndex)
         if (first > last) return AnnotatedString(text)
 
-        tokenizeThrough(last)
+        tokenizeThrough(last, checkCancelled)
 
         val builder = AnnotatedString.Builder(text)
         for (i in first..last) {

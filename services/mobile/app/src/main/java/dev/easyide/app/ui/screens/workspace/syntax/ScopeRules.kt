@@ -89,11 +89,23 @@ internal object ScopeRules {
      */
     fun roleFor(scopes: List<String>): SyntaxRole {
         for (i in scopes.indices.reversed()) {
-            val scope = scopes[i]
-            for ((prefix, role) in SORTED) {
-                if (scope == prefix || scope.startsWith("$prefix.")) return role
-            }
+            val role = roleForScope(scopes[i])
+            if (role != SyntaxRole.PLAIN) return role
         }
         return SyntaxRole.PLAIN
+    }
+
+    /**
+     * Grammars reuse a small vocabulary of scope strings across millions of
+     * tokens, so each one is matched against [SORTED] once and remembered.
+     * [SyntaxRole.PLAIN] doubles as "no rule matched". Only called under
+     * [TextMateHighlighter]'s lock, so a plain map is enough.
+     */
+    private val cache = HashMap<String, SyntaxRole>()
+
+    private fun roleForScope(scope: String): SyntaxRole = cache.getOrPut(scope) {
+        SORTED.firstOrNull { (prefix, _) ->
+            scope.startsWith(prefix) && (scope.length == prefix.length || scope[prefix.length] == '.')
+        }?.second ?: SyntaxRole.PLAIN
     }
 }

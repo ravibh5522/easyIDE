@@ -40,6 +40,7 @@ import dev.easyide.app.ui.theme.EditorColors
 import dev.easyide.app.ui.theme.editorColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.platform.LocalDensity
 
@@ -192,6 +193,13 @@ private const val HIGHLIGHT_INITIAL_LINES = 400
 private data class LineWindow(val first: Int, val last: Int)
 
 /**
+ * The last finished colouring pass and what it was computed from, so the next
+ * pass can tell a keystroke (debounce) from a tab switch or scroll (run now).
+ * [source] is compared by identity: an unchanged buffer is the same instance.
+ */
+private class HighlightPass(val path: String, val source: String, val styled: AnnotatedString)
+
+/**
  * Which lines are on screen, derived from the scroll state rather than from a
  * measured text layout.
  *
@@ -243,15 +251,21 @@ private fun rememberHighlightTransformation(
     window: LineWindow,
 ): VisualTransformation {
     val plain = remember(tab.content) { AnnotatedString(tab.content) }
-    val highlighted by produceState(
-        plain, tab.content, tab.relativePath, tab.highlightingEnabled, colors, window,
+    val pass by produceState(
+        HighlightPass(tab.relativePath, tab.content, plain),
+        tab.content, tab.relativePath, tab.highlightingEnabled, colors, window,
     ) {
         if (!tab.highlightingEnabled) {
-            value = plain
+            value = HighlightPass(tab.relativePath, tab.content, plain)
             return@produceState
         }
-        delay(HIGHLIGHT_DEBOUNCE_MS)
-        value = withContext(Dispatchers.Default) {
+        // Only a burst of keystrokes is worth waiting out. Opening a file,
+        // switching tabs, scrolling to a new window or a theme change must
+        // colour immediately; debouncing those was a visible 120 ms+ of grey.
+        val edited = value.path == tab.relativePath && value.source !== tab.content
+        if (edited) delay(HIGHLIGHT_DEBOUNCE_MS)
+        val styled = withContext(Dispatchers.Default) {
+            val context = coroutineContext
             TextMateHighlighter.highlight(
                 key = tab.relativePath,
                 source = tab.content,
@@ -259,9 +273,12 @@ private fun rememberHighlightTransformation(
                 colors = colors.syntax,
                 firstLine = window.first,
                 lastLine = window.last,
+                checkCancelled = { context.ensureActive() },
             )
         }
+        value = HighlightPass(tab.relativePath, tab.content, styled)
     }
+    val highlighted = pass.styled
     return remember(highlighted) {
         VisualTransformation { current ->
             // A pass that finished against an older buffer must not be applied:

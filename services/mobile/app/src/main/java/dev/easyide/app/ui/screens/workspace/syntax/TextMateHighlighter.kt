@@ -24,11 +24,20 @@ import dev.textmate.registry.Registry
  *
  * The upstream tokenizer is explicitly not thread-safe and holds mutable state
  * per grammar, so every entry point here is synchronized. Highlighting is
- * called from a background dispatcher, one file at a time.
+ * called from a background dispatcher.
  */
 object TextMateHighlighter {
 
     private const val TAG = "TextMateHighlighter"
+
+    /** Open buffers whose tokenizer state is retained; roughly lines x a few objects each. */
+    private const val MAX_CACHED_DOCUMENTS = 8
+
+    /** Distinct languages warmed per [prewarm] call, so a polyglot repo root cannot stall the thread. */
+    private const val MAX_PREWARM_GRAMMARS = 6
+
+    /** Touches identifiers, calls, strings, numbers and comments - the patterns most grammars reach first. */
+    private const val PREWARM_SAMPLE = "value = call(\"text\", 42) // note"
 
     private var index: GrammarIndex? = null
     private var registry: Registry? = null
@@ -38,12 +47,16 @@ object TextMateHighlighter {
     private val grammars = HashMap<String, Grammar>()
 
     /**
-     * Only the file currently being edited keeps tokenizer state. Switching tabs
-     * discards it, which costs one viewport-sized tokenize on the way back -
-     * cheap, and far better than holding state for every open tab.
+     * Tokenizer state for the most recently highlighted buffers, keyed by path.
+     * Keeping only the active file meant every tab switch re-tokenized from line
+     * 0 down to wherever that tab was scrolled - thousands of lines for a tab
+     * left deep in a file. A small access-ordered LRU bounds memory to a few
+     * files' worth of line states while making switching back instant.
      */
-    private var documentKey: String? = null
-    private var document: DocumentHighlighter? = null
+    private val documents = object : LinkedHashMap<String, DocumentHighlighter>(16, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, DocumentHighlighter>) =
+            size > MAX_CACHED_DOCUMENTS
+    }
 
     /**
      * Called once from the Application. Only the index is read eagerly (44 KB);
@@ -75,7 +88,9 @@ object TextMateHighlighter {
      * Colour [source] for the window of lines `[firstLine, lastLine]`.
      *
      * [key] identifies the buffer (its project-relative path) so tokenizer state
-     * survives edits and scrolling but is dropped when the tab changes.
+     * survives edits, scrolling and switching between recent tabs.
+     * [checkCancelled] is polled between lines; it should throw when the caller
+     * no longer wants the result.
      */
     @Synchronized
     fun highlight(
@@ -85,20 +100,44 @@ object TextMateHighlighter {
         colors: SyntaxColors,
         firstLine: Int,
         lastLine: Int,
+        checkCancelled: () -> Unit = {},
     ): AnnotatedString {
         if (source.isEmpty()) return AnnotatedString(source)
         val grammar = grammarFor(fileName) ?: return AnnotatedString(source)
 
-        val doc = document?.takeIf { documentKey == key } ?: DocumentHighlighter(grammar).also {
-            documentKey = key
-            document = it
-        }
+        // A rename to a different extension keeps the key but changes grammar.
+        val doc = documents[key]?.takeIf { it.grammar === grammar }
+            ?: DocumentHighlighter(grammar).also { documents[key] = it }
         doc.setContent(source)
-        return doc.annotate(source, colors, firstLine, lastLine)
+        return doc.annotate(source, colors, firstLine, lastLine, checkCancelled)
     }
 
-    private fun grammarFor(fileName: String): Grammar? {
-        val scope = index?.scopeFor(fileName) ?: return null
+    /**
+     * Load and exercise the grammars for [fileNames] ahead of the first open.
+     *
+     * The expensive part of a first open is not reading the grammar but the
+     * regex engine compiling its patterns, which the library defers to the
+     * first tokenize. Running one sample line here moves that cost onto a
+     * background thread while the user is still looking at the file tree.
+     * Each grammar takes the lock separately, so a real highlight request can
+     * interleave instead of waiting for the whole batch.
+     */
+    fun prewarm(fileNames: Collection<String>) {
+        val scopes = synchronized(this) {
+            fileNames.mapNotNull { index?.scopeFor(it) }.distinct().take(MAX_PREWARM_GRAMMARS)
+        }
+        for (scope in scopes) {
+            synchronized(this) {
+                if (scope in grammars || scope in unavailable) return@synchronized
+                grammarForScope(scope)?.tokenizeLine(PREWARM_SAMPLE, null)
+            }
+        }
+    }
+
+    private fun grammarFor(fileName: String): Grammar? =
+        index?.scopeFor(fileName)?.let(::grammarForScope)
+
+    private fun grammarForScope(scope: String): Grammar? {
         if (scope in unavailable) return null
         grammars[scope]?.let { return it }
 

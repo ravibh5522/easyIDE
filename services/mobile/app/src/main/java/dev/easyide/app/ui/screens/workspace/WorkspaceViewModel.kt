@@ -17,7 +17,9 @@ import dev.easyide.sandbox.git.GitResult
 import dev.easyide.sandbox.git.GitStatus
 import dev.easyide.sandbox.files.ProjectFileWatcher
 import dev.easyide.sandbox.files.ProjectFiles
+import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.sandbox.model.SandboxImage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -129,6 +131,7 @@ class WorkspaceViewModel(
         viewModelScope.launch {
             projectFiles.list(projectId).onSuccess { nodes ->
                 _uiState.update { it.copy(tree = nodes) }
+                launch(Dispatchers.Default) { TextMateHighlighter.prewarm(nodes.map { it.name }) }
             }
             // Re-list every expanded directory so a change deeper in the tree
             // is reflected without collapsing the user's expansion state.
