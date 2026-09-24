@@ -56,6 +56,8 @@
     <string name="settings_storage_clear">Clear</string>
     <string name="terminal_stop">Stop</string>
     <string name="terminal_new">New terminal</string>
+    <string name="terminal_more">Terminal actions</string>
+    <string name="terminal_close">Close terminal</string>
     <string name="terminal_installing">Installing…</string>
     <string name="terminal_install_linux">Install Linux</string>
 

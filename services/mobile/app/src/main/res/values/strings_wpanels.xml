@@ -26,4 +26,5 @@
     <string name="wp_git_invalid_name">Not a valid name.</string>
     <string name="wp_git_invalid_host">Not a host name.</string>
     <string name="wp_lsp_servers_title">Language servers</string>
+    <string name="wp_markdown_diagram_source">%1$s (diagram source, not rendered)</string>
 </resources>

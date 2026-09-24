@@ -2,31 +2,27 @@ package dev.easyide.app.ui.screens.workspace.find
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -48,23 +43,20 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitIconButton
+import dev.easyide.app.ui.kit.KitTag
+import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.app.ui.screens.workspace.edit.SearchResult
-import dev.easyide.app.ui.theme.EasyIdeFonts
-import dev.easyide.app.ui.theme.Radius
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.Stroke
-import dev.easyide.app.ui.theme.editorColors
 
 /**
  * The find/replace bar above the editor. Every control is a full 48dp touch target; below
@@ -80,34 +72,50 @@ fun FindBar(
     onFieldFocusChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = editorColors
+    val colors = Kit.colors
     // The bar leaving composition takes its field's focus with it; the screen must stop treating it as focused.
     DisposableEffect(Unit) { onDispose { onFieldFocusChanged(false) } }
     BoxWithConstraints(modifier = modifier.fillMaxWidth().background(colors.panel)) {
         val wide = maxWidth >= WIDE_LAYOUT
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.space.xs)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconAction(
+                KitIconButton(
                     icon = if (find.showReplace) Icons.Filled.ExpandMore else Icons.Filled.ChevronRight,
-                    description = stringResource(R.string.find_toggle_replace),
+                    contentDescription = stringResource(R.string.find_toggle_replace),
                     onClick = find::toggleReplace,
                 )
                 FindField(find, onFieldFocusChanged, modifier = Modifier.weight(1f))
                 if (wide) Toggles(find)
-                IconAction(Icons.Filled.KeyboardArrowUp, stringResource(R.string.find_previous), find::previous)
-                IconAction(Icons.Filled.KeyboardArrowDown, stringResource(R.string.find_next), find::next)
-                IconAction(Icons.Filled.Close, stringResource(R.string.find_close), find::close)
+                KitIconButton(Icons.Filled.KeyboardArrowUp, stringResource(R.string.find_previous), find::previous)
+                KitIconButton(Icons.Filled.KeyboardArrowDown, stringResource(R.string.find_next), find::next)
+                KitIconButton(Icons.Filled.Close, stringResource(R.string.find_close), find::close)
             }
             if (!wide) Row(verticalAlignment = Alignment.CenterVertically) { Toggles(find) }
             if (find.showReplace) ReplaceRow(find)
         }
-        Box(modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().height(Stroke.hairline).background(colors.panelBorder))
+        Box(modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().height(Kit.hairline).background(colors.panelBorder))
     }
+}
+
+/** The bordered frame both find inputs sit in: raised on the editor tone, hairline that turns error-coloured on a bad pattern. */
+@Composable
+private fun InputFrame(modifier: Modifier, failed: Boolean = false, content: @Composable RowScope.() -> Unit) {
+    val colors = Kit.colors
+    val shape = RoundedCornerShape(Kit.radius.s)
+    Row(
+        modifier = modifier
+            .heightIn(min = Kit.metrics.touchFloor)
+            .background(colors.background, shape)
+            .border(Kit.hairline, if (failed) colors.error else colors.panelBorder, shape)
+            .padding(horizontal = Kit.space.m),
+        verticalAlignment = Alignment.CenterVertically,
+        content = content,
+    )
 }
 
 @Composable
 private fun FindField(find: FindController, onFocusChanged: (Boolean) -> Unit, modifier: Modifier) {
-    val colors = editorColors
+    val colors = Kit.colors
     val focus = remember { FocusRequester() }
     var field by remember { mutableStateOf(TextFieldValue(find.query)) }
     // Opening (again) puts the caret in the field with the query selected, ready to retype.
@@ -116,19 +124,11 @@ private fun FindField(find: FindController, onFocusChanged: (Boolean) -> Unit, m
         focus.requestFocus()
     }
     val failed = find.result is SearchResult.InvalidPattern || find.result is SearchResult.TimedOut
+    val text = Kit.type.bodyMedium.kitMono().copy(color = colors.plainText)
 
-    Row(
-        modifier = modifier
-            .minimumInteractiveComponentSize()
-            .background(colors.background, RoundedCornerShape(Radius.s))
-            .border(Stroke.hairline, if (failed) colors.error else colors.panelBorder, RoundedCornerShape(Radius.s))
-            .padding(horizontal = Spacing.m),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    InputFrame(modifier, failed) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-            if (field.text.isEmpty()) {
-                Text(stringResource(R.string.find_hint), style = MaterialTheme.typography.bodyMedium, color = colors.gutterText)
-            }
+            if (field.text.isEmpty()) BasicText(stringResource(R.string.find_hint), style = text.copy(color = colors.gutterText))
             BasicTextField(
                 value = field,
                 onValueChange = { next ->
@@ -136,7 +136,7 @@ private fun FindField(find: FindController, onFocusChanged: (Boolean) -> Unit, m
                     if (next.text != find.query) find.onQueryChange(next.text)
                 },
                 singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = colors.plainText, fontFamily = EasyIdeFonts.mono),
+                textStyle = text,
                 cursorBrush = SolidColor(colors.cursor),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { find.next() }),
@@ -154,11 +154,10 @@ private fun FindField(find: FindController, onFocusChanged: (Boolean) -> Unit, m
                     },
             )
         }
-        Text(
+        BasicText(
             text = summary(find),
-            style = MaterialTheme.typography.labelSmall,
-            color = if (failed) colors.error else colors.textMuted,
-            modifier = Modifier.padding(start = Spacing.s),
+            style = Kit.type.labelSmall.copy(color = if (failed) colors.error else colors.textMuted),
+            modifier = Modifier.padding(start = Kit.space.s),
         )
     }
 }
@@ -187,96 +186,38 @@ private fun Toggles(find: FindController) {
 
 @Composable
 private fun ReplaceRow(find: FindController) {
-    val colors = editorColors
+    val colors = Kit.colors
+    val text = Kit.type.bodyMedium.kitMono().copy(color = colors.plainText)
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(modifier = Modifier.size(MIN_TOUCH))
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .minimumInteractiveComponentSize()
-                .background(colors.background, RoundedCornerShape(Radius.s))
-                .border(Stroke.hairline, colors.panelBorder, RoundedCornerShape(Radius.s))
-                .padding(horizontal = Spacing.m),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            if (find.replacement.isEmpty()) {
-                Text(stringResource(R.string.find_replace_hint), style = MaterialTheme.typography.bodyMedium, color = colors.gutterText)
+        // Lines the replace field up under the find field, past the expand button.
+        Box(modifier = Modifier.size(Kit.metrics.touchFloor))
+        InputFrame(Modifier.weight(1f)) {
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                if (find.replacement.isEmpty()) BasicText(stringResource(R.string.find_replace_hint), style = text.copy(color = colors.gutterText))
+                BasicTextField(
+                    value = find.replacement,
+                    onValueChange = find::onReplacementChange,
+                    singleLine = true,
+                    textStyle = text,
+                    cursorBrush = SolidColor(colors.cursor),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { find.replaceCurrent() }),
+                    modifier = Modifier.fillMaxWidth().onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) { find.close(); true } else false
+                    },
+                )
             }
-            BasicTextField(
-                value = find.replacement,
-                onValueChange = find::onReplacementChange,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = colors.plainText, fontFamily = EasyIdeFonts.mono),
-                cursorBrush = SolidColor(colors.cursor),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { find.replaceCurrent() }),
-                modifier = Modifier.fillMaxWidth().onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) { find.close(); true } else false
-                },
-            )
         }
-        TextAction(stringResource(R.string.find_replace_one), find::replaceCurrent)
-        TextAction(stringResource(R.string.find_replace_all), find::replaceAll)
+        KitButton(stringResource(R.string.find_replace_one), find::replaceCurrent, style = KitButtonStyle.Ghost)
+        KitButton(stringResource(R.string.find_replace_all), find::replaceAll, style = KitButtonStyle.Ghost)
     }
 }
 
-@Composable
-private fun IconAction(icon: androidx.compose.ui.graphics.vector.ImageVector, description: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier.size(MIN_TOUCH).clickable(onClick = onClick).semantics { role = Role.Button },
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(imageVector = icon, contentDescription = description, tint = editorColors.textMuted)
-    }
-}
-
-@Composable
-private fun TextAction(label: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .minimumInteractiveComponentSize()
-            .clickable(onClick = onClick)
-            .semantics { role = Role.Button }
-            .padding(horizontal = Spacing.m),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = label, style = MaterialTheme.typography.labelMedium, color = editorColors.accent)
-    }
-}
-
-/** A find option: a 48dp target showing its glyph, accent-filled while on, announced as a toggle. */
+/** A find option: a tag showing its glyph, filled while on and announced by its full name. */
 @Composable
 private fun OptionToggle(label: String, description: String, checked: Boolean, onClick: () -> Unit) {
-    val colors = editorColors
-    val fill: Color = if (checked) colors.accent else Color.Transparent
-    Box(
-        modifier = Modifier
-            .size(MIN_TOUCH)
-            .clickable(onClick = onClick)
-            .semantics {
-                role = Role.Switch
-                selected = checked
-                contentDescription = description
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .widthIn(min = TOGGLE_CHIP)
-                .heightIn(min = TOGGLE_CHIP)
-                .background(fill, RoundedCornerShape(Radius.xs)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium.copy(fontFamily = FontFamily.Monospace),
-                color = if (checked) colors.onAccent else colors.textMuted,
-            )
-        }
-    }
+    KitTag(label, Modifier.semantics { contentDescription = description }, selected = checked, onClick = onClick)
 }
 
 /** Width from which the option toggles share the field's row. */
 private val WIDE_LAYOUT = 600.dp
-private val MIN_TOUCH = 48.dp
-private val TOGGLE_CHIP = 32.dp
