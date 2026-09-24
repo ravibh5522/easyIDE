@@ -24,7 +24,14 @@ import dev.easyide.sandbox.LinuxEnvironment
 import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.files.FileContent
 import dev.easyide.sandbox.files.FileNode
+import dev.easyide.sandbox.files.FilePolicy
+import dev.easyide.sandbox.git.GitCredentials
+import dev.easyide.sandbox.git.GitRemote
 import dev.easyide.sandbox.git.GitService
+import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.ui.screens.workspace.git.StoreGitSettings
+import dev.easyide.app.ui.screens.workspace.git.asRunner
+import dev.easyide.app.ui.screens.workspace.git.asSink
 import dev.easyide.sandbox.files.ProjectFileWatcher
 import dev.easyide.sandbox.files.ProjectFiles
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
@@ -53,6 +60,10 @@ class WorkspaceViewModel(
     private val appContext: Context,
     private val imageProvider: suspend (String) -> SandboxImage,
     private val gitService: GitService,
+    gitRemote: GitRemote,
+    gitCredentials: GitCredentials,
+    settingsStore: SettingsStore,
+    appForeground: StateFlow<Boolean>,
     lspRuntime: LspRuntime,
     extensions: ExtensionsContainer,
     sessionStore: SessionStore,
@@ -66,7 +77,15 @@ class WorkspaceViewModel(
     private val _uiState = MutableStateFlow(WorkspaceUiState())
     val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
 
-    private val git = WorkspaceGitController(gitService, projectFiles.projectRoot(projectId), viewModelScope)
+    private val git = WorkspaceGitController(
+        gitService = gitService,
+        projectRoot = projectFiles.projectRoot(projectId),
+        scope = viewModelScope,
+        network = gitRemote.asRunner(environmentId),
+        settings = StoreGitSettings(settingsStore, environmentId, projectId),
+        tokens = gitCredentials.asSink(),
+        foreground = appForeground,
+    )
     val gitState: StateFlow<GitPanelState> = git.state
 
     /** Per-document editor decorations; producers (LSP, find) write, `EditorPane` paints. */
@@ -563,6 +582,9 @@ class WorkspaceViewModel(
     fun initGitRepository() = git.initRepository()
 
     fun commitGit() = git.commit()
+
+    /** Remote, branch, stash, diff and commit-box actions beyond the basic callbacks above. */
+    val gitControllers get() = git.controllers
 
     // ------------------------------------------------------------- linux
 

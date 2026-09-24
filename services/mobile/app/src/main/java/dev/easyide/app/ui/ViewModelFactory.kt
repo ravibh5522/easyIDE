@@ -69,6 +69,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 themes = container.extensions.themes,
                 contributions = container.extensions.runtime.contributions,
                 lspServers = container.lsp.servers,
+                gitCredentials = container.gitCredentials,
             )
 
             ExtensionsViewModel::class.java -> ExtensionsViewModel(
@@ -132,6 +133,10 @@ class WorkspaceViewModelFactory(
             projectManager = container.projectManager,
             appContext = container.appContext,
             gitService = container.gitService,
+            gitRemote = container.gitRemote,
+            gitCredentials = container.gitCredentials,
+            settingsStore = container.settingsStore,
+            appForeground = container.appForeground.isForeground,
             imageProvider = container::imageFor,
             lspRuntime = container.lsp,
             extensions = container.extensions,

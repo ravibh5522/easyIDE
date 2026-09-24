@@ -162,7 +162,7 @@ object SettingsSchema {
     val all: List<Setting<*>> = listOf(
         themeMode, colorTheme, editorFontSize, editorLineHeight, terminalFontSize, explorerHideHidden, explorerHideIgnored, safeMode, activeProfile,
         extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
-    ) + WorkbenchSettingsSchema.all + LspSettingsSchema.all + ThemeSettingsSchema.all + RegistrySettingsSchema.all + AuthoringSettingsSchema.all + WorkspaceSettingsSchema.all
+    ) + WorkbenchSettingsSchema.all + LspSettingsSchema.all + ThemeSettingsSchema.all + RegistrySettingsSchema.all + AuthoringSettingsSchema.all + WorkspaceSettingsSchema.all + GitSettingsSchema.all
 
     /** Declared (validated, resolvable) but edited by a dedicated UI rather than a generic row. */
     val managedElsewhere: Set<String> = setOf(activeProfile.key, colorTheme.key)

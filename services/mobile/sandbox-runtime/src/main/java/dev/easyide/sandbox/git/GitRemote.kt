@@ -4,6 +4,7 @@ import dev.easyide.sandbox.LinuxEnvironment
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Network git - clone, fetch, pull, push - run as the guest's real `git`.
@@ -18,7 +19,7 @@ import java.io.File
  * helper:
  *
  * ```
- * git -c credential.helper='!f() { echo username=x; echo "password=$EASYIDE_GIT_TOKEN"; }; f' ...
+ * git -c credential.helper='!f() { echo username=$EASYIDE_GIT_USER; echo "password=$EASYIDE_GIT_TOKEN"; }; f' ...
  * ```
  *
  * This is the resolution of the open question in decision 0009. The obvious
@@ -51,61 +52,76 @@ class GitRemote(
         url: String,
         targetDir: File,
         environmentId: String,
-    ): GitResult<String> = run(environmentId, targetDir, url) { guestPath ->
+    ): GitResult<String> = run(environmentId, targetDir, url, onOutput = {}) {
         // Into "." because the bind already puts targetDir at guestPath.
-        "clone --progress ${quote(url)} ."
+        "clone --progress ${GitCommandLine.quote(url)} ."
     }
 
     suspend fun pull(projectDir: File, environmentId: String, url: String?): GitResult<String> =
-        run(environmentId, projectDir, url) { "pull --ff-only" }
+        run(environmentId, projectDir, url, onOutput = {}) { "pull --ff-only" }
 
     suspend fun push(projectDir: File, environmentId: String, url: String?): GitResult<String> =
-        run(environmentId, projectDir, url) { "push" }
+        run(environmentId, projectDir, url, onOutput = {}) { "push" }
 
     suspend fun fetch(projectDir: File, environmentId: String, url: String?): GitResult<String> =
-        run(environmentId, projectDir, url) { "fetch --all --prune" }
+        run(environmentId, projectDir, url, onOutput = {}) { "fetch --all --prune" }
+
+    /**
+     * Runs [op], streaming git's progress lines to [onOutput] as they arrive.
+     *
+     * Cancelling the calling coroutine kills the git process (the stream is
+     * torn down with it), so a cancel button is just `job.cancel()`.
+     * [url] is the remote's URL, used only to look up its token.
+     */
+    suspend fun execute(
+        op: GitNetworkOp,
+        projectDir: File,
+        environmentId: String,
+        url: String?,
+        onOutput: (String) -> Unit = {},
+    ): GitResult<String> = run(environmentId, projectDir, url, onOutput) { GitCommandLine.subcommand(op) }
 
     private suspend fun run(
         environmentId: String,
         dir: File,
         url: String?,
+        onOutput: (String) -> Unit,
         command: (String) -> String,
     ): GitResult<String> = withContext(ioDispatcher) {
-        runCatching {
+        // Boundary: process spawn and the guest's output. A cancellation must
+        // still propagate - swallowing it would let a cancelled operation
+        // report a "failure" the user chose.
+        try {
             dir.mkdirs()
-            val token = url?.let { credentials.tokenForUrl(it) }
-            val subcommand = command(dir.absolutePath)
-            val invocation = if (token != null) CREDENTIAL_HELPER_GIT else "git"
-            val full = "git config --global --add safe.directory '*' >/dev/null 2>&1; " +
-                "$invocation $subcommand 2>&1"
+            val secret = url?.let { u -> credentials.tokenForUrl(u)?.let { it to credentials.usernameForUrl(u) } }
+            val full = GitCommandLine.shellLine(command(dir.absolutePath), withCredentials = secret != null)
             val process = linuxEnvironment.start(
                 command = full,
                 environmentId = environmentId,
                 hostProjectDir = dir,
-                extraEnvironment = token?.let { mapOf(TOKEN_ENV to it) } ?: emptyMap(),
+                extraEnvironment = secret?.let { (token, user) ->
+                    mapOf(GitCommandLine.TOKEN_ENV to token, GitCommandLine.USER_ENV to user)
+                } ?: emptyMap(),
             )
             val output = StringBuilder()
-            val code = process.stream { lines -> lines.forEach { output.append(it).append('\n') } }
+            val code = process.stream { lines ->
+                lines.forEach { output.append(it).append('\n') }
+                lines.forEach(onOutput)
+            }
             if (code == 0) {
                 GitResult.Success(output.toString())
             } else {
-                GitResult.Failure(output.toString().takeLast(MAX_ERROR_CHARS).ifBlank { "git exited $code" })
+                val text = output.toString().takeLast(MAX_ERROR_CHARS).ifBlank { "git exited $code" }
+                GitResult.Failure(text, GitFailureClassifier.classify(text))
             }
-        }.getOrElse { GitResult.Failure(it.message ?: it::class.java.simpleName) }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            GitResult.Failure(failure.message ?: failure::class.java.simpleName)
+        }
     }
 
-    private fun quote(value: String) = "'" + value.replace("'", "'\\''") + "'"
-
     private companion object {
-        const val TOKEN_ENV = "EASYIDE_GIT_TOKEN"
         const val MAX_ERROR_CHARS = 2000
-
-        /**
-         * `-c` rather than a config file so nothing is persisted, and a shell
-         * function so the token is expanded by the helper at the moment git
-         * asks - never appearing in the command line, which `ps` would show.
-         */
-        const val CREDENTIAL_HELPER_GIT =
-            "git -c credential.helper='!f() { echo username=x; echo \"password=\$$TOKEN_ENV\"; }; f'"
     }
 }

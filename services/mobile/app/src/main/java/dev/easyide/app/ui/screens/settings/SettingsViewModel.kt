@@ -34,8 +34,11 @@ import dev.easyide.extensions.contrib.ContributionOverrides
 import dev.easyide.extensions.contrib.ContributionRegistry
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.git.GitCredentialEntry
+import dev.easyide.sandbox.git.GitCredentials
 import dev.easyide.sandbox.external.ExternalFolderSync
 import dev.easyide.sandbox.model.SandboxEnvironment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,6 +50,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
 
 /** The key row picker's options and the `keyRows.layouts` rows that were skipped. */
@@ -125,7 +129,13 @@ class SettingsViewModel(
     themes: ContributedThemeCatalog,
     contributions: ContributionRegistry,
     lspServers: ServerRegistry,
+    private val gitCredentials: GitCredentials,
 ) : ViewModel(), SettingActions, ThemeActions {
+
+    private val _gitCredentialEntries = MutableStateFlow<List<GitCredentialEntry>>(emptyList())
+
+    /** Hosts with a stored git token, and the username sent with it - never the token. */
+    val gitCredentialEntries: StateFlow<List<GitCredentialEntry>> = _gitCredentialEntries.asStateFlow()
 
     private val tab = MutableStateFlow<LayerTab>(LayerTab.User)
 
@@ -230,6 +240,31 @@ class SettingsViewModel(
     fun resetAll() {
         viewModelScope.launch {
             settingsStore.resetAll(tab.value.target).onFailure { _message.value = SettingsMessage.WRITE_FAILED }
+        }
+    }
+
+    init {
+        reloadGitCredentials()
+    }
+
+    private fun reloadGitCredentials() {
+        viewModelScope.launch(Dispatchers.IO) { _gitCredentialEntries.value = gitCredentials.entries() }
+    }
+
+    /**
+     * Keystore and file I/O, so off the main thread. Returns false when the
+     * values cannot be stored, which keeps the dialog open.
+     */
+    suspend fun saveGitToken(host: String, username: String, token: String): Boolean {
+        val saved = withContext(Dispatchers.IO) { gitCredentials.store(host, token, username) }
+        if (saved) reloadGitCredentials()
+        return saved
+    }
+
+    fun forgetGitHost(host: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            gitCredentials.forget(host)
+            _gitCredentialEntries.value = gitCredentials.entries()
         }
     }
 

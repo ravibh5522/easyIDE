@@ -1,10 +1,12 @@
 package dev.easyide.app
 
+import android.app.Application
 import android.content.Context
 import dev.easyide.sandbox.git.GitCredentials
 import dev.easyide.sandbox.git.GitRemote
 import dev.easyide.sandbox.service.SandboxForegroundService
 import dev.easyide.app.ui.screens.onboarding.InstallKeepAlive
+import dev.easyide.app.ui.screens.workspace.git.AppForeground
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
@@ -157,6 +159,9 @@ class AppContainer(context: Context) {
     val gitCredentials = GitCredentials(appContext)
 
     val paths = SandboxPaths(appContext.filesDir)
+
+    /** Visible-or-not, for work (auto-fetch) that must not run in the background. */
+    val appForeground = AppForeground(appContext as Application)
 
     private val store: SandboxStore = SandboxStore.create(appContext.filesDir, applicationScope)
 

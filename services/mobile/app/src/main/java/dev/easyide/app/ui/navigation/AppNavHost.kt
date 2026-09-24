@@ -167,6 +167,7 @@ fun AppNavHost(
                     onInitRepository = workspaceViewModel::initGitRepository,
                     onRefresh = workspaceViewModel::refreshGit,
                     onOpenFile = workspaceViewModel::openFileByPath,
+                    git = workspaceViewModel.gitControllers,
                 ),
                 callbacks = dev.easyide.app.ui.screens.workspace.WorkspaceCallbacks(
                     onFileOpened = workspaceViewModel::onFileOpened,
