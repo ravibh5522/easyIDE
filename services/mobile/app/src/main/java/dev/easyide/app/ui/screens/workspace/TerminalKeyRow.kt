@@ -4,9 +4,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -14,21 +13,21 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import dev.easyide.app.ui.theme.ControlSize
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.Stroke
-import dev.easyide.app.ui.theme.editorColors
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import dev.easyide.app.ui.kit.HapticEvent
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.collectFlags
+import dev.easyide.app.ui.kit.kitFocusRing
+import dev.easyide.app.ui.kit.kitStateLayer
+import dev.easyide.app.ui.kit.rememberHaptics
 import dev.easyide.extensions.contrib.KeyAction
 import dev.easyide.extensions.contrib.RowKey
 
@@ -47,15 +46,13 @@ fun KeyRowBar(
     onKey: (KeyAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = editorColors
-
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(colors.panel)
+            .background(Kit.colors.panel)
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = Spacing.xs, vertical = Spacing.xs),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+            .padding(horizontal = Kit.space.xs, vertical = Kit.space.xs),
+        horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         keys.forEach { key ->
@@ -65,38 +62,40 @@ fun KeyRowBar(
 }
 
 /**
- * A raised, rounded key; a long press runs the key's `longPress` action. Pressing shifts it to the overlay tone and ticks the
- * keyboard haptic, so a tap registers the way a soft-keyboard key does even
- * when the shell prints nothing back.
+ * A raised key; a long press runs the key's `longPress` action. Pressing washes it with the
+ * state layer and plays the key-tap haptic (which honours `appearance.haptics`), so a tap
+ * registers the way a soft-keyboard key does even when the shell prints nothing back.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun KeyCap(key: RowKey, onClick: () -> Unit, onLongClick: (() -> Unit)?) {
-    val colors = editorColors
-    val haptics = LocalHapticFeedback.current
+    val colors = Kit.colors
+    val haptics = rememberHaptics()
     val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
+    val flags = interaction.collectFlags()
+    val shape = RoundedCornerShape(Kit.radius.s)
 
     Box(
         modifier = Modifier
-            .defaultMinSize(minWidth = ControlSize.keyMinWidth, minHeight = ControlSize.keyHeight)
-            .clip(MaterialTheme.shapes.small)
-            .background(if (pressed) colors.overlay else colors.raised)
-            .border(Stroke.hairline, colors.panelBorder, MaterialTheme.shapes.small)
+            .defaultMinSize(minWidth = maxOf(Kit.control.keyMinWidth, Kit.metrics.touchFloor), minHeight = maxOf(Kit.control.keyHeight, Kit.metrics.touchFloor))
+            .clip(shape)
+            .background(colors.raised)
+            .border(Kit.hairline, colors.panelBorder, shape)
+            .kitStateLayer(flags, true, colors.plainText)
+            .kitFocusRing(flags.focused, shape)
+            .semantics(mergeDescendants = true) {}
             .combinedClickable(
                 interactionSource = interaction,
-                indication = ripple(),
-                onLongClick = onLongClick?.let { lp -> { haptics.performHapticFeedback(HapticFeedbackType.LongPress); lp() } },
+                indication = null,
+                role = Role.Button,
+                onLongClick = onLongClick?.let { lp -> { haptics.play(HapticEvent.LongPress); lp() } },
             ) {
-                haptics.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+                haptics.play(HapticEvent.KeyTap)
                 onClick()
             }
-            .padding(horizontal = Spacing.s),
+            .padding(horizontal = Kit.space.s),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = key.label,
-            style = codeTextStyle().copy(color = colors.plainText),
-        )
+        BasicText(key.label, style = codeTextStyle().copy(color = colors.plainText))
     }
 }

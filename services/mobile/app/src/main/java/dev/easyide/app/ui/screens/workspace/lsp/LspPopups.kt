@@ -1,5 +1,6 @@
 package dev.easyide.app.ui.screens.workspace.lsp
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,29 +18,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import dev.easyide.app.R
-import dev.easyide.app.ui.screens.workspace.ChromeButton
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.screens.workspace.codeTextStyle
 import dev.easyide.app.ui.screens.workspace.decor.EditorGeometry
 import dev.easyide.app.ui.screens.workspace.decor.EditorPopup
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.editorColors
 
 /**
  * Everything LSP draws over the editor text of [path]: completion, hover, signature help, the
@@ -82,14 +81,14 @@ fun LspEditorOverlay(controller: WorkspaceLspController, path: String, geometry:
     }
     snippet?.takeIf { it.path == path && completion == null && it.session.hasNext }?.let {
         EditorPopup(anchor = { geometry.caretRect() }, onDismiss = controller.snippets::end) {
-            ChromeButton(text = stringResource(R.string.lsp_snippet_next_field), onClick = { controller.snippets.move(forward = true) })
+            KitButton(stringResource(R.string.lsp_snippet_next_field), { controller.snippets.move(forward = true) }, style = KitButtonStyle.Ghost)
         }
     }
 }
 
 @Composable
 private fun CompletionContent(ui: CompletionUi, controller: WorkspaceLspController) {
-    val colors = editorColors
+    val colors = Kit.colors
     val listState = rememberLazyListState()
     LaunchedEffect(ui.selected) { listState.scrollToItem((ui.selected - LspUiPolicy.COMPLETION_VISIBLE_ROWS / 2).coerceAtLeast(0)) }
     BoxWithConstraints {
@@ -115,9 +114,9 @@ private fun CompletionContent(ui: CompletionUi, controller: WorkspaceLspControll
                         .heightIn(max = LspUiMetrics.popupMaxHeight)
                         .background(colors.raised)
                         .verticalScroll(rememberScrollState())
-                        .padding(Spacing.s),
+                        .padding(Kit.space.s),
                 ) {
-                    focused.item.detail?.let { Text(it, style = codeTextStyle().copy(color = colors.textMuted)) }
+                    focused.item.detail?.let { BasicText(it, style = codeTextStyle().copy(color = colors.textMuted)) }
                     focused.item.documentation?.let { LspMarkdownView(it.asMarkdown(), null, null) }
                 }
             }
@@ -128,7 +127,7 @@ private fun CompletionContent(ui: CompletionUi, controller: WorkspaceLspControll
 
 @Composable
 private fun CompletionRow(entry: CompletionEntry, selected: Boolean, onClick: () -> Unit) {
-    val colors = editorColors
+    val colors = Kit.colors
     val item = entry.item
     Row(
         modifier = Modifier
@@ -138,11 +137,11 @@ private fun CompletionRow(entry: CompletionEntry, selected: Boolean, onClick: ()
             .clickable(onClick = onClick)
             .padding(horizontal = LspUiMetrics.rowPaddingH),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+        horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
     ) {
-        Icon(LspIcons.completion(item.kind), contentDescription = null, tint = colors.accent, modifier = Modifier.size(LspUiMetrics.kindIconSize))
+        Image(LspIcons.completion(item.kind), null, Modifier.size(LspUiMetrics.kindIconSize), colorFilter = ColorFilter.tint(colors.accent))
         val text = if (selected) colors.listSelectionText else colors.plainText
-        Text(
+        BasicText(
             text = buildAnnotatedString {
                 append(item.label)
                 item.labelDetail?.let { withStyle(SpanStyle(color = colors.textMuted)) { append(it) } }
@@ -153,135 +152,7 @@ private fun CompletionRow(entry: CompletionEntry, selected: Boolean, onClick: ()
             modifier = Modifier.weight(1f),
         )
         (item.labelDescription ?: item.detail)?.let {
-            Text(it, style = MaterialTheme.typography.labelSmall, color = colors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-    }
-}
-
-@Composable
-private fun HoverContent(ui: HoverUi, controller: WorkspaceLspController) {
-    Column(modifier = Modifier.widthIn(max = LspUiMetrics.hoverMaxWidth)) {
-        LspMarkdownView(
-            ui.markdown, ui.languageId, ui.fileName,
-            Modifier
-                .heightIn(max = LspUiMetrics.popupMaxHeight)
-                .verticalScroll(rememberScrollState())
-                .padding(Spacing.s),
-        )
-        if (ui.origin != HoverOrigin.MOUSE) {
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), modifier = Modifier.padding(Spacing.xs)) {
-                ChromeButton(stringResource(R.string.lsp_action_definition), onClick = {
-                    controller.info.dismissHover()
-                    controller.navigation.goTo(NavKind.DEFINITION, ui.path, ui.start)
-                })
-                ChromeButton(stringResource(R.string.lsp_action_references), onClick = {
-                    controller.info.dismissHover()
-                    controller.openLocations(NavKind.REFERENCES)
-                })
-                ChromeButton(stringResource(R.string.lsp_action_rename), onClick = {
-                    controller.info.dismissHover()
-                    controller.navigation.startRename()
-                })
-                ChromeButton(stringResource(R.string.lsp_action_quick_fix), icon = LspIcons.quickFix, onClick = {
-                    controller.info.dismissHover()
-                    controller.actions.openMenuAtCaret()
-                })
-            }
-        }
-    }
-}
-
-@Composable
-private fun SignatureContent(ui: SignatureUi) {
-    val colors = editorColors
-    val sig = ui.help.active ?: return
-    val param = ui.help.activeParameter?.let { sig.parameters.getOrNull(it) }
-    Column(
-        modifier = Modifier
-            .widthIn(max = LspUiMetrics.hoverMaxWidth)
-            .heightIn(max = LspUiMetrics.popupMaxHeight)
-            .verticalScroll(rememberScrollState())
-            .padding(Spacing.s),
-    ) {
-        Text(
-            text = buildAnnotatedString {
-                if (param == null) {
-                    append(sig.label)
-                } else {
-                    append(sig.label.substring(0, param.labelStart))
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = colors.accent)) {
-                        append(sig.label.substring(param.labelStart, param.labelEnd))
-                    }
-                    append(sig.label.substring(param.labelEnd))
-                }
-            },
-            style = codeTextStyle().copy(color = colors.plainText),
-        )
-        if (ui.help.signatures.size > 1) {
-            Text(
-                stringResource(R.string.lsp_signature_count, ui.help.activeSignature + 1, ui.help.signatures.size),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.textMuted,
-            )
-        }
-        param?.documentation?.let { LspMarkdownView(it.asMarkdown(), null, null) }
-        sig.documentation?.let { LspMarkdownView(it.asMarkdown(), null, null) }
-    }
-}
-
-@Composable
-private fun CodeActionContent(ui: CodeActionMenuUi, controller: WorkspaceLspController) {
-    val colors = editorColors
-    LazyColumn(modifier = Modifier.widthIn(max = LspUiMetrics.hoverMaxWidth).heightIn(max = LspUiMetrics.popupMaxHeight)) {
-        itemsIndexed(ui.actions) { _, action ->
-            val a = action.value
-            val enabled = a.disabledReason == null
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(enabled = enabled) { controller.actions.run(action) }
-                    .padding(horizontal = LspUiMetrics.rowPaddingH, vertical = LspUiMetrics.rowPaddingV),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-            ) {
-                Icon(
-                    LspIcons.quickFix,
-                    contentDescription = null,
-                    tint = if (a.isPreferred && enabled) colors.decorations.lightbulb else colors.textMuted,
-                    modifier = Modifier.size(LspUiMetrics.kindIconSize),
-                )
-                Column {
-                    Text(a.title, style = MaterialTheme.typography.bodySmall, color = if (enabled) colors.plainText else colors.textDisabled)
-                    a.disabledReason?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = colors.textDisabled) }
-                }
-            }
-        }
-    }
-}
-
-/** A gutter line's code lenses; a tap runs one. Unresolved lenses show a placeholder title. */
-@Composable
-private fun CodeLensContent(ui: CodeLensMenuUi, controller: WorkspaceLspController) {
-    val colors = editorColors
-    LazyColumn(modifier = Modifier.widthIn(max = LspUiMetrics.hoverMaxWidth).heightIn(max = LspUiMetrics.popupMaxHeight)) {
-        itemsIndexed(ui.lenses) { _, lens ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { controller.codeLens.run(lens) }
-                    .padding(horizontal = LspUiMetrics.rowPaddingH, vertical = LspUiMetrics.rowPaddingV),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-            ) {
-                Icon(LspIcons.codeLens, contentDescription = null, tint = colors.decorations.codeLens, modifier = Modifier.size(LspUiMetrics.kindIconSize))
-                Text(
-                    lens.title ?: stringResource(R.string.lsp_code_lens_unresolved),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (lens.title != null) colors.plainText else colors.textMuted,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            BasicText(it, style = Kit.type.labelSmall.copy(color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }

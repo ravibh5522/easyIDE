@@ -139,9 +139,9 @@
     <string name="lsp_picker_loading">Searching...</string>
     <string name="lsp_picker_empty">No matching symbols</string>
     <string name="lsp_panel_close">Close panel</string>
-    <string name="lsp_panel_problems">PROBLEMS</string>
-    <string name="lsp_panel_references">REFERENCES</string>
-    <string name="lsp_panel_outline">OUTLINE</string>
+    <string name="lsp_panel_problems">Problems</string>
+    <string name="lsp_panel_references">References</string>
+    <string name="lsp_panel_outline">Outline</string>
     <string name="lsp_problems_empty">No problems detected.</string>
     <string name="lsp_references_empty">Run Find References (Shift+F12) to list uses of a symbol.</string>
     <string name="lsp_references_title">%1$s - %2$d results</string>

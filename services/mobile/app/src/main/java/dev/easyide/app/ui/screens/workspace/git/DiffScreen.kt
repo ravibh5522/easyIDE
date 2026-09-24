@@ -9,43 +9,38 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import dev.easyide.app.R
 import dev.easyide.app.ui.foundation.LocalWindowSize
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitIconButton
+import dev.easyide.app.ui.kit.KitProgress
+import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.screens.workspace.GitPanelState
 import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
 import dev.easyide.app.ui.theme.EasyIdeFonts
-import dev.easyide.app.ui.theme.IconSize
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.editorColors
 import dev.easyide.sandbox.git.DiffHunk
 import dev.easyide.sandbox.git.DiffSource
 import dev.easyide.sandbox.git.FileDiff
@@ -66,7 +61,7 @@ private sealed interface DiffItem {
 internal fun DiffScreen(state: GitPanelState, callbacks: SourceControlCallbacks) {
     val diffState = state.diff ?: return
     val git = callbacks.git
-    val colors = editorColors
+    val colors = Kit.colors
 
     Dialog(
         onDismissRequest = git.diff::close,
@@ -79,7 +74,7 @@ internal fun DiffScreen(state: GitPanelState, callbacks: SourceControlCallbacks)
                 .windowInsetsPadding(WindowInsets.safeDrawing),
         ) {
             DiffToolbar(state, diffState, callbacks)
-            HorizontalDivider(color = colors.panelBorder)
+            Box(Modifier.fillMaxWidth().height(Kit.hairline).background(colors.panelBorder))
             Box(modifier = Modifier.fillMaxSize()) {
                 DiffBody(diffState, git.diff, busy = state.busy)
             }
@@ -89,7 +84,7 @@ internal fun DiffScreen(state: GitPanelState, callbacks: SourceControlCallbacks)
 
 @Composable
 private fun DiffToolbar(state: GitPanelState, diffState: GitDiffState, callbacks: SourceControlCallbacks) {
-    val colors = editorColors
+    val colors = Kit.colors
     val git = callbacks.git
     val status = state.status
     val path = diffState.path
@@ -99,82 +94,60 @@ private fun DiffToolbar(state: GitPanelState, diffState: GitDiffState, callbacks
     val directory = path.substringBeforeLast('/', "")
 
     Column(modifier = Modifier.fillMaxWidth().background(colors.panel)) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = Spacing.s)) {
-            IconButton(onClick = git.diff::close, modifier = Modifier.minimumInteractiveComponentSize()) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.git_diff_close), modifier = Modifier.size(IconSize.m))
-            }
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = Kit.space.s)) {
+            KitIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.git_diff_close), git.diff::close)
             Column(modifier = Modifier.weight(1f)) {
-                Text(name, style = MaterialTheme.typography.titleSmall, color = colors.plainText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                BasicText(name, style = Kit.type.titleSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (directory.isNotEmpty()) {
-                    Text(directory, style = MaterialTheme.typography.labelSmall, color = colors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    BasicText(directory, style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
             (diffState.diff as? FileDiff.Text)?.let { text ->
-                Text(
+                BasicText(
                     text = stringResource(R.string.git_diff_stats, text.added, text.removed),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontFamily = EasyIdeFonts.mono,
-                    color = colors.textMuted,
+                    style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted),
                 )
             }
-            IconButton(
-                onClick = { git.diff.close(); callbacks.onOpenFile(path) },
-                modifier = Modifier.minimumInteractiveComponentSize(),
-            ) {
-                Icon(Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.git_diff_open_file), modifier = Modifier.size(IconSize.m))
-            }
+            KitIconButton(Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.git_diff_open_file), { git.diff.close(); callbacks.onOpenFile(path) })
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.s),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.space.s),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+            horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
         ) {
             if (hasStaged && hasUnstaged) {
-                SourceTab(R.string.git_diff_unstaged, diffState.source == DiffSource.UNSTAGED) { git.diff.showSource(DiffSource.UNSTAGED) }
-                SourceTab(R.string.git_diff_staged, diffState.source == DiffSource.STAGED) { git.diff.showSource(DiffSource.STAGED) }
+                val sources = listOf(DiffSource.UNSTAGED, DiffSource.STAGED)
+                KitTabs(
+                    labels = listOf(stringResource(R.string.git_diff_unstaged), stringResource(R.string.git_diff_staged)),
+                    selected = sources.indexOf(diffState.source),
+                    onSelect = { git.diff.showSource(sources[it]) },
+                    modifier = Modifier.weight(1f),
+                )
             } else {
-                Text(
+                BasicText(
                     text = stringResource(if (diffState.source == DiffSource.STAGED) R.string.git_diff_staged else R.string.git_diff_unstaged),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = colors.textMuted,
-                    modifier = Modifier.padding(horizontal = Spacing.s),
+                    style = Kit.type.labelLarge.copy(color = colors.textMuted),
+                    modifier = Modifier.weight(1f).padding(horizontal = Kit.space.s),
                 )
             }
-            Box(modifier = Modifier.weight(1f))
             if (diffState.source == DiffSource.STAGED) {
-                TextButton(onClick = { callbacks.onUnstage(listOf(path)) }, enabled = !state.busy, modifier = Modifier.minimumInteractiveComponentSize()) {
-                    Text(stringResource(R.string.git_diff_unstage_file))
-                }
+                KitButton(stringResource(R.string.git_diff_unstage_file), { callbacks.onUnstage(listOf(path)) }, style = KitButtonStyle.Ghost, enabled = !state.busy)
             } else {
-                TextButton(onClick = { callbacks.onStage(listOf(path)) }, enabled = !state.busy, modifier = Modifier.minimumInteractiveComponentSize()) {
-                    Text(stringResource(R.string.git_diff_stage_file))
-                }
+                KitButton(stringResource(R.string.git_diff_stage_file), { callbacks.onStage(listOf(path)) }, style = KitButtonStyle.Ghost, enabled = !state.busy)
             }
         }
-    }
-}
-
-@Composable
-private fun SourceTab(label: Int, selected: Boolean, onClick: () -> Unit) {
-    val colors = editorColors
-    TextButton(onClick = onClick, modifier = Modifier.minimumInteractiveComponentSize()) {
-        Text(
-            text = stringResource(label),
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (selected) colors.accent else colors.textMuted,
-        )
     }
 }
 
 @Composable
 private fun DiffBody(diffState: GitDiffState, controller: GitDiffController, busy: Boolean) {
-    val colors = editorColors
+    val colors = Kit.colors
     when (val diff = diffState.diff) {
         null -> Centered {
             if (diffState.error != null) {
-                Text(diffState.error, color = colors.error, style = MaterialTheme.typography.bodyMedium)
+                BasicText(diffState.error, style = Kit.type.bodyMedium.copy(color = colors.error))
             } else {
-                CircularProgressIndicator(color = colors.accent)
+                KitProgress(fraction = null)
             }
         }
         is FileDiff.Binary -> Message(stringResource(R.string.git_diff_binary))
@@ -198,7 +171,7 @@ private fun HunkList(diff: FileDiff.Text, source: DiffSource, controller: GitDif
     val items = remember(diff, split) { flatten(diff, split) }
     val leftScroll = rememberScrollState()
     val rightScroll = rememberScrollState()
-    val colors = editorColors
+    val colors = Kit.colors
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
@@ -225,16 +198,14 @@ private fun flatten(diff: FileDiff.Text, split: Boolean): List<DiffItem> = build
 
 @Composable
 private fun HunkHeader(hunk: DiffHunk, source: DiffSource, controller: GitDiffController, busy: Boolean) {
-    val colors = editorColors
+    val colors = Kit.colors
     Row(
-        modifier = Modifier.fillMaxWidth().background(colors.raised).padding(start = Spacing.m, end = Spacing.xs),
+        modifier = Modifier.fillMaxWidth().background(colors.raised).padding(start = Kit.space.m, end = Kit.space.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
+        BasicText(
             text = hunk.header,
-            style = MaterialTheme.typography.labelSmall,
-            fontFamily = EasyIdeFonts.mono,
-            color = colors.textMuted,
+            style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -250,17 +221,15 @@ private fun HunkHeader(hunk: DiffHunk, source: DiffSource, controller: GitDiffCo
 
 @Composable
 private fun HunkAction(label: Int, enabled: Boolean, onClick: () -> Unit) {
-    TextButton(onClick = onClick, enabled = enabled, modifier = Modifier.minimumInteractiveComponentSize()) {
-        Text(stringResource(label), style = MaterialTheme.typography.labelMedium)
-    }
+    KitButton(stringResource(label), onClick, style = KitButtonStyle.Ghost, enabled = enabled)
 }
 
 @Composable
 private fun Centered(content: @Composable () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize().padding(Spacing.l), contentAlignment = Alignment.Center) { content() }
+    Box(modifier = Modifier.fillMaxSize().padding(Kit.space.l), contentAlignment = Alignment.Center) { content() }
 }
 
 @Composable
 private fun Message(text: String) = Centered {
-    Text(text, style = MaterialTheme.typography.bodyMedium, color = editorColors.textMuted)
+    BasicText(text, style = Kit.type.bodyMedium.copy(color = Kit.colors.textMuted))
 }

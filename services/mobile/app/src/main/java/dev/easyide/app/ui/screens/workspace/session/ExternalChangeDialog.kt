@@ -1,17 +1,21 @@
 package dev.easyide.app.ui.screens.workspace.session
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
 import dev.easyide.app.session.ExternalState
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitAction
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitDialog
+import dev.easyide.app.ui.screens.workspace.DialogText
 import dev.easyide.app.ui.screens.workspace.EditorTab
 import dev.easyide.app.ui.screens.workspace.NoticeBar
 
@@ -29,23 +33,22 @@ fun ExternalChangeDialog(tabs: List<EditorTab>, onResolve: (path: String, keepMi
     } ?: return
     val (tab, conflict) = pending
     val path = tab.relativePath
+    val later = { deferred = deferred + (path to conflict.diskText.hashCode()) }
 
-    AlertDialog(
-        onDismissRequest = { deferred = deferred + (path to conflict.diskText.hashCode()) },
-        title = { Text(stringResource(R.string.session_conflict_title, tab.name)) },
-        text = { Text(stringResource(R.string.session_conflict_body)) },
-        confirmButton = {
-            TextButton(onClick = { onResolve(path, true) }) { Text(stringResource(R.string.session_conflict_keep_mine)) }
-        },
-        dismissButton = {
-            Row {
-                TextButton(onClick = { deferred = deferred + (path to conflict.diskText.hashCode()) }) {
-                    Text(stringResource(R.string.session_conflict_later))
-                }
-                TextButton(onClick = { onResolve(path, false) }) { Text(stringResource(R.string.session_conflict_use_disk)) }
-            }
-        },
-    )
+    KitDialog(
+        title = stringResource(R.string.session_conflict_title, tab.name),
+        onDismiss = later,
+        confirm = KitAction(stringResource(R.string.session_conflict_keep_mine)) { onResolve(path, true) },
+        dismiss = KitAction(stringResource(R.string.session_conflict_later), later),
+    ) {
+        DialogText(stringResource(R.string.session_conflict_body))
+        KitButton(
+            stringResource(R.string.session_conflict_use_disk),
+            { onResolve(path, false) },
+            Modifier.padding(top = Kit.space.s),
+            KitButtonStyle.Secondary,
+        )
+    }
 }
 
 /** Tells the user why a tab's save is blocked or what saving will do; nothing when the tab matches the disk. */

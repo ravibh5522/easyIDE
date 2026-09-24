@@ -25,6 +25,6 @@ object GitUi {
     /** The rule between the two halves of a side-by-side diff. */
     val dividerWidth = 1.dp
 
-    /** Widest a bottom sheet grows, so a tablet's sheet is not a stretched phone sheet. */
-    val sheetMaxWidth = 560.dp
+    /** Tallest a list inside a git sheet grows before it scrolls on its own, so the sheet's actions stay on screen. */
+    val sheetListMaxHeight = 280.dp
 }

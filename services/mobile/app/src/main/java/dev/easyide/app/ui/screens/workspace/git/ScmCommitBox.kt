@@ -3,72 +3,63 @@ package dev.easyide.app.ui.screens.workspace.git
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import dev.easyide.app.R
-import dev.easyide.app.ui.screens.workspace.ChromeButton
-import dev.easyide.app.ui.screens.workspace.ChromeButtonStyle
-import dev.easyide.app.ui.screens.workspace.DenseTextField
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitField
+import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.kit.KitToggle
+import dev.easyide.app.ui.kit.ToggleKind
+import dev.easyide.app.ui.screens.workspace.DialogHeading
+import dev.easyide.app.ui.screens.workspace.DialogText
 import dev.easyide.app.ui.screens.workspace.GitPanelState
 import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.editorColors
 import dev.easyide.sandbox.git.GitIdentity
 import dev.easyide.sandbox.git.GitStatus
 
 /**
  * Message box, amend toggle and commit button. Committing without an author
- * identity opens the identity form in place of a made-up author.
+ * identity opens the identity form in place of a made-up author; the form's
+ * save action commits, so the commit button waits until it is answered.
  */
 @Composable
 internal fun ScmCommitBox(state: GitPanelState, status: GitStatus, callbacks: SourceControlCallbacks) {
     val commit = callbacks.git.commit
     val canCommit = state.commitMessage.isNotBlank() &&
         (status.staged.isNotEmpty() || state.amend) && !state.busy
+    val space = Kit.space
 
-    DenseTextField(
+    KitField(
         value = state.commitMessage,
         onValueChange = callbacks.onMessageChanged,
-        placeholder = stringResource(R.string.git_message_hint),
-        maxLines = COMMIT_MESSAGE_MAX_LINES,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.m, vertical = Spacing.xs),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = space.m, vertical = space.xs),
+        hint = stringResource(R.string.git_message_hint),
+        singleLine = false,
+        keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 
     if (state.commits.isNotEmpty()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .toggleable(state.amend, role = Role.Checkbox, onValueChange = commit::setAmend)
-                .minimumInteractiveComponentSize()
-                .padding(horizontal = Spacing.m),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-        ) {
-            Checkbox(checked = state.amend, onCheckedChange = null)
-            Text(
-                text = stringResource(R.string.git_amend),
-                style = MaterialTheme.typography.bodySmall,
-                color = editorColors.plainText,
-            )
-        }
+        KitRow(
+            title = stringResource(R.string.git_amend),
+            onClick = { commit.setAmend(!state.amend) },
+            trailing = { KitToggle(state.amend, null, kind = ToggleKind.Check) },
+        )
     }
 
     if (state.identityPrompt) {
@@ -77,18 +68,15 @@ internal fun ScmCommitBox(state: GitPanelState, status: GitStatus, callbacks: So
             onSave = commit::saveIdentity,
             onDismiss = commit::dismissIdentityPrompt,
         )
+        return
     }
 
-    ChromeButton(
+    KitButton(
         text = commitLabel(status, state.amend),
         onClick = callbacks.onCommit,
-        enabled = canCommit,
-        style = ChromeButtonStyle.PRIMARY,
+        modifier = Modifier.padding(horizontal = space.xs),
         icon = Icons.Filled.Check,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.m, vertical = Spacing.xs)
-            .minimumInteractiveComponentSize(),
+        enabled = canCommit,
     )
 }
 
@@ -113,63 +101,27 @@ private fun IdentityForm(
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     val valid = GitIdentity.of(name, email) != null
-    val colors = editorColors
+    val space = Kit.space
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.raised)
-            .padding(horizontal = Spacing.m, vertical = Spacing.s),
-        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+            .background(Kit.colors.raised)
+            .padding(horizontal = space.m, vertical = space.s),
+        verticalArrangement = Arrangement.spacedBy(space.s),
     ) {
-        Text(
-            text = stringResource(R.string.git_identity_title),
-            style = MaterialTheme.typography.labelLarge,
-            color = colors.plainText,
+        DialogHeading(stringResource(R.string.git_identity_title), Modifier.padding(top = space.none))
+        DialogText(stringResource(R.string.git_identity_body), muted = true)
+        KitField(name, { name = it }, Modifier.fillMaxWidth(), hint = stringResource(R.string.git_identity_name))
+        KitField(
+            email, { email = it }, Modifier.fillMaxWidth(),
+            hint = stringResource(R.string.git_identity_email),
+            error = if (failed) stringResource(R.string.git_identity_save_failed) else null,
+            mono = true,
+            keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Email),
         )
-        Text(
-            text = stringResource(R.string.git_identity_body),
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.textMuted,
-        )
-        DenseTextField(
-            value = name,
-            onValueChange = { name = it },
-            placeholder = stringResource(R.string.git_identity_name),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        DenseTextField(
-            value = email,
-            onValueChange = { email = it },
-            placeholder = stringResource(R.string.git_identity_email),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        if (failed) {
-            Text(
-                text = stringResource(R.string.git_identity_save_failed),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.error,
-            )
-        }
-        ChromeButton(
-            text = stringResource(R.string.git_identity_save_global),
-            onClick = { onSave(name, email, false) },
-            enabled = valid,
-            style = ChromeButtonStyle.PRIMARY,
-            modifier = Modifier.fillMaxWidth().minimumInteractiveComponentSize(),
-        )
-        ChromeButton(
-            text = stringResource(R.string.git_identity_save_project),
-            onClick = { onSave(name, email, true) },
-            enabled = valid,
-            modifier = Modifier.fillMaxWidth().minimumInteractiveComponentSize(),
-        )
-        ChromeButton(
-            text = stringResource(R.string.git_cancel),
-            onClick = onDismiss,
-            modifier = Modifier.fillMaxWidth().minimumInteractiveComponentSize(),
-        )
+        KitButton(stringResource(R.string.git_identity_save_global), { onSave(name, email, false) }, enabled = valid)
+        KitButton(stringResource(R.string.git_identity_save_project), { onSave(name, email, true) }, style = KitButtonStyle.Secondary, enabled = valid)
+        KitButton(stringResource(R.string.git_cancel), onDismiss, style = KitButtonStyle.Ghost)
     }
 }
-
-private const val COMMIT_MESSAGE_MAX_LINES = 3

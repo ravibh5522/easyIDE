@@ -1,29 +1,21 @@
 package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -32,12 +24,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.termux.view.TerminalView
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitIconButton
+import dev.easyide.app.ui.kit.KitMenu
+import dev.easyide.app.ui.kit.KitMenuItem
+import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.screens.workspace.zoom.rememberFontZoom
 import androidx.core.content.res.ResourcesCompat
-import dev.easyide.app.ui.theme.ControlSize
-import dev.easyide.app.ui.theme.IconSize
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.editorColors
 import dev.easyide.extensions.contrib.KeyAction
 import dev.easyide.extensions.contrib.RowKey
 
@@ -69,7 +64,7 @@ fun TerminalPane(
     rowKeys: List<RowKey> = emptyList(),
     onRowKey: (KeyAction, com.termux.terminal.TerminalSession) -> Unit = { _, _ -> },
 ) {
-    val colors = editorColors
+    val colors = Kit.colors
     val tab = tabs.find { it.id == activeTabId } ?: tabs.firstOrNull()
 
     Column(modifier = modifier.fillMaxSize().background(colors.background)) {
@@ -121,7 +116,7 @@ private fun EasyTerminalView(
     // only on a real change, not on every recomposition that re-runs update.
     val appliedTextSize = remember { AppliedTextSize(textSizePx) }
     val client = remember { EasyTerminalViewClient() }
-    val palette = editorColors.terminal
+    val palette = Kit.colors.terminal
 
     AndroidView(
         factory = { context ->
@@ -165,11 +160,15 @@ private fun EasyTerminalView(
         // strip next to the terminal's own canvas.
         modifier = modifier
             .background(palette.background)
-            .padding(horizontal = Spacing.s),
+            .padding(horizontal = Kit.space.s),
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+/**
+ * Session tabs, then the pinned actions: new terminal, a menu for the active session (rename,
+ * close) and the Linux install. Rename and close are in the menu, not behind a long press or a
+ * 14dp cross, so every action has a visible 44dp control.
+ */
 @Composable
 private fun TerminalTabBar(
     tabs: List<PtyTerminalTab>,
@@ -182,80 +181,43 @@ private fun TerminalTabBar(
     onNewTab: () -> Unit,
     onInstallLinux: () -> Unit,
 ) {
-    val colors = editorColors
+    val active = tabs.find { it.id == activeTabId }
+    var menuOpen by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier.fillMaxWidth().background(colors.panel),
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().background(Kit.colors.panel),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Tabs scroll; the install action stays pinned. weight() cannot live
-        // inside the scrolling row - its width constraint is unbounded there.
-        Row(
-            modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        ) {
-        tabs.forEach { tab ->
-            val active = tab.id == activeTabId
-            Row(
-                modifier = Modifier
-                    .height(ControlSize.tab)
-                    .background(if (active) colors.tabActive else colors.tabInactive)
-                    .tabAccentBar(active, colors.tabActiveBorder)
-                    .combinedClickable(
-                        onClick = { onSelectTab(tab.id) },
-                        onLongClick = { onRenameTab(tab.id, tab.title) },
-                    )
-                    .padding(horizontal = Spacing.m),
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-            ) {
-                Text(
-                    text = tab.title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (active) colors.tabActiveText else colors.tabInactiveText,
-                )
-                if (tabs.size > 1) {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = "Close ${tab.title}",
-                        tint = colors.textMuted,
-                        modifier = Modifier
-                            .size(IconSize.xs)
-                            .clickable { onCloseTab(tab.id) },
-                    )
-                }
-            }
-        }
-
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = stringResource(R.string.terminal_new),
-            tint = colors.textMuted,
-            modifier = Modifier
-                .padding(horizontal = Spacing.s)
-                .size(IconSize.s)
-                .clickable(onClick = onNewTab),
+        KitTabs(
+            labels = tabs.map { it.title },
+            selected = tabs.indexOf(active),
+            onSelect = { onSelectTab(tabs[it].id) },
+            modifier = Modifier.weight(1f),
         )
-        }
-
-        if (!linuxReady) {
-            // Install progress prints as real scrolling output into the
-            // terminal tab itself (see WorkspaceViewModel.appendInstallLog) -
-            // this button is just the start action plus a busy indicator.
-            TextButton(
-                onClick = onInstallLinux,
-                enabled = !isInstalling,
-                contentPadding = PaddingValues(horizontal = Spacing.s, vertical = Spacing.none),
-            ) {
-                Text(
-                    text = if (isInstalling) {
-                        stringResource(R.string.terminal_installing)
-                    } else {
-                        stringResource(R.string.terminal_install_linux)
-                    },
-                    style = MaterialTheme.typography.labelSmall,
+        KitIconButton(Icons.Filled.Add, stringResource(R.string.terminal_new), onNewTab)
+        if (active != null) {
+            Box {
+                KitIconButton(Icons.Filled.MoreVert, stringResource(R.string.terminal_more), { menuOpen = true })
+                KitMenu(
+                    expanded = menuOpen,
+                    onDismiss = { menuOpen = false },
+                    items = listOfNotNull(
+                        KitMenuItem.Action(stringResource(R.string.wp_rename), { onRenameTab(active.id, active.title) }),
+                        if (tabs.size > 1) KitMenuItem.Action(stringResource(R.string.terminal_close), { onCloseTab(active.id) }) else null,
+                    ),
                 )
             }
+        }
+        if (!linuxReady) {
+            // Install progress prints as real scrolling output into the terminal tab itself
+            // (see WorkspaceViewModel.appendInstallLog); this is just the start action.
+            KitButton(
+                text = stringResource(if (isInstalling) R.string.terminal_installing else R.string.terminal_install_linux),
+                onClick = onInstallLinux,
+                style = KitButtonStyle.Ghost,
+                enabled = !isInstalling,
+                loading = isInstalling,
+            )
         }
     }
 }
