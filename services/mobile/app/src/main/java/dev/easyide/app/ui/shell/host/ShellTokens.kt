@@ -11,6 +11,9 @@ object ShellTokens {
     /** A rail that shows labels is this much wider than the icon-only rail token. */
     val railLabelExtra = 16.dp
 
+    /** A document tab never grows past this; a longer name ends in an ellipsis (U-DEN-05). */
+    val tabMaxWidth = 220.dp
+
     val badgeDot = 8.dp
     val badgeCount = 16.dp
 
