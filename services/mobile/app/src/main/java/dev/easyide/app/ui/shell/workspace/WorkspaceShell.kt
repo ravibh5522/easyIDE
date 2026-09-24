@@ -101,7 +101,7 @@ fun WorkspaceShell(
     val placement = NavRules.placement(nav.settings.position, window.width)
     val surface = NavSurfaceState(
         placement, nav.items, state.current.nav, nav.settings.prefs.pinned,
-        NavRules.showLabels(nav.settings.labels, placement, window.width), nav.badges, focus,
+        NavRules.showLabels(nav.settings.labels, placement), nav.badges, focus,
     )
     val onSelect: (NavItem) -> Unit = { item ->
         when (val target = item.target) {

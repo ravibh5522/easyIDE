@@ -28,12 +28,21 @@ class NavRulesTest {
         assertEquals(NavPlacement.BOTTOM, NavRules.placement(NavPosition.BOTTOM, WidthClass.EXPANDED))
     }
 
-    @Test fun `auto labels the bar always and a rail only when expanded`() {
-        assertTrue(NavRules.showLabels(NavLabels.AUTO, NavPlacement.BOTTOM, WidthClass.COMPACT))
-        assertFalse(NavRules.showLabels(NavLabels.AUTO, NavPlacement.RAIL_START, WidthClass.MEDIUM))
-        assertTrue(NavRules.showLabels(NavLabels.AUTO, NavPlacement.RAIL_START, WidthClass.EXPANDED))
-        assertTrue(NavRules.showLabels(NavLabels.ALWAYS, NavPlacement.RAIL_START, WidthClass.MEDIUM))
-        assertFalse(NavRules.showLabels(NavLabels.NEVER, NavPlacement.BOTTOM, WidthClass.COMPACT))
+    @Test fun `auto labels the bar always and a rail never`() {
+        assertTrue(NavRules.showLabels(NavLabels.AUTO, NavPlacement.BOTTOM))
+        assertFalse(NavRules.showLabels(NavLabels.AUTO, NavPlacement.RAIL_START))
+        assertFalse(NavRules.showLabels(NavLabels.AUTO, NavPlacement.RAIL_END))
+        assertTrue(NavRules.showLabels(NavLabels.ALWAYS, NavPlacement.RAIL_START))
+        assertFalse(NavRules.showLabels(NavLabels.NEVER, NavPlacement.BOTTOM))
+    }
+
+    @Test fun `a rail keeps the workspace destinations on top and the utility cluster at the bottom`() {
+        val all = listOf("files", "search", "git", "extensions", "settings", "commands", "projects", "close-project", "ext.tool").map {
+            NavItem(it, it, IconRef("x"), NavTarget.Container("c"), 1, ScopeFilter.WORKSPACE)
+        }
+        val (top, cluster) = NavRules.railGroups(all)
+        assertEquals(listOf("files", "search", "git", "ext.tool"), ids(top))
+        assertEquals(listOf("extensions", "settings", "commands", "projects", "close-project"), ids(cluster))
     }
 
     @Test fun `a bar never holds more than five cells or fewer than one`() {

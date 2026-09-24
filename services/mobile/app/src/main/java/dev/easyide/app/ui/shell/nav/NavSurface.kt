@@ -6,6 +6,7 @@ import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -89,9 +90,13 @@ fun NavSurface(surface: NavSurfaceState, onSelect: (NavItem) -> Unit, modifier: 
                 if (cells.hasMore) cell(MORE_ID, null, Modifier.weight(1f).fillMaxHeight())
             }
         } else {
+            // Destinations at the top, the utility cluster pinned to the bottom edge; "More" ends the top group.
+            val (top, cluster) = NavRules.railGroups(cells.shown)
             Column(Modifier.fillMaxSize()) {
-                cells.shown.forEach { cell(it.id, it, Modifier.fillMaxWidth().height(cellHeight)) }
+                top.forEach { cell(it.id, it, Modifier.fillMaxWidth().height(cellHeight)) }
                 if (cells.hasMore) cell(MORE_ID, null, Modifier.fillMaxWidth().height(cellHeight))
+                Spacer(Modifier.weight(1f))
+                cluster.forEach { cell(it.id, it, Modifier.fillMaxWidth().height(cellHeight)) }
             }
         }
         if (moreOpen) {
