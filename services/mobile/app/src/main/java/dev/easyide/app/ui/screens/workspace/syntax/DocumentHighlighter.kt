@@ -154,11 +154,15 @@ internal class DocumentHighlighter(
         tokenizeThrough(last, checkCancelled)
 
         val builder = AnnotatedString.Builder(text)
+        // One style per role for the pass: its colour plus any customized bold/italic/underline.
+        val roleStyles = SyntaxRole.entries.map { role ->
+            colors.styles[role]?.copy(color = colors[role])?.toSpanStyle() ?: SpanStyle(color = colors[role])
+        }
         for (i in first..last) {
             val lineStart = lineStarts[i]
             for (span in lineSpans[i]) {
                 builder.addStyle(
-                    SpanStyle(color = colors[span.role]),
+                    roleStyles[span.role.ordinal],
                     lineStart + span.start,
                     lineStart + span.end,
                 )

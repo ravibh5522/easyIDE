@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.commands.Keymap
@@ -79,7 +80,8 @@ class MainActivity : ComponentActivity() {
             val motionEnabled = remember { systemMotionEnabled() }
             val windowSize = currentWindowSize()
 
-            EasyIdeTheme(themeMode = themeMode) {
+            val customizations = remember(settings) { ThemeSettingsSchema.customizations(settings) }
+            EasyIdeTheme(themeMode = themeMode, customizations = customizations) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,

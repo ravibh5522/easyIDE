@@ -2,6 +2,7 @@ package dev.easyide.app.ui.screens.workspace.syntax
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import dev.easyide.app.ui.theme.SemanticStyler
 import dev.easyide.app.ui.theme.SemanticTokenColors
@@ -76,6 +77,17 @@ class SemanticMergeTest {
         val styled = annotate(SemanticPaint.of(overlay, text, colors(theme), null))
         val span = styled.spanStyles.last { 4 >= it.start && 4 < it.end }.item
         assertEquals(red, span.color)
+        assertEquals(FontWeight.Bold, span.fontWeight)
+    }
+
+    @Test
+    fun roleFontStyleFromCustomizationsIsPainted() {
+        val styled = syntax.copy(styles = mapOf(SyntaxRole.KEYWORD to TokenStyle(italic = true, bold = true)))
+        val doc = DocumentHighlighter(grammar)
+        doc.setContent(text)
+        val span = doc.annotate(text, styled, 0, 1).spanStyles.first { it.start == 0 }.item
+        assertEquals(syntax[SyntaxRole.KEYWORD], span.color)
+        assertEquals(FontStyle.Italic, span.fontStyle)
         assertEquals(FontWeight.Bold, span.fontWeight)
     }
 

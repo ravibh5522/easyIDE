@@ -128,7 +128,7 @@ object SettingsSchema {
     val all: List<Setting<*>> = listOf(
         themeMode, editorFontSize, editorLineHeight, terminalFontSize, safeMode, activeProfile,
         extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
-    ) + LspSettingsSchema.all
+    ) + LspSettingsSchema.all + ThemeSettingsSchema.all
 
     /** Declared (validated, resolvable) but edited by a dedicated UI rather than a generic row. */
     val managedElsewhere: Set<String> = setOf(activeProfile.key)

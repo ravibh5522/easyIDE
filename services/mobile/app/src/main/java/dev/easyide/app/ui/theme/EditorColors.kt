@@ -166,6 +166,7 @@ fun ThemeTokens.toEditorColors(): EditorColors = EditorColors(
         cursor = this[ColorToken.TERMINAL_CURSOR],
         ansi = ColorToken.ANSI.map { this[it] },
     ),
+    semantic = semantic,
 )
 
 /** Provided by [EasyIdeTheme]; the default only serves previews and tests without a theme. */

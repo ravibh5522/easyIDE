@@ -14,6 +14,8 @@ data class VsCodeColorTheme(
     val tokenColors: List<TokenColorRule> = emptyList(),
     /** `semanticTokenColors`: selector (`type.modifier:language`) -> foreground `#hex`. */
     val semanticTokenColors: Map<String, String> = emptyMap(),
+    /** `semanticHighlighting`; null (absent) counts as false for `configuredByTheme` (customization.md 8.3). */
+    val semanticHighlighting: Boolean? = null,
 )
 
 /**
@@ -70,7 +72,40 @@ object VsCodeThemeMapper {
                 if (color == null) invalid += "semanticTokenColors:$selector" else put(selector, color)
             }
         }
-        return MappedTheme(base.withOverrides(set, syntax), semantic, unmapped, invalid)
+        val semanticTokens = SemanticTokenColors(semantic.mapValues { TokenStyle(it.value) }, theme.semanticHighlighting ?: false)
+        return MappedTheme(base.withOverrides(set, syntax, semanticTokens), semantic, unmapped, invalid)
+    }
+
+    /**
+     * Collapses selector rules onto roles with the same rule as `tokenColors`: per role, the
+     * longest selector matching one of its [ScopeRules] prefixes, a later rule winning a tie.
+     * Scope-less rules (empty selector list) set [SyntaxRole.PLAIN]. Roles no rule matches are
+     * absent. Used for `editor.tokenColorCustomizations.textMateRules`.
+     */
+    internal fun <T> collapse(rules: List<Pair<List<String>, T>>): Map<SyntaxRole, T> {
+        val parsed = rules.map { (scopes, value) -> scopes.flatMap(::selectorsOf) to value }
+        val out = LinkedHashMap<SyntaxRole, T>()
+        parsed.lastOrNull { it.first.isEmpty() }?.let { out[SyntaxRole.PLAIN] = it.second }
+        for (role in SyntaxRole.entries) {
+            if (role == SyntaxRole.PLAIN) continue
+            val prefixes = ScopeRules.prefixesFor(role)
+            var best: T? = null
+            var bestLength = -1
+            for ((selectors, value) in parsed) {
+                for (selector in selectors) {
+                    val hits = prefixes.any { it == selector || it.startsWith("$selector.") }
+                    if (hits && selector.length >= bestLength) {
+                        best = value
+                        bestLength = selector.length
+                    }
+                }
+            }
+            if (bestLength >= 0) {
+                @Suppress("UNCHECKED_CAST") // set together with bestLength, so a T (possibly a nullable one)
+                out[role] = best as T
+            }
+        }
+        return out
     }
 
     private fun mapSyntax(
