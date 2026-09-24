@@ -26,7 +26,6 @@ import dev.easyide.app.ui.shell.DocumentOpener
 import dev.easyide.app.ui.shell.DocumentUri
 import dev.easyide.app.ui.shell.host.documentRenderer
 import dev.easyide.app.ui.shell.workspace.LocalWorkspaceEnv
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.sandbox.git.DiffEnd
 import dev.easyide.sandbox.git.GitChangeType
 import dev.easyide.sandbox.git.GitCommitDetail
