@@ -328,7 +328,8 @@ typed `InstallError` (`Network`, `Integrity(expected, actual)`, `Signature(reaso
   otherwise the install is labelled "unsigned" and never auto-checked for updates.
 - Folder (M3 "Install from folder", dev loop): packaged in memory with the CLI's deterministic
   packer semantics, `Source.LOCAL_FOLDER_DEV`, requires `extensions.developerMode` for live
-  reload ([cli.md](cli.md) `dev`).
+  reload ([cli.md](cli.md) `dev`). Implemented as `Source.DEV` with a per-reload version
+  `<version>-dev.<n>`; see cli.md Deviations.
 
 ## 9. Open VSX adapter
 

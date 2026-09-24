@@ -56,6 +56,8 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 settingsStore = container.settingsStore,
                 safeMode = container.safeMode,
                 environmentManager = container.environmentManager,
+                projectManager = container.projectManager,
+                projectRoot = container.projectFiles::projectRoot,
             )
 
             else -> error("Unknown ViewModel: ${modelClass.name}")

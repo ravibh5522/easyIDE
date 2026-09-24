@@ -69,6 +69,9 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
     val browse by viewModel.browse.collectAsStateWithLifecycle()
     val detail by viewModel.detail.collectAsStateWithLifecycle()
+    val create by viewModel.create.collectAsStateWithLifecycle()
+    val projects by viewModel.projects.collectAsStateWithLifecycle()
+    val developerMode by viewModel.developerMode.collectAsStateWithLifecycle()
     var browsing by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
@@ -91,6 +94,7 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(text = { Text(stringResource(R.string.ext_install_folder)) }, onClick = { menuOpen = false; pickFolder.launch(null) })
                             DropdownMenuItem(text = { Text(stringResource(R.string.ext_install_file)) }, onClick = { menuOpen = false; pickFile.launch(arrayOf(ANY_MIME)) })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.create_ext_action)) }, onClick = { menuOpen = false; viewModel.openCreate() })
                         }
                     }
                 },
@@ -131,6 +135,7 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
     detail?.let { RegistryDetail(it, viewModel::installFromRegistry, viewModel::forgetPin, viewModel::closeDetail) }
 
     InstallDialogs(install, state.environments, viewModel)
+    CreateExtensionDialogs(create, projects, developerMode, viewModel)
     RollbackDialogs(rollback, viewModel)
 }
 
@@ -270,7 +275,8 @@ private fun Mono(text: String) {
 @Composable
 private fun sourceLabel(source: Source): String = stringResource(when (source) {
     Source.BUILT_IN -> R.string.ext_source_builtin
-    Source.SIDELOAD, Source.DEV -> R.string.ext_source_local
+    Source.SIDELOAD -> R.string.ext_source_local
+    Source.DEV -> R.string.ext_source_dev
     Source.REGISTRY -> R.string.ext_source_registry
     Source.OPEN_VSX -> R.string.ext_source_open_vsx
 })
