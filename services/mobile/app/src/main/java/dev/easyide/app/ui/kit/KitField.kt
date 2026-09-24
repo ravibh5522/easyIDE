@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.VisualTransformation
 import dev.easyide.app.R
 import dev.easyide.app.ui.theme.EditorColors
 
@@ -74,6 +75,7 @@ fun KitField(
     readOnly: Boolean = false,
     keyboard: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     val colors = Kit.colors
@@ -100,6 +102,7 @@ fun KitField(
             textStyle = text,
             keyboardOptions = keyboard,
             keyboardActions = keyboardActions,
+            visualTransformation = visualTransformation,
             singleLine = singleLine,
             cursorBrush = SolidColor(colors.cursor),
             interactionSource = interaction,
