@@ -10,22 +10,19 @@ import dev.easyide.app.ui.shell.ContainerPrefs
 import dev.easyide.app.ui.shell.LayoutPresets
 import dev.easyide.app.ui.shell.NavPrefs
 import dev.easyide.app.ui.shell.Placement
+import dev.easyide.app.ui.shell.nav.NavLabels
+import dev.easyide.app.ui.shell.nav.NavPosition
+import dev.easyide.app.ui.shell.nav.NavSettings
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 
-/** Where the navigation surface sits; `auto` is the bottom bar on compact widths and a rail otherwise. */
-enum class NavigationPosition(val id: String) { AUTO("auto"), LEFT("left"), RIGHT("right"), BOTTOM("bottom") }
-
-/** Whether navigation icons carry labels. */
-enum class NavigationLabels(val id: String) { AUTO("auto"), ALWAYS("always"), NEVER("never") }
-
 /**
  * The `shell.*` keys of docs/ui-redesign/properties.md 2 and extension-ui.md 6 that the Layout
- * page edits. A separate file so it does not touch the [dev.easyide.app.data.settings.SettingsSchema]
- * list that several branches edit; that list adds [all] to become the registered schema. Choices are
- * stored by explicit string id, never by enum name. A project layer may set only the layout preset.
+ * page edits and the shell reads ([navSettings], [navPrefs], [containerPrefs]). One object, registered
+ * once through [dev.easyide.app.data.settings.SettingsSchema.all]. Choices are stored by explicit
+ * string id, never by enum name. A project layer may set only the layout preset.
  */
 object ShellSettingsSchema {
 
@@ -39,29 +36,29 @@ object ShellSettingsSchema {
 
     val navigationPosition = Setting.Enum(
         "shell.navigation.position", C, R.string.setting_nav_position_title, R.string.setting_nav_position_desc,
-        NavigationPosition.AUTO, SettingScope.G, NavigationPosition.entries,
+        NavPosition.AUTO, SettingScope.G, NavPosition.entries,
         {
             when (it) {
-                NavigationPosition.AUTO -> R.string.nav_position_auto
-                NavigationPosition.LEFT -> R.string.nav_position_left
-                NavigationPosition.RIGHT -> R.string.nav_position_right
-                NavigationPosition.BOTTOM -> R.string.nav_position_bottom
+                NavPosition.AUTO -> R.string.nav_position_auto
+                NavPosition.LEFT -> R.string.nav_position_left
+                NavPosition.RIGHT -> R.string.nav_position_right
+                NavPosition.BOTTOM -> R.string.nav_position_bottom
             }
         },
-        id = NavigationPosition::id,
+        id = NavPosition::id,
     )
 
     val navigationLabels = Setting.Enum(
         "shell.navigation.labels", C, R.string.setting_nav_labels_title, R.string.setting_nav_labels_desc,
-        NavigationLabels.AUTO, SettingScope.G, NavigationLabels.entries,
+        NavLabels.AUTO, SettingScope.G, NavLabels.entries,
         {
             when (it) {
-                NavigationLabels.AUTO -> R.string.nav_labels_auto
-                NavigationLabels.ALWAYS -> R.string.nav_labels_always
-                NavigationLabels.NEVER -> R.string.nav_labels_never
+                NavLabels.AUTO -> R.string.nav_labels_auto
+                NavLabels.ALWAYS -> R.string.nav_labels_always
+                NavLabels.NEVER -> R.string.nav_labels_never
             }
         },
-        id = NavigationLabels::id,
+        id = NavLabels::id,
     )
 
     /** Ids in display order; ids not listed follow by default order. Arrays replace across layers. */
@@ -96,6 +93,9 @@ object ShellSettingsSchema {
         layoutPreset, navigationPosition, navigationLabels, navigationOrder, navigationHidden, navigationPinned,
         containerPlacement, containersHidden,
     )
+
+    fun navSettings(settings: SettingsSnapshot): NavSettings =
+        NavSettings(navPrefs(settings), settings[navigationPosition], settings[navigationLabels])
 
     fun navPrefs(settings: SettingsSnapshot): NavPrefs = NavPrefs(
         order = settings[navigationOrder],

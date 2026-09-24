@@ -5,7 +5,6 @@ import dev.easyide.app.data.settings.Setting
 import dev.easyide.app.data.settings.SettingsRegistry
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.json
-import dev.easyide.app.ui.props.ShellSettingsSchema
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -13,7 +12,7 @@ import org.junit.Test
 
 class SettingsCategoryTest {
 
-    private val schema = SettingsSchema.all + ShellSettingsSchema.all
+    private val schema = SettingsSchema.all
 
     @Test fun `ids are distinct and are the document path`() {
         val ids = SettingsCategory.entries.map { it.id }

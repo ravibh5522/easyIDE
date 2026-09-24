@@ -5,7 +5,6 @@ import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.data.settings.SchemaState
 import dev.easyide.app.data.settings.layer
-import dev.easyide.app.ui.props.ShellSettingsSchema
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -14,7 +13,7 @@ import org.junit.Test
 
 class SettingsSearchTest {
 
-    private val all = SettingsSchema.all + ShellSettingsSchema.all
+    private val all = SettingsSchema.all
     private val plain = SettingsSnapshot(SchemaState.builtInOnly(all), emptyList())
 
     /** The keys stand in for the resolved titles: string resources need a Context. */

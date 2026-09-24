@@ -8,7 +8,12 @@ import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.data.settings.SchemaState
 import dev.easyide.app.data.settings.layer
 import dev.easyide.app.data.settings.obj
+import dev.easyide.app.ui.shell.LayoutPresets
+import dev.easyide.app.ui.shell.NavPrefs
 import dev.easyide.app.ui.shell.Placement
+import dev.easyide.app.ui.shell.nav.NavLabels
+import dev.easyide.app.ui.shell.nav.NavPosition
+import dev.easyide.app.ui.shell.nav.NavSettings
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -21,13 +26,33 @@ import org.junit.Test
 
 class ShellSettingsSchemaTest {
 
-    private val schema = SchemaState.builtInOnly(SettingsSchema.all + ShellSettingsSchema.all)
+    private val schema = SchemaState.builtInOnly(SettingsSchema.all)
     private fun snapshot(user: String) = SettingsSnapshot(schema, listOf(layer(LayerId.USER, user)))
 
-    @Test fun `the shell keys register next to the built-in schema without a collision`() {
-        val keys = (SettingsSchema.all + ShellSettingsSchema.all).map { it.key }
-        assertEquals(keys.distinct(), keys)
-        SettingsRegistry(SettingsSchema.all + ShellSettingsSchema.all)
+    @Test fun `the shell keys are registered once in the built-in schema, all under shell`() {
+        assertTrue(ShellSettingsSchema.all.all { it.key.startsWith("shell.") })
+        assertTrue(SettingsSchema.all.containsAll(ShellSettingsSchema.all))
+        val keys = SettingsSchema.all.map { it.key }
+        assertEquals("duplicate keys: " + keys.groupBy { it }.filter { it.value.size > 1 }.keys, keys.distinct(), keys)
+        SettingsRegistry(SettingsSchema.all)
+    }
+
+    @Test fun `stored navigation values reach the surface`() {
+        val settings = ShellSettingsSchema.navSettings(
+            snapshot(
+                """{"shell.navigation.order":["settings","home"],"shell.navigation.hidden":["extensions"],
+                    "shell.navigation.pinned":["home"],"shell.navigation.position":"right","shell.navigation.labels":"never"}""",
+            ),
+        )
+        assertEquals(NavPrefs(listOf("settings", "home"), setOf("extensions"), setOf("home")), settings.prefs)
+        assertEquals(NavPosition.RIGHT, settings.position)
+        assertEquals(NavLabels.NEVER, settings.labels)
+    }
+
+    @Test fun `an invalid navigation value falls back to the default`() {
+        val settings = ShellSettingsSchema.navSettings(snapshot("""{"shell.navigation.position":"diagonal","shell.navigation.order":"home"}"""))
+        assertEquals(NavPosition.AUTO, settings.position)
+        assertTrue(settings.prefs.order.isEmpty())
     }
 
     @Test fun `only the layout preset may be set by a project`() {
@@ -39,7 +64,7 @@ class ShellSettingsSchemaTest {
     @Test fun `navigation choices store their string ids and reject enum names`() {
         val position = ShellSettingsSchema.navigationPosition
         assertEquals(listOf("auto", "left", "right", "bottom"), position.ids)
-        NavigationPosition.entries.forEach { assertEquals(it, position.decode(position.encode(it))) }
+        NavPosition.entries.forEach { assertEquals(it, position.decode(position.encode(it))) }
         assertNull(position.decode(JsonPrimitive("BOTTOM")))
         assertEquals(listOf("auto", "always", "never"), ShellSettingsSchema.navigationLabels.ids)
     }
@@ -79,8 +104,10 @@ class ShellSettingsSchemaTest {
     @Test fun `defaults leave the shell exactly as it is`() {
         val s = SettingsSnapshot(schema, emptyList())
         assertEquals("auto", s[ShellSettingsSchema.layoutPreset])
-        assertEquals(NavigationPosition.AUTO, s[ShellSettingsSchema.navigationPosition])
-        assertEquals(NavigationLabels.AUTO, s[ShellSettingsSchema.navigationLabels])
+        assertEquals(NavPosition.AUTO, s[ShellSettingsSchema.navigationPosition])
+        assertEquals(NavLabels.AUTO, s[ShellSettingsSchema.navigationLabels])
+        assertEquals(NavSettings(), ShellSettingsSchema.navSettings(SettingsSnapshot.DEFAULTS))
+        assertEquals(LayoutPresets.AUTO, ShellSettingsSchema.layoutPreset.default)
         assertTrue(ShellSettingsSchema.navPrefs(s).order.isEmpty())
         assertTrue(ShellSettingsSchema.containerPrefs(s).placement.isEmpty())
     }

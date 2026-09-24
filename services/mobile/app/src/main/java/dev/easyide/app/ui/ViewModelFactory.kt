@@ -10,8 +10,8 @@ import dev.easyide.app.data.settings.WorkspaceSettingsSchema
 import dev.easyide.app.diagnostics.Cleanup
 import dev.easyide.app.diagnostics.DiagnosticsCollector
 import dev.easyide.app.diagnostics.StorageLocations
-import dev.easyide.app.data.settings.ShellSettingsSchema
 import dev.easyide.app.diagnostics.readUname
+import dev.easyide.app.ui.props.ShellSettingsSchema
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
 import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeViewModel

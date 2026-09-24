@@ -1,6 +1,7 @@
 package dev.easyide.app.data.settings
 
 import dev.easyide.app.R
+import dev.easyide.app.ui.props.ShellSettingsSchema
 import dev.easyide.app.ui.theme.ThemeMode
 import dev.easyide.extensions.settings.ExtensionSettings
 
@@ -163,7 +164,8 @@ object SettingsSchema {
         themeMode, colorTheme, editorFontSize, editorLineHeight, terminalFontSize, explorerHideHidden, explorerHideIgnored, safeMode, activeProfile,
         extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
     ) + WorkbenchSettingsSchema.all + LspSettingsSchema.all + ThemeSettingsSchema.all + RegistrySettingsSchema.all +
-        AuthoringSettingsSchema.all + WorkspaceSettingsSchema.all + GitSettingsSchema.all + AppearanceSettingsSchema.all
+        AuthoringSettingsSchema.all + WorkspaceSettingsSchema.all + GitSettingsSchema.all + AppearanceSettingsSchema.all +
+        ShellSettingsSchema.all
 
     /** Declared (validated, resolvable) but edited by a dedicated UI rather than a generic row. */
     val managedElsewhere: Set<String> = setOf(activeProfile.key, colorTheme.key)

@@ -42,7 +42,6 @@ import dev.easyide.app.ui.screens.workspace.session.WorkspaceHandle
 import dev.easyide.sandbox.service.SandboxKeepAlive
 import dev.easyide.sandbox.service.SessionHost
 import dev.easyide.app.data.settings.SettingsStore
-import dev.easyide.app.data.settings.ShellSettingsSchema
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.data.settings.SettingsTransfer
 import dev.easyide.app.ui.commands.CommandIds
@@ -109,7 +108,7 @@ class AppContainer(context: Context) {
     private val defaultKeybindings = FileKeybindings(PlainFileIo(File(userDir, KEYBINDINGS_FILE), Dispatchers.IO))
 
     /** Built-in settings now; the extension runtime adds `configuration` contributions at runtime. */
-    val settingsRegistry = SettingsRegistry(SettingsSchema.all + ShellSettingsSchema.all)
+    val settingsRegistry = SettingsRegistry(SettingsSchema.all)
 
     val profileManager = ProfileManager(
         defaultUser = defaultUserLayer,
