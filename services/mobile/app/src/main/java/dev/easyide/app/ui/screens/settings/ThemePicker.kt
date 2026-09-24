@@ -54,19 +54,34 @@ import dev.easyide.app.ui.theme.TypeScale
 import dev.easyide.app.ui.theme.themeTokensFor
 import dev.easyide.app.ui.theme.toEditorColors
 
+/** A contributed theme as the picker shows it; [ref] is `<extensionId>/<themeId>` when it has an id. */
+data class ContributedThemeCard(val label: String, val ref: String?, val colors: EditorColors)
+
+/** Writes behind the picker: a card sets `appearance.themeMode` or `workbench.colorTheme` (customization.md 8.1). */
+interface ThemeActions {
+    fun selectBuiltInTheme(mode: ThemeMode)
+    fun selectContributedTheme(label: String)
+    fun resetTheme()
+}
+
 /**
  * The theme setting as a grid of live mini-editor cards instead of a dropdown
  * of names: each card is painted from the tokens that mode would apply, so the
  * choice is made by looking, and nothing is applied until a card is tapped.
+ * Themes from extensions follow the built-in modes; one selected there wins over
+ * the built-in mode until a built-in card is tapped.
  */
 @Composable
 fun ThemePickerRow(
     snapshot: SettingsSnapshot,
-    actions: SettingActions,
+    contributed: List<ContributedThemeCard>,
+    actions: ThemeActions,
     modifier: Modifier = Modifier,
 ) {
     val setting = SettingsSchema.themeMode
-    val current = snapshot[setting]
+    val selection = snapshot[SettingsSchema.colorTheme]
+    val activeCard = contributed.firstOrNull { it.label == selection }
+        ?: contributed.firstOrNull { it.ref != null && it.ref == selection }
 
     Column(modifier = modifier.padding(horizontal = Spacing.l, vertical = Spacing.s)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -78,24 +93,46 @@ fun ThemePickerRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (snapshot.isSetIn(setting, LayerId.USER)) {
-                IconButton(onClick = { actions.reset(setting, null) }) {
+            if (snapshot.isSetIn(setting, LayerId.USER) || snapshot.isSetIn(SettingsSchema.colorTheme, LayerId.USER)) {
+                IconButton(onClick = actions::resetTheme) {
                     Icon(Icons.Filled.Restore, contentDescription = stringResource(R.string.setting_reset))
                 }
             }
         }
         ThemeCardGrid(
-            selected = current,
-            onSelect = { actions.set(setting, it, null) },
+            selected = snapshot[setting].takeIf { activeCard == null },
+            onSelect = actions::selectBuiltInTheme,
             label = { stringResource(setting.label(it)) },
             modifier = Modifier.padding(top = Spacing.m),
         )
+        if (contributed.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.theme_picker_extension_themes),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = Spacing.l),
+            )
+            FlowRow(
+                modifier = Modifier.padding(top = Spacing.s).fillMaxWidth().selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+                verticalArrangement = Arrangement.spacedBy(Spacing.m),
+            ) {
+                contributed.forEach { card ->
+                    ThemeCard(
+                        colors = card.colors,
+                        label = card.label,
+                        selected = card == activeCard,
+                        onClick = { actions.selectContributedTheme(card.label) },
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
 private fun ThemeCardGrid(
-    selected: ThemeMode,
+    selected: ThemeMode?,
     onSelect: (ThemeMode) -> Unit,
     label: @Composable (ThemeMode) -> String,
     modifier: Modifier = Modifier,

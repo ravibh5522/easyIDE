@@ -68,6 +68,8 @@ class MainActivity : ComponentActivity() {
             val keymap by container.keymap.collectAsStateWithLifecycle(initialValue = null)
             val settings = storedSettings ?: SettingsSnapshot.DEFAULTS
             val themeMode = settings[SettingsSchema.themeMode]
+            // Null (built-in palette) until a selected extension theme has loaded.
+            val contributedTheme by container.extensions.colorTheme.collectAsStateWithLifecycle()
             SideEffect {
                 preferencesLoaded = storedSettings != null && onboardingComplete != null
             }
@@ -79,7 +81,7 @@ class MainActivity : ComponentActivity() {
             val motionEnabled = remember { systemMotionEnabled() }
             val windowSize = currentWindowSize()
 
-            EasyIdeTheme(themeMode = themeMode) {
+            EasyIdeTheme(themeMode = themeMode, contributed = contributedTheme) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,
