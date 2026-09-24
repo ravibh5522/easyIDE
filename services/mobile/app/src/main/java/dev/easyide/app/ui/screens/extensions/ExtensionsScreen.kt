@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,6 +28,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -64,6 +67,9 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val install by viewModel.install.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
+    val browse by viewModel.browse.collectAsStateWithLifecycle()
+    val detail by viewModel.detail.collectAsStateWithLifecycle()
+    var browsing by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
     val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(viewModel::stageArchive) }
@@ -77,6 +83,9 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back)) }
                 },
                 actions = {
+                    if (browsing && browse.configured) {
+                        IconButton(onClick = viewModel::refreshRegistries) { Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.reg_refresh)) }
+                    }
                     Box {
                         IconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.ext_install)) }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
@@ -93,9 +102,20 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
             state.safeMode?.let { reason -> item { SafeModeBanner(reason, state.safeModeSuspects.map { it.value }, viewModel::exitSafeMode) } }
-            items(state.rows, key = { it.key }) { row ->
+            item {
+                TabRow(selectedTabIndex = if (browsing) 1 else 0) {
+                    Tab(selected = !browsing, onClick = { browsing = false }, text = { Text(stringResource(R.string.ext_tab_installed)) })
+                    Tab(selected = browsing, onClick = { browsing = true }, text = {
+                        Text(if (browse.updates.isEmpty()) stringResource(R.string.ext_tab_browse) else stringResource(R.string.ext_tab_browse_updates, browse.updates.size))
+                    })
+                }
+            }
+            if (browsing) browseSection(browse, viewModel::setQuery, viewModel::openDetail)
+            if (!browsing) items(state.rows, key = { it.key }) { row ->
                 ExtensionCard(
                     row = row,
+                    updateTo = browse.updates[row.id]?.takeIf { row.pkg.source == Source.REGISTRY },
+                    revokedReason = browse.revoked["${row.id}@${row.pkg.directory.name}"],
                     expanded = expanded == row.key,
                     onToggleDetails = { expanded = if (expanded == row.key) null else row.key },
                     onEnabled = { viewModel.setEnabled(row, it) },
@@ -104,9 +124,11 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
                     lineActions = LineActions(viewModel::setHidden, viewModel::move),
                 )
             }
-            item { LogSection(state.log, viewModel::clearLog) }
+            if (!browsing) item { LogSection(state.log, viewModel::clearLog) }
         }
     }
+
+    detail?.let { RegistryDetail(it, viewModel::installFromRegistry, viewModel::forgetPin, viewModel::closeDetail) }
 
     InstallDialogs(install, state.environments, viewModel)
     RollbackDialogs(rollback, viewModel)
@@ -134,6 +156,8 @@ private class LineActions(val setHidden: (InspectorLine, Boolean) -> Unit, val m
 @Composable
 private fun ExtensionCard(
     row: ExtensionRow,
+    updateTo: String?,
+    revokedReason: String?,
     expanded: Boolean,
     onToggleDetails: () -> Unit,
     onEnabled: (Boolean) -> Unit,
@@ -149,6 +173,9 @@ private fun ExtensionCard(
                     Text(d?.displayName ?: row.id, style = MaterialTheme.typography.titleMedium)
                     Text("${row.id} ${d?.version ?: row.pkg.directory.name} - ${sourceLabel(row.pkg.source)}", style = MaterialTheme.typography.bodySmall)
                     Text(stateLabel(row), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                    // Update check (sec 10): a badge only; installing is the user's tap in Browse.
+                    updateTo?.let { Text(stringResource(R.string.reg_update_available, it), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary) }
+                    revokedReason?.let { Text(stringResource(R.string.ext_revoked_reason, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
                 }
                 if (d != null) Switch(checked = row.userEnabled, onCheckedChange = onEnabled)
             }

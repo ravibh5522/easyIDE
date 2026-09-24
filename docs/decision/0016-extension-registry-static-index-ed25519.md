@@ -72,3 +72,16 @@ The registry is a **git repository served as static files**: `index.json`,
   otherwise labelled "unsigned", never auto-updated.
 - Freshness is bounded by how often the client refreshes the index; offline, the UI shows
   the index age rather than pretending it is current.
+
+## Amendment 2026-09-24: Ed25519 provider on Android
+
+- The app verifies signatures with Google Tink's pure-Java `com.google.crypto.tink.subtle.Ed25519Verify`,
+  from `com.google.crypto.tink:tink-android:1.23.0` (Apache-2.0; checked on Maven Central 2026-09-24).
+  It is used through the shared `Ed25519` port as `TinkEd25519`, in `:app` only.
+- This settles the provider question of registry-and-install.md sec 4.2 for minSdk 26: the
+  platform provider is not assumed, and no Bouncy Castle is needed. The CLI and JVM tests keep
+  `JdkEd25519`.
+- `TinkEd25519Test` checks it against `JdkEd25519` on the RFC 8032 vectors and on random keys,
+  messages and corruptions.
+- Only the verifier is used; the app never signs. The dependency brings in gson (already in the
+  APK), jsr305 and error-prone annotations.

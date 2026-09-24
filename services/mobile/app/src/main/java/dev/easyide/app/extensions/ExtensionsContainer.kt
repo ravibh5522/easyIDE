@@ -27,6 +27,11 @@ import dev.easyide.app.extensions.install.BuiltInExtensions
 import dev.easyide.app.extensions.install.DiskExtensionInventory
 import dev.easyide.app.extensions.install.ExtensionStateStore
 import dev.easyide.app.extensions.install.LocalInstaller
+import dev.easyide.app.extensions.registry.RegistryConfigs
+import dev.easyide.app.extensions.registry.RegistryService
+import dev.easyide.app.extensions.registry.TinkEd25519
+import dev.easyide.app.extensions.registry.UrlConnectionFetcher
+import dev.easyide.app.data.settings.RegistrySettingsSchema
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeyBinding
 import dev.easyide.app.ui.screens.workspace.TerminalKeyboard
@@ -53,6 +58,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -108,6 +114,15 @@ class ExtensionsContainer(
         paths, state, inventory,
         ManifestParser(ManifestSchema.validator, ParseOptions(locale = Locale.getDefault(), builtInCommands = CommandIds.ALL)),
         { PackageLimits.from(settings) }, io,
+        // Declared below; only called once installs happen, after construction.
+        isRevoked = { id, version -> registry.isRevoked(id, version) },
+    )
+
+    /** Signed registries: browse, install, update check, revocation (registry-and-install.md). */
+    val registry: RegistryService = RegistryService(
+        paths, state, UrlConnectionFetcher(), TinkEd25519, installer, inventory,
+        { PackageLimits.from(settings).packageBytes }, io,
+        notify = { id, message -> log.append(LogEntry(id, LogLevel.WARN, message)) },
     )
 
     /** Contributed `languageServers` for the LSP registry (registered once by the composition root). */
@@ -180,6 +195,15 @@ class ExtensionsContainer(
         scope.launch {
             installer.clearStaging()
             inventory.rescan()
+        }
+        scope.launch {
+            var first = true
+            settingsStore.snapshot.map { it[RegistrySettingsSchema.registries] }.distinctUntilChanged().collect { value ->
+                registry.setConfigs(RegistryConfigs.parse(value))
+                // App start counts as a check point for extensions.autoCheckUpdates (sec 3.3).
+                if (first) registry.refreshIfDue(settingsStore.snapshot.first()[RegistrySettingsSchema.autoCheckUpdates])
+                first = false
+            }
         }
     }
 

@@ -83,7 +83,7 @@ class LocalInstaller(
     private val clock: () -> Long = System::currentTimeMillis,
     /**
      * Revocation seam (sec 6): true for an `(id, version)` that must never become current
-     * again. Nothing is revoked until the registry's `RevocationList` lands (M6).
+     * again. The app wires it to the verified registry revocations (`RegistryService.isRevoked`).
      */
     private val isRevoked: (id: String, version: String) -> Boolean = { _, _ -> false },
 ) {
@@ -114,9 +114,11 @@ class LocalInstaller(
     /**
      * Moves [pkg] into its scope ([envId] is required for environment-scoped packs),
      * flips `current`, records the approval of exactly the declared capabilities and
-     * rescans. @throws IOException when a filesystem step fails; nothing is recorded then.
+     * rescans. [source] and [origin] are what the registry pipeline records for a signed
+     * install (registry-and-install.md sec 8); local picks keep the defaults.
+     * @throws IOException when a filesystem step fails; nothing is recorded then.
      */
-    suspend fun commit(pkg: StagedPackage, envId: String?) {
+    suspend fun commit(pkg: StagedPackage, envId: String?, source: Source = Source.SIDELOAD, origin: RegistryOrigin? = null) {
         val d = pkg.descriptor
         val scope = d.scope
         require(scope == InstallScope.GLOBAL || envId != null) { "environment-scoped ${d.id} needs a target environment" }
@@ -139,13 +141,14 @@ class LocalInstaller(
             state.update { s ->
                 val prior = s.entryFor(d.id.value, scope, targetEnv)
                 val entry = InstallEntry(
-                    id = d.id.value, scope = scope, envId = targetEnv, source = Source.SIDELOAD, version = version.value,
+                    id = d.id.value, scope = scope, envId = targetEnv, source = source, version = version.value,
                     // An update keeps its place in every tie-break.
                     installedAt = prior?.installedAt ?: clock(),
                     approvedCapabilities = d.capabilities.items.mapTo(HashSet()) { it.id },
                     // The version just replaced, with its approvals, is what rollback returns to.
                     previous = prior?.takeIf { it.version == previous && it.version != version.value }
-                        ?.let { RetainedVersion(it.version, it.approvedCapabilities) },
+                        ?.let { RetainedVersion(it.version, it.approvedCapabilities, it.source, it.origin) },
+                    origin = origin,
                 )
                 s.copy(installs = s.installs.filterNot { it === prior } + entry)
             }
@@ -210,11 +213,13 @@ class LocalInstaller(
             state.update { s ->
                 val prior = s.entryFor(id, scope, envId)
                 val entry = InstallEntry(
-                    id = id, scope = scope, envId = envId, source = prior?.source ?: Source.SIDELOAD, version = target.version,
+                    id = id, scope = scope, envId = envId, source = target.source ?: prior?.source ?: Source.SIDELOAD, version = target.version,
                     installedAt = prior?.installedAt ?: clock(),
                     // Exactly the declared set, as install records it.
                     approvedCapabilities = declared,
-                    previous = RetainedVersion(current, approvedFor(prior, current)),
+                    previous = retainedAs(prior, current),
+                    // Retained records written before provenance existed describe local installs.
+                    origin = if (target.source != null) target.origin else prior?.origin,
                 )
                 s.copy(installs = s.installs.filterNot { it === prior } + entry)
             }
@@ -227,10 +232,10 @@ class LocalInstaller(
         return RollbackResult.Done(target.version)
     }
 
-    /** What [entry] records as approved for [version]: as current, or (after an interrupted flip) as previous. */
-    private fun approvedFor(entry: InstallEntry?, version: String): Set<String> {
-        if (entry?.version == version) return entry.approvedCapabilities
-        return entry?.previous?.takeIf { it.version == version }?.approvedCapabilities.orEmpty()
+    /** What [entry] records for [version] (approvals, provenance): as current, or (after an interrupted flip) as previous. */
+    private fun retainedAs(entry: InstallEntry?, version: String): RetainedVersion {
+        if (entry?.version == version) return RetainedVersion(version, entry.approvedCapabilities, entry.source, entry.origin)
+        return entry?.previous?.takeIf { it.version == version } ?: RetainedVersion(version, emptySet())
     }
 
     /** Removes every version of an installed (non-built-in) package and its record. */
@@ -271,6 +276,8 @@ class LocalInstaller(
         if (inventory.installed.value.any { it.source == Source.BUILT_IN && it.directory.parentFile?.name == d.id.value }) {
             return StageResult.Rejected(listOf("${d.id} is built into easyIDE"))
         }
+        // Sec 6: a revoked version is never installable, from a registry, the cache or a file.
+        if (isRevoked(d.id.value, d.version.toString())) return StageResult.Rejected(listOf("${d.id} ${d.version} is revoked and cannot be installed"))
         val installed = inventory.installed.value.any { it.directory.parentFile?.name == d.id.value && it.directory.name == d.version.toString() }
         return StageResult.Staged(StagedPackage(d, parsed.warnings, dir, installed))
     }
