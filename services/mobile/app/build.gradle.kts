@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.androidx.baselineprofile)
+    alias(libs.plugins.roborazzi)
 }
 
 // Single source of truth for what a build calls itself. CI supplies the build
@@ -97,6 +98,11 @@ android {
         compose = true
     }
 
+    // Robolectric needs merged resources and manifest to load R.font.* (Geist) and themes.
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     packaging {
         jniLibs {
             // proot is exec'd, not dlopen'd, so it must exist as a real file in
@@ -180,15 +186,29 @@ dependencies {
     // Registry signature verification (Ed25519Verify only); decision 0016 amendment.
     implementation(libs.tink.android)
     debugImplementation(libs.androidx.ui.tooling)
+    // Hosts the compose test rule's activity under Robolectric; test-only, debug variant only.
+    debugImplementation(libs.androidx.ui.test.manifest)
     testImplementation(libs.junit)
     testImplementation(libs.jgit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.androidx.ui.test.junit4)
     testImplementation(testFixtures(project(":ext-wasm")))
     testImplementation(testFixtures(project(":extension-schema")))
 }
 
+// Goldens are checked in next to the tests. Record: `:app:recordRoborazziDebug`,
+// verify: `:app:verifyRoborazziDebug` (also runs inside :app:testDebugUnitTest -Proborazzi.test.verify=true).
+roborazzi {
+    outputDir.set(layout.projectDirectory.dir("src/test/screenshots"))
+}
+
 // WASM port tests drive the real host with :ext-wasm's compiled `.wat` fixtures (proxy.wasm).
 tasks.withType<Test>().configureEach {
+    // Robolectric's SDK 36+ shared-memory shadow reaches into JDK internals (FileDescriptor).
+    jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
     dependsOn(":ext-wasm:compileWatFixtures")
     systemProperty("easyide.wasmFixtures", rootProject.file("ext-wasm/build/generated/wasm-fixtures").absolutePath)
 }

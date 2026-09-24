@@ -12,9 +12,9 @@ Design: [arch.md](arch.md). Design accepted by the owner on 2026-09-24 (ADR 0025
 | Extension-track hand-off (SDK additions) | not-started | extension-ui.md section 8; approved, still to be sent to the cloud session |
 | In-flight worktree plan (salvage / merge / remove) | done | reliab, editor, git merged; layout pure logic salvaged (`ui/layout` screen edits dropped); `ui/home` stale, removal pending; `WorkspaceViewModel` split under 600 lines |
 | **R0 Foundations** | | |
-| Import-ratchet test + allowlist | not-started | fails on raw Material widgets outside `ui/kit` |
-| `tools/ui-lint.sh` (colour, type, copy, motion rules) | not-started | ux-rules.md section 12 |
-| Roborazzi compatibility spike | not-started | AGP 9.3.1 / Kotlin 2.4.10 unverified; Dropshots fallback |
+| Import-ratchet test + allowlist | done | `ImportRatchetTest`; allowlist `ui-ratchet-allowlist.txt` = 55 files, 202 imports; fails on growth, new offenders and un-lowered improvements |
+| `tools/ui-lint.sh` (colour, type, copy, motion rules) | done | 7 rules, 0.3 s, baseline `tools/ui-lint-baseline.txt` (12 entries); not yet wired into CI (no test workflow exists) |
+| Roborazzi compatibility spike | done | works on AGP 9.3.1 / Kotlin 2.4.10 / compileSdk 37 with three settings (kit.md section 7); Geist loads; Roborazzi Apache-2.0, Robolectric MIT; gallery golden in `app/src/test/screenshots`; Dropshots fallback not needed |
 | `Appearance`, `UiMetrics`, `Motion`, `Feel` + settings schema | done | `ui/props`, `AppearanceSettingsSchema`; defaults equal today's constants (test); wired into `EasyIdeTheme` (accent, scale, shapes, typography, motion) |
 | Token refactors 1-10 (kit.md section 6) | in-progress | done: 2 radius scale, 3 shapes fn, 5-6 typography by pairing, 7 theme takes `Appearance`, 8 `withAccent`, 10 (follows accent); open: 1 spacing call sites, 4 control scale call sites, 9 semantic accessors + `Tone` |
 | Kit primitives (about 20) + gallery | in-progress | all 17 primitives landed: layout/text (scaffold, section, group, row, empty state, progress) and input/action (field, button, icon button, tag, banner, dialog, tabs, toggle, menu, choice, stepper). Compile and JVM logic tests only; not seen on a device; the gallery and screenshot goldens are still open |
