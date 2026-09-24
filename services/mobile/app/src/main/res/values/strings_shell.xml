@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Navigation surface -->
+    <string name="shell_nav_label">Navigation</string>
+    <string name="shell_nav_more">More</string>
+    <string name="shell_nav_more_title">More destinations</string>
+    <string name="shell_badge_dot">Has updates</string>
+    <string name="shell_badge_count">%1$s new</string>
+
+    <!-- Panels and stage -->
+    <string name="shell_panel_resize">Resize panel</string>
+    <string name="shell_panel_resize_value">%1$d dp wide</string>
+    <string name="shell_panel_unavailable">This panel is unavailable. Its extension may be disabled.</string>
+    <string name="shell_stage_empty">Pick an item from the list to open it here.</string>
+    <string name="shell_document_close">Close %1$s</string>
+    <string name="shell_document_unavailable">This kind of document is unavailable. Its extension may be disabled or removed.</string>
+    <string name="shell_document_unavailable_close">Close it</string>
+
+    <!-- Titles of the built-in app-scope document types -->
+    <string name="shell_type_settings">Settings</string>
+    <string name="shell_type_extension">Extension</string>
+    <string name="shell_type_project">Project</string>
+
+    <!-- shell.* settings -->
+    <string name="setting_shell_nav_order_title">Navigation order</string>
+    <string name="setting_shell_nav_order_desc">Ids of navigation items, first to last. Items not listed follow in their default order.</string>
+    <string name="setting_shell_nav_hidden_title">Hidden navigation items</string>
+    <string name="setting_shell_nav_hidden_desc">Ids of navigation items to hide. The last remaining item cannot be hidden.</string>
+    <string name="setting_shell_nav_pinned_title">Pinned navigation items</string>
+    <string name="setting_shell_nav_pinned_desc">Ids of items that stay in the bottom bar instead of moving to More.</string>
+    <string name="setting_shell_nav_position_title">Navigation position</string>
+    <string name="setting_shell_nav_position_desc">Auto puts the bar at the bottom on a phone and a rail at the side on wider windows.</string>
+    <string name="setting_shell_nav_labels_title">Navigation labels</string>
+    <string name="setting_shell_nav_labels_desc">Text under each navigation icon. Auto shows labels on the bottom bar and on wide windows.</string>
+    <string name="setting_shell_layout_preset_title">Layout preset</string>
+    <string name="setting_shell_layout_preset_desc">Default arrangement of panels and the stage: auto, focus, classic, workbench, terminalFirst or an extension preset id.</string>
+
+    <string name="nav_position_auto">Auto</string>
+    <string name="nav_position_left">Left rail</string>
+    <string name="nav_position_right">Right rail</string>
+    <string name="nav_position_bottom">Bottom bar</string>
+    <string name="nav_labels_auto">Auto</string>
+    <string name="nav_labels_always">Always</string>
+    <string name="nav_labels_never">Never</string>
+</resources>
