@@ -29,6 +29,9 @@ import dev.easyide.app.ui.foundation.currentWindowSize
 import dev.easyide.app.ui.foundation.systemMotionEnabled
 import dev.easyide.app.ui.navigation.AppNavHost
 import dev.easyide.app.ui.theme.EasyIdeTheme
+import dev.easyide.app.ui.theme.FileIcons
+import dev.easyide.app.ui.theme.LocalFileIcons
+import dev.easyide.app.ui.theme.LocalIconThemeChoices
 import kotlinx.coroutines.launch
 
 /**
@@ -81,12 +84,17 @@ class MainActivity : ComponentActivity() {
             val windowSize = currentWindowSize()
 
             val customizations = remember(settings) { ThemeSettingsSchema.customizations(settings) }
+            val iconTheme by container.iconTheme.theme.collectAsStateWithLifecycle()
+            val iconThemeChoices by container.iconTheme.choices.collectAsStateWithLifecycle()
+            val fileIcons = remember(iconTheme) { iconTheme?.let(::FileIcons) }
             EasyIdeTheme(themeMode = themeMode, customizations = customizations) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,
                     LocalSettings provides settings,
                     LocalKeymap provides (keymap?.keymap ?: Keymap.DEFAULT),
+                    LocalFileIcons provides fileIcons,
+                    LocalIconThemeChoices provides iconThemeChoices,
                 ) {
                     Surface(modifier = Modifier.fillMaxSize()) {
                         // Null means preferences have not loaded yet; showing

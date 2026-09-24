@@ -30,7 +30,13 @@ object ThemeSettingsSchema {
         accepts = { it is JsonObject }, merge = Merge.OBJECT,
     )
 
-    val all: List<Setting<*>> = listOf(colorCustomizations, tokenColorCustomizations, semanticTokenColorCustomizations)
+    /** A contributed icon theme id; empty (or not installed and enabled) means the built-in icons. */
+    val iconTheme = Setting.Str(
+        "workbench.iconTheme", SettingCategory.APPEARANCE, R.string.setting_icon_theme_title,
+        R.string.setting_icon_theme_desc, default = "", scope = SettingScope.G,
+    )
+
+    val all: List<Setting<*>> = listOf(iconTheme, colorCustomizations, tokenColorCustomizations, semanticTokenColorCustomizations)
 
     /** The three values as the theme layer consumes them. */
     fun customizations(s: SettingsSnapshot): ColorCustomizations = ColorCustomizations(
