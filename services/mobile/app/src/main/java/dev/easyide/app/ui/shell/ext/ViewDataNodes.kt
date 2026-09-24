@@ -36,7 +36,6 @@ import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.Tone
 import dev.easyide.app.ui.kit.kitGroupSeparator
-import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.extensions.view.ChatMessage
 import dev.easyide.extensions.view.Payload
 import dev.easyide.extensions.view.PlanColumn
@@ -126,7 +125,7 @@ private fun TableRow(cells: List<String>, columns: List<PlanColumn>, header: Boo
     ) {
         columns.forEachIndexed { i, c ->
             val base = if (header) Kit.text.label.copy(color = colors.textMuted) else Kit.text.body.copy(color = colors.plainText)
-            BasicText(cells.getOrElse(i) { "" }, Modifier.weight(c.weight.toFloat()), style = if (c.mono) base.kitMono() else base)
+            BasicText(cells.getOrElse(i) { "" }, Modifier.weight(c.weight.toFloat()), style = if (c.mono) Kit.text.mono.copy(color = base.color) else base)
         }
     }
 }

@@ -44,7 +44,6 @@ import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.kit.KitProgress
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.app.ui.screens.workspace.MarkdownBlockView
 import dev.easyide.app.ui.screens.workspace.parseMarkdown
 import dev.easyide.app.ui.theme.IconSize
@@ -108,7 +107,7 @@ private fun KeyValueNode(n: PlanNode, modifier: Modifier) {
     val mono = n.flags["mono"] == true
     Row(modifier.fillMaxWidth().padding(vertical = Kit.space.xs), horizontalArrangement = Arrangement.spacedBy(Kit.space.m)) {
         BasicText(n.text["label"].orEmpty(), Modifier.weight(KEY_SHARE), style = Kit.text.caption.copy(color = colors.textMuted))
-        val value = Kit.text.body.let { if (mono) it.kitMono() else it }
+        val value = if (mono) Kit.text.mono else Kit.text.body
         BasicText(n.text["value"].orEmpty(), Modifier.weight(1f - KEY_SHARE), style = value.copy(color = colors.plainText))
     }
 }
