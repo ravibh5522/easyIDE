@@ -111,7 +111,7 @@ internal fun ProblemsView(all: List<ProblemGroup>, onNavigate: (NavLocation) -> 
             KitTag(n.toString(), tone = s.tone(), selected = on, icon = LspIcons.severity(s), onClick = { shown = if (on) shown - s.name else shown + s.name })
         }
     }
-    if (visible.isEmpty()) return EmptyPanel(EmptyArt.Problems, stringResource(R.string.lsp_problems_empty))
+    if (visible.isEmpty()) return EmptyPanel(stringResource(R.string.lsp_problems_empty))
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         for (group in visible) {
             fileGroup(closed, group.label, group.problems.size) {
@@ -163,7 +163,7 @@ private fun ReferencesPanel(controller: WorkspaceLspController) {
 @Composable
 private fun OutlinePanel(controller: WorkspaceLspController) {
     val rows by controller.navigation.outline.collectAsState()
-    if (rows.isEmpty()) return EmptyPanel(EmptyArt.Prompt, stringResource(R.string.lsp_outline_empty))
+    if (rows.isEmpty()) return EmptyPanel(stringResource(R.string.lsp_outline_empty))
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(rows) { row -> SymbolRowView(row) { controller.navigate(row.location) } }
     }
