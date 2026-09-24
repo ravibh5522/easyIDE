@@ -76,7 +76,7 @@ class TextSearchTest {
     fun `a catastrophic pattern is stopped by the deadline`() {
         val text = "a".repeat(45)
         val started = System.nanoTime()
-        val result = TextSearch.find(text, q("(a|aa)+b", regex = true), timeoutMs = 50)
+        val result = TextSearch.find(text, q("(.*a){20}b", regex = true), timeoutMs = 50)
         val elapsedMs = (System.nanoTime() - started) / 1_000_000
         assertEquals(SearchResult.TimedOut, result)
         assertTrue("stopped in $elapsedMs ms", elapsedMs < 3_000)
@@ -116,7 +116,7 @@ class TextSearchTest {
     @Test
     fun `replace all fails on an invalid pattern and on a timeout`() {
         assertTrue(TextSearch.replaceAll("a", q("(", regex = true), "x") is ReplaceResult.Failed)
-        val slow = TextSearch.replaceAll("a".repeat(45), q("(a|aa)+b", regex = true), "z", timeoutMs = 50)
+        val slow = TextSearch.replaceAll("a".repeat(45), q("(.*a){20}b", regex = true), "z", timeoutMs = 50)
         assertEquals(ReplaceResult.Failed(SearchResult.TimedOut), slow)
     }
 

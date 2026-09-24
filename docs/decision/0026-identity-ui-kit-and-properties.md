@@ -1,6 +1,6 @@
 # 0026 - Identity ("Block"), UI kit as the only widget layer, and appearance properties
 
-Status: Proposed (2026-09-24). Design: [docs/ui-redesign/](../ui-redesign/arch.md).
+Status: Accepted (2026-09-24, owner sign-off). Design: [docs/ui-redesign/](../ui-redesign/arch.md).
 Amends [0019](0019-visual-identity.md) (accent default, motif); keeps its palettes, fonts and
 token model.
 

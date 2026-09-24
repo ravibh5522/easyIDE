@@ -2,15 +2,15 @@
 
 Status legend: not-started / in-progress / done / blocked
 
-Design: [arch.md](arch.md). All rows are PROPOSED as of 2026-09-24; nothing below is built.
+Design: [arch.md](arch.md). Design accepted by the owner on 2026-09-24 (ADR 0025, 0026 Accepted). Rows below track the build; nothing under R0 onward is built until marked.
 
 | Component | Status | Notes |
 |---|---|---|
 | **Decisions** | | |
-| ADR 0025 shell model | not-started | Proposed; owner sign-off, arch.md section 11 |
-| ADR 0026 identity, kit, properties | not-started | Proposed; default accent and motif pending owner |
-| Extension-track hand-off (SDK additions) | not-started | extension-ui.md section 8; owned by the extension track |
-| In-flight worktree plan (salvage / merge / remove) | not-started | arch.md section 8; needs owner confirmation |
+| ADR 0025 shell model | done | Accepted 2026-09-24 |
+| ADR 0026 identity, kit, properties | done | Accepted 2026-09-24: orange default accent, Block motif |
+| Extension-track hand-off (SDK additions) | not-started | extension-ui.md section 8; approved, still to be sent to the cloud session |
+| In-flight worktree plan (salvage / merge / remove) | done | reliab, editor, git merged; layout pure logic salvaged (`ui/layout` screen edits dropped); `ui/home` stale, removal pending; `WorkspaceViewModel` split under 600 lines |
 | **R0 Foundations** | | |
 | Import-ratchet test + allowlist | not-started | fails on raw Material widgets outside `ui/kit` |
 | `tools/ui-lint.sh` (colour, type, copy, motion rules) | not-started | ux-rules.md section 12 |

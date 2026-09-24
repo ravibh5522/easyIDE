@@ -453,75 +453,12 @@ class WorkspaceViewModel(
 
     // ------------------------------------------------------- file actions
 
-    fun onCreateFile(parentDir: String, name: String) {
-        val path = joinPath(parentDir, name)
-        runFileAction(name) {
-            projectFiles.createFile(projectId, path).onSuccess { externalMirror.write(path, ByteArray(0)) }
-        }
-    }
-
-    fun onCreateFolder(parentDir: String, name: String) {
-        val path = joinPath(parentDir, name)
-        runFileAction(name) {
-            projectFiles.createDirectory(projectId, path).onSuccess { externalMirror.createDirectory(path) }
-        }
-    }
-
-    fun onRename(node: FileNode, newName: String) {
-        viewModelScope.launch {
-            projectFiles.rename(projectId, node.relativePath, newName)
-                .onSuccess { newPath ->
-                    // Open tabs still point at the old path (every tab under it, for a folder);
-                    // retarget them so saving does not recreate the file under its old name.
-                    session.followRename(node.relativePath, newPath, ::followPath)
-                    refreshTree()
-                    externalMirror.delete(node.relativePath)
-                    externalMirror.path(newPath)
-                }
-                .onFailure { cause -> setStatus(cause.message ?: "Could not rename ${node.name}") }
-        }
-    }
-
-    fun onDelete(node: FileNode) {
-        viewModelScope.launch {
-            projectFiles.delete(projectId, node.relativePath)
-                .onSuccess {
-                    onTabClosed(node.relativePath)
-                    editing.onDeleted(node.relativePath)
-                    refreshTree()
-                    setStatus("Deleted ${node.name}")
-                    externalMirror.delete(node.relativePath)
-                }
-                .onFailure { cause -> setStatus(cause.message ?: "Could not delete ${node.name}") }
-        }
-    }
-
-    fun onCopyToClipboard(node: FileNode, cut: Boolean) {
-        _uiState.update { it.copy(clipboard = FileClipboard(node.relativePath, cut)) }
-        setStatus(if (cut) "Cut ${node.name}" else "Copied ${node.name}")
-    }
-
-    fun onPaste(targetDir: String) {
-        val clipboard = _uiState.value.clipboard ?: return
-        viewModelScope.launch {
-            val result = if (clipboard.isCut) {
-                projectFiles.move(projectId, clipboard.relativePath, targetDir)
-            } else {
-                projectFiles.copy(projectId, clipboard.relativePath, targetDir)
-            }
-            result
-                .onSuccess { newPath ->
-                    if (clipboard.isCut) {
-                        _uiState.update { it.copy(clipboard = null) }
-                        session.followRename(clipboard.relativePath, newPath, ::followPath)
-                    }
-                    refreshTree()
-                    if (clipboard.isCut) externalMirror.delete(clipboard.relativePath)
-                    externalMirror.path(newPath)
-                }
-                .onFailure { cause -> setStatus(cause.message ?: "Paste failed") }
-        }
-    }
+    fun onCreateFile(parentDir: String, name: String) = fileActions.createFile(parentDir, name)
+    fun onCreateFolder(parentDir: String, name: String) = fileActions.createFolder(parentDir, name)
+    fun onRename(node: FileNode, newName: String) = fileActions.rename(node, newName)
+    fun onDelete(node: FileNode) = fileActions.delete(node)
+    fun onCopyToClipboard(node: FileNode, cut: Boolean) = fileActions.copyToClipboard(node, cut)
+    fun onPaste(targetDir: String) = fileActions.paste(targetDir)
 
     // ---------------------------------------------------- external folder
 
@@ -536,24 +473,27 @@ class WorkspaceViewModel(
     fun absolutePathOf(node: FileNode): String =
         listOf(GUEST_WORKSPACE, node.relativePath).joinToString("/").replace("//", "/")
 
-    /** The per-path stores that live outside the session follow a tab that moved. */
-    private fun followPath(old: String, new: String) {
-        decorations.rename(old, new)
-        selections.rename(old, new)
-        editing.onRenamed(old, new)
-    }
+    private val fileActions = WorkspaceFileActions(
+        projectId = projectId,
+        projectFiles = projectFiles,
+        state = _uiState,
+        scope = viewModelScope,
+        mirror = externalMirror,
+        host = object : FileActionHost {
+            override fun refreshTree() = this@WorkspaceViewModel.refreshTree()
+            override fun setStatus(message: String) = this@WorkspaceViewModel.setStatus(message)
+            override fun closeTab(path: String) = onTabClosed(path)
 
-    private fun runFileAction(name: String, action: suspend () -> Result<Unit>) {
-        if (name.isBlank()) return
-        viewModelScope.launch {
-            action()
-                .onSuccess { refreshTree() }
-                .onFailure { cause -> setStatus(cause.message ?: "Could not create $name") }
-        }
-    }
+            // The per-path stores that live outside the session follow a tab that moved.
+            override fun followRename(from: String, to: String) = session.followRename(from, to) { old, new ->
+                decorations.rename(old, new)
+                selections.rename(old, new)
+                editing.onRenamed(old, new)
+            }
 
-    private fun joinPath(parentDir: String, name: String): String =
-        if (parentDir.isEmpty()) name else "$parentDir/$name"
+            override fun forget(path: String) = editing.onDeleted(path)
+        },
+    )
 
     // ----------------------------------------------------------- terminals
 

@@ -1,6 +1,6 @@
 # 0025 - UI shell model: navigation surface, panels, and documents in a main stage
 
-Status: Proposed (2026-09-24). Design: [docs/ui-redesign/shell-model.md](../ui-redesign/shell-model.md).
+Status: Accepted (2026-09-24, owner sign-off). Design: [docs/ui-redesign/shell-model.md](../ui-redesign/shell-model.md).
 
 ## Context
 

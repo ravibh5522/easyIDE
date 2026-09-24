@@ -11,6 +11,10 @@ import dev.easyide.sandbox.git.GitRepository
 import dev.easyide.sandbox.git.GitResult
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.sandbox.git.PullStrategy
+import dev.easyide.sandbox.git.addRemote
+import dev.easyide.sandbox.git.branchInfos
+import dev.easyide.sandbox.git.createBranch
+import dev.easyide.sandbox.git.switchBranch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
@@ -18,7 +22,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.RefSpec
@@ -150,7 +156,9 @@ class WorkspaceGitControllerTest {
         baseCommit()
         val first = controller(FakeSettings(ada))
         first.onMessageChanged("work in progr"); advanceUntilIdle()
-        first.onMessageChanged("work in progress"); advanceUntilIdle()
+        first.onMessageChanged("work in progress")
+        // The save is a delayed background job, which advanceUntilIdle deliberately skips.
+        advanceTimeBy(GitDefaults.DRAFT_SAVE_DELAY_MS + 1); runCurrent()
 
         val second = controller(FakeSettings(ada))
         advanceUntilIdle()
@@ -161,12 +169,15 @@ class WorkspaceGitControllerTest {
         val bare = File(root, "remote.git")
         Git.init().setBare(true).setInitialBranch("main").setDirectory(bare).call().close()
         repo.addRemote("origin", bare.absolutePath)
-        repo.git.push().setRemote("origin").setRefSpecs(RefSpec("refs/heads/main:refs/heads/main")).call()
-        repo.git.fetch().setRemote("origin").call()
-        repo.repository.config.apply {
-            setString("branch", "main", "remote", "origin")
-            setString("branch", "main", "merge", "refs/heads/main")
-            save()
+        // JGit directly: GitRepository keeps its handle internal to the sandbox module.
+        Git.open(work).use { git ->
+            git.push().setRemote("origin").setRefSpecs(RefSpec("refs/heads/main:refs/heads/main")).call()
+            git.fetch().setRemote("origin").call()
+            git.repository.config.apply {
+                setString("branch", "main", "remote", "origin")
+                setString("branch", "main", "merge", "refs/heads/main")
+                save()
+            }
         }
         return bare
     }

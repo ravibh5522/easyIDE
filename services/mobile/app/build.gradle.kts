@@ -181,6 +181,7 @@ dependencies {
     implementation(libs.tink.android)
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
+    testImplementation(libs.jgit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(testFixtures(project(":ext-wasm")))
     testImplementation(testFixtures(project(":extension-schema")))

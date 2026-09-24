@@ -33,7 +33,7 @@ Lightweight ADRs (Architecture Decision Records) for major, hard-to-reverse choi
 | [0018](0018-editor-engine-and-decorations.md) | Editor engine: keep the text field, add engine-neutral decoration layers now, build our own line-virtualised editor next | Accepted |
 | [0019](0019-visual-identity.md) | Visual identity: graphite neutrals, iris accent, Geist type, one `ThemeTokens` system for chrome + editor + terminal | Proposed |
 | [0021](0021-onboarding-permissions-and-install-keepalive.md) | Onboarding asks for battery exemption and notifications; installs run under the foreground service | Accepted |
-| [0025](0025-ui-shell-model.md) | UI shell model: navigation surface, panels, and documents in a main stage, extension-configurable | Proposed |
-| [0026](0026-identity-ui-kit-and-properties.md) | Identity ("Block"), UI kit as the only widget layer, and appearance properties (amends 0019) | Proposed |
+| [0025](0025-ui-shell-model.md) | UI shell model: navigation surface, panels, and documents in a main stage, extension-configurable | Accepted |
+| [0026](0026-identity-ui-kit-and-properties.md) | Identity ("Block"), UI kit as the only widget layer, and appearance properties (amends 0019) | Accepted |
 | [0023](0023-workspace-session-lifetime.md) | Workspace session lifetime: an app-scoped registry parks projects; a hot-exit snapshot survives the process | Accepted |
 | [0022](0022-editing-workflows-history-find-quick-open.md) | Editing workflows: patch history at the workspace's content choke point, decoration-painted find, one picker shell | Accepted |
