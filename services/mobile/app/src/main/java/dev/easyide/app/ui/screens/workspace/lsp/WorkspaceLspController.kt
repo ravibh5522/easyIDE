@@ -88,8 +88,8 @@ class WorkspaceLspController(
 
     val snippets = SnippetController(ws)
     val diagnostics = DiagnosticsPresenter(ws)
-    val completion = CompletionController(ws, snippets)
-    val info = InfoController(ws)
+    val completion = CompletionController(ws, snippets, runtime.extensionProviders)
+    val info = InfoController(ws, runtime.extensionProviders)
     val navigation = NavigationController(ws)
     val actions = EditActionsController(ws, diagnostics)
     private val caretDecorations = CaretDecorations(ws)

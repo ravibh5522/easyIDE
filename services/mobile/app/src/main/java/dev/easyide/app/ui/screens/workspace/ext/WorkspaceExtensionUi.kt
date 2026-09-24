@@ -90,7 +90,9 @@ class WorkspaceContributions(
     fun statusItems(): List<StatusItem> {
         val editor = host.editorState()
         val query = SettingsQuery(editor?.languageId, host.environmentId, null)
-        return StatusItems.items(snapshot, context, hidden, { key -> extensions.settings.value(key, query) }, editor, host.workspaceState(), order)
+        val contributed = StatusItems.items(snapshot, context, hidden, { key -> extensions.settings.value(key, query) }, editor, host.workspaceState(), order)
+        // Items WASM extensions set at runtime follow the contributed ones on their side.
+        return (contributed + extensions.wasm.ui.ordered()).sortedBy { it.alignment.ordinal }
     }
 
     fun keyRow(surface: KeySurface): ActiveKeyRow? {
@@ -125,7 +127,8 @@ fun rememberWorkspaceContributions(host: WorkspaceExtensionHost, extensions: Ext
     // `config.*` when-clauses and `${config:}` status texts resolve lazily, so a settings
     // change (a toggle command) must rebuild the projections even when no context key moved.
     val settingsVersion by extensions.settings.version.collectAsStateWithLifecycle()
-    return remember(snapshot, context, keybindings, hidden, order, layouts, keyRow, settingsVersion) {
+    val wasmStatus by extensions.wasm.ui.statusItems.collectAsStateWithLifecycle()
+    return remember(snapshot, context, keybindings, hidden, order, layouts, keyRow, settingsVersion, wasmStatus) {
         // NON_HIDEABLE refs are dropped here, so no settings file can hide the way back.
         val overrides = ContributionOverrides.of(hidden, ContributionOverrides.parseOrder(order))
         WorkspaceContributions(

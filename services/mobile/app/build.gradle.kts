@@ -118,6 +118,8 @@ dependencies {
     implementation(project(":extensions"))
     implementation(project(":terminal-view"))
     implementation(project(":lsp"))
+    // L2 extension logic (decision 0014); the only route to Chicory is through this module.
+    implementation(project(":ext-wasm"))
     baselineProfile(project(":baselineprofile"))
 
     implementation(libs.androidx.core.ktx)
@@ -145,4 +147,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(testFixtures(project(":ext-wasm")))
+    testImplementation(testFixtures(project(":extension-schema")))
+}
+
+// WASM port tests drive the real host with :ext-wasm's compiled `.wat` fixtures (proxy.wasm).
+tasks.withType<Test>().configureEach {
+    dependsOn(":ext-wasm:compileWatFixtures")
+    systemProperty("easyide.wasmFixtures", rootProject.file("ext-wasm/build/generated/wasm-fixtures").absolutePath)
 }

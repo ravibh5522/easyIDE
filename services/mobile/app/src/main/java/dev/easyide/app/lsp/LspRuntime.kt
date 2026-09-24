@@ -71,6 +71,9 @@ class LspRuntime(
 
     val messages = LspMessageBus()
 
+    /** WASM completion/hover providers, merged after the servers' answers (registered by AppContainer). */
+    val extensionProviders = ExtensionProviderSlot()
+
     /** Workspaces register their buffer editor here; closed projects are edited on disk. */
     val editPorts = EditPortRegistry(DiskEditPort(Dispatchers.IO))
 

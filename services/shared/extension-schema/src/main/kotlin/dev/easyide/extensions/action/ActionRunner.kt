@@ -188,14 +188,14 @@ class ActionRunner(
         is CommandOutcome.Done -> ActionOutcome.Done(r.value)
         CommandOutcome.Cancelled -> ActionOutcome.Cancelled
         CommandOutcome.NotFound -> ActionOutcome.Failed("", ActionError.NOT_FOUND, "unknown command '$commandId'")
-        is CommandOutcome.Failed -> ActionOutcome.Failed("", ActionError.INTERNAL, r.message)
+        is CommandOutcome.Failed -> ActionOutcome.Failed("", r.error, r.message)
     }
 
     private suspend fun logic(binding: CommandBinding, args: JsonElement?): ActionOutcome = when (val r = logic.executeCommand(binding.owner, binding.commandId, args)) {
         is CommandOutcome.Done -> ActionOutcome.Done(r.value)
         CommandOutcome.Cancelled -> ActionOutcome.Cancelled
         CommandOutcome.NotFound -> failed(binding, "", ActionError.NOT_FOUND, "no handler registered for ${binding.commandId}", null)
-        is CommandOutcome.Failed -> failed(binding, "", ActionError.INTERNAL, r.message, null)
+        is CommandOutcome.Failed -> failed(binding, "", r.error, r.message, null)
     }
 
     private fun failed(binding: CommandBinding, path: String, error: ActionError, message: String, stderrTail: String?): ActionOutcome.Failed {
