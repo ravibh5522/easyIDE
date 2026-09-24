@@ -2,7 +2,6 @@ package dev.easyide.app.ui.screens.workspace.git
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,10 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.easyide.app.ui.kit.TitleAndDescription
 import dev.easyide.app.ui.kit.Kit
 
-private val ROW_HEIGHT = 44.dp
-private val LANE_WIDTH = 14.dp
 private val DOT_RADIUS = 3.5.dp
 private const val MAX_DRAWN_LANES = 8
 
@@ -45,34 +43,33 @@ fun LazyListScope.commitGraph(
     }
 }
 
+/** One commit on one line: the lane gutter, the subject, then `hash author` inline in muted text. */
 @Composable
 private fun CommitRow(row: GraphRow, onCommitClick: (String) -> Unit) {
     val colors = Kit.colors
     val laneCount = row.laneCount.coerceIn(1, MAX_DRAWN_LANES)
+    val height = Kit.control.rowHeight
+    val lane = Kit.control.indent
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(ROW_HEIGHT)
-            .clickable { onCommitClick(row.commit.id) },
+            .height(height)
+            .clickable { onCommitClick(row.commit.id) }
+            .padding(start = Kit.control.hPad, end = Kit.control.hPad),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        LaneGutter(row, laneCount, colors.lanes, Modifier.width(LANE_WIDTH * laneCount))
-
-        Column(modifier = Modifier.weight(1f).padding(end = Kit.space.s)) {
-            BasicText(
-                text = row.commit.subject,
-                style = Kit.text.caption.copy(color = colors.plainText),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            BasicText(
-                text = "${row.commit.shortId}  ${row.commit.authorName}",
-                style = Kit.text.monoSmall.copy(color = colors.textMuted),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+        LaneGutter(row, laneCount, colors.lanes, Modifier.width(lane * laneCount), height, lane)
+        TitleAndDescription(
+            Kit.space.s,
+            Modifier.weight(1f),
+            title = {
+                BasicText(row.commit.subject, style = Kit.text.title.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            },
+            description = {
+                BasicText("${row.commit.shortId}  ${row.commit.authorName}", style = Kit.text.caption.copy(color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            },
+        )
     }
 }
 
@@ -82,9 +79,11 @@ private fun LaneGutter(
     laneCount: Int,
     palette: List<Color>,
     modifier: Modifier,
+    height: Dp,
+    lane: Dp,
 ) {
-    Canvas(modifier = modifier.height(ROW_HEIGHT)) {
-        val laneW = LANE_WIDTH.toPx()
+    Canvas(modifier = modifier.height(height)) {
+        val laneW = lane.toPx()
         val midY = size.height / 2f
         fun laneX(lane: Int) = laneW * lane + laneW / 2f
 

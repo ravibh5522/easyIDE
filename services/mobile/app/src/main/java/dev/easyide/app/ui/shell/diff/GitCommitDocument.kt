@@ -19,8 +19,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitProgress
+import dev.easyide.app.ui.kit.KitSectionHeader
 import dev.easyide.app.ui.kit.KitRow
-import dev.easyide.app.ui.screens.workspace.PanelGroupHeader
 import dev.easyide.app.ui.screens.workspace.git.tint
 import dev.easyide.app.ui.shell.DocumentOpener
 import dev.easyide.app.ui.shell.DocumentUri
@@ -71,7 +71,7 @@ private fun CommitBody(detail: GitCommitDetail, opener: DocumentOpener) {
     LazyColumn(Modifier.fillMaxSize().padding(bottom = Kit.space.l)) {
         item { CommitMessage(commit.subject, commit.body.removePrefix(commit.subject).trim()) }
         item { CommitMeta(detail, opener) }
-        item { PanelGroupHeader(stringResource(R.string.shell_commit_files), detail.files.size) }
+        item { KitSectionHeader(stringResource(R.string.shell_commit_files), count = detail.files.size) }
         items(detail.files.size) { i -> CommitFileRow(detail, detail.files[i], opener) }
     }
 }
