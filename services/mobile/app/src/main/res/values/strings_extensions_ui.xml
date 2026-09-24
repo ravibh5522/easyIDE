@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Extensions panel and extension page on the kit (docs/ui-redesign/screens.md 4). -->
+<resources>
+    <string name="extui_source_builtin" translatable="false">built in</string>
+    <string name="extui_source_local" translatable="false">local</string>
+    <string name="extui_source_dev" translatable="false">dev</string>
+    <string name="extui_source_registry" translatable="false">registry</string>
+    <string name="extui_source_open_vsx" translatable="false">open vsx</string>
+
+    <string name="extui_trust_builtin">Ships with easyIDE. Trusted with what it declares.</string>
+    <string name="extui_trust_local">Unsigned, from a file or folder. Never updated automatically.</string>
+    <string name="extui_trust_dev">Developer install, unsigned. Reloads when you save.</string>
+    <string name="extui_trust_registry">From a signed registry, checked at install. A signature shows who published it, not that it is safe.</string>
+
+    <string name="extui_tag_invalid" translatable="false">invalid</string>
+    <string name="extui_tag_revoked" translatable="false">revoked</string>
+    <string name="extui_tag_crashed" translatable="false">crashed</string>
+    <string name="extui_tag_failed" translatable="false">failed</string>
+    <string name="extui_tag_needs_approval" translatable="false">needs approval</string>
+    <string name="extui_tag_disabled" translatable="false">disabled</string>
+    <string name="extui_tag_update" translatable="false">update</string>
+    <string name="extui_tag_incompatible" translatable="false">incompatible</string>
+
+    <string name="extui_update">Update</string>
+    <string name="extui_review">Review</string>
+    <string name="extui_tab_browse_updates">Browse (%1$d)</string>
+    <string name="extui_search_installed">Search installed</string>
+    <string name="extui_no_match">No extension matches \"%1$s\".</string>
+    <string name="extui_none_installed">No extensions installed yet. Use + to install from the registry, a file or a folder.</string>
+    <string name="extui_section_installed">Installed</string>
+    <string name="extui_section_builtin">Built in</string>
+    <plurals name="extui_needs_approval">
+        <item quantity="one">%d extension needs its capabilities approved.</item>
+        <item quantity="other">%d extensions need their capabilities approved.</item>
+    </plurals>
+    <plurals name="extui_revoked">
+        <item quantity="one">%d extension is revoked and stays off.</item>
+        <item quantity="other">%d extensions are revoked and stay off.</item>
+    </plurals>
+
+    <string name="extui_install_registry">Install from registry</string>
+    <string name="extui_install_file">Install from file</string>
+    <string name="extui_install_folder">Install from folder</string>
+    <string name="extui_log_copy">Copy</string>
+
+    <string name="extui_group_languages">Languages</string>
+    <string name="extui_group_servers">Language servers</string>
+    <string name="extui_group_commands">Commands and menus</string>
+    <string name="extui_group_views">Views and status</string>
+    <string name="extui_group_appearance">Appearance</string>
+    <string name="extui_group_other">Other</string>
+
+    <string name="extui_tab_details">Details</string>
+    <string name="extui_tab_contributions">Contributions</string>
+    <string name="extui_tab_capabilities">Capabilities</string>
+    <string name="extui_tab_log">Log</string>
+    <string name="extui_tab_versions">Versions</string>
+    <string name="extui_enabled">Enabled</string>
+    <string name="extui_section_details">Details</string>
+    <string name="extui_fact_publisher">Publisher</string>
+    <string name="extui_fact_license">License</string>
+    <string name="extui_fact_scope">Scope</string>
+    <string name="extui_fact_categories">Categories</string>
+    <string name="extui_scope_global">every environment</string>
+    <string name="extui_scope_environment">one environment</string>
+    <string name="extui_settings_open">Extension settings</string>
+    <string name="extui_settings_note">Settings this extension adds are on the Extensions settings page.</string>
+    <string name="extui_section_versions">Versions</string>
+    <string name="extui_versions_none">Only this version is installed.</string>
+    <string name="extui_version_installed">Installed</string>
+    <string name="extui_capabilities_builtin">Built in, so trusted with what it declares. Nothing to revoke.</string>
+    <string name="extui_capabilities_revoke_note">Approved at install. Revoking one turns the extension off until it is granted again.</string>
+    <string name="extui_revoke">Revoke</string>
+    <string name="extui_grant">Grant</string>
+    <string name="extui_granted" translatable="false">granted</string>
+    <string name="extui_not_granted" translatable="false">not granted</string>
+    <string name="extui_not_installed">%1$s is not installed.</string>
+    <string name="extui_back_to_list">Back to extensions</string>
+    <string name="extui_uninstall_title">Uninstall %1$s?</string>
+    <string name="extui_uninstall_body">Removes %1$s and any retained version from this device.</string>
+</resources>

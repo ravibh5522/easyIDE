@@ -300,6 +300,11 @@ class ExtensionsViewModel(
         }
     }
 
+    /** Grants or revokes one declared capability of [row]; revoking leaves the pack needing approval until it is granted again. */
+    fun setGranted(row: ExtensionRow, capabilityId: String, granted: Boolean) {
+        viewModelScope.launch { extensions.installer.setApproved(row.pkg, capabilityId, granted) }
+    }
+
     /** Session reasons end for this process; the setting is cleared when it is set. */
     fun exitSafeMode() {
         viewModelScope.launch { extensions.exitSafeMode() }
