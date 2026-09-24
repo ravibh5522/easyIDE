@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import dev.easyide.app.R
 import dev.easyide.app.ui.foundation.WidthClass
+import dev.easyide.app.ui.icons.iconFor
 
 /**
  * A page frame: title bar (back, title, actions), an optional banner, and the content column
@@ -74,7 +73,7 @@ fun KitScaffold(
                     Modifier.kitTouchFloor().kitTag("scaffold-back").kitPressable(onBack),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.kit_back), tint = colors.plainText)
+                    Icon(iconFor("back"), stringResource(R.string.kit_back), tint = colors.plainText)
                 }
             }
             BasicText(

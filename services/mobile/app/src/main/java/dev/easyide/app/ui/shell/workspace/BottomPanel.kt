@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitTabs
@@ -102,7 +101,7 @@ fun BottomPanel(
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             KitTabs(tabs.map { it.title }, tabs.indexOfFirst { it.id == spec.active }.coerceAtLeast(0), { actions.onSelect(tabs[it].id) }, Modifier.weight(1f))
-            KitIconButton(Icons.Filled.Close, stringResource(R.string.wshell_bottom_close), actions.onClose)
+            KitIconButton(iconFor("close"), stringResource(R.string.wshell_bottom_close), actions.onClose)
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
             composed.forEach { id ->

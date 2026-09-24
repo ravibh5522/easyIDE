@@ -16,10 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.VerticalSplit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +36,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.foundation.layout.size
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitMenu
@@ -92,8 +89,8 @@ internal fun StageGroup(
     val active = view.group.activeTab?.uri
     val actions: @Composable RowScope.() -> Unit = {
         trailing()
-        callbacks.onSplit?.let { KitIconButton(Icons.Filled.VerticalSplit, stringResource(R.string.wshell_group_split), it) }
-        if (view.split) callbacks.onUnsplit?.let { KitIconButton(Icons.Filled.Close, stringResource(R.string.wshell_group_close), it) }
+        callbacks.onSplit?.let { KitIconButton(iconFor("split"), stringResource(R.string.wshell_group_split), it) }
+        if (view.split) callbacks.onUnsplit?.let { KitIconButton(iconFor("close"), stringResource(R.string.wshell_group_close), it) }
     }
     Column(
         modifier.kitTag("stage-group").groupDivider(view).focusOnTouch(view.active, callbacks::focus).focusGroup(),
@@ -175,13 +172,13 @@ private fun DocumentSwitcher(
             ) {
                 BasicText(title, Modifier.weight(1f, fill = false), style = Kit.type.titleSmall.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (group.tabs.size > 1) BasicText(" ${group.tabs.size}", style = Kit.type.labelMedium.copy(color = colors.textMuted))
-                if (group.tabs.isNotEmpty()) Image(Icons.Filled.ExpandMore, null, Modifier.size(IconSize.m), colorFilter = ColorFilter.tint(colors.textMuted))
+                if (group.tabs.isNotEmpty()) Image(iconFor("expand_more"), null, Modifier.size(IconSize.m), colorFilter = ColorFilter.tint(colors.textMuted))
             }
             KitMenu(
                 open, { open = false },
                 entries.map { (uri, name) ->
                     KitMenuItem.Action(if (callbacks.isDirty(uri)) stringResource(R.string.wshell_switcher_dirty, name) else name, { callbacks.activate(uri) }, checked = uri == group.active)
-                } + KitMenuItem.Divider + KitMenuItem.Action(close, { group.active?.let(callbacks::close) }, icon = Icons.Filled.Close),
+                } + KitMenuItem.Divider + KitMenuItem.Action(close, { group.active?.let(callbacks::close) }, icon = iconFor("close")),
             )
         }
         actions()

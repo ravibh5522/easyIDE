@@ -22,8 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,6 +41,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.theme.IconSize
 
 /** One entry of a [KitMenu]. A menu lists actions on an object; a value chooser is a sheet, not a menu (U-CMP-07). */
@@ -135,6 +134,6 @@ private fun MenuRow(item: KitMenuItem.Action, onClick: () -> Unit) {
         item.icon?.let { Image(it, null, Modifier.size(IconSize.l), colorFilter = ColorFilter.tint(tint)) }
         BasicText(item.label, Modifier.weight(1f), style = Kit.type.bodyMedium.copy(color = tint), maxLines = 1, overflow = TextOverflow.Ellipsis)
         item.hint?.let { BasicText(it, style = Kit.type.labelSmall.kitMono().copy(color = colors.textMuted)) }
-        if (item.checked == true) Image(Icons.Filled.Check, null, Modifier.size(IconSize.l), colorFilter = ColorFilter.tint(colors.accent))
+        if (item.checked == true) Image(iconFor("check"), null, Modifier.size(IconSize.l), colorFilter = ColorFilter.tint(colors.accent))
     }
 }

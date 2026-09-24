@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitDialog
 import dev.easyide.app.ui.kit.KitGroup
@@ -26,7 +27,7 @@ internal fun NavMoreSheet(items: List<NavItem>, active: String?, onSelect: (NavI
                     id = "nav-more-${item.id}",
                     selected = item.id == active,
                     onClick = { onSelect(item) },
-                    leading = { Image(NavIcons.of(item.icon), null, Modifier, colorFilter = ColorFilter.tint(Kit.colors.activityIcon)) },
+                    leading = { Image(iconFor(item.icon.name), null, Modifier, colorFilter = ColorFilter.tint(Kit.colors.activityIcon)) },
                 )
             }
         }

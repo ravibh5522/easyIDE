@@ -60,5 +60,5 @@ object BuiltInCommandTable {
     )
 }
 
-/** A token of the app's command icon table (ExtensionSlots `ICON_TOKENS`). */
+/** A token of the app's command icon table (the `ui/icons` resolver). */
 private const val ICON_SAVE = "save"

@@ -7,7 +7,8 @@
 #   tools/ui-lint.sh --update-baseline  rewrite tools/ui-lint-baseline.txt from the tree
 #
 # Rules (id, rule, where):
-#   U-COL-01  Color(0x..), Color.White/Black          all of app/src/main except ui/theme, ui/kit
+#   U-COL-01  Color(0x..), Color.White/Black          all of app/src/main except ui/theme, ui/kit, ui/icons (a glyph is an opaque mask the tint replaces)
+#   U-ICO-01  androidx.compose.material.icons import  ui/kit, ui/shell (icons come from the ui/icons resolver)
 #   U-KIT-COL MaterialTheme.colorScheme read          ui/kit (kit reads ThemeTokens, not M3)
 #   U-DP-01   raw N.dp literal (0.dp exempt; a named `val X = N.dp` is the token itself)  ui/kit, ui/shell
 #   U-TYP-08  string literal in Text(...) copy        ui/screens, ui/components, ui/shell, ui/kit
@@ -36,7 +37,7 @@ if mode not in ("", "--all", "--update-baseline"):
     sys.exit("usage: ui-lint.sh [--all | --update-baseline]")
 
 UI = "dev/easyide/app/ui/"
-THEME, KIT, SHELL = UI + "theme/", UI + "kit/", UI + "shell/"
+THEME, KIT, SHELL, ICONS = UI + "theme/", UI + "kit/", UI + "shell/", UI + "icons/"
 COPY_DIRS = (UI + "screens/", UI + "components/", SHELL, KIT)
 MOTION_TABLE = UI + "props/Motion.kt"
 
@@ -46,6 +47,7 @@ def under(path, *dirs):
 # (id, compiled regex, applies-to predicate). Regexes run on the code with comments and
 # string contents left intact only where the rule needs them.
 COLOR = re.compile(r"\bColor\(\s*0[xX]|\bColor\.(White|Black)\b")
+ICON_IMPORT = re.compile(r"^import androidx\.compose\.material\.icons\.")
 KIT_SCHEME = re.compile(r"MaterialTheme\.colorScheme")
 DP = re.compile(r"(?<![\w.])(\d+(\.\d+)?)\.dp\b")
 NAMED_DP = re.compile(r"^\s*(private |internal )?(const )?val \w+(: Dp)? = [\d.]+\.dp\s*$")
@@ -81,8 +83,10 @@ for dirpath, _, files in os.walk(src):
                 continue
             if s.startswith("//") or s.startswith("*"):
                 continue
-            if not under(rel, THEME, KIT) and COLOR.search(line):
+            if not under(rel, THEME, KIT, ICONS) and COLOR.search(line):
                 add("U-COL-01", rel, i, line)
+            if under(rel, KIT, SHELL) and ICON_IMPORT.match(s):
+                add("U-ICO-01", rel, i, line)
             if under(rel, KIT) and KIT_SCHEME.search(line):
                 add("U-KIT-COL", rel, i, line)
             if under(rel, KIT, SHELL) and not NAMED_DP.match(line) and any(float(m.group(1)) != 0 for m in DP.finditer(line)):
