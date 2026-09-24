@@ -16,8 +16,8 @@ object InitCommand : Command {
     override val summary = "Scaffold an extension from a template"
     override val usage = "init [dir] --template <t> [--name <n>] [--publisher <p>] [--display-name <d>] [--yes]"
 
-    /** Implemented templates; sdk-reference also names lsp-pack, wasm-rust and wasm-assemblyscript (not yet shipped). */
-    val TEMPLATES = listOf("theme", "snippets", "language-pack", "toolbar-command")
+    /** Implemented templates; sdk-reference also names lsp-pack and wasm-assemblyscript (not yet shipped). */
+    val TEMPLATES = listOf("theme", "snippets", "language-pack", "toolbar-command", "wasm-rust")
 
     override fun run(args: List<String>, ctx: CliContext): ExitCode {
         val a = Args.parse(args, setOf("template", "name", "publisher", "display-name"), setOf("yes"), 1)
@@ -30,7 +30,7 @@ object InitCommand : Command {
         ExtensionId.of(publisher, name) ?: usage("name and publisher must match ^${ExtensionId.SEGMENT.pattern}$ (got '$publisher.$name')")
         val displayName = a.value("display-name") ?: name.split('-').joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
         val vars = mapOf(
-            "publisher" to publisher, "name" to name, "displayName" to displayName,
+            "publisher" to publisher, "name" to name, "displayName" to displayName, "crate" to name.replace('-', '_'),
             "engine" to "^${AppApi.VERSION}", "year" to java.time.Year.now().toString(),
         )
 

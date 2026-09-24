@@ -27,9 +27,16 @@ val schemaResources by tasks.registering(Copy::class) {
     into(layout.buildDirectory.dir("generated/schema"))
 }
 
+// The wasm-rust template vendors the easyide-guest crate; copied at build time so there is one source.
+val guestCrate by tasks.registering(Copy::class) {
+    from(shared.dir("../guest-rust")) { include("Cargo.toml", "README.md", "LICENSE", "src/lib.rs") }
+    into(layout.buildDirectory.dir("generated/guest/templates/wasm-rust/guest/easyide-guest"))
+}
+
 sourceSets.main {
     kotlin.srcDir(shared.dir("src/main/kotlin"))
     resources.srcDir(schemaResources)
+    resources.srcDir(guestCrate.map { layout.buildDirectory.dir("generated/guest").get() })
 }
 
 dependencies {

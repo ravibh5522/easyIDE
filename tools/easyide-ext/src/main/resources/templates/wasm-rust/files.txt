@@ -1,0 +1,15 @@
+package.json
+README.md
+CHANGELOG.md
+LICENSE
+.easyide-ext.json
+.gitignore
+.easyextignore
+build.sh
+guest/Cargo.toml
+guest/src/lib.rs
+guest/easyide-guest/Cargo.toml
+guest/easyide-guest/src/lib.rs
+guest/easyide-guest/README.md
+guest/easyide-guest/LICENSE
+test/palette.json

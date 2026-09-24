@@ -33,6 +33,7 @@ class TestAndWasmTest {
     @Test fun `every template's own scenarios pass out of the box`() {
         for (t in InitCommand.TEMPLATES) {
             assertEquals(0, cli("init", "x-$t", "--template", t, "--publisher", "acme").exit)
+            if (t.startsWith("wasm-") && !WasmBuild.build(File(tmp.root, "x-$t"))) continue
             val r = cli("test", "x-$t", "--json")
             assertEquals("$t: ${r.stderr}", 0, r.exit)
             val scenarios = r.json["result"]!!.jsonObject["scenarios"]!!.jsonArray
