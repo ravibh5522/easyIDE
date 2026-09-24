@@ -25,7 +25,7 @@ Existing ADRs this work builds on:
 - [0011](../decision/0011-jgit-for-object-model-sandbox-git-for-network.md), [0012](../decision/0012-git-token-in-process-env-not-credential-socket.md)
 
 New ADRs required before landing (hard to reverse):
-- **ADR-A Visual identity**: brand palette, UI + mono fonts (licenses verified from primary sources), unified token object for chrome + editor.
+- **ADR-A Visual identity**: brand palette, UI + mono fonts (licenses verified from primary sources), unified token object for chrome + editor. **Recorded in [0019](../decision/0019-visual-identity.md)** (iris accent, Geist + Geist Mono, `ThemeTokens`).
 - **ADR-B Editor engine**: line-virtualised Compose editor vs. adopting a View-based editor library (license + maintenance verified). Blocks P2-E1. **Decided in [0018](../decision/0018-editor-engine-and-decorations.md)**: own line-virtualised Compose editor for PE1; decoration layers ship now on the current text field behind engine-neutral seams.
 - **ADR-C Settings schema + theme import**: opens the "closed set for v1" in `ThemeMode.kt:4`; VS Code theme JSON import.
 - **ADR-D Workspace session lifetime**: sessions (ptys, buffers) owned by an app/service-scoped `WorkspaceRegistry`, not the nav-entry ViewModel.
@@ -250,7 +250,7 @@ Order is by dependency, not by appeal. Each phase is shippable on its own.
 
 ## Open questions
 
-- Accent hue: iris `#7C8CFF` vs. mint `#3DDBB5` (or user-chosen with a curated default)?
+- ~~Accent hue: iris `#7C8CFF` vs. mint `#3DDBB5`?~~ Iris, see [0019](../decision/0019-visual-identity.md) (pending owner confirmation; a user-chosen accent stays a one-field change).
 - ~~ADR-B: own a virtualised Compose editor, or adopt an existing View-based editor?~~ Resolved by [0018](../decision/0018-editor-engine-and-decorations.md): own it; libraries verified and rejected there.
 - Is the reported lag on debug builds? If so PF1/PF2 plus a release build may account for much of it; measure before and after.
 - Should Theia remain on the roadmap at all, given the native shell is now the product?

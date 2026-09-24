@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -24,9 +23,7 @@ import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.foundation.currentWindowSize
 import dev.easyide.app.ui.foundation.systemMotionEnabled
 import dev.easyide.app.ui.navigation.AppNavHost
-import dev.easyide.app.ui.theme.LocalEditorColors
 import dev.easyide.app.ui.theme.EasyIdeTheme
-import dev.easyide.app.ui.theme.editorColorsFor
 import kotlinx.coroutines.launch
 
 /**
@@ -69,13 +66,11 @@ class MainActivity : ComponentActivity() {
             // animation setting change restarts the activity anyway.
             val motionEnabled = remember { systemMotionEnabled() }
             val windowSize = currentWindowSize()
-            val editorColors = editorColorsFor(themeMode, isSystemInDarkTheme())
 
             EasyIdeTheme(themeMode = themeMode) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,
-                    LocalEditorColors provides editorColors,
                     LocalSettings provides settings,
                 ) {
                     Surface(modifier = Modifier.fillMaxSize()) {

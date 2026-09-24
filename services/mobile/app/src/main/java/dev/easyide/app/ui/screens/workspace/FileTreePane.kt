@@ -26,15 +26,21 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import dev.easyide.app.ui.theme.ControlSize
+import dev.easyide.app.ui.theme.IconSize
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.app.ui.theme.sectionHeader
 import dev.easyide.sandbox.files.FileNode
 
 /**
@@ -89,13 +95,13 @@ private fun ExplorerHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 10.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+            .padding(start = Spacing.m, end = Spacing.xs, top = Spacing.xs, bottom = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = projectName.uppercase().ifEmpty { "EXPLORER" },
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.gutterText,
+            style = MaterialTheme.typography.sectionHeader,
+            color = colors.textMuted,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -106,7 +112,7 @@ private fun ExplorerHeader(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+/** Icon-button sized (not glyph sized) so the header actions are real touch targets. */
 @Composable
 private fun HeaderAction(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -114,15 +120,14 @@ private fun HeaderAction(
     onClick: () -> Unit,
 ) {
     val colors = editorColors
-    Icon(
-        imageVector = icon,
-        contentDescription = description,
-        tint = colors.gutterText,
-        modifier = Modifier
-            .padding(horizontal = 4.dp)
-            .size(HEADER_ICON_DP.dp)
-            .combinedClickable(onClick = onClick),
-    )
+    IconButton(onClick = onClick, modifier = Modifier.size(ControlSize.headerAction)) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint = colors.textMuted,
+            modifier = Modifier.size(IconSize.s),
+        )
+    }
 }
 
 /**
@@ -176,11 +181,15 @@ private fun FileTreeRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (selected) colors.tabActive else Color.Transparent)
             // Fixed height so the indent guides have a bounded height to fill.
-            .height(ROW_HEIGHT_DP.dp)
+            .height(ControlSize.row)
+            // The selection pill: inset from the pane edges and rounded, so the
+            // open file reads as a marked item rather than a recoloured stripe.
+            .padding(horizontal = Spacing.xs)
+            .clip(MaterialTheme.shapes.extraSmall)
+            .background(if (selected) colors.listSelection else Color.Transparent)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(end = 8.dp),
+            .padding(end = Spacing.s),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IndentGuides(depth)
@@ -192,26 +201,27 @@ private fun FileTreeRow(
                 else -> Icons.Filled.Description
             },
             contentDescription = null,
-            tint = colors.gutterText,
-            modifier = Modifier.size(CHEVRON_DP.dp),
+            tint = colors.textMuted,
+            modifier = Modifier.size(IconSize.xs),
         )
 
         if (node.isDirectory) {
             Icon(
                 imageVector = if (expanded) Icons.Filled.FolderOpen else Icons.Filled.Folder,
                 contentDescription = null,
-                tint = colors.gutterText,
-                modifier = Modifier.padding(start = 2.dp).size(ICON_DP.dp),
+                // An open folder takes the accent, so the path to the open file is traceable.
+                tint = if (expanded) colors.accent else colors.textMuted,
+                modifier = Modifier.padding(start = Spacing.xxs).size(IconSize.xs),
             )
         }
 
         Text(
             text = node.name,
             style = MaterialTheme.typography.bodySmall,
-            color = colors.plainText,
+            color = if (selected) colors.listSelectionText else colors.plainText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 6.dp),
+            modifier = Modifier.padding(start = Spacing.s),
         )
     }
 }
@@ -224,27 +234,24 @@ private fun IndentGuides(depth: Int) {
         repeat(depth) {
             Box(
                 modifier = Modifier
-                    .width(INDENT_DP.dp)
+                    .width(Spacing.m)
                     .fillMaxHeight()
-                    .padding(start = GUIDE_INSET_DP.dp),
+                    .padding(start = GUIDE_INSET),
             ) {
                 Box(
                     modifier = Modifier
-                        .width(GUIDE_WIDTH_DP.dp)
+                        .width(Stroke.hairline)
                         .fillMaxHeight()
-                        .background(colors.panelBorder),
+                        .background(colors.indentGuide),
                 )
             }
         }
-        Box(modifier = Modifier.width(BASE_INSET_DP.dp))
+        Box(modifier = Modifier.width(Spacing.xs))
     }
 }
 
-private const val INDENT_DP = 12
-private const val BASE_INSET_DP = 6
-private const val GUIDE_INSET_DP = 5
-private const val GUIDE_WIDTH_DP = 1
-private const val ROW_HEIGHT_DP = 26
-private const val ICON_DP = 14
-private const val CHEVRON_DP = 14
-private const val HEADER_ICON_DP = 16
+/**
+ * Guide offset inside one indent step: the base inset plus half the chevron
+ * glyph, so each guide sits under its parent's chevron rather than beside it.
+ */
+private val GUIDE_INSET = Spacing.xs + IconSize.xs / 2

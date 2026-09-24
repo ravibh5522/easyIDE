@@ -26,9 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import dev.easyide.app.R
 import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.theme.IconSize
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
 
 /**
@@ -70,10 +75,10 @@ fun EditorTabBar(
             Icon(
                 imageVector = if (activeTab.showPreview) Icons.Filled.Code else Icons.Filled.Visibility,
                 contentDescription = if (activeTab.showPreview) "Show source" else "Show preview",
-                tint = colors.gutterText,
+                tint = colors.textMuted,
                 modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .size(PREVIEW_ICON_DP.dp)
+                    .padding(horizontal = Spacing.m)
+                    .size(IconSize.m)
                     .clickable(onClick = onTogglePreview),
             )
         }
@@ -97,14 +102,15 @@ private fun EditorTabChip(
     Row(
         modifier = Modifier
             .background(background)
+            .tabAccentBar(active, colors.tabActiveBorder)
             .clickable(onClick = onSelect)
-            .padding(start = 12.dp),
+            .padding(start = Spacing.m),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = tab.name,
             style = MaterialTheme.typography.labelMedium,
-            color = if (active) colors.plainText else colors.gutterText,
+            color = if (active) colors.tabActiveText else colors.tabInactiveText,
         )
         // The glyph stays small but the target is the 48dp minimum, which also
         // sets the tab's height - an 8dp dot was too easy to hit by accident.
@@ -120,19 +126,25 @@ private fun EditorTabChip(
             contentAlignment = Alignment.Center,
         ) {
             if (tab.isDirty) {
-                Box(modifier = Modifier.size(DIRTY_DOT_DP.dp).background(colors.plainText, CircleShape))
+                Box(modifier = Modifier.size(Spacing.s).background(colors.plainText, CircleShape))
             } else {
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = null,
-                    tint = colors.gutterText,
-                    modifier = Modifier.size(CLOSE_ICON_DP.dp),
+                    tint = colors.textMuted,
+                    modifier = Modifier.size(IconSize.xs),
                 )
             }
         }
     }
 }
 
-private const val PREVIEW_ICON_DP = 18
-private const val DIRTY_DOT_DP = 8
-private const val CLOSE_ICON_DP = 14
+/**
+ * The accent bar across the top of the active tab - the one place the accent
+ * marks which tab has focus. Drawn, not laid out, so switching tabs never
+ * shifts a label. Shared by the editor and terminal tab strips.
+ */
+internal fun Modifier.tabAccentBar(active: Boolean, color: Color): Modifier =
+    if (!active) this else drawBehind {
+        drawRect(color, size = Size(size.width, Stroke.accentBar.toPx()))
+    }

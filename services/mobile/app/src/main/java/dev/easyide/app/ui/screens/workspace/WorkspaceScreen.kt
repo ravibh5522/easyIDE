@@ -54,6 +54,8 @@ import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.foundation.MotionTokens
 import dev.easyide.app.ui.foundation.WidthClass
 import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
@@ -297,7 +299,7 @@ fun WorkspaceScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = SNACKBAR_BOTTOM_PADDING_DP.dp),
+                .padding(bottom = Spacing.xxxl),
         )
     }
 }
@@ -498,7 +500,7 @@ private fun ExplorerOverlay(
 private fun VerticalDivider() {
     Box(
         modifier = Modifier
-            .width(DIVIDER_DP.dp)
+            .width(Stroke.hairline)
             .fillMaxHeight()
             .background(editorColors.panelBorder),
     )
@@ -509,7 +511,7 @@ private fun HorizontalDividerLine() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(DIVIDER_DP.dp)
+            .height(Stroke.hairline)
             .background(editorColors.panelBorder),
     )
 }
@@ -528,5 +530,3 @@ private const val MEDIUM_EXPLORER_DP = 240
 private const val EXPANDED_EXPLORER_DP = 280
 private const val COMPACT_TERMINAL_DP = 160
 private const val REGULAR_TERMINAL_DP = 260
-private const val SNACKBAR_BOTTOM_PADDING_DP = 48
-private const val DIVIDER_DP = 1

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.foundation.LocalMotionEnabled
 import dev.easyide.app.ui.foundation.MotionTokens
+import dev.easyide.app.ui.theme.Spacing
 
 /**
  * Shared empty state. The icon breathes slowly to keep an otherwise dead screen
@@ -62,10 +63,10 @@ fun EmptyState(
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.m),
             modifier = Modifier
                 .widthIn(max = MAX_CONTENT_WIDTH.dp)
-                .padding(24.dp),
+                .padding(Spacing.xl),
         ) {
             Box(
                 modifier = Modifier

@@ -25,14 +25,14 @@ IDs match [arch.md](arch.md).
 | PF10 Batched install log | done | built + unit tests; not run on device |
 | PF11 Syntax highlighting first paint (memoised scope roles, no debounce on open/tab/scroll, 8-tab tokenizer LRU, grammar prewarm on tree load, cancellable passes) | done | compiles + assembles; not measured on device. SQLite/disk token cache rejected: state stacks are not serialisable and regex compile, not tokenizing, is the cold cost |
 | **Phase 1 — foundations** | | |
-| ADR-A Visual identity | not-started | fonts need primary-source license check |
+| ADR-A Visual identity | done | [0019](../decision/0019-visual-identity.md) (Proposed: accent pending owner confirmation); iris accent, Geist/Geist Mono OFL-1.1 verified from vercel/geist-font v1.7.2 |
 | ADR-B Editor engine | done | [0018](../decision/0018-editor-engine-and-decorations.md); decoration layers landed on the current editor |
 | ADR-C Settings schema + theme import | not-started | |
 | ADR-D Workspace session lifetime | not-started | |
-| Unified `EasyIdeColors` + spacing/radius/elevation tokens | not-started | |
-| UI + mono fonts, dense type scale | not-started | |
-| Terminal palette from tokens (incl. light) | not-started | |
-| Git semantic + lane palette tokens | not-started | |
+| Unified `EasyIdeColors` + spacing/radius/elevation tokens | done | `ThemeTokens`/`ColorToken` -> ColorScheme + EditorColors; Light/Dark/AMOLED/HC dark+light; `Spacing`/`Radius`/`Elevation`/`Stroke`/`IconSize`/`ControlSize`; WCAG test; VS Code key map + pure mapper (file loading next wave). Chrome, tabs, tree, key row, SCM, Home, Settings tokenised; accent tab bar, tree pill, current line + active number, themed cursor/selection, Home/SCM skeletons, theme preview cards. Built + unit tests; not run on device |
+| UI + mono fonts, dense type scale | done | Geist 400/500/600 + Geist Mono 400/700 (editor, terminal), 11/12/13/15/20/28 scale. Not seen on device |
+| Terminal palette from tokens (incl. light) | done | `TerminalTheme` writes ANSI-16 + fg/bg/cursor into Termux's default scheme, resets live emulators once per palette change. Not run on device |
+| Git semantic + lane palette tokens | done | |
 | `SettingsStore` schema + generic settings UI + search | in-progress | schema + store + generated rows + search; editor/terminal font size, line height live; layering beyond global not yet |
 | Command registry + Keymap + hardware shortcuts | in-progress | registry, default keymap, hardware dispatch incl. terminal focus done; no when-clauses/user keymap yet |
 | Command palette + quick open | in-progress | palette done (Ctrl+Shift+P + rail button); quick open not yet |

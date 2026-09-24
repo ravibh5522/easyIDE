@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
+import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.EditorColors
 import dev.easyide.app.ui.theme.editorColors
 import kotlinx.coroutines.Dispatchers
@@ -154,6 +156,13 @@ private fun EditableSurface(
         else null
     }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+    // Derived, so the gutter recomposes when the caret changes line, not on every caret move.
+    val caretLine by remember(tab.relativePath) {
+        derivedStateOf { layout?.let { it.getLineForOffset(selection.start.coerceIn(0, it.layoutInput.text.length)) } ?: 0 }
+    }
+    val numbered = remember(lineNumbers, caretLine, colors.gutterActiveText) {
+        gutterNumbers(lineNumbers, caretLine, colors.gutterActiveText)
+    }
     val snapshot = remember(decorations) { decorations?.let(::DecorationSnapshot) }
     // Before layout and draw of this frame, so the painters see decorations already moved
     // onto the text being laid out. A no-op when the buffer is unchanged.
@@ -163,6 +172,9 @@ private fun EditableSurface(
     val measurer = rememberTextMeasurer(cacheSize = DecorationMetrics.GHOST_TEXT_MEASURE_CACHE)
     val gutterPainters = rememberGutterPainters()
     val gutterWidth = GUTTER_WIDTH_DP.dp + DecorationMetrics.gutterLaneWidth
+    val selectionColors = remember(colors.cursor, colors.selection) {
+        TextSelectionColors(handleColor = colors.cursor, backgroundColor = colors.selection)
+    }
 
     // The text field is only as large as its text, so tapping beside a short
     // line or below the last line used to hit nothing and the caret never
@@ -198,7 +210,7 @@ private fun EditableSurface(
 
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
             Text(
-                text = lineNumbers,
+                text = numbered,
                 style = codeTextStyle().copy(color = colors.gutterText),
                 textAlign = TextAlign.End,
                 modifier = Modifier
@@ -210,35 +222,38 @@ private fun EditableSurface(
             )
 
             Box(modifier = Modifier.horizontalScroll(horizontalScroll)) {
-                BasicTextField(
-                    value = field,
-                    onValueChange = { next ->
-                        val old = TextState(field.text, field.selection.start, field.selection.end)
-                        val typed = TextState(next.text, next.selection.start, next.selection.end)
-                        val result = TypingRules.onChange(old, typed, config, TYPING_OPTIONS)
-                        if (result === typed) {
-                            selection = next.selection
-                            composition = next.composition
-                        } else {
-                            // A rewritten edit no longer lines up with the IME's composing region.
-                            selection = TextRange(result.selectionStart, result.selectionEnd)
-                            composition = null
-                        }
-                        if (result.text != field.text) onContentChanged(result.text)
-                    },
-                    textStyle = codeTextStyle().copy(color = colors.plainText),
-                    cursorBrush = SolidColor(colors.plainText),
-                    visualTransformation = transformation,
-                    onTextLayout = { layout = it },
-                    modifier = Modifier
-                        .defaultMinSize(minWidth = textMinWidth, minHeight = viewportHeight)
-                        .padding(horizontal = TEXT_PADDING_H_DP.dp, vertical = TEXT_PADDING_V_DP.dp)
-                        .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
-                        .textDecorations(paint, colors.decorations, measurer, codeTextStyle())
-                        // Own layer for the text itself: a decoration redraw then replays
-                        // the recorded paragraph instead of drawing it again.
-                        .graphicsLayer(),
-                )
+                CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
+                    BasicTextField(
+                        value = field,
+                        onValueChange = { next ->
+                            val old = TextState(field.text, field.selection.start, field.selection.end)
+                            val typed = TextState(next.text, next.selection.start, next.selection.end)
+                            val result = TypingRules.onChange(old, typed, config, TYPING_OPTIONS)
+                            if (result === typed) {
+                                selection = next.selection
+                                composition = next.composition
+                            } else {
+                                // A rewritten edit no longer lines up with the IME's composing region.
+                                selection = TextRange(result.selectionStart, result.selectionEnd)
+                                composition = null
+                            }
+                            if (result.text != field.text) onContentChanged(result.text)
+                        },
+                        textStyle = codeTextStyle().copy(color = colors.plainText),
+                        cursorBrush = SolidColor(colors.cursor),
+                        visualTransformation = transformation,
+                        onTextLayout = { layout = it },
+                        modifier = Modifier
+                            .defaultMinSize(minWidth = textMinWidth, minHeight = viewportHeight)
+                            .drawCurrentLine({ layout }, { selection.start }, colors.currentLine, TEXT_PADDING_V_DP.dp)
+                            .padding(horizontal = TEXT_PADDING_H_DP.dp, vertical = TEXT_PADDING_V_DP.dp)
+                            .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
+                            .textDecorations(paint, colors.decorations, measurer, codeTextStyle())
+                            // Own layer for the text itself: a decoration redraw then replays
+                            // the recorded paragraph instead of drawing it again.
+                            .graphicsLayer(),
+                    )
+                }
             }
         }
 
@@ -461,7 +476,7 @@ private fun NoticeBar(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelSmall,
-        color = colors.gutterText,
+        color = colors.textMuted,
         modifier = Modifier
             .fillMaxWidth()
             .background(colors.panel)
@@ -483,12 +498,12 @@ private fun EmptyEditor(modifier: Modifier) {
             Text(
                 text = "No file open",
                 style = MaterialTheme.typography.titleSmall,
-                color = colors.gutterText,
+                color = colors.textMuted,
             )
             Text(
                 text = "Pick a file from the explorer to start editing",
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.gutterText,
+                color = colors.textMuted,
             )
         }
     }
@@ -500,7 +515,7 @@ fun codeTextStyle(): TextStyle {
     val settings = LocalSettings.current
     val fontSize = settings[SettingsSchema.editorFontSize]
     return TextStyle(
-        fontFamily = FontFamily.Monospace,
+        fontFamily = EasyIdeFonts.mono,
         fontSize = fontSize.sp,
         // Both are independent settings; a line shorter than its glyphs would
         // overlap neighbouring lines, so the font size is the floor.

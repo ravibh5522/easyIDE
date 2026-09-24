@@ -47,6 +47,8 @@ import dev.easyide.app.data.settings.SettingCategory
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.components.EnvironmentBadge
 import dev.easyide.app.ui.components.rememberFolderPicker
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.sectionHeader
 import dev.easyide.sandbox.external.ExternalFolderSync
 
 /**
@@ -114,7 +116,7 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 top = padding.calculateTopPadding(),
-                bottom = LIST_BOTTOM_PADDING_DP.dp,
+                bottom = Spacing.xxl,
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -125,7 +127,7 @@ fun SettingsScreen(
                     singleLine = true,
                     placeholder = { Text(stringResource(R.string.settings_search_hint)) },
                     leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    modifier = Modifier.contentWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.contentWidth().padding(horizontal = Spacing.l, vertical = Spacing.s),
                 )
             }
 
@@ -134,14 +136,20 @@ fun SettingsScreen(
                 if (rows.isEmpty()) return@forEach
                 item(key = category.name) { SectionHeader(stringResource(category.title)) }
                 items(rows, key = { it.key }) { setting ->
-                    SettingRow(
-                        setting = setting,
-                        snapshot = uiState.settings,
-                        actions = settingActions,
-                        modifier = Modifier.contentWidth(),
-                    )
+                    // The theme is chosen by looking, so it gets preview cards
+                    // rather than the generic enum dropdown.
+                    if (setting === SettingsSchema.themeMode) {
+                        ThemePickerRow(uiState.settings, settingActions, Modifier.contentWidth())
+                    } else {
+                        SettingRow(
+                            setting = setting,
+                            snapshot = uiState.settings,
+                            actions = settingActions,
+                            modifier = Modifier.contentWidth(),
+                        )
+                    }
                 }
-                item { HorizontalDivider(modifier = Modifier.contentWidth().padding(vertical = 8.dp)) }
+                item { HorizontalDivider(modifier = Modifier.contentWidth().padding(vertical = Spacing.s)) }
             }
 
             // Storage and environments are not schema settings; while searching
@@ -158,7 +166,7 @@ fun SettingsScreen(
                 )
             }
 
-            item { HorizontalDivider(modifier = Modifier.contentWidth().padding(vertical = 8.dp)) }
+            item { HorizontalDivider(modifier = Modifier.contentWidth().padding(vertical = Spacing.s)) }
 
             item { SectionHeader(stringResource(R.string.settings_sandbox_section)) }
 
@@ -168,7 +176,7 @@ fun SettingsScreen(
                         text = stringResource(R.string.settings_environments_empty),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.contentWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                        modifier = Modifier.contentWidth().padding(horizontal = Spacing.l, vertical = Spacing.s),
                     )
                 }
             }
@@ -284,12 +292,12 @@ private fun SectionHeader(title: String) {
     Column(
         modifier = Modifier
             .contentWidth()
-            .padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+            .padding(start = Spacing.l, top = Spacing.l, bottom = Spacing.xs),
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
     ) {
         Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
+            text = title.uppercase(),
+            style = MaterialTheme.typography.sectionHeader,
             color = MaterialTheme.colorScheme.primary,
         )
     }
@@ -297,7 +305,6 @@ private fun SectionHeader(title: String) {
 
 /** Keeps settings rows readable instead of stretching across a wide tablet. */
 private fun Modifier.contentWidth(): Modifier =
-    this.fillMaxWidth().widthIn(max = MAX_CONTENT_WIDTH_DP.dp)
+    this.fillMaxWidth().widthIn(max = MAX_CONTENT_WIDTH)
 
-private const val MAX_CONTENT_WIDTH_DP = 720
-private const val LIST_BOTTOM_PADDING_DP = 32
+private val MAX_CONTENT_WIDTH = 720.dp

@@ -1,7 +1,10 @@
 package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +15,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import dev.easyide.app.ui.theme.ControlSize
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
 
 /**
@@ -38,8 +48,8 @@ fun TerminalKeyRow(
             .fillMaxWidth()
             .background(colors.panel)
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = ROW_PADDING_DP.dp, vertical = ROW_PADDING_DP.dp),
-        horizontalArrangement = Arrangement.spacedBy(KEY_GAP_DP.dp),
+            .padding(horizontal = Spacing.xs, vertical = Spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TerminalKeyboard.KEYS.forEach { key ->
@@ -48,17 +58,29 @@ fun TerminalKeyRow(
     }
 }
 
+/**
+ * A raised, rounded key. Pressing shifts it to the overlay tone and ticks the
+ * keyboard haptic, so a tap registers the way a soft-keyboard key does even
+ * when the shell prints nothing back.
+ */
 @Composable
 private fun KeyCap(key: TerminalKey, onClick: () -> Unit) {
     val colors = editorColors
+    val haptics = LocalHapticFeedback.current
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
 
     Box(
         modifier = Modifier
-            .defaultMinSize(minWidth = KEY_MIN_WIDTH_DP.dp)
-            .clip(MaterialTheme.shapes.extraSmall)
-            .background(colors.tabInactive)
-            .clickable(onClick = onClick)
-            .padding(horizontal = KEY_PADDING_H_DP.dp, vertical = KEY_PADDING_V_DP.dp),
+            .defaultMinSize(minWidth = ControlSize.keyMinWidth, minHeight = ControlSize.keyHeight)
+            .clip(MaterialTheme.shapes.small)
+            .background(if (pressed) colors.overlay else colors.raised)
+            .border(Stroke.hairline, colors.panelBorder, MaterialTheme.shapes.small)
+            .clickable(interactionSource = interaction, indication = ripple()) {
+                haptics.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+                onClick()
+            }
+            .padding(horizontal = Spacing.s),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -67,9 +89,3 @@ private fun KeyCap(key: TerminalKey, onClick: () -> Unit) {
         )
     }
 }
-
-private const val ROW_PADDING_DP = 4
-private const val KEY_GAP_DP = 4
-private const val KEY_MIN_WIDTH_DP = 36
-private const val KEY_PADDING_H_DP = 8
-private const val KEY_PADDING_V_DP = 8
