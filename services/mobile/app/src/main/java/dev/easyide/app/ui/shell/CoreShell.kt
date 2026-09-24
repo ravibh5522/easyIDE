@@ -81,6 +81,9 @@ object CoreShell {
         action(CLOSE_PROJECT, "Close", "close", CLOSE_PROJECT_COMMAND, 96),
     )
 
+    /** The navigation item that leads to [container], so showing a container by command marks the same destination as tapping it. */
+    fun navIdOf(container: String): String? = NAV_ITEMS.firstOrNull { (it.target as? NavTarget.Container)?.id == container }?.id
+
     fun containers(): ContainerRegistry = CONTAINERS.fold(ContainerRegistry.EMPTY) { r, c -> r.register(c, Origin.Core).registry }
 
     fun navigation(): NavRegistry = NAV_ITEMS.fold(NavRegistry.EMPTY) { r, n -> r.register(n, Origin.Core).registry }

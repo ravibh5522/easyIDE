@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Search panel: a name search over the project's files -->
+    <string name="wshell_search_title">Search</string>
+    <string name="wshell_search_hint">File name</string>
+    <string name="wshell_search_empty">No file matches.</string>
+    <string name="wshell_search_indexing">Reading the project&#8217;s files&#8230;</string>
+    <string name="wshell_search_truncated">Only the first %1$d files are listed.</string>
+
+    <!-- Status strip -->
+    <string name="wshell_status_lines">%1$d lines</string>
+
+    <!-- Bottom panel and side sheets -->
+    <string name="wshell_bottom_close">Close panel</string>
+    <string name="wshell_bottom_resize">Resize panel</string>
+    <string name="wshell_bottom_detent_peek">Small</string>
+    <string name="wshell_bottom_detent_half">Half</string>
+    <string name="wshell_bottom_detent_full">Full</string>
+    <string name="wshell_bottom_height_value">%1$d dp tall</string>
+    <string name="wshell_sheet_scrim">Close panel</string>
+
+    <!-- Stage: document switcher on a phone, group actions on a wider window -->
+    <string name="wshell_switcher_label">%1$s, %2$d open documents</string>
+    <string name="wshell_switcher_title">Open documents</string>
+    <string name="wshell_switcher_dirty">%1$s (unsaved changes)</string>
+    <string name="wshell_group_split">Split editor</string>
+    <string name="wshell_group_close">Close group</string>
+    <string name="wshell_preview_show">Show preview</string>
+    <string name="wshell_preview_source">Show source</string>
+    <string name="wshell_tab_dirty_close">Close %1$s (unsaved changes)</string>
+
+    <!-- Commands the workspace adds to the palette -->
+    <string name="wshell_command_back">Back to projects</string>
+    <string name="wshell_command_close">Close project</string>
+    <string name="wshell_command_layout">Layout: choose a preset</string>
+    <string name="wshell_command_split">Split editor</string>
+    <string name="wshell_command_unsplit">Close editor group</string>
+
+    <!-- Layout preset picker -->
+    <string name="wshell_preset_title">Layout</string>
+    <string name="wshell_preset_auto">Automatic</string>
+    <string name="wshell_preset_auto_hint">Follows the window: %1$s</string>
+    <string name="wshell_preset_close">Done</string>
+</resources>

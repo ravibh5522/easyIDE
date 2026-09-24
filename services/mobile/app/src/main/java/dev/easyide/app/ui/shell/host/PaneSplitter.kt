@@ -10,6 +10,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +43,10 @@ import dev.easyide.app.ui.screens.workspace.layout.SplitterMath
  * running value and [SplitterMath] turns it into the size shown, so snapping never eats small
  * moves. Double tap resets to the default; with focus, the arrow keys move it by a step. The
  * drawn line is a hairline; the grab area around it is [LayoutTokens.splitterGrab].
+ *
+ * A [vertical] splitter sits on the top edge of a bottom panel (its drag is up and down); the
+ * default one sits on a side edge. [growsTowardsStart] is for a panel on the far side of its edge
+ * (right of the stage, below it): dragging towards the stage makes it larger.
  */
 @Composable
 fun PaneSplitter(
@@ -50,24 +56,29 @@ fun PaneSplitter(
     onSize: (Float) -> Unit,
     onReset: () -> Unit,
     modifier: Modifier = Modifier,
+    vertical: Boolean = false,
+    growsTowardsStart: Boolean = false,
 ) {
     val density = LocalDensity.current.density
     var raw by remember { mutableFloatStateOf(sizeDp) }
     val source = remember { MutableInteractionSource() }
     val focused by source.collectIsFocusedAsState()
     val label = stringResource(R.string.shell_panel_resize)
-    val value = stringResource(R.string.shell_panel_resize_value, sizeDp.toInt())
+    val value = stringResource(if (vertical) R.string.wshell_bottom_height_value else R.string.shell_panel_resize_value, sizeDp.toInt())
     val colors = Kit.colors
+    val sign = if (growsTowardsStart) -1 else 1
+    val (towardsStart, towardsEnd) = if (vertical) Key.DirectionUp to Key.DirectionDown else Key.DirectionLeft to Key.DirectionRight
+    val frame = if (vertical) Modifier.fillMaxWidth().height(LayoutTokens.splitterGrab) else Modifier.fillMaxHeight().width(LayoutTokens.splitterGrab)
+    val line = if (vertical) Modifier.fillMaxWidth().height(if (focused) Kit.marker else ShellTokens.splitterLine) else Modifier.fillMaxHeight().width(if (focused) Kit.marker else ShellTokens.splitterLine)
     Box(
         modifier
-            .fillMaxHeight()
-            .width(LayoutTokens.splitterGrab)
+            .then(frame)
             .kitTag("pane-splitter")
             .semantics { contentDescription = label; stateDescription = value }
             .draggable(
-                orientation = Orientation.Horizontal,
+                orientation = if (vertical) Orientation.Vertical else Orientation.Horizontal,
                 state = rememberDraggableState { delta ->
-                    raw += delta / density
+                    raw += sign * delta / density
                     onSize(SplitterMath.resolve(raw, limits, ceilingDp).size)
                 },
                 onDragStarted = { raw = sizeDp },
@@ -75,8 +86,8 @@ fun PaneSplitter(
             .pointerInput(Unit) { detectTapGestures(onDoubleTap = { onReset() }) }
             .onKeyEvent { event ->
                 val direction = when (event.key) {
-                    Key.DirectionLeft -> -1
-                    Key.DirectionRight -> 1
+                    towardsStart -> -sign
+                    towardsEnd -> sign
                     else -> 0
                 }
                 if (direction == 0 || event.type != KeyEventType.KeyDown) return@onKeyEvent false
@@ -86,9 +97,6 @@ fun PaneSplitter(
             .focusable(interactionSource = source),
         contentAlignment = Alignment.Center,
     ) {
-        Box(
-            Modifier.fillMaxHeight().width(if (focused) Kit.marker else ShellTokens.splitterLine)
-                .background(if (focused) colors.focus else colors.panelBorder),
-        )
+        Box(line.background(if (focused) colors.focus else colors.panelBorder))
     }
 }

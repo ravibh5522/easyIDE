@@ -5,6 +5,8 @@ import dev.easyide.app.ui.shell.BackContext
 import dev.easyide.app.ui.shell.BackNavigation
 import dev.easyide.app.ui.shell.BackStep
 import dev.easyide.app.ui.shell.ContainerRef
+import dev.easyide.app.ui.shell.CoreShell
+import dev.easyide.app.ui.shell.ShellScope
 import dev.easyide.app.ui.shell.ContainerRegistry
 import dev.easyide.app.ui.shell.DocumentRegistry
 import dev.easyide.app.ui.shell.DocumentUri
@@ -22,6 +24,7 @@ import dev.easyide.app.ui.shell.ShellState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -37,7 +40,7 @@ import kotlinx.coroutines.flow.update
  * defaults in place, keeping the documents the screen has opened meanwhile.
  */
 class WorkspaceShellModel(
-    private val documents: DocumentRegistry,
+    val documents: DocumentRegistry,
     val containers: ContainerRegistry,
     private val env: ShellEnv = ShellEnv(documents::resolve),
 ) {
@@ -46,9 +49,10 @@ class WorkspaceShellModel(
     private var pending: String? = null
 
     /** Each new snapshot text, for the session to write; emits once per change of what would be saved. */
-    val snapshots = mutable.filterNotNull().map { snapshotOf(it) }
+    val snapshots = mutable.filterNotNull().map { snapshotOf(it) }.distinctUntilChanged()
 
-    fun snapshot(): String? = mutable.value?.let(::snapshotOf)
+    /** What to save now: the state's snapshot, or the saved one still waiting for a window, so an early save never erases it. */
+    fun snapshot(): String? = mutable.value?.let(::snapshotOf) ?: pending
 
     private fun snapshotOf(s: ShellState): String =
         ShellSnapshot.encodeWorkspace(s.current, s.arrangement, { documents.resolve(it) })
@@ -93,10 +97,25 @@ class WorkspaceShellModel(
     /** Opens the panel that holds [containerId] and shows it, whatever was showing there. */
     fun reveal(containerId: String) {
         val spec = containers.byId(containerId) ?: return
-        dispatch(ShellAction.ShowPanel(containers.placementOf(spec), containerId))
+        dispatch(ShellAction.ShowPanel(containers.placementOf(spec), containerId, CoreShell.navIdOf(containerId)))
+    }
+
+    /** The command form of a navigation tap: shows [containerId], or collapses its panel when it is already the one showing. */
+    fun toggleContainer(containerId: String) {
+        val layout = mutable.value?.current?.layout ?: return
+        val spec = containers.byId(containerId) ?: return
+        val placement = containers.placementOf(spec)
+        val showing = layout.isOpen(placement) && containers.active(placement, layout.container(placement), ShellScope.WORKSPACE)?.id == containerId
+        if (showing) toggle(placement) else reveal(containerId)
     }
 
     fun toggle(placement: Placement) = dispatch(ShellAction.TogglePanel(placement))
+
+    /** Closes the document the active group shows (a page that finished, such as an uninstalled extension's). */
+    fun closeActive() {
+        val stage = mutable.value?.current?.stage ?: return
+        stage.activeGroup.active?.let { dispatch(ShellAction.Close(stage.active, it)) }
+    }
 
     fun resizePane(pane: Pane, size: Float?) = dispatch(ShellAction.ResizePane(pane, size))
 

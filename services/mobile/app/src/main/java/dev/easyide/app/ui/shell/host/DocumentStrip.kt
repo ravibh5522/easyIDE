@@ -8,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -33,6 +35,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
@@ -49,28 +52,34 @@ import dev.easyide.app.ui.shell.TabState
 import dev.easyide.app.ui.theme.IconSize
 
 /**
- * The tab strip of the one editor group on a wide window: a scrolling row of document tabs. The
- * preview tab is italic (the next preview replaces it); a tap activates a tab, a double tap keeps a
- * preview, the cross closes. The strip is at least the touch floor tall so the cross is a real
- * target on a tablet.
+ * The tab strip of one editor group on a wide window: a scrolling row of document tabs, then the group's
+ * [trailing] actions, which stay put while the tabs scroll. The preview tab is italic (the next preview
+ * replaces it); a tap activates a tab, a double tap keeps a preview, the cross closes, and a document
+ * with unsaved changes says so in the close button's name. The strip is at least the touch floor tall so
+ * the cross is a real target on a tablet.
  */
 @Composable
 fun DocumentStrip(
     group: EditorGroup,
     titleOf: @Composable (Tab) -> String,
+    isDirty: (Tab) -> Boolean,
     onActivate: (Tab) -> Unit,
     onKeep: (Tab) -> Unit,
     onClose: (Tab) -> Unit,
     modifier: Modifier = Modifier,
+    trailing: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
         modifier.fillMaxWidth().background(Kit.colors.tabInactive)
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.End))
-            .horizontalScroll(rememberScrollState()),
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.End)),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        group.tabs.forEach { tab ->
-            key(tab.key) { StripTab(tab, tab.key == group.active, titleOf(tab), onActivate, onKeep, onClose) }
+        Row(Modifier.weight(1f).horizontalScroll(rememberScrollState())) {
+            group.tabs.forEach { tab ->
+                key(tab.key) { StripTab(tab, tab.key == group.active, titleOf(tab), isDirty(tab), onActivate, onKeep, onClose) }
+            }
         }
+        trailing()
     }
 }
 
@@ -80,6 +89,7 @@ private fun StripTab(
     tab: Tab,
     selected: Boolean,
     title: String,
+    dirty: Boolean,
     onActivate: (Tab) -> Unit,
     onKeep: (Tab) -> Unit,
     onClose: (Tab) -> Unit,
@@ -107,10 +117,12 @@ private fun StripTab(
             overflow = TextOverflow.Ellipsis,
         )
         Box(Modifier.size(Kit.metrics.touchFloor).kitPressable({ onClose(tab) }), contentAlignment = Alignment.Center) {
-            Image(
-                Icons.Filled.Close, stringResource(R.string.shell_document_close, title), Modifier.size(IconSize.s),
-                colorFilter = ColorFilter.tint(colors.textMuted),
-            )
+            val closeLabel = stringResource(if (dirty) R.string.wshell_tab_dirty_close else R.string.shell_document_close, title)
+            if (dirty) {
+                Box(Modifier.size(Kit.space.s).background(colors.plainText, CircleShape).semantics { contentDescription = closeLabel })
+            } else {
+                Image(Icons.Filled.Close, closeLabel, Modifier.size(IconSize.s), colorFilter = ColorFilter.tint(colors.textMuted))
+            }
         }
     }
 }
