@@ -2,20 +2,27 @@ package dev.easyide.app.ui.screens.diagnostics
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
 import dev.easyide.app.diagnostics.Cleanup
-import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.components.MonoText
+import dev.easyide.app.ui.components.ProseText
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitAction
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitDialog
+import dev.easyide.app.ui.kit.Tone
+
+/** A crash headline is a line or two of the exception; the rest is in the saved report. */
+private const val HEADLINE_MAX_LINES = 4
 
 /**
- * Asks before anything is deleted, and says how much it will free. With nothing to free the
- * confirm button is disabled and says so, rather than offering an action that does nothing.
+ * Asks before anything is deleted, and says how much it will free. With nothing to free there is no
+ * confirm action, only Cancel, rather than an action that does nothing.
  *
  * @param environmentLabel the environment a package-cache cleanup applies to.
  */
@@ -35,23 +42,22 @@ internal fun CleanupConfirmDialog(
         Cleanup.Target.Logs ->
             stringResource(R.string.diag_confirm_title_logs) to stringResource(R.string.diag_confirm_body_logs, freed)
     }
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = { Text(title) },
-        text = { Text(body) },
-        confirmButton = {
-            TextButton(onClick = onConfirm, enabled = pending.bytes > 0) {
-                Text(if (pending.bytes > 0) stringResource(R.string.diag_confirm_action, freed) else stringResource(R.string.diag_confirm_nothing))
-            }
-        },
-        dismissButton = { TextButton(onClick = onCancel) { Text(stringResource(R.string.action_cancel)) } },
-    )
+    val confirm = if (pending.bytes > 0) KitAction(stringResource(R.string.diag_confirm_action, freed), onConfirm) else null
+    KitDialog(
+        title = title,
+        onDismiss = onCancel,
+        confirm = confirm,
+        dismiss = KitAction(stringResource(R.string.action_cancel), onCancel),
+        tone = Tone.Danger,
+    ) {
+        ProseText(if (confirm != null) body else stringResource(R.string.diag_confirm_nothing))
+    }
 }
 
 /**
- * Shown on the first launch after a crash. [reportSummary] is the one-line exception headline
- * of the saved report. [onReopenLastProject] is null when there is no project to reopen, and
- * the button is then not shown.
+ * Shown on the first launch after a crash. [reportSummary] is the one-line exception headline of the
+ * saved report. [onReopenLastProject] is null when there is no project to reopen; Share is then the
+ * dialog's confirm action, otherwise it sits in the content so the dialog keeps two actions.
  */
 @Composable
 fun CrashRecoveryDialog(
@@ -60,24 +66,18 @@ fun CrashRecoveryDialog(
     onShare: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.diag_crash_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
-                Text(stringResource(R.string.diag_crash_body))
-                Text(reportSummary, style = monoStyle())
-            }
-        },
-        // Three actions do not fit the two dialog slots side by side on a phone, so they stack.
-        confirmButton = {
-            Column(horizontalAlignment = Alignment.End) {
-                onReopenLastProject?.let { reopen ->
-                    TextButton(onClick = reopen) { Text(stringResource(R.string.diag_crash_reopen)) }
-                }
-                TextButton(onClick = onShare) { Text(stringResource(R.string.diag_crash_share)) }
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.diag_crash_dismiss)) }
-            }
-        },
-    )
+    val share = KitAction(stringResource(R.string.diag_crash_share), onShare)
+    val reopen = onReopenLastProject?.let { KitAction(stringResource(R.string.diag_crash_reopen), it) }
+    KitDialog(
+        title = stringResource(R.string.diag_crash_title),
+        onDismiss = onDismiss,
+        confirm = reopen ?: share,
+        dismiss = KitAction(stringResource(R.string.diag_crash_dismiss), onDismiss),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(Kit.space.m)) {
+            ProseText(stringResource(R.string.diag_crash_body))
+            MonoText(reportSummary, muted = false, tone = Tone.Danger, maxLines = HEADLINE_MAX_LINES)
+            if (reopen != null) KitButton(share.label, share.onClick, Modifier.fillMaxWidth(), KitButtonStyle.Secondary)
+        }
+    }
 }

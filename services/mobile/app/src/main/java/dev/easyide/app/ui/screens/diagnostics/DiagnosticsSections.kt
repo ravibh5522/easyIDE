@@ -1,39 +1,23 @@
 package dev.easyide.app.ui.screens.diagnostics
 
-import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
 import dev.easyide.app.diagnostics.BuildInfo
-import dev.easyide.app.diagnostics.ChecksumStatus
 import dev.easyide.app.diagnostics.Cleanup
-import dev.easyide.app.diagnostics.CrashSummary
 import dev.easyide.app.diagnostics.DiagnosticsReport
 import dev.easyide.app.diagnostics.EnvironmentDiagnostics
-import dev.easyide.app.diagnostics.LogFormat
-import dev.easyide.app.diagnostics.LogLevel
-import dev.easyide.app.diagnostics.LogLine
-import dev.easyide.app.diagnostics.ProotFailure
 import dev.easyide.app.diagnostics.ProotStatus
 import dev.easyide.app.diagnostics.StorageUsage
-import dev.easyide.app.ui.screens.settings.contentWidth
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.editorColors
-import dev.easyide.sandbox.model.EnvironmentState
-import dev.easyide.sandbox.model.SandboxBackend
-import java.text.DateFormat
-import java.util.Date
+import dev.easyide.app.ui.components.tone
+import dev.easyide.app.ui.kit.KitBanner
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.kit.KitSection
+import dev.easyide.app.ui.kit.KitTag
+import dev.easyide.app.ui.kit.Tone
+import androidx.compose.runtime.Composable
 
 /** What the sections can ask of the screen. Grouped so each section takes one parameter, not six lambdas. */
 internal class DiagnosticsActions(
@@ -49,18 +33,19 @@ internal fun LazyListScope.sandboxSection(
     busy: Boolean,
     actions: DiagnosticsActions,
 ) {
-    item(key = "sandbox-header") { SectionHeader(stringResource(R.string.diag_section_sandbox)) }
     if (report.environments.isEmpty()) {
-        item(key = "sandbox-empty") { SectionCard { Text(stringResource(R.string.diag_sandbox_empty)) } }
+        item(key = "sandbox-empty") {
+            KitSection(stringResource(R.string.diag_section_sandbox)) { KitRow(stringResource(R.string.diag_sandbox_empty)) }
+        }
     }
     items(report.environments.size, key = { "env-${report.environments[it].id}" }) { index ->
         val env = report.environments[index]
-        EnvironmentCard(env, checksums[env.id], busy, actions)
+        EnvironmentSection(env, checksums[env.id], busy, actions)
     }
 }
 
 @Composable
-private fun EnvironmentCard(
+private fun EnvironmentSection(
     env: EnvironmentDiagnostics,
     progress: ChecksumProgress?,
     busy: Boolean,
@@ -68,49 +53,45 @@ private fun EnvironmentCard(
 ) {
     val status = (progress as? ChecksumProgress.Done)?.status ?: env.checksum
     val checking = progress == ChecksumProgress.Running
-    SectionCard {
-        Text(env.label, style = MaterialTheme.typography.titleMedium)
+    KitSection(stringResource(R.string.diag_env_section, env.label)) {
         InfoRow(stringResource(R.string.diag_env_backend), stringResource(backendText(env.backend)))
-        InfoRow(
-            stringResource(R.string.diag_env_state),
-            stringResource(stateText(env.state)),
-            valueColor = if (env.state == EnvironmentState.FAILED) editorColors.error else Color.Unspecified,
+        KitRow(
+            title = stringResource(R.string.diag_env_state),
+            trailing = { KitTag(stringResource(stateText(env.state)), tone = env.state.tone()) },
         )
-        env.failureReason?.let { reason ->
-            Text(reason, style = MaterialTheme.typography.bodySmall, color = editorColors.error)
-        }
+        env.failureReason?.let { KitBanner(it, tone = Tone.Danger) }
         InfoRow(stringResource(R.string.diag_env_image), env.imageLabel)
         InfoRow(stringResource(R.string.diag_env_rootfs), env.rootfsVersion ?: stringResource(R.string.diag_unknown))
-        InfoRow(
-            stringResource(R.string.diag_env_checksum),
-            stringResource(if (checking) R.string.diag_checksum_checking else checksumText(status)),
-            valueColor = checksumColor(status),
+        KitRow(
+            title = stringResource(R.string.diag_env_checksum),
+            subtitle = stringResource(if (checking) R.string.diag_checksum_checking else checksumText(status)),
+            trailing = checksumTag(status)?.takeIf { !checking }?.let { tag -> { KitTag(stringResource(tag), tone = checksumTone(status) ?: Tone.Neutral) } },
         )
         InfoRow(stringResource(R.string.diag_env_disk), bytesText(env.diskBytes))
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+        ActionRow {
             if (status.canVerify) {
-                TextButton(onClick = { actions.onVerifyChecksum(env.id) }, enabled = !checking) {
-                    Text(stringResource(R.string.diag_verify_checksum))
-                }
+                KitButton(stringResource(R.string.diag_verify_checksum), { actions.onVerifyChecksum(env.id) }, style = KitButtonStyle.Ghost, enabled = !checking)
             }
-            TextButton(onClick = { actions.onCleanup(Cleanup.Target.EnvironmentPackageCache(env.id)) }, enabled = !busy) {
-                Text(stringResource(R.string.diag_clear_caches))
-            }
+            KitButton(
+                stringResource(R.string.diag_clear_caches),
+                { actions.onCleanup(Cleanup.Target.EnvironmentPackageCache(env.id)) },
+                style = KitButtonStyle.Ghost,
+                enabled = !busy,
+            )
         }
     }
 }
 
 internal fun LazyListScope.runtimeSection(report: DiagnosticsReport) {
-    item(key = "runtime-header") { SectionHeader(stringResource(R.string.diag_section_runtime)) }
     item(key = "runtime") {
-        SectionCard {
+        KitSection(stringResource(R.string.diag_section_runtime)) {
             val proot = report.proot
             when (proot) {
                 is ProotStatus.Found -> InfoRow(stringResource(R.string.diag_runtime_proot), proot.version)
                 is ProotStatus.Unavailable -> InfoRow(
                     stringResource(R.string.diag_runtime_proot),
                     stringResource(R.string.diag_proot_unavailable, prootFailureText(proot)),
-                    valueColor = editorColors.error,
+                    tone = Tone.Danger,
                 )
             }
             InfoRow(stringResource(R.string.diag_runtime_proot_path), proot.path)
@@ -122,9 +103,8 @@ internal fun LazyListScope.runtimeSection(report: DiagnosticsReport) {
 }
 
 internal fun LazyListScope.appSection(build: BuildInfo) {
-    item(key = "app-header") { SectionHeader(stringResource(R.string.diag_section_app)) }
     item(key = "app") {
-        SectionCard {
+        KitSection(stringResource(R.string.diag_section_app)) {
             InfoRow(stringResource(R.string.diag_app_version), stringResource(R.string.diag_app_version_value, build.versionName, build.versionCode))
             InfoRow(stringResource(R.string.diag_app_build), build.channel)
             InfoRow(stringResource(R.string.diag_app_device), stringResource(R.string.diag_app_device_value, build.manufacturer, build.model))
@@ -134,9 +114,8 @@ internal fun LazyListScope.appSection(build: BuildInfo) {
 }
 
 internal fun LazyListScope.storageSection(storage: StorageUsage, busy: Boolean, actions: DiagnosticsActions) {
-    item(key = "storage-header") { SectionHeader(stringResource(R.string.diag_section_storage)) }
     item(key = "storage") {
-        SectionCard {
+        KitSection(stringResource(R.string.diag_section_storage)) {
             InfoRow(stringResource(R.string.diag_storage_environments), bytesText(storage.environmentsBytes))
             InfoRow(stringResource(R.string.diag_storage_images), bytesText(storage.imageCacheBytes))
             InfoRow(stringResource(R.string.diag_storage_projects), bytesText(storage.projectsBytes))
@@ -144,113 +123,10 @@ internal fun LazyListScope.storageSection(storage: StorageUsage, busy: Boolean, 
             InfoRow(stringResource(R.string.diag_storage_logs), bytesText(storage.logsBytes))
             InfoRow(stringResource(R.string.diag_storage_sessions), bytesText(storage.sessionBackupsBytes))
             InfoRow(stringResource(R.string.diag_storage_total), bytesText(storage.total))
-            Column {
-                TextButton(onClick = { actions.onCleanup(Cleanup.Target.ImageArchives) }, enabled = !busy) {
-                    Text(stringResource(R.string.diag_storage_delete_images))
-                }
-                TextButton(onClick = { actions.onCleanup(Cleanup.Target.Logs) }, enabled = !busy) {
-                    Text(stringResource(R.string.diag_storage_clear_logs))
-                }
+            ActionRow {
+                KitButton(stringResource(R.string.diag_storage_delete_images), { actions.onCleanup(Cleanup.Target.ImageArchives) }, style = KitButtonStyle.Ghost, enabled = !busy)
+                KitButton(stringResource(R.string.diag_storage_clear_logs), { actions.onCleanup(Cleanup.Target.Logs) }, style = KitButtonStyle.Ghost, enabled = !busy)
             }
         }
-    }
-}
-
-internal fun LazyListScope.problemsSection(crash: CrashSummary?, problems: List<LogLine>) {
-    item(key = "problems-header") { SectionHeader(stringResource(R.string.diag_section_problems)) }
-    item(key = "problems") {
-        SectionCard {
-            crash?.let { CrashRow(it) }
-            if (problems.isEmpty() && crash == null) Text(stringResource(R.string.diag_problems_none))
-            if (problems.isNotEmpty()) {
-                Text(stringResource(R.string.diag_last_errors), style = MaterialTheme.typography.titleSmall)
-                problems.forEach { ProblemLine(it) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CrashRow(crash: CrashSummary) {
-    val whenText = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(crash.atMs))
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        InfoRow(stringResource(R.string.diag_last_crash), whenText)
-        Text(crash.headline, style = monoStyle(), color = editorColors.error)
-        if (crash.pending) {
-            Text(stringResource(R.string.diag_last_crash_new), style = MaterialTheme.typography.labelMedium, color = editorColors.warning)
-        }
-    }
-}
-
-@Composable
-private fun ProblemLine(line: LogLine) {
-    Text(
-        text = LogFormat.encode(line),
-        style = monoStyle(),
-        color = if (line.level == LogLevel.ERROR) editorColors.error else editorColors.warning,
-        modifier = Modifier.fillMaxWidth(),
-    )
-}
-
-internal fun LazyListScope.logsSection(enabled: Boolean, actions: DiagnosticsActions) {
-    item(key = "logs-header") { SectionHeader(stringResource(R.string.diag_section_logs)) }
-    item(key = "logs") {
-        SectionCard {
-            Text(stringResource(R.string.diag_logs_body), style = MaterialTheme.typography.bodyMedium)
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                OutlinedButton(onClick = actions.onExport, enabled = enabled, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.diag_export))
-                }
-                OutlinedButton(onClick = actions.onShare, enabled = enabled, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.diag_share))
-                }
-            }
-        }
-    }
-}
-
-private val ChecksumStatus.canVerify: Boolean
-    get() = this != ChecksumStatus.ARCHIVE_REMOVED && this != ChecksumStatus.NO_PINNED_ROOTFS
-
-@StringRes
-private fun backendText(backend: SandboxBackend): Int = when (backend) {
-    SandboxBackend.PROOT -> R.string.diag_backend_proot
-    SandboxBackend.CHROOT -> R.string.diag_backend_chroot
-}
-
-@StringRes
-private fun stateText(state: EnvironmentState): Int = when (state) {
-    EnvironmentState.NOT_PROVISIONED -> R.string.diag_state_not_provisioned
-    EnvironmentState.PROVISIONING -> R.string.diag_state_provisioning
-    EnvironmentState.READY -> R.string.diag_state_ready
-    EnvironmentState.FAILED -> R.string.diag_state_failed
-}
-
-@StringRes
-private fun checksumText(status: ChecksumStatus): Int = when (status) {
-    ChecksumStatus.NOT_CHECKED -> R.string.diag_checksum_not_checked
-    ChecksumStatus.VERIFIED -> R.string.diag_checksum_verified
-    ChecksumStatus.MISMATCH -> R.string.diag_checksum_mismatch
-    ChecksumStatus.ARCHIVE_REMOVED -> R.string.diag_checksum_archive_removed
-    ChecksumStatus.NO_PINNED_ROOTFS -> R.string.diag_checksum_no_pinned
-}
-
-/** Only a real result is coloured: "not checked" and "archive removed" are neither good nor bad. */
-@Composable
-private fun checksumColor(status: ChecksumStatus): Color = when (status) {
-    ChecksumStatus.VERIFIED -> editorColors.success
-    ChecksumStatus.MISMATCH -> editorColors.error
-    else -> Color.Unspecified
-}
-
-@Composable
-private fun prootFailureText(status: ProotStatus.Unavailable): String {
-    val detail = status.detail.orEmpty()
-    return when (status.failure) {
-        ProotFailure.MISSING -> stringResource(R.string.diag_proot_missing)
-        ProotFailure.TIMED_OUT -> stringResource(R.string.diag_proot_timed_out)
-        ProotFailure.EXIT_CODE -> stringResource(R.string.diag_proot_exit_code, detail)
-        ProotFailure.NO_OUTPUT -> stringResource(R.string.diag_proot_no_output)
-        ProotFailure.START_FAILED -> stringResource(R.string.diag_proot_start_failed, detail)
     }
 }
