@@ -58,3 +58,26 @@ choose their own license (declared as an SPDX expression in `package.json`).
   format was designed to be open (0013).
 - Not legal advice; the directory split should be reviewed with the CLA before the first
   external SDK contribution is merged.
+
+## Amendment (2026-09-24): the validation core is part of the SDK
+
+Building `easyide-ext` exposed a conflict: the CLI must reject exactly what the app rejects
+(lld/cli.md sec 1), so it has to run the app's manifest parser, but that parser lived in the
+PolyForm NC `:extensions` module, and Apache code may not import app code. Reimplementing it
+would reintroduce the schema drift this design exists to prevent.
+
+At the owner's direction, the code that decides whether a package is valid moved to
+`services/shared/extension-schema/src/main/kotlin` and is **Apache-2.0**: JSON helpers,
+`SchemaValidator`, `ManifestParser` and its decoders, the when-clause lexer/parser and
+`WhenExpr`, capability rules, the `Action`/`Contributions` data model the parser produces,
+`PackageLayoutReader`, `ZipSymlinks`, `ExtensionSettings`/`SettingsPort` (key definitions),
+`ExtensionPolicy`/`AppApi`, and the new `Jcs`/signature code; plus `builtin-commands.json`.
+It builds as `:extension-schema`, which `:extensions` depends on.
+
+What **executes** extensions stays under 0008: `ActionRunner`/`StepExecutor`,
+`VariableResolver`, `ContributionRegistry`/`ContributionResolver`, `WhenEvaluator` and
+`ContextKeyService`, activation and the extension host, `:ext-wasm` (`WasmHost`,
+`WasmModuleLoader`) and `:lsp`. Consequence for the CLI: WASM static validation and the
+headless `test` harness, which need those runtimes, cannot live in the Apache CLI as designed.
+`validate` checks only the WASM header until that is resolved (options: move the module
+validator and metering pass to the SDK core, or ship `test` as a separate non-Apache tool).

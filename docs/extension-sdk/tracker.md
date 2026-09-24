@@ -8,8 +8,8 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 |---|---|---|
 | **Decisions** | | |
 | ADR-E SDK shape, manifest, `.easyext` | in-progress | drafted as [0013](../decision/0013-extension-sdk-shape-manifest-easyext.md), Proposed |
-| ADR-F WASM logic layer + runtime | in-progress | drafted as [0014](../decision/0014-wasm-logic-layer-chicory.md); ART spike pending |
-| ADR-G SDK licensing (Apache-2.0 proposal) | in-progress | drafted as [0015](../decision/0015-extension-sdk-licensing-apache.md); app stays under 0008 |
+| ADR-F WASM logic layer + runtime | done | [0014](../decision/0014-wasm-logic-layer-chicory.md) Accepted 2026-09-24 after the on-device spike |
+| ADR-G SDK licensing (Apache-2.0 proposal) | done | [0015](../decision/0015-extension-sdk-licensing-apache.md) Accepted; 2026-09-24 amendment moves the validation core (parser, schema validator, layout, JCS, signatures) to Apache-2.0 `services/shared/extension-schema` (`:extension-schema`); the runtime stays under 0008 |
 | ADR-H Registry + signing model | in-progress | drafted as [0016](../decision/0016-extension-registry-static-index-ed25519.md) |
 | ADR-I LSP client + server lifecycle | in-progress | drafted as [0017](../decision/0017-lsp-client-hand-rolled-server-lifecycle.md) |
 | Design doc set (arch, sdk-reference, HLD, LLDs, threat model, rules, tests) | done | cross-checked for consistency 2026-09-24; map in [arch.md](arch.md#document-map) |
@@ -35,13 +35,13 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | Additional language servers | not-started | licenses per server to verify |
 | Customization UI (hide/reorder contributions, server overrides, custom servers, profiles, safe mode) | not-started | |
 | **M5 SDK tooling** | | |
-| `easyide-ext` CLI | not-started | |
+| `easyide-ext` CLI | in-progress | `tools/easyide-ext` (own Gradle build, compiles the shared SDK core): `init` (theme, snippets, language-pack, toolbar-command), `validate` (app pipeline + WASM header + `--strict` readiness), deterministic `package`, `keygen` (PBES2-encrypted Ed25519, `--rotate`), `sign`, `verify`; `--json`, exit codes 0/1/2; 17 JVM tests incl. golden templates, determinism, app/CLI agreement on the built-in packs. Not done: `test`, `dev`, `publish`, `registry build`, lsp-pack/wasm templates; full WASM static check blocked on 0015 split (see its amendment) |
 | In-app dev loop (create, install from folder, live reload, log) | not-started | |
 | Samples + author docs | not-started | |
 | **M6 registry** | | |
-| Static signed index repo + browse/install UI | not-started | no backend |
+| Static signed index repo + browse/install UI | in-progress | building blocks only: RFC 8785 `Jcs` (strict parse: duplicate keys and non-integers refused), `Sig`, `KeyIds`, `SignedBytes`, `SignatureVerifier` behind an `Ed25519` port (`JdkEd25519` for JVM/CLI; Android provider still to verify, registry-and-install.md sec 4.2) in `dev.easyide.extensions.registry`; no index fetch, trust store or UI yet |
 | Open VSX secondary source | not-started | |
 | **M7 WASM layer** | | |
-| Runtime embed, ABI v1, host API, capability enforcement | not-started | |
+| Runtime embed, ABI v1, host API, capability enforcement | in-progress | `:ext-wasm` host on Chicory landed in b322368 after the on-device spike passed (ABI v1, capability-gated host functions, metering and limits); this row was not updated then |
 | **M8 Node host (conditional)** | | |
 | vscode API subset in sandbox | not-started | only if M3+M7 insufficient |

@@ -90,8 +90,12 @@ sealed interface PackageLayout {
  */
 object PackageLayoutReader {
 
-    /** I/O boundary: filesystem errors become [DiagnosticCode.PACKAGE_IO]. */
-    fun read(root: File, limits: PackageLimits): PackageLayout {
+    /**
+     * I/O boundary: filesystem errors become [DiagnosticCode.PACKAGE_IO]. [exclude] drops
+     * relative paths (directories end in `/`) that never become package content, which is how
+     * `easyide-ext` measures the would-be package of a source folder.
+     */
+    fun read(root: File, limits: PackageLimits, exclude: (String) -> Boolean = { false }): PackageLayout {
         val errors = ArrayList<Diagnostic>()
         val files = LinkedHashMap<String, File>()
         val seenLower = HashMap<String, String>()
@@ -103,6 +107,7 @@ object PackageLayoutReader {
         try {
             Files.walkFileTree(rootPath, object : SimpleFileVisitor<Path>() {
                 override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+                    if (dir != rootPath && exclude(rel(dir) + "/")) return FileVisitResult.SKIP_SUBTREE
                     if (dir != rootPath && attrs.isSymbolicLink) {
                         errors += layoutError(DiagnosticCode.PACKAGE_SYMLINK, rel(dir), "symbolic links are not allowed")
                         return FileVisitResult.SKIP_SUBTREE
@@ -113,7 +118,7 @@ object PackageLayoutReader {
                 override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
                     val path = rel(file)
                     when {
-                        path in PackagePaths.RUNTIME_FILES -> Unit
+                        path in PackagePaths.RUNTIME_FILES || exclude(path) -> Unit
                         attrs.isSymbolicLink -> errors += layoutError(DiagnosticCode.PACKAGE_SYMLINK, path, "symbolic links are not allowed")
                         !attrs.isRegularFile -> errors += layoutError(DiagnosticCode.PACKAGE_PATH, path, "not a regular file")
                         PackagePaths.isArchive(path) -> errors += layoutError(DiagnosticCode.PACKAGE_NESTED_ARCHIVE, path, "nested archives are not allowed")

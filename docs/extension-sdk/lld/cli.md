@@ -2,7 +2,7 @@
 
 Low-level design of `tools/easyide-ext`, the author-side tool that scaffolds, validates, packages, signs, publishes, tests and live-deploys extensions.
 
-Status: PROPOSED (2026-09-23). Nothing implemented. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
+Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign` and `verify` in `tools/easyide-ext`; see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
 Contract (commands, flags, exit codes, index format): [sdk-reference.md#cli](../sdk-reference.md#cli), [#registry-index-format](../sdk-reference.md#registry-index-format).
 Feature area: arch.md sec 5.4 (Ecosystem: Publish, Dev loop, In-app authoring). License Apache-2.0 per ADR-G (0015).
 
@@ -313,3 +313,26 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
   writing `entries/<publisher>/<name>/<version>.json` (one `index.json` edited by concurrent PRs
   would always conflict, and only the root key holder can sign it), maintainer `registry build`,
   `keygen --rotate`, `dev --app-id`, and `.easyext.sig` over raw package bytes.
+- Implementation (2026-09-24):
+  - The shared library is `services/shared/extension-schema/src/main/kotlin` (Apache-2.0 per the
+    0015 amendment), compiled into the CLI as a source directory rather than via `includeBuild`:
+    `services/mobile` needs the Android SDK to configure, which authors should not need.
+  - JSON is kotlinx-serialization-json (Apache-2.0), the app's tree type, not org.json (open
+    issue 5 resolved).
+  - `validate` step 8 is a WebAssembly header check only: `WasmModuleLoader` and the metering pass
+    live in `:ext-wasm`, which stays under the app licence. `test` (sec 5.6) needs `ActionRunner`
+    and `WasmHost` for the same reason and is not built; see the 0015 amendment for options.
+  - Step 4 (grammar/theme parse and role reporting) is what `ManifestParser`'s content checks do
+    today; the ScopeRules role report is not implemented.
+  - Built-in command ids come from `services/shared/extension-schema/builtin-commands.json`, kept
+    equal to the app's `CommandIds.ALL` by a unit test, so references to app commands resolve as
+    they do on device.
+  - Added `verify <file.easyext> --pub <key.pub.json>`: checks a `.sig` with the app's verifier.
+  - `init` ships `theme`, `snippets`, `language-pack`, `toolbar-command`; templates have no `test/`
+    scenario until `test` exists. Dotfiles are stored as `dot-<name>` in the jar. Template
+    `LICENSE` is MIT so `validate --strict` passes out of the box; authors change it.
+  - `keygen` writes `EncryptedPrivateKeyInfo` itself (PBES2 AlgorithmIdentifier + JDK cipher
+    parameters) because `javax.crypto.EncryptedPrivateKeyInfo` cannot name PBES2 on JDK 17+;
+    public keys are re-derived from the PKCS#8 seed.
+  - `package` also excludes `dist/`, `*.key`, `*.easyext`, `*.easyext.sig`, `.gitignore`,
+    `.easyextignore` and `.easyide-ext.json`.

@@ -160,7 +160,7 @@ internal class StepExecutor(
         )
         val text = host.inputBox(request) ?: throw StepAbort.Cancel
         if (a.password) ctx.secrets += text
-        if (a.validate != null && !a.validate.matches(text)) fail(ActionError.ARGS, "input does not match the required format")
+        if (a.validate?.matches(text) == false) fail(ActionError.ARGS, "input does not match the required format")
         return JsonPrimitive(text).also { ctx.inputs[a.id] = it }
     }
 

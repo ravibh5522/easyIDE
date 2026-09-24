@@ -26,7 +26,7 @@ redistributing these.
 | Gson | Gradle dependency | Apache-2.0 | 2026-08-11 |
 | kotlinx-serialization-json 1.11.0, kotlinx-coroutines | Gradle dependencies | Apache-2.0 | 2026-09-24, Maven Central POM |
 | VS Code `language-configuration.json` files (57 languages, tag 1.139.0) | `assets/grammars/config/*.json` | MIT | 2026-09-24, microsoft/vscode LICENSE.txt at tag |
-| easyIDE extension manifest schema (first-party, [decision 0015](docs/decision/0015-extension-sdk-licensing-apache.md)) | `services/shared/extension-schema/` (packaged into `:extensions`) | **Apache-2.0** (unlike the rest of the app) | 2026-09-24 |
+| easyIDE extension SDK core: manifest schema, built-in command list, manifest parser and validator, canonical JSON and signature code (first-party, [decision 0015](docs/decision/0015-extension-sdk-licensing-apache.md)) | `services/shared/extension-schema/` (the `:extension-schema` module, used by `:extensions`) and `tools/easyide-ext/` | **Apache-2.0** (unlike the rest of the app) | 2026-09-24 |
 | [Geist and Geist Mono](https://github.com/vercel/geist-font) v1.7.2 (fonts 1.800 / 1.700), hinting stripped | `res/font/geist_*.ttf`, license text `assets/licenses/Geist-OFL.txt` | OFL-1.1 (no Reserved Font Name) | 2026-09-24, repo `OFL.txt` + GitHub license API; [decision 0019](docs/decision/0019-visual-identity.md) |
 | **229 TextMate grammars** via [tm-grammars](https://github.com/shikijs/textmate-grammars-themes) (MIT packaging) | `assets/grammars/*.json` | MIT x194, Apache-2.0 x22, TextMate-permissive x8, MPL-2.0 x3, ISC x1, BSD-3-Clause x1 | 2026-08-11, per-grammar from the `tm-grammars` NOTICE |
 
