@@ -1,12 +1,3 @@
-1 dev/easyide/app/ui/components/ChoiceCard.kt
-2 dev/easyide/app/ui/screens/diagnostics/DiagnosticsDialogs.kt
-4 dev/easyide/app/ui/screens/diagnostics/DiagnosticsScreen.kt
-2 dev/easyide/app/ui/screens/diagnostics/DiagnosticsSections.kt
-1 dev/easyide/app/ui/screens/diagnostics/DiagnosticsWidgets.kt
-9 dev/easyide/app/ui/screens/newproject/NewProjectScreen.kt
-3 dev/easyide/app/ui/screens/onboarding/EnvironmentSetupContent.kt
-4 dev/easyide/app/ui/screens/onboarding/InstallLinuxScreen.kt
-3 dev/easyide/app/ui/screens/onboarding/OnboardingScreen.kt
 5 dev/easyide/app/ui/screens/workspace/FileContextMenu.kt
 4 dev/easyide/app/ui/screens/workspace/FileTreePane.kt
 2 dev/easyide/app/ui/screens/workspace/ProjectNotFound.kt
