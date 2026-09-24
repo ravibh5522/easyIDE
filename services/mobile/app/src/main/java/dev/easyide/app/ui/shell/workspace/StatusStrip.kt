@@ -12,10 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.FolderCopy
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import dev.easyide.app.R
 import dev.easyide.app.ui.foundation.WidthClass
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.kitTag
 import dev.easyide.app.ui.shell.host.ShellTokens
@@ -69,8 +66,8 @@ fun StatusStrip(parts: StatusParts, width: WidthClass, modifier: Modifier = Modi
     val text = Kit.text.caption.tabular().copy(color = colors.statusBarText)
     Layout(
         content = {
-            if (StatusId.PROJECT in allowed) Slot(StatusId.PROJECT) { Named(Icons.Filled.FolderCopy, parts.project, text) }
-            if (StatusId.FILE in allowed && parts.file != null) Slot(StatusId.FILE) { Named(Icons.Filled.Description, parts.file + if (parts.dirty) DIRTY_MARK else "", text) }
+            if (StatusId.PROJECT in allowed) Slot(StatusId.PROJECT) { Named(iconFor("folder_copy"), parts.project, text) }
+            if (StatusId.FILE in allowed && parts.file != null) Slot(StatusId.FILE) { Named(iconFor("file"), parts.file + if (parts.dirty) DIRTY_MARK else "", text) }
             if (StatusId.LINES in allowed && parts.lines != null) Slot(StatusId.LINES) { BasicText(stringResource(R.string.wshell_status_lines, parts.lines), style = text, maxLines = 1) }
             if (StatusId.EXT_LEFT in allowed) Slot(StatusId.EXT_LEFT) { parts.extLeft() }
             if (StatusId.PROBLEMS in allowed) Slot(StatusId.PROBLEMS) { Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.s)) { parts.problems(this) } }
@@ -116,7 +113,7 @@ private fun Named(icon: ImageVector, name: String, text: androidx.compose.ui.tex
 private fun SaveButton(onSave: () -> Unit, text: androidx.compose.ui.text.TextStyle) {
     val label = stringResource(R.string.command_save)
     Row(Modifier.clickable(onClick = onSave), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
-        Image(Icons.Filled.Save, label, Modifier.size(IconSize.xs), colorFilter = ColorFilter.tint(Kit.colors.statusBarText))
+        Image(iconFor("save"), label, Modifier.size(IconSize.xs), colorFilter = ColorFilter.tint(Kit.colors.statusBarText))
         BasicText(label, style = text, maxLines = 1)
     }
 }

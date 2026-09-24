@@ -34,7 +34,7 @@ class KitGalleryScreenTest {
     private val sectionHeaders = listOf(
         R.string.gallery_controls_title, R.string.gallery_rows_title, R.string.gallery_anatomy_title, R.string.gallery_type_title, R.string.gallery_groups_title, R.string.gallery_banners_title,
         R.string.gallery_buttons_title, R.string.gallery_tags_title, R.string.gallery_fields_title, R.string.gallery_toggles_title,
-        R.string.gallery_tabs_title, R.string.gallery_overlays_title, R.string.gallery_motifs_title,
+        R.string.gallery_tabs_title, R.string.gallery_overlays_title, R.string.gallery_motifs_title, R.string.gallery_icons_title,
     )
 
     private fun scrollTo(index: Int) = compose.onNodeWithTag("kit:gallery-list").performScrollToIndex(index)

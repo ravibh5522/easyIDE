@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder launcher glyph pending a real brand mark - see docs/design-system/arch.md open questions -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#6750A4"
-        android:pathData="M30,40 L18,54 L30,68"
-        android:strokeColor="#6750A4"
-        android:strokeWidth="6"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:fillColor="#6750A4"
-        android:pathData="M50,72 L64,36"
-        android:strokeColor="#6750A4"
-        android:strokeWidth="6"
-        android:strokeLineCap="round" />
+    <!-- The mark sits on an 8-unit grid; scaled 0.8 about the centre it stays inside the 66dp safe circle. -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:translateX="-1.6">
+        <path
+            android:fillColor="@color/icon_ink"
+            android:pathData="M26,28 L52,54 L26,80 L26,68 L40,54 L26,40 Z" />
+        <path
+            android:fillColor="@color/icon_accent"
+            android:pathData="M62,34 h24 v40 h-24 Z" />
+    </group>
 </vector>

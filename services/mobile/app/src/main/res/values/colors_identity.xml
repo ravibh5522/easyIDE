@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Brand colours of the app icon and splash (docs/ui-redesign/identity.md 11). XML is the only
+      place a launcher or splash drawable can read a colour from, so they live here and
+      ThemeTokensTest keeps them in step with the built-in palettes: the icon uses the graphite
+      dark palette (editor, text, accent); the splash follows the day/night pair.
+    -->
+    <color name="icon_background">#FF0E1014</color>
+    <color name="icon_ink">#FFD5DAE1</color>
+    <color name="icon_accent">#FFFF8A3D</color>
+    <color name="splash_ink">#FF1E2228</color>
+    <color name="splash_accent">#FFB04600</color>
+</resources>

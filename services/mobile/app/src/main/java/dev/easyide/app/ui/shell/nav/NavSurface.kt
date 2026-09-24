@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.shell.NavItem
 import dev.easyide.app.ui.shell.host.ShellTokens
@@ -73,12 +74,12 @@ fun NavSurface(surface: NavSurfaceState, onSelect: (NavItem) -> Unit, modifier: 
             val focusable = if (id == landing) m.focusRequester(surface.focus) else m
             if (item != null) {
                 NavCell(
-                    NavIcons.of(item.icon), item.title, item.id == surface.active, surface.showLabels, surface.placement,
+                    iconFor(item.icon.name), item.title, item.id == surface.active, surface.showLabels, surface.placement,
                     surface.badges[item.id], { onSelect(item) }, focusable, "nav-${item.id}",
                 )
             } else {
                 NavCell(
-                    NavIcons.more, stringResource(R.string.shell_nav_more), cells.moreActive, surface.showLabels, surface.placement,
+                    iconFor("more"), stringResource(R.string.shell_nav_more), cells.moreActive, surface.showLabels, surface.placement,
                     null, { moreOpen = true }, focusable, "nav-more",
                 )
             }

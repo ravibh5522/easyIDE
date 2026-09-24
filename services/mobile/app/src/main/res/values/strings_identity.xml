@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Empty-state art (identity.md 10): at most five lines of ASCII in a monospace face, drawn in a
+      muted token at motif "full". Quoted so the leading spaces survive; no backslashes or angle
+      brackets, which Android and XML would need escaped.
+    -->
+    <string name="kit_art_projects" translatable="false">" +---+\n |   +-----+\n | > _     |\n +---------+"</string>
+    <string name="kit_art_environment" translatable="false">" +----------+\n | ======== |\n | ======== |\n | ======== |\n +----------+"</string>
+    <string name="kit_art_extensions" translatable="false">"  []  []\n +------+\n |      |\n +------+"</string>
+    <string name="kit_art_problems" translatable="false">" +----------+\n | E 0  W 0 |\n +----------+"</string>
+    <string name="kit_art_git" translatable="false">" o---o---o\n     |\n     o---o"</string>
+    <string name="kit_art_terminal" translatable="false">" +----------+\n | $ _      |\n |          |\n +----------+"</string>
+    <string name="kit_art_editor" translatable="false">" +----------+\n | 1 |      |\n | 2 |      |\n +----------+"</string>
+
+    <!-- Terminal with no session -->
+    <string name="terminal_empty">No terminal open.</string>
+</resources>

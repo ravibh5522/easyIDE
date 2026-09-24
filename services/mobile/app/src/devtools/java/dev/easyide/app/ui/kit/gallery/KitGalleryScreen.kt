@@ -69,6 +69,7 @@ private fun GalleryPage(config: GalleryConfig, onConfig: (GalleryConfig) -> Unit
             item(key = "navigation") { NavigationSection() }
             item(key = "overlays") { OverlaysSection() }
             item(key = "motifs") { MotifsSection() }
+            item(key = "icons") { IconsSection() }
         }
     }
 }

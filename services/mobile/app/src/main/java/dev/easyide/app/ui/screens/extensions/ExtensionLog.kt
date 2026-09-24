@@ -57,7 +57,7 @@ internal fun LogSection(entries: List<TimedLogEntry>, showId: Boolean, onClear: 
     val title = stringResource(R.string.ext_log_title)
     KitSection(title) {
         if (entries.isEmpty()) {
-            KitEmptyState(EmptyArt.Prompt, stringResource(R.string.ext_log_empty))
+            KitEmptyState(EmptyArt.Terminal, stringResource(R.string.ext_log_empty))
             return@KitSection
         }
         Column(Modifier.padding(Kit.space.m)) {

@@ -39,7 +39,7 @@ internal fun LazyListScope.installedTab(groups: ExtensionGroups, query: String, 
         return
     }
     if (groups.installed.isEmpty() && query.isBlank()) {
-        item { KitEmptyState(EmptyArt.Prompt, stringResource(R.string.extui_none_installed)) }
+        item { KitEmptyState(EmptyArt.Extensions, stringResource(R.string.extui_none_installed)) }
     }
     if (groups.installed.isNotEmpty()) item { ExtensionSection(R.string.extui_section_installed, groups.installed, selectedId, actions) }
     if (groups.builtIn.isNotEmpty()) item { ExtensionSection(R.string.extui_section_builtin, groups.builtIn, selectedId, actions) }

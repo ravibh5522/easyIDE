@@ -29,6 +29,16 @@ enum class HapticEvent(val minimum: HapticsLevel, private val since: Int, privat
     internal fun constantFor(sdk: Int): Int = if (sdk >= since) constant else fallback
 }
 
+/**
+ * The one-shot event a message of this tone plays as it appears: a success confirms, a danger
+ * (a rejected or blocked action) rejects, everything else is silent.
+ */
+fun Tone.hapticEvent(): HapticEvent? = when (this) {
+    Tone.Success -> HapticEvent.Success
+    Tone.Danger -> HapticEvent.Reject
+    else -> null
+}
+
 /** Plays [HapticEvent]s through the host view, honouring `appearance.haptics`. */
 class Haptics internal constructor(private val view: View, private val level: HapticsLevel) {
     fun play(event: HapticEvent) {

@@ -1,5 +1,6 @@
 package dev.easyide.app.ui.shell.diff
 
+import dev.easyide.app.ui.icons.iconFor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,10 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +53,7 @@ internal fun DiffHeader(subject: DiffSubject, stats: Pair<Int, Int>?, nav: HunkN
             }
             stats?.let { (added, removed) -> BasicText(stringResource(R.string.git_diff_stats, added, removed), style = mono) }
             nav?.let { HunkControls(it) }
-            onOpenFile?.let { KitIconButton(Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.git_diff_open_file), it) }
+            onOpenFile?.let { KitIconButton(iconFor("open_in_new"), stringResource(R.string.git_diff_open_file), it) }
         }
         Box(Modifier.fillMaxWidth().height(Kit.hairline).background(colors.panelBorder))
     }
@@ -64,12 +61,12 @@ internal fun DiffHeader(subject: DiffSubject, stats: Pair<Int, Int>?, nav: HunkN
 
 @Composable
 private fun HunkControls(nav: HunkNav) {
-    KitIconButton(Icons.Filled.KeyboardArrowUp, stringResource(R.string.shell_diff_previous_hunk), { nav.onPrevious?.invoke() }, enabled = nav.onPrevious != null)
+    KitIconButton(iconFor("chevron_up"), stringResource(R.string.shell_diff_previous_hunk), { nav.onPrevious?.invoke() }, enabled = nav.onPrevious != null)
     if (nav.count > 0) {
         BasicText(
             stringResource(R.string.shell_diff_hunk_position, maxOf(nav.position, 0) + 1, nav.count),
             style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted),
         )
     }
-    KitIconButton(Icons.Filled.KeyboardArrowDown, stringResource(R.string.shell_diff_next_hunk), { nav.onNext?.invoke() }, enabled = nav.onNext != null)
+    KitIconButton(iconFor("chevron_down"), stringResource(R.string.shell_diff_next_hunk), { nav.onNext?.invoke() }, enabled = nav.onNext != null)
 }

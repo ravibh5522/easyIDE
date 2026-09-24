@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.VerticalSplit
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.kitTag
@@ -80,8 +79,8 @@ internal fun StageGroup(
     val active = view.group.activeTab?.uri
     val actions: @Composable RowScope.() -> Unit = {
         trailing()
-        callbacks.onSplit?.let { KitIconButton(Icons.Filled.VerticalSplit, stringResource(R.string.wshell_group_split), it) }
-        if (view.split) callbacks.onUnsplit?.let { KitIconButton(Icons.Filled.Close, stringResource(R.string.wshell_group_close), it) }
+        callbacks.onSplit?.let { KitIconButton(iconFor("split"), stringResource(R.string.wshell_group_split), it) }
+        if (view.split) callbacks.onUnsplit?.let { KitIconButton(iconFor("close"), stringResource(R.string.wshell_group_close), it) }
     }
     // The tab a press opened a menu for, and where: one menu per group.
     var menu by remember { mutableStateOf<Pair<Tab, IntOffset>?>(null) }

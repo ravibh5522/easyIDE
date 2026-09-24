@@ -1,11 +1,9 @@
 package dev.easyide.app.ui.kit
 
+import dev.easyide.app.ui.icons.iconFor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +20,8 @@ internal fun TwistieSlot(state: Twistie, tint: Color, modifier: Modifier = Modif
     Box(modifier.size(KitSizes.twistieSlot), Alignment.Center) {
         val icon = when (state) {
             Twistie.Leaf -> return@Box
-            Twistie.Collapsed -> Icons.AutoMirrored.Filled.KeyboardArrowRight
-            Twistie.Expanded -> Icons.Filled.KeyboardArrowDown
+            Twistie.Collapsed -> iconFor("chevron_right")
+            Twistie.Expanded -> iconFor("chevron_down")
         }
         Image(icon, null, Modifier.size(IconSize.s), colorFilter = ColorFilter.tint(tint))
     }

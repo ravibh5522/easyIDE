@@ -92,7 +92,7 @@ fun SourceControlPane(
 
         when {
             !state.isRepository -> KitEmptyState(
-                art = EmptyArt.Prompt,
+                art = EmptyArt.Git,
                 message = stringResource(R.string.git_not_repo_body),
                 action = KitAction(stringResource(R.string.git_init), callbacks.onInitRepository),
             )
@@ -132,7 +132,7 @@ private fun RepositoryBody(
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         if (status.isClean) {
-            item { KitEmptyState(art = EmptyArt.Prompt, message = stringResource(R.string.git_no_changes)) }
+            item { KitEmptyState(art = EmptyArt.Git, message = stringResource(R.string.git_no_changes)) }
         }
         if (status.conflicting.isNotEmpty()) {
             item { PanelGroupHeader(stringResource(R.string.git_section_conflicts), status.conflicting.size) }

@@ -65,7 +65,7 @@ class SandboxForegroundService : Service() {
         return builder
             .setContentTitle(getString(R.string.sandbox_fgs_title))
             .setContentText(resources.getQuantityString(R.plurals.sandbox_fgs_text, sessions, sessions))
-            .setSmallIcon(android.R.drawable.stat_notify_sync)
+            .setSmallIcon(R.drawable.ic_stat_easyide)
             .setOngoing(true)
             .setContentIntent(open)
             .addAction(Notification.Action.Builder(null as Icon?, getString(R.string.sandbox_fgs_stop), stopAll).build())

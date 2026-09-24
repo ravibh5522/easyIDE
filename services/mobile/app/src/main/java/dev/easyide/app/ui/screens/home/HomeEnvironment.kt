@@ -23,7 +23,7 @@ internal fun EnvironmentSection(state: HomeUiState, onOpenSettings: () -> Unit, 
     KitSection(stringResource(R.string.home_section_environment)) {
         if (state.environments.isEmpty()) {
             KitEmptyState(
-                art = EmptyArt.Prompt,
+                art = EmptyArt.Environment,
                 message = stringResource(R.string.home_env_empty),
                 action = KitAction(stringResource(R.string.home_env_install), onInstallLinux),
             )

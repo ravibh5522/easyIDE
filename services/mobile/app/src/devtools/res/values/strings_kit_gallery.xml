@@ -212,4 +212,12 @@
     <string name="gallery_cursor">Cursor: solid, hollow, blinking</string>
     <string name="gallery_prompt_glyph">Prompt glyph</string>
     <string name="gallery_crop_corners">Crop corners</string>
+    <string name="gallery_icons_title">Icons</string>
+    <string name="gallery_icons_note">The 24 custom glyphs, drawn on the 24 grid with a 1.5 stroke, tinted by tone. Names are the resolver tokens.</string>
+    <string name="gallery_icons_core">Core</string>
+    <string name="gallery_icons_work">Work</string>
+    <string name="gallery_icons_git">Git</string>
+    <string name="gallery_icons_system">System</string>
+    <string name="gallery_icons_tones">Prompt in every tone</string>
+    <string name="gallery_icons_sizes">Branch at 16, 20, 24 and 32</string>
 </resources>

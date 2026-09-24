@@ -55,7 +55,7 @@ fun WelcomeView(
     Box(modifier.fillMaxSize().background(Kit.colors.background).verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = Kit.contentMax).fillMaxWidth()) {
             KitEmptyState(
-                art = EmptyArt.Prompt,
+                art = EmptyArt.Editor,
                 message = stringResource(R.string.welcome_open_hint),
                 action = onNewFile?.let { KitAction(stringResource(R.string.wp_new_file), it) },
             )

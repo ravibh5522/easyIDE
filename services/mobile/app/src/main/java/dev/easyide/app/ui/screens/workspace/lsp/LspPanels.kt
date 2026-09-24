@@ -98,7 +98,7 @@ private fun ProblemsPanel(controller: WorkspaceLspController) {
             KitTag(n.toString(), tone = s.tone(), selected = on, icon = LspIcons.severity(s), onClick = { shown = if (on) shown - s.name else shown + s.name })
         }
     }
-    if (visible.isEmpty()) return EmptyPanel(stringResource(R.string.lsp_problems_empty))
+    if (visible.isEmpty()) return EmptyPanel(EmptyArt.Problems, stringResource(R.string.lsp_problems_empty))
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         for (group in visible) {
             fileHeader(group.label, group.problems.size)
@@ -119,7 +119,7 @@ private fun ProblemsPanel(controller: WorkspaceLspController) {
 private fun ReferencesPanel(controller: WorkspaceLspController) {
     val colors = Kit.colors
     val ui by controller.navigation.locations.collectAsState()
-    val refs = ui ?: return EmptyPanel(stringResource(R.string.lsp_references_empty))
+    val refs = ui ?: return EmptyPanel(EmptyArt.Prompt, stringResource(R.string.lsp_references_empty))
     BasicText(
         stringResource(R.string.lsp_references_title, refs.symbol, refs.groups.sumOf { it.rows.size }),
         Modifier.padding(Kit.space.s),
@@ -143,7 +143,7 @@ private fun ReferencesPanel(controller: WorkspaceLspController) {
 @Composable
 private fun OutlinePanel(controller: WorkspaceLspController) {
     val rows by controller.navigation.outline.collectAsState()
-    if (rows.isEmpty()) return EmptyPanel(stringResource(R.string.lsp_outline_empty))
+    if (rows.isEmpty()) return EmptyPanel(EmptyArt.Prompt, stringResource(R.string.lsp_outline_empty))
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(rows) { row -> SymbolRowView(row) { controller.navigate(row.location) } }
     }
@@ -177,6 +177,6 @@ private fun LazyListScope.fileHeader(label: String, count: Int) {
 }
 
 @Composable
-private fun EmptyPanel(text: String) {
-    KitEmptyState(art = EmptyArt.Prompt, message = text)
+private fun EmptyPanel(art: EmptyArt, text: String) {
+    KitEmptyState(art = art, message = text)
 }

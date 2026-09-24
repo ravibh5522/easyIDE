@@ -9,30 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Terminal
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +24,8 @@ import dev.easyide.app.R
 import dev.easyide.app.extensions.ExtensionUiPolicy
 import dev.easyide.app.extensions.adapters.MenuEntry
 import dev.easyide.app.extensions.adapters.StatusItem
+import dev.easyide.app.ui.icons.iconFor
+import dev.easyide.app.ui.icons.iconOrNull
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
@@ -57,21 +35,9 @@ import dev.easyide.app.ui.kit.KitMenuItem
 import dev.easyide.extensions.contrib.CommandIcon
 import dev.easyide.extensions.contrib.StatusBarAlignment
 
-/**
- * easyIDE icon tokens (sdk-reference `commands[].icon`) -> Material icons: the one table.
- * A token not listed here, or a package SVG, falls back to the command's short title.
- */
-private val ICON_TOKENS: Map<String, ImageVector> = mapOf(
-    "play_arrow" to Icons.Filled.PlayArrow, "stop" to Icons.Filled.Stop, "refresh" to Icons.Filled.Refresh,
-    "sync" to Icons.Filled.Sync, "add" to Icons.Filled.Add, "check" to Icons.Filled.Check, "close" to Icons.Filled.Close,
-    "save" to Icons.Filled.Save, "edit" to Icons.Filled.Edit, "delete" to Icons.Filled.Delete,
-    "content_copy" to Icons.Filled.ContentCopy, "search" to Icons.Filled.Search, "settings" to Icons.Filled.Settings,
-    "terminal" to Icons.Filled.Terminal, "code" to Icons.Filled.Code, "build" to Icons.Filled.Build,
-    "bug_report" to Icons.Filled.BugReport, "history" to Icons.Filled.History, "upload" to Icons.Filled.Upload,
-    "download" to Icons.Filled.Download, "arrow_upward" to Icons.Filled.ArrowUpward, "arrow_downward" to Icons.Filled.ArrowDownward,
-)
-
-private fun MenuEntry.icon(): ImageVector? = (command.icon as? CommandIcon.Token)?.let { ICON_TOKENS[it.name] }
+/** The command's icon token through the icon resolver; a token it does not know, or a package SVG, gives null (the caller shows the short title). */
+@Composable
+private fun MenuEntry.icon(): ImageVector? = (command.icon as? CommandIcon.Token)?.let { iconOrNull(it.name) }
 
 private fun MenuEntry.shortLabel(): String = command.shortTitle ?: command.title
 
@@ -90,7 +56,7 @@ fun EditorTitleActions(title: List<MenuEntry>, context: List<MenuEntry>, onRun: 
         if (overflow.isNotEmpty() || context.isNotEmpty()) {
             var open by remember { mutableStateOf(false) }
             Box {
-                KitIconButton(Icons.Filled.MoreVert, stringResource(R.string.ext_editor_more_actions), { open = true })
+                KitIconButton(iconFor("more_vert"), stringResource(R.string.ext_editor_more_actions), { open = true })
                 ContributedMenu(open, listOf(overflow, context).filter { it.isNotEmpty() }, onRun) { open = false }
             }
         }

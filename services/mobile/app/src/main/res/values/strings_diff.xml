@@ -4,19 +4,19 @@
 <resources>
     <!-- A tab's menu and the file menu's entry -->
     <string name="wstage_open_beside">Open to the Side</string>
-    <string name="wstage_move_next">Move Editor Into Next Group</string>
-    <string name="wstage_keep_open">Keep Open</string>
+    <string name="wstage_move_next">Move editor into next group</string>
+    <string name="wstage_keep_open">Keep open</string>
     <string name="wstage_pin">Pin</string>
     <string name="wstage_unpin">Unpin</string>
     <string name="wstage_close">Close</string>
-    <string name="wstage_close_others">Close Others</string>
+    <string name="wstage_close_others">Close others</string>
     <string name="wstage_close_right">Close to the Right</string>
-    <string name="wstage_close_all">Close All</string>
+    <string name="wstage_close_all">Close all</string>
     <string name="wstage_one_group">Split view needs a wider window, so it opened here.</string>
 
     <!-- Palette commands the stage adds -->
     <string name="wshell_command_open_side">Open to the Side</string>
-    <string name="wshell_command_move_next">Move Editor Into Next Group</string>
+    <string name="wshell_command_move_next">Move editor into next group</string>
 
     <!-- The git-diff document -->
     <string name="shell_diff_title">%1$s (%2$s)</string>
@@ -39,6 +39,6 @@
     <string name="shell_commit_parent">Parent commit</string>
 
     <!-- A change row's menu -->
-    <string name="shell_change_open_changes">Open Changes</string>
-    <string name="shell_change_open_file">Open File</string>
+    <string name="shell_change_open_changes">Open changes</string>
+    <string name="shell_change_open_file">Open file</string>
 </resources>

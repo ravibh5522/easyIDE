@@ -19,11 +19,19 @@ enum class EmptyArt(@StringRes internal val text: Int) {
     Prompt(R.string.kit_art_prompt),
     Search(R.string.kit_art_search),
     Offline(R.string.kit_art_offline),
+    Projects(R.string.kit_art_projects),
+    Environment(R.string.kit_art_environment),
+    Extensions(R.string.kit_art_extensions),
+    Problems(R.string.kit_art_problems),
+    Git(R.string.kit_art_git),
+    Terminal(R.string.kit_art_terminal),
+    Editor(R.string.kit_art_editor),
 }
 
 /**
  * Nothing to show yet: [art] (only at `appearance.motif` full), one sentence, and at most one
- * command-style [action] led by the prompt glyph. Left-aligned and plain, never a centred hero.
+ * command-style [action] led by the prompt glyph and followed by a cursor that blinks six times and
+ * rests. Left-aligned and plain, never a centred hero.
  */
 @Composable
 fun KitEmptyState(
@@ -35,7 +43,8 @@ fun KitEmptyState(
     val colors = Kit.colors
     val space = Kit.space
     Column(modifier.fillMaxWidth().padding(space.l), verticalArrangement = Arrangement.spacedBy(space.s)) {
-        if (Kit.feel.motif.drawsArt) {
+        val motif = Kit.feel.motif
+        if (MotifSurface.EmptyState.allows(MotifElement.Art, motif)) {
             BasicText(
                 stringResource(art.text),
                 Modifier.clearAndSetSemantics { },
@@ -49,8 +58,11 @@ fun KitEmptyState(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(space.s),
             ) {
-                if (Kit.feel.motif.drawsSupporting) PromptGlyph(color = colors.accent)
+                if (MotifSurface.EmptyState.allows(MotifElement.PromptGlyph, motif)) PromptGlyph(color = colors.accent)
                 BasicText(action.label, style = Kit.text.title.copy(color = colors.accent))
+                if (MotifSurface.EmptyState.allows(MotifElement.CursorState, motif)) {
+                    CursorBlock(style = CursorStyle.Blinking, color = colors.accent, maxCycles = MotifSurface.EmptyState.cursorCycles)
+                }
             }
         }
     }

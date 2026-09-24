@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -42,6 +40,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.collectFlags
 import dev.easyide.app.ui.kit.kitFocusRing
@@ -134,7 +133,7 @@ private fun StripTab(
             if (dirty) {
                 Box(Modifier.size(Kit.space.s).background(colors.plainText, CircleShape).semantics { contentDescription = closeLabel })
             } else {
-                Image(Icons.Filled.Close, closeLabel, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(colors.textMuted))
+                Image(iconFor("close"), closeLabel, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(colors.textMuted))
             }
         }
     }

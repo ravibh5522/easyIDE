@@ -1,3 +1,1 @@
-U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	animationSpec = infiniteRepeatable(
-U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	import androidx.compose.animation.core.rememberInfiniteTransition
-U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	rememberInfiniteTransition(label = "empty-state-pulse").animateFloat(
+U-AI-06	dev/easyide/app/ui/shell/host/DocumentStrip.kt	Box(Modifier.size(Kit.space.s).background(colors.plainText, CircleShape).semantics { contentDescription = closeLabel })

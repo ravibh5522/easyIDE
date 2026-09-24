@@ -11,6 +11,9 @@ import dev.easyide.app.ui.kit.KitProgress
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.Tone
 
+/** Prompt, Search and Offline have their own labelled samples above. */
+private const val EMPTY_ART_SHOWN_ABOVE = 3
+
 private val DETERMINATE = listOf(0f, 0.35f, 1f)
 
 /** Banners in every tone (plain, with an action, dismissible, long), empty states, and both progress forms. */
@@ -33,6 +36,9 @@ fun FeedbackSection() {
         }
         Sample(stringResource(R.string.gallery_empty_plain)) { KitEmptyState(EmptyArt.Search, stringResource(R.string.gallery_empty_message)) }
         Sample(stringResource(R.string.gallery_empty_offline)) { KitEmptyState(EmptyArt.Offline, stringResource(R.string.gallery_long_body)) }
+        for (art in EmptyArt.entries.drop(EMPTY_ART_SHOWN_ABOVE)) {
+            Sample(art.name) { KitEmptyState(art, stringResource(R.string.gallery_empty_message)) }
+        }
     }
     KitSection(stringResource(R.string.gallery_progress_title)) {
         for (fraction in DETERMINATE) {

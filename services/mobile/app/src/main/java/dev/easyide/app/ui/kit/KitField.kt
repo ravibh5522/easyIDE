@@ -17,8 +17,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,6 +34,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.VisualTransformation
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.theme.EditorColors
 
 /** What the border says about the field. Disabled beats error beats focus. */
@@ -123,7 +122,7 @@ fun KitField(
                         inner()
                     }
                     if (fieldShowsClear(value, enabled, readOnly, singleLine)) {
-                        KitIconButton(Icons.Filled.Close, stringResource(R.string.kitin_clear), { onValueChange("") }, Modifier.size(Kit.control.fieldHeight))
+                        KitIconButton(iconFor("close"), stringResource(R.string.kitin_clear), { onValueChange("") }, Modifier.size(Kit.control.fieldHeight))
                     }
                     trailing?.invoke()
                 }

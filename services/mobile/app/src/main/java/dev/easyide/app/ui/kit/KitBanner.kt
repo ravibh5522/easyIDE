@@ -10,9 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -22,6 +21,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import dev.easyide.app.R
+import dev.easyide.app.ui.icons.iconFor
 
 /**
  * An inline message on one compact row: a tone wash with the 2dp rule of the tone at the left edge,
@@ -38,6 +38,8 @@ fun KitBanner(
 ) {
     val colors = Kit.colors
     val rule = tone.content(colors)
+    val haptics = rememberHaptics()
+    LaunchedEffect(text, tone) { tone.hapticEvent()?.let(haptics::play) }
     Row(
         modifier = modifier
             .kitTag("banner")
@@ -55,6 +57,6 @@ fun KitBanner(
             modifier = Modifier.weight(1f).padding(vertical = Kit.space.xs),
         )
         if (action != null) KitButton(action.label, action.onClick, style = KitButtonStyle.Ghost)
-        if (onDismiss != null) KitIconButton(Icons.Filled.Close, stringResource(R.string.kitin_dismiss), onDismiss)
+        if (onDismiss != null) KitIconButton(iconFor("close"), stringResource(R.string.kitin_dismiss), onDismiss)
     }
 }

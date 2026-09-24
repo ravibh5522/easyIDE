@@ -1,5 +1,6 @@
 package dev.easyide.app.ui.shell.host
 
+import dev.easyide.app.ui.icons.iconFor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,9 +15,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,13 +79,13 @@ internal fun DocumentSwitcher(
             ) {
                 BasicText(title, Modifier.weight(1f, fill = false), style = Kit.text.title.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (group.tabs.size > 1) BasicText(" ${group.tabs.size}", style = Kit.text.caption.copy(color = colors.textMuted))
-                if (group.tabs.isNotEmpty()) Image(Icons.Filled.ExpandMore, null, Modifier.size(IconSize.m), colorFilter = ColorFilter.tint(colors.textMuted))
+                if (group.tabs.isNotEmpty()) Image(iconFor("expand_more"), null, Modifier.size(IconSize.m), colorFilter = ColorFilter.tint(colors.textMuted))
             }
             KitMenu(
                 open, { open = false },
                 entries.map { (uri, name) ->
                     KitMenuItem.Action(if (callbacks.isDirty(uri)) stringResource(R.string.wshell_switcher_dirty, name) else name, { callbacks.activate(uri) }, checked = uri == group.active)
-                } + KitMenuItem.Divider + KitMenuItem.Action(close, { group.active?.let(callbacks::close) }, icon = Icons.Filled.Close),
+                } + KitMenuItem.Divider + KitMenuItem.Action(close, { group.active?.let(callbacks::close) }, icon = iconFor("close")),
             )
             group.active?.let { TabMenu(actionsOpen, { actionsOpen = false }, group, it, callbacks, TabMenuContext(canBeside = false, canMoveNext = false)) }
         }

@@ -1,5 +1,7 @@
 package dev.easyide.app.ui.shell.workspace
 
+import dev.easyide.app.ui.icons.resolveIcon
+import dev.easyide.app.ui.props.IconStyle
 import dev.easyide.app.ui.shell.CoreShell
 import dev.easyide.app.ui.shell.NavPrefs
 import dev.easyide.app.ui.shell.NavTarget
@@ -9,7 +11,6 @@ import dev.easyide.app.ui.shell.IconRef
 import dev.easyide.app.ui.shell.NavItem
 import dev.easyide.app.ui.shell.ScopeFilter
 import dev.easyide.app.ui.shell.ShellScope
-import dev.easyide.app.ui.shell.nav.NavIcons
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -44,8 +45,10 @@ class WorkspaceNavTest {
     }
 
     @Test fun `every item has an icon that is not the fallback`() {
-        val fallback = NavIcons.of(IconRef("no-such-glyph"))
-        items().forEach { assertTrue(it.id, NavIcons.of(it.icon) !== fallback) }
+        IconStyle.entries.forEach { style ->
+            val fallback = resolveIcon("no-such-glyph", style)
+            items().forEach { assertTrue(it.id, resolveIcon(it.icon.name, style) !== fallback) }
+        }
     }
 
     @Test fun `an item that names an unknown command is dropped`() {

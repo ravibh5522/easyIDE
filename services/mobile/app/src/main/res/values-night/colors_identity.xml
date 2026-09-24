@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Night half of the splash pair: the ink and accent of GraphiteDarkPalette. -->
+    <color name="splash_ink">#FFD5DAE1</color>
+    <color name="splash_accent">#FFFF8A3D</color>
+</resources>
