@@ -1,0 +1,1 @@
+U-AI-06	dev/easyide/app/ui/shell/host/DocumentStrip.kt	Box(Modifier.size(Kit.space.s).background(colors.plainText, CircleShape).semantics { contentDescription = closeLabel })

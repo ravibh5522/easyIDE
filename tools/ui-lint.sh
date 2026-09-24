@@ -15,6 +15,10 @@
 #   U-MOT-01  tween(N), durationMillis = N literals   everything except ui/props/Motion.kt
 #   U-MOT-02  rememberInfiniteTransition              everything except CursorBlock
 #   U-AI-03   Brush gradients, blur(                  everything (command palette scrim excepted by baseline)
+#   U-AI-05   elevation/shadowElevation above 0, .shadow(   ui/screens, ui/components, ui/shell (floating surfaces live in ui/kit)
+#   U-AI-06   CircleShape (icon-in-a-tinted-circle)   ui/screens, ui/components, ui/shell
+#   U-AI-08   Oops, Something went wrong, Let's, please, successfully, an exclamation mark   res/values*/strings*.xml
+#   U-TYP-05  Title Case string (2..8 words, every later word capitalised, proper nouns excepted)   res/values*/strings*.xml
 #
 # The baseline (tools/ui-lint-baseline.txt) lists today's violations as
 # "RULE<TAB>path<TAB>trimmed source line", one per occurrence. Matching ignores line numbers,
@@ -57,6 +61,14 @@ FLASHY = re.compile(r"\bBrush\.\w*Gradient\(|\bblur\(")
 TEXT_LIT = re.compile(r'\bText\(\s*(?:text\s*=\s*)?"((?:[^"\\]|\\.)*)"')
 TEMPLATE = re.compile(r"\$\{[^}]*\}|\$\w+")
 
+ELEVATION = re.compile(r"\b(shadowElevation|tonalElevation|elevation)\s*=\s*[1-9]|\.shadow\(")
+CIRCLE = re.compile(r"\bCircleShape\b")
+FORBIDDEN_WORDS = re.compile(r"\bOops\b|Something went wrong|\bLet(?:'|&apos;|\\')s\b|\bplease\b|\bsuccessfully\b|!(?=\s|$|\\?\")", re.I)
+STRING = re.compile(r'<string name="([^"]+)"[^>]*>(.*?)</string>', re.S)
+# Words a sentence-case string may still capitalise: names of products, languages, keys and acronyms.
+PROPER = set("Git GitHub Linux Android JSON LSP SSH HTTPS HTTP PATH Markdown Python Rust Go Kotlin TypeScript JavaScript VS Code ANSI README URL ID UTF SAF APK Ctrl Alt Shift Enter Tab Esc Escape Settings OK Geist Mono Unicode Bash Zsh Ubuntu Debian Alpine Arch Fedora HEAD CPU RAM PDF SVG PNG WebAssembly Wasm Theia Room DataStore Gradle Claude AI SDK APT Apt Node Java Docker Home End Page Up Down Backspace Delete Insert Material Symbols".split())
+RES_DIRS = ("values",)
+
 found = []  # (rule, relpath, lineno, trimmed text)
 
 def add(rule, rel, lineno, line):
@@ -97,12 +109,40 @@ for dirpath, _, files in os.walk(src):
                 add("U-MOT-02", rel, i, line)
             if FLASHY.search(line):
                 add("U-AI-03", rel, i, line)
+            if under(rel, UI + "screens/", UI + "components/", SHELL):
+                if ELEVATION.search(line):
+                    add("U-AI-05", rel, i, line)
+                if CIRCLE.search(line) and not s.startswith("import "):
+                    add("U-AI-06", rel, i, line)
         if under(rel, *COPY_DIRS):
             # Text( often breaks its argument onto the next line, so match on the whole file.
             for m in TEXT_LIT.finditer(text):
                 if re.search(r"[A-Za-z]", TEMPLATE.sub("", m.group(1))):
                     lineno = text.count("\n", 0, m.end(1)) + 1
                     add("U-TYP-08", rel, lineno, lines[lineno - 1])
+
+res_root = os.path.join(os.path.dirname(src), "res")
+for name in sorted(os.listdir(res_root)) if os.path.isdir(res_root) else []:
+    if not name.startswith("values"):
+        continue
+    for fname in sorted(os.listdir(os.path.join(res_root, name))):
+        if not (fname.startswith("strings") and fname.endswith(".xml")):
+            continue
+        rel = f"res/{name}/{fname}"
+        with open(os.path.join(res_root, name, fname), encoding="utf-8") as f:
+            text = f.read()
+        text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        for m in STRING.finditer(text):
+            key, body = m.group(1), m.group(2)
+            if 'translatable="false"' in m.group(0)[: m.group(0).index(">")]:
+                continue
+            lineno = text.count("\n", 0, m.start()) + 1
+            words = re.findall(r"[A-Za-z][A-Za-z'-]*", re.split(r"(?<=[.:?])\s+", body)[0])
+            later = [w for w in words[1:] if w[0].isupper() and not w.isupper() and w not in PROPER and not re.fullmatch(r"[A-Z]{2,}s", w)]
+            if FORBIDDEN_WORDS.search(body):
+                found.append(("U-AI-08", rel, lineno, f"{key}: {body.strip()}"))
+            if 2 <= len(words) <= 8 and words[0][0].isupper() and len(later) == len(words) - 1 and later:
+                found.append(("U-TYP-05", rel, lineno, f"{key}: {body.strip()}"))
 
 found.sort(key=lambda t: (t[0], t[1], t[2]))
 
