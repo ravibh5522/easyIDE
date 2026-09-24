@@ -65,8 +65,7 @@ fun WelcomeView(
                     KitRow(
                         title = path.substringAfterLast('/'),
                         subtitle = path.substringBeforeLast('/', "").ifEmpty { null },
-                        mono = true,
-                        leading = { FileIcon(path.substringAfterLast('/')) },
+                        leading = { FileIcon(path.substringAfterLast('/'), size = Kit.control.rowIcon) },
                         onClick = { onOpenFile(path) },
                     )
                 }

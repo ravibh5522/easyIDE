@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitField
+import dev.easyide.app.ui.kit.KitSizes
 import dev.easyide.sandbox.files.FileNode
 
 /** A name being typed into the tree itself: a new file or folder under [parentDir] ("" is the project root), or a rename. */
@@ -70,12 +71,13 @@ internal fun InlineNameRow(edit: InlineEdit, depth: Int, onCommit: (String) -> U
             is InlineEdit.Rename -> R.string.wp_rename
         },
     )
-    Row(Modifier.fillMaxWidth().padding(end = Kit.space.s), verticalAlignment = Alignment.CenterVertically) {
-        IndentGuides(depth)
+    // The field starts where the icon of a row at this depth does: gutter, indent, then the twistie column.
+    val start = Kit.control.hPad + Kit.control.indent * depth + KitSizes.twistieSlot + Kit.space.xs
+    Row(Modifier.fillMaxWidth().treeGuides(depth).padding(start = start, end = Kit.control.hPad), verticalAlignment = Alignment.CenterVertically) {
         KitField(
             value = name,
             onValueChange = { name = it },
-            modifier = Modifier.weight(1f).padding(vertical = Kit.space.xxs),
+            modifier = Modifier.weight(1f),
             mono = true,
             keyboard = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { submit() }),

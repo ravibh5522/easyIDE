@@ -6,22 +6,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Undo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
 import dev.easyide.app.ui.components.SkeletonBar
@@ -37,10 +36,7 @@ import dev.easyide.app.ui.screens.workspace.git.BranchSheet
 import dev.easyide.app.ui.screens.workspace.git.ChangeRow
 import dev.easyide.app.ui.screens.workspace.git.CommitGraph
 import dev.easyide.app.ui.screens.workspace.git.GitConfirm
-import dev.easyide.app.ui.screens.workspace.git.letter
-import dev.easyide.app.ui.screens.workspace.git.tint
 import dev.easyide.app.ui.shell.DocumentOpener
-import dev.easyide.app.ui.shell.diff.Comparison
 import dev.easyide.app.ui.shell.diff.GitDocuments
 import dev.easyide.app.ui.screens.workspace.git.GitConfirmDialog
 import dev.easyide.app.ui.screens.workspace.git.GitCredentialDialog
@@ -52,19 +48,16 @@ import dev.easyide.app.ui.screens.workspace.git.ScmCommitBox
 import dev.easyide.app.ui.screens.workspace.git.ScmHeader
 import dev.easyide.app.ui.screens.workspace.git.StashSheet
 import dev.easyide.app.ui.screens.workspace.git.commitGraph
-import dev.easyide.app.ui.theme.GitColors
-import dev.easyide.sandbox.git.DiffSource
 import dev.easyide.sandbox.git.GitChange
-import dev.easyide.sandbox.git.GitChangeType
 import dev.easyide.sandbox.git.GitStatus
 
 /**
- * Source control panel: branch and remote actions, the working tree as two
- * lists, a commit box and the graph.
+ * Source control panel: branch and remote actions, a commit box, then the working tree and the
+ * graph as collapsible sections with counts.
  *
- * Deliberately shaped like VS Code's - staged above, unstaged below, a status
- * letter per row, per-row stage/unstage/discard - because that layout is what
- * users already read fluently. A tap opens the row's diff as a stage document
+ * Deliberately shaped like VS Code's - staged above, unstaged below, one line per change with
+ * a status letter and the stage/unstage/discard actions on the selected row - because that
+ * layout is what users already read fluently. A tap opens the row's diff as a stage document
  * (a preview; a double tap keeps it, the row's menu sends it to the side);
  * merge-conflict rows open the file itself, where the conflict markers are.
  * A commit in the graph opens as a document the same way.
@@ -127,59 +120,69 @@ private fun RepositoryBody(
     opener: DocumentOpener,
 ) {
     val busy = state.busy
+    val closed = rememberClosedSections()
+    // The change whose row shows its actions, like VS Code's hovered row: a tap on a row selects it.
+    var revealed by rememberSaveable { mutableStateOf<String?>(null) }
+    val row: @Composable (GitChange, String) -> Unit = { change, id ->
+        ChangeRow(change, busy, revealed == id, { revealed = id }, callbacks, opener)
+    }
+
+    val noChanges = stringResource(R.string.git_no_changes)
+    val titles = SectionTitles(
+        stringResource(R.string.git_section_conflicts), stringResource(R.string.git_section_staged),
+        stringResource(R.string.git_section_changes), stringResource(R.string.git_section_graph),
+    )
+    val stageAll = stringResource(R.string.git_stage_all)
+    val unstageAll = stringResource(R.string.git_unstage_all)
 
     ScmCommitBox(state, status, callbacks)
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        if (status.isClean) {
-            item { KitEmptyState(art = EmptyArt.Git, message = stringResource(R.string.git_no_changes)) }
-        }
+        if (status.isClean) item { KitRow(noChanges, enabled = false) }
         if (status.conflicting.isNotEmpty()) {
-            item { PanelGroupHeader(stringResource(R.string.git_section_conflicts), status.conflicting.size) }
-            items(status.conflicting, key = { "c:${it.path}" }) { change -> ChangeRow(change, busy, callbacks, opener) }
+            panelSection(closed, "conflicts", titles.conflicts, status.conflicting.size) {
+                items(status.conflicting, key = { "c:${it.path}" }) { row(it, "c:${it.path}") }
+            }
         }
         if (status.staged.isNotEmpty()) {
-            item {
-                PanelGroupHeader(
-                    stringResource(R.string.git_section_staged), status.staged.size,
-                    bulk = KitAction(stringResource(R.string.git_unstage_all)) { callbacks.onUnstage(status.staged.map { it.path }) },
-                )
+            panelSection(
+                closed, "staged", titles.staged, status.staged.size,
+                actions = { KitIconButton(Icons.Filled.Remove, unstageAll, { callbacks.onUnstage(status.staged.map { it.path }) }, enabled = !busy) },
+            ) {
+                items(status.staged, key = { "s:${it.path}" }) { row(it, "s:${it.path}") }
             }
-            items(status.staged, key = { "s:${it.path}" }) { change -> ChangeRow(change, busy, callbacks, opener) }
         }
         if (status.unstaged.isNotEmpty()) {
-            item {
-                PanelGroupHeader(
-                    stringResource(R.string.git_section_changes), status.unstaged.size,
-                    bulk = KitAction(stringResource(R.string.git_stage_all)) { callbacks.onStage(status.unstaged.map { it.path }) },
-                )
+            panelSection(
+                closed, "changes", titles.changes, status.unstaged.size,
+                actions = { KitIconButton(Icons.Filled.Add, stageAll, { callbacks.onStage(status.unstaged.map { it.path }) }, enabled = !busy) },
+            ) {
+                items(status.unstaged, key = { "u:${it.path}" }) { row(it, "u:${it.path}") }
             }
-            items(status.unstaged, key = { "u:${it.path}" }) { change -> ChangeRow(change, busy, callbacks, opener) }
         }
-
         if (graph.isNotEmpty()) {
-            item { PanelGroupHeader(stringResource(R.string.git_section_graph), graph.size) }
-            commitGraph(graph) { sha -> GitDocuments.commitUri(sha)?.let(opener::preview) }
+            panelSection(closed, "graph", titles.graph, graph.size) {
+                commitGraph(graph) { sha -> GitDocuments.commitUri(sha)?.let(opener::preview) }
+            }
         }
     }
 }
 
+/** The section titles, read in composition so the list's builder lambdas need no resources. */
+private class SectionTitles(val conflicts: String, val staged: String, val changes: String, val graph: String)
+
 /**
- * Stand-in rows while the first status read is in flight, shaped like change
- * rows (name over directory) so the real list replaces them without a jump.
+ * Stand-in rows while the first status read is in flight, the row token tall like change rows
+ * (name, then a shorter directory) so the real list replaces them without a jump.
  */
 @Composable
 private fun SkeletonRows() {
     val colors = Kit.colors
-    val space = Kit.space
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = space.m, vertical = space.s),
-        verticalArrangement = Arrangement.spacedBy(space.m),
-    ) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad)) {
         SKELETON_ROW_WIDTHS.forEach { fraction ->
-            Column(verticalArrangement = Arrangement.spacedBy(space.xs)) {
-                SkeletonBar(colors.raised, space.m, Modifier.fillMaxWidth(fraction))
-                SkeletonBar(colors.raised, space.s, Modifier.fillMaxWidth(fraction / 2))
+            Row(Modifier.fillMaxWidth().height(Kit.control.rowHeight), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.s)) {
+                SkeletonBar(colors.raised, Kit.space.m, Modifier.fillMaxWidth(fraction))
+                SkeletonBar(colors.raised, Kit.space.s, Modifier.fillMaxWidth(fraction / 2))
             }
         }
     }

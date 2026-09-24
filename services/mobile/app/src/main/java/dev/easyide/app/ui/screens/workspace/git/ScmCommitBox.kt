@@ -34,7 +34,7 @@ import dev.easyide.sandbox.git.GitIdentity
 import dev.easyide.sandbox.git.GitStatus
 
 /**
- * Message box, amend toggle and commit button. Committing without an author
+ * Message field, the amend row and a full-width commit button, in VS Code's order. Committing without an author
  * identity opens the identity form in place of a made-up author; the form's
  * save action commits, so the commit button waits until it is answered.
  */
@@ -48,7 +48,7 @@ internal fun ScmCommitBox(state: GitPanelState, status: GitStatus, callbacks: So
     KitField(
         value = state.commitMessage,
         onValueChange = callbacks.onMessageChanged,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = space.m, vertical = space.xs),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = space.xs),
         hint = stringResource(R.string.git_message_hint),
         singleLine = false,
         keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
@@ -74,9 +74,10 @@ internal fun ScmCommitBox(state: GitPanelState, status: GitStatus, callbacks: So
     KitButton(
         text = commitLabel(status, state.amend),
         onClick = callbacks.onCommit,
-        modifier = Modifier.padding(horizontal = space.xs),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = space.xs),
         icon = Icons.Filled.Check,
         enabled = canCommit,
+        fillWidth = true,
     )
 }
 
@@ -107,7 +108,7 @@ private fun IdentityForm(
         modifier = Modifier
             .fillMaxWidth()
             .background(Kit.colors.raised)
-            .padding(horizontal = space.m, vertical = space.s),
+            .padding(horizontal = Kit.control.hPad, vertical = space.s),
         verticalArrangement = Arrangement.spacedBy(space.s),
     ) {
         DialogHeading(stringResource(R.string.git_identity_title), Modifier.padding(top = space.none))

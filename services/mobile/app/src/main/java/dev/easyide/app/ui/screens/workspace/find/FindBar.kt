@@ -58,7 +58,7 @@ import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.screens.workspace.edit.SearchResult
 
 /**
- * The find/replace bar above the editor. Every control is a full 48dp touch target; below
+ * The find/replace bar above the editor: fields the field token tall and buttons the toolbar size (hit box token); below
  * [WIDE_LAYOUT] the option toggles wrap onto their own row instead of squeezing the field.
  *
  * Keyboard: Enter / Shift+Enter step to the next / previous match, Escape closes and hands
@@ -76,7 +76,7 @@ fun FindBar(
     DisposableEffect(Unit) { onDispose { onFieldFocusChanged(false) } }
     BoxWithConstraints(modifier = modifier.fillMaxWidth().background(colors.panel)) {
         val wide = maxWidth >= WIDE_LAYOUT
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.space.xs)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.space.xs, vertical = Kit.space.xxs)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 KitIconButton(
                     icon = if (find.showReplace) Icons.Filled.ExpandMore else Icons.Filled.ChevronRight,
@@ -103,7 +103,7 @@ private fun InputFrame(modifier: Modifier, failed: Boolean = false, content: @Co
     val shape = RoundedCornerShape(Kit.radius.s)
     Row(
         modifier = modifier
-            .heightIn(min = Kit.metrics.touchFloor)
+            .heightIn(min = Kit.control.fieldHeight)
             .background(colors.background, shape)
             .border(Kit.hairline, if (failed) colors.error else colors.panelBorder, shape)
             .padding(horizontal = Kit.space.m),
@@ -155,7 +155,7 @@ private fun FindField(find: FindController, onFocusChanged: (Boolean) -> Unit, m
         }
         BasicText(
             text = summary(find),
-            style = Kit.text.label.copy(color = if (failed) colors.error else colors.textMuted),
+            style = Kit.text.caption.copy(color = if (failed) colors.error else colors.textMuted),
             modifier = Modifier.padding(start = Kit.space.s),
         )
     }
@@ -189,7 +189,7 @@ private fun ReplaceRow(find: FindController) {
     val text = Kit.text.mono.copy(color = colors.plainText)
     Row(verticalAlignment = Alignment.CenterVertically) {
         // Lines the replace field up under the find field, past the expand button.
-        Box(modifier = Modifier.size(Kit.metrics.touchFloor))
+        Box(modifier = Modifier.size(Kit.control.hitBox))
         InputFrame(Modifier.weight(1f)) {
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                 if (find.replacement.isEmpty()) BasicText(stringResource(R.string.find_replace_hint), style = text.copy(color = colors.gutterText))

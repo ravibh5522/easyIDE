@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.easyide.app.ui.screens.workspace.FileTreePane
 import dev.easyide.app.ui.screens.workspace.SourceControlPane
 import dev.easyide.app.ui.screens.workspace.TerminalPane
 import dev.easyide.app.ui.screens.workspace.lsp.LspPanel
+import dev.easyide.app.ui.screens.workspace.git.changeByPath
 import dev.easyide.app.ui.screens.workspace.lsp.LspSidePanel
 import dev.easyide.app.ui.shell.CoreShell
 import dev.easyide.app.ui.shell.diff.GitDocuments
@@ -51,6 +53,8 @@ object WorkspacePanels {
 
     private fun explorer() = panelRenderer { modifier ->
         val env = LocalWorkspaceEnv.current
+        val status = env.git.status
+        val changes = remember(status) { status?.changeByPath().orEmpty() }
         FileTreePane(
             state = env.ui,
             onFileOpened = env.callbacks.onFileOpened,
@@ -61,6 +65,7 @@ object WorkspacePanels {
             onRefresh = env.callbacks.onRefreshTree,
             inline = env.actions.inline,
             modifier = modifier.fillMaxSize(),
+            changes = changes,
         )
     }
 

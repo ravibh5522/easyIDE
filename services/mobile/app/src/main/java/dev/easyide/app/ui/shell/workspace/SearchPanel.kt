@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,11 +21,11 @@ import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.foundation.LocalSettings
-import dev.easyide.app.ui.kit.EmptyArt
 import dev.easyide.app.ui.kit.Kit
-import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.kit.KitField
 import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.screens.workspace.PanelTitleRow
+import dev.easyide.app.ui.screens.workspace.files.FileIcon
 import dev.easyide.app.ui.screens.workspace.files.FileIndexer
 import dev.easyide.app.ui.screens.workspace.files.PathHit
 import dev.easyide.app.ui.screens.workspace.files.PathMatcher
@@ -52,32 +51,27 @@ fun SearchPanel(env: WorkspaceEnv, modifier: Modifier = Modifier) {
     val hits by produceState(emptyList<PathHit>(), query, index, recent) {
         value = withContext(Dispatchers.Default) { PathMatcher.rank(query, index.paths, recent.paths, MAX_RESULTS) }
     }
-    val space = Kit.space
     Column(modifier.fillMaxSize().background(Kit.colors.panel)) {
-        BasicText(
-            stringResource(R.string.wshell_search_title),
-            Modifier.padding(start = space.l, end = space.l, top = space.m, bottom = space.s),
-            style = Kit.text.title.copy(color = Kit.colors.plainText),
-        )
-        KitField(query, { query = it }, Modifier.fillMaxWidth().padding(horizontal = space.m), hint = stringResource(R.string.wshell_search_hint))
+        PanelTitleRow(stringResource(R.string.wshell_search_title))
+        KitField(query, { query = it }, Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs), hint = stringResource(R.string.wshell_search_hint))
         val note = when {
             hits.isEmpty() && indexing -> stringResource(R.string.wshell_search_indexing)
             hits.isEmpty() -> stringResource(R.string.wshell_search_empty)
             index.truncated -> stringResource(R.string.wshell_search_truncated, FileIndexer.MAX_FILES)
             else -> null
         }
-        if (hits.isEmpty()) KitEmptyState(EmptyArt.Search, note.orEmpty())
+        if (hits.isEmpty()) KitRow(note.orEmpty(), enabled = false)
         LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
             items(hits, key = { it.path }) { hit ->
                 KitRow(
                     title = hit.fileName,
                     subtitle = hit.directory.ifEmpty { null },
-                    mono = true,
+                    leading = { FileIcon(hit.fileName, size = Kit.control.rowIcon) },
                     onClick = { env.callbacks.onFileOpened(FileNode(hit.fileName, hit.path, isDirectory = false, sizeBytes = 0)) },
                     id = "search-hit",
                 )
             }
-            if (hits.isNotEmpty() && note != null) item { BasicText(note, Modifier.padding(space.l), style = Kit.text.caption.copy(color = Kit.colors.textMuted)) }
+            if (hits.isNotEmpty() && note != null) item { KitRow(note, enabled = false) }
         }
     }
 }

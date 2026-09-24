@@ -31,13 +31,14 @@ import dev.easyide.app.ui.kit.KitMenuItem
 import dev.easyide.app.ui.screens.workspace.files.LocalIgnoreIndex
 import dev.easyide.app.ui.screens.workspace.files.TreeFilter
 import dev.easyide.sandbox.files.FileNode
+import dev.easyide.sandbox.git.GitChangeType
 
 /**
  * The explorer: a header with new-file / new-folder / refresh / filter, then the tree.
  *
- * Nesting is drawn with per-level guide lines rather than plain indentation, so
- * at depth 3+ it stays obvious which parent a file belongs to. Every row is at
- * least the touch floor tall, so the tree is usable in a phone's modal sheet.
+ * Rows are the kit's list row (the row token tall, indent per level) with a hairline guide
+ * under each ancestor, so at depth 3+ it stays obvious which parent a file belongs to. A file with a
+ * git change wears its status letter at the end of the row ([changes], by project path).
  */
 @Composable
 fun FileTreePane(
@@ -50,6 +51,7 @@ fun FileTreePane(
     onRefresh: () -> Unit,
     inline: InlineEditSpec,
     modifier: Modifier = Modifier,
+    changes: Map<String, GitChangeType> = emptyMap(),
 ) {
     val colors = Kit.colors
     val settings = LocalSettings.current
@@ -82,6 +84,7 @@ fun FileTreePane(
                 onDirectoryToggled = onDirectoryToggled,
                 onNodeMenu = onNodeMenu,
                 inline = inline,
+                changes = changes,
             )
         }
     }
@@ -144,6 +147,7 @@ private fun LazyListScope.renderNodes(
     onDirectoryToggled: (FileNode) -> Unit,
     onNodeMenu: (FileNode, IntOffset) -> Unit,
     inline: InlineEditSpec,
+    changes: Map<String, GitChangeType>,
 ) {
     val edit = inline.edit
     if (edit != null && edit.parent == parent) {
@@ -159,6 +163,7 @@ private fun LazyListScope.renderNodes(
                     depth = depth,
                     expanded = node.relativePath in state.expandedDirs,
                     selected = state.activeTabPath == node.relativePath,
+                    change = changes[node.relativePath],
                     onClick = { if (node.isDirectory) onDirectoryToggled(node) else onFileOpened(node) },
                     onMenu = { at -> onNodeMenu(node, at) },
                 )
@@ -175,6 +180,7 @@ private fun LazyListScope.renderNodes(
                 onDirectoryToggled = onDirectoryToggled,
                 onNodeMenu = onNodeMenu,
                 inline = inline,
+                changes = changes,
             )
         }
     }

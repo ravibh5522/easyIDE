@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -69,6 +70,7 @@ fun KitButton(
     loading: Boolean = false,
     enabled: Boolean = true,
     large: Boolean = false,
+    fillWidth: Boolean = false,
 ) {
     val paint = buttonPaint(style, enabled, Kit.colors)
     val interaction = remember { MutableInteractionSource() }
@@ -87,6 +89,7 @@ fun KitButton(
     ) {
         Box(
             modifier = Modifier
+                .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)
                 .defaultMinSize(minHeight = height)
                 .clip(shape)
                 .then(if (paint.fill != null) Modifier.background(paint.fill) else Modifier)

@@ -3,6 +3,7 @@ package dev.easyide.app.ui.shell.nav
 import dev.easyide.app.ui.props.ControlScale
 import androidx.compose.ui.unit.Dp
 import dev.easyide.app.ui.foundation.WidthClass
+import dev.easyide.app.ui.shell.CoreShell
 import dev.easyide.app.ui.shell.NavItem
 import dev.easyide.app.ui.shell.NavLayout
 import dev.easyide.app.ui.shell.ShellLimits
@@ -41,12 +42,21 @@ object NavRules {
     /** The bottom bar steps aside while the software keyboard is up: the input dock takes its place (shell-model.md 9). A rail never does. */
     fun barShown(placement: NavPlacement, keyboardUp: Boolean): Boolean = placement != NavPlacement.BOTTOM || !keyboardUp
 
-    /** Auto labels the bottom bar always (it is thumb-reached and has room) and a rail only when the window is expanded. */
-    fun showLabels(labels: NavLabels, placement: NavPlacement, width: WidthClass): Boolean = when (labels) {
+    /**
+     * Auto labels the bottom bar always (it is thumb-reached and has room) and a rail never: like VS Code's
+     * activity bar it is icons only, a label being the cell's semantics. Only the user's "always" labels a rail.
+     */
+    fun showLabels(labels: NavLabels, placement: NavPlacement): Boolean = when (labels) {
         NavLabels.ALWAYS -> true
         NavLabels.NEVER -> false
-        NavLabels.AUTO -> placement == NavPlacement.BOTTOM || width.isExpanded
+        NavLabels.AUTO -> placement == NavPlacement.BOTTOM
     }
+
+    /** The items that sit in the rail's bottom cluster (VS Code's Settings and Accounts corner), not among the workspace destinations. */
+    private val CLUSTER = setOf(CoreShell.EXTENSIONS, CoreShell.SETTINGS, CoreShell.COMMANDS, CoreShell.PROJECTS, CoreShell.CLOSE_PROJECT)
+
+    /** A rail's cells as two groups, each in display order: the destinations at the top, the [CLUSTER] at the bottom. */
+    fun railGroups(shown: List<NavItem>): Pair<List<NavItem>, List<NavItem>> = shown.partition { it.id !in CLUSTER }
 
     /** The height of one cell: the bar's own height, a labelled rail cell as tall as the bar, a bare icon a square of the rail width. */
     fun cellHeight(placement: NavPlacement, labelled: Boolean, control: ControlScale): Dp =

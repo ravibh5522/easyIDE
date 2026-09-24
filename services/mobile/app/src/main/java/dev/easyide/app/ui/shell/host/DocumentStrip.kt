@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -121,6 +122,7 @@ private fun StripTab(
     ) {
         BasicText(
             title,
+            Modifier.widthIn(max = ShellTokens.tabMaxWidth),
             style = Kit.text.title.copy(
                 color = if (selected) colors.tabActiveText else colors.tabInactiveText,
                 fontStyle = if (tab.state == TabState.PREVIEW) FontStyle.Italic else FontStyle.Normal,

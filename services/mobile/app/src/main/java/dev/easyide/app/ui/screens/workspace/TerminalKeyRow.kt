@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.kit.HapticEvent
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.collectFlags
@@ -62,7 +63,7 @@ fun KeyRowBar(
 }
 
 /**
- * A raised key; a long press runs the key's `longPress` action. Pressing washes it with the
+ * A raised key the key tokens tall (a phone's at least the touch floor); a long press runs the key's `longPress` action. Pressing washes it with the
  * state layer and plays the key-tap haptic (which honours `appearance.haptics`), so a tap
  * registers the way a soft-keyboard key does even when the shell prints nothing back.
  */
@@ -74,10 +75,12 @@ private fun KeyCap(key: RowKey, onClick: () -> Unit, onLongClick: (() -> Unit)?)
     val interaction = remember { MutableInteractionSource() }
     val flags = interaction.collectFlags()
     val shape = RoundedCornerShape(Kit.radius.s)
+    // A phone's keys are isolated thumb targets and keep the touch floor; a wide window has the tokens.
+    val floor = if (Kit.metrics.width.isCompact) Kit.metrics.touchFloor else 0.dp
 
     Box(
         modifier = Modifier
-            .defaultMinSize(minWidth = maxOf(Kit.control.keyMinWidth, Kit.metrics.touchFloor), minHeight = maxOf(Kit.control.keyHeight, Kit.metrics.touchFloor))
+            .defaultMinSize(minWidth = maxOf(Kit.control.keyMinWidth, floor), minHeight = maxOf(Kit.control.keyHeight, floor))
             .clip(shape)
             .background(colors.raised)
             .border(Kit.hairline, colors.panelBorder, shape)
@@ -96,6 +99,6 @@ private fun KeyCap(key: RowKey, onClick: () -> Unit, onLongClick: (() -> Unit)?)
             .padding(horizontal = Kit.space.s),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(key.label, style = codeTextStyle().copy(color = colors.plainText))
+        BasicText(key.label, style = Kit.text.mono.copy(color = colors.plainText), maxLines = 1)
     }
 }

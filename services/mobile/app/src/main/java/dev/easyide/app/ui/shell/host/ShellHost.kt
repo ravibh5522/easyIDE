@@ -68,7 +68,7 @@ fun ShellHost(
     val placement = NavRules.placement(settings.position, window.width)
     val surface = NavSurfaceState(
         placement, items, state.current.nav, settings.prefs.pinned,
-        NavRules.showLabels(settings.labels, placement, window.width), badges, focus,
+        NavRules.showLabels(settings.labels, placement), badges, focus,
     )
     val callbacks = StageCallbacks(
         onBack = { shell.back() },
