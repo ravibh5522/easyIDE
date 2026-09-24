@@ -57,6 +57,9 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 environmentManager = container.environmentManager,
                 externalFolderSync = container.externalFolderSync,
                 projectManager = container.projectManager,
+                themes = container.extensions.themes,
+                contributions = container.extensions.runtime.contributions,
+                lspServers = container.lsp.servers,
             )
 
             ExtensionsViewModel::class.java -> ExtensionsViewModel(
@@ -65,6 +68,8 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 settingsStore = container.settingsStore,
                 safeMode = container.safeMode,
                 environmentManager = container.environmentManager,
+                projectManager = container.projectManager,
+                projectRoot = container.projectFiles::projectRoot,
             )
 
             else -> error("Unknown ViewModel: ${modelClass.name}")

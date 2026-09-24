@@ -38,6 +38,11 @@ enum class DiagnosticCode(val severity: Severity, @StringRes val message: Int) {
     UNKNOWN_COMMAND(Severity.WARNING, R.string.keybinding_diag_command),
     BAD_ENTRY(Severity.ERROR, R.string.keybinding_diag_entry),
     CHORD_CONFLICT(Severity.WARNING, R.string.keybinding_diag_conflict),
+    BAD_CONTRIBUTION_REF(Severity.WARNING, R.string.settings_diag_bad_ref),
+    NOT_HIDEABLE(Severity.WARNING, R.string.settings_diag_not_hideable),
+    KEY_ROW_LAYOUT(Severity.WARNING, R.string.settings_diag_key_row_layout),
+    LSP_SERVER_INCOMPLETE(Severity.WARNING, R.string.settings_diag_lsp_incomplete),
+    LSP_SERVER_FIELD(Severity.WARNING, R.string.settings_diag_lsp_field),
 }
 
 /**

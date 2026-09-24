@@ -51,6 +51,8 @@ artifacts {
 }
 
 dependencies {
+    // Module validation, metering, limits and error types live in the Apache-2.0 SDK core.
+    api(project(":extension-schema"))
     implementation(libs.chicory.runtime)
     implementation(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.serialization.json)

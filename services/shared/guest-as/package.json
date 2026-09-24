@@ -1,0 +1,10 @@
+{
+  "name": "@easyide/guest-as",
+  "version": "0.1.0",
+  "description": "AssemblyScript guest bindings for easyIDE WASM extensions (ABI v1)",
+  "license": "Apache-2.0",
+  "repository": "github:ravibh5522/easyIDE",
+  "type": "module",
+  "files": ["assembly/", "README.md", "LICENSE"],
+  "peerDependencies": { "assemblyscript": ">=0.28 <0.29" }
+}

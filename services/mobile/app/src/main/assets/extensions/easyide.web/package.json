@@ -1,0 +1,88 @@
+{
+  "name": "web",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "HTML, CSS and JSON",
+  "description": "HTML, CSS/SCSS/Less and JSON language servers from VS Code (vscode-langservers-extracted): validation, completion, hover, formatting.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:html",
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:less",
+    "onLanguage:json",
+    "onLanguage:jsonc"
+  ],
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(registry.npmjs.org,archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.install"
+    ],
+    "languageServers": [
+      {
+        "id": "html",
+        "languages": [
+          "html"
+        ],
+        "command": [
+          "vscode-html-language-server",
+          "--stdio"
+        ],
+        "memoryBudgetMb": 150
+      },
+      {
+        "id": "css",
+        "languages": [
+          "css",
+          "scss",
+          "less"
+        ],
+        "command": [
+          "vscode-css-language-server",
+          "--stdio"
+        ],
+        "memoryBudgetMb": 150
+      },
+      {
+        "id": "json",
+        "languages": [
+          "json",
+          "jsonc"
+        ],
+        "command": [
+          "vscode-json-language-server",
+          "--stdio"
+        ],
+        "memoryBudgetMb": 150
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "node",
+          "title": "Install Node.js and npm",
+          "run": "apt-get update && apt-get install -y nodejs npm",
+          "when": "envDistro in 'debian,ubuntu'"
+        },
+        {
+          "id": "servers",
+          "title": "Install vscode-langservers-extracted",
+          "run": "npm install -g vscode-langservers-extracted@4"
+        }
+      ],
+      "verify": "command -v vscode-html-language-server && command -v vscode-css-language-server && command -v vscode-json-language-server",
+      "uninstall": [
+        "npm uninstall -g vscode-langservers-extracted"
+      ]
+    },
+    "memoryBudgetMb": 400
+  }
+}

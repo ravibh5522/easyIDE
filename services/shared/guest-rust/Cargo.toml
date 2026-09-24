@@ -1,0 +1,14 @@
+[package]
+name = "easyide-guest"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Guest bindings for easyIDE WASM extensions (ABI v1)"
+repository = "https://github.com/ravibh5522/easyIDE"
+readme = "README.md"
+
+[dependencies]
+serde_json = "1"
+
+[lib]
+path = "src/lib.rs"

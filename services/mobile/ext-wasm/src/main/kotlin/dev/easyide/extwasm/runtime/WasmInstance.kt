@@ -93,6 +93,7 @@ internal class WasmInstance(
     private val handle = instance.export(AbiV1.HANDLE)
     private val activateFn = instance.export(AbiV1.ACTIVATE)
     private val abiVersionFn = instance.export(AbiV1.ABI_VERSION)
+    private val initializeFn = if (exports(loaded, AbiV1.INITIALIZE)) instance.export(AbiV1.INITIALIZE) else null
 
     init {
         watchdog.add(this)
@@ -105,6 +106,17 @@ internal class WasmInstance(
     /** Requests the running call (if any) to stop with E_CANCELLED. */
     fun cancel() {
         if (budget.running) budget.requestInterrupt(Interrupt.CANCELLED)
+    }
+
+    /** Runs the optional `_initialize` export once, metered like activation; a no-op without one. */
+    suspend fun initialize() {
+        val init = initializeFn ?: return
+        enter(limits.activateTimeoutMs) { init.apply() }
+    }
+
+    private fun exports(loaded: LoadedModule, name: String): Boolean {
+        val section = loaded.module.exportSection()
+        return (0 until section.exportCount()).any { section.getExport(it).name() == name }
     }
 
     suspend fun abiVersion(): Int = enter(limits.activateTimeoutMs) { abiVersionFn.apply()[0].toInt() }

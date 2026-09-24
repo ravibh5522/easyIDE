@@ -22,5 +22,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
+    testImplementation(testFixtures(project(":extension-schema")))
     testImplementation(libs.kotlinx.coroutines.test)
+}
+
+tasks.test {
+    systemProperty("easyide.fixtures", project(":extension-schema").file("src/testFixtures/fixtures").absolutePath)
 }

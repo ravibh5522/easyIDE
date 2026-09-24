@@ -45,6 +45,7 @@ object SettingsJsonDiagnostics {
             if (inLanguageBlock && !setting.scope.languageOverridable) add(DiagnosticCode.NOT_LANGUAGE_OVERRIDABLE)
             if (!setting.isValid(value)) add(DiagnosticCode.INVALID_VALUE, invalidDetail(setting, value))
             setting.deprecation?.let { add(DiagnosticCode.DEPRECATED, it) }
+            out += CustomizationDiagnostics.check(key, value).map { it.copy(offset = offset) }
         }
         if (layer == LayerId.PROJECT && ExecBearing.extract(LayerDoc.fromJson(JsonObject(mapOf(key to value))), schema).isNotEmpty()) {
             add(DiagnosticCode.NEEDS_TRUST)

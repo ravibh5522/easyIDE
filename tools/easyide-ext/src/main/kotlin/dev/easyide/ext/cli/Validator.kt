@@ -12,6 +12,8 @@ import dev.easyide.extensions.manifest.SemVer
 import dev.easyide.extensions.manifest.Severity
 import dev.easyide.extensions.schema.BuiltInCommands
 import dev.easyide.extensions.schema.ManifestSchema
+import dev.easyide.extwasm.WasmLimits
+import dev.easyide.extwasm.load.WasmStaticCheck
 import java.io.File
 import java.nio.ByteBuffer
 
@@ -28,9 +30,8 @@ class Validation(val descriptor: ExtensionDescriptor?, val diagnostics: List<Dia
  * references, when-clauses, capability audit, scope, content), then CLI-only checks: a
  * light WASM header check and, with `--strict`, registry-publish readiness.
  *
- * WASM static validation (imports, exports, memory, metering) runs in the app's `:ext-wasm`
- * host, which stays under the app licence (decision 0015), so the CLI checks the module
- * header here and the full check happens at install.
+ * WASM modules get the app's static check (size, metering pass, parse, ABI v1 imports and
+ * exports, memory cap) from the shared core, with the default `extensions.wasm.*` limits.
  */
 class Validator(private val apiVersion: SemVer = AppApi.VERSION, private val limits: PackageLimits = PackageLimits.DEFAULT) {
 
@@ -56,17 +57,13 @@ class Validator(private val apiVersion: SemVer = AppApi.VERSION, private val lim
             is ParseResult.Invalid -> { diags += r.errors; diags += r.warnings; null }
         }
         if (descriptor != null) {
-            descriptor.wasm?.let { diags += wasmHeader(files, it.module.path) }
+            descriptor.wasm?.let { w ->
+                WasmStaticCheck.reject(files.read(w.module.path), WasmLimits.resolve({ null }, w.memoryMb))
+                    ?.let { diags += cliError(CliCode.WASM_MODULE, it, w.module.path) }
+            }
             if (strict) diags += publishReadiness(files, descriptor)
         }
         return Validation(descriptor, diags.sortedWith(ORDER), files)
-    }
-
-    private fun wasmHeader(files: PackageFiles, path: String): List<Diagnostic> {
-        val bytes = files.read(path)
-        val ok = bytes.size >= 8 && bytes.copyOfRange(0, 4).contentEquals(WASM_MAGIC) &&
-            ByteBuffer.wrap(bytes, 4, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN).int == 1
-        return if (ok) emptyList() else listOf(cliError(CliCode.WASM_MODULE, "not a WebAssembly 1.0 binary module", path))
     }
 
     /** sec 5.2 step 10: what the registry requires beyond what an install accepts. */
@@ -90,7 +87,6 @@ class Validator(private val apiVersion: SemVer = AppApi.VERSION, private val lim
     }
 
     companion object {
-        private val WASM_MAGIC = byteArrayOf(0, 0x61, 0x73, 0x6d)
         private val PNG_MAGIC = byteArrayOf(0x89.toByte(), 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)
 
         /** Errors first, then by file and pointer, so output is stable across runs. */

@@ -21,5 +21,6 @@ class EasyIdeApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         container.lsp.onTrimMemory(level)
+        container.extensions.wasm.onTrimMemory(level)
     }
 }

@@ -15,6 +15,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -25,6 +28,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -61,6 +66,13 @@ import java.util.Date
 fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val install by viewModel.install.collectAsStateWithLifecycle()
+    val rollback by viewModel.rollback.collectAsStateWithLifecycle()
+    val browse by viewModel.browse.collectAsStateWithLifecycle()
+    val detail by viewModel.detail.collectAsStateWithLifecycle()
+    val create by viewModel.create.collectAsStateWithLifecycle()
+    val projects by viewModel.projects.collectAsStateWithLifecycle()
+    val developerMode by viewModel.developerMode.collectAsStateWithLifecycle()
+    var browsing by rememberSaveable { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
     val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(viewModel::stageArchive) }
@@ -74,11 +86,15 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back)) }
                 },
                 actions = {
+                    if (browsing && browse.configured) {
+                        IconButton(onClick = viewModel::refreshRegistries) { Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.reg_refresh)) }
+                    }
                     Box {
                         IconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.ext_install)) }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(text = { Text(stringResource(R.string.ext_install_folder)) }, onClick = { menuOpen = false; pickFolder.launch(null) })
                             DropdownMenuItem(text = { Text(stringResource(R.string.ext_install_file)) }, onClick = { menuOpen = false; pickFile.launch(arrayOf(ANY_MIME)) })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.create_ext_action)) }, onClick = { menuOpen = false; viewModel.openCreate() })
                         }
                     }
                 },
@@ -90,20 +106,37 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
             state.safeMode?.let { reason -> item { SafeModeBanner(reason, state.safeModeSuspects.map { it.value }, viewModel::exitSafeMode) } }
-            items(state.rows, key = { it.key }) { row ->
+            item {
+                TabRow(selectedTabIndex = if (browsing) 1 else 0) {
+                    Tab(selected = !browsing, onClick = { browsing = false }, text = { Text(stringResource(R.string.ext_tab_installed)) })
+                    Tab(selected = browsing, onClick = { browsing = true }, text = {
+                        Text(if (browse.updates.isEmpty()) stringResource(R.string.ext_tab_browse) else stringResource(R.string.ext_tab_browse_updates, browse.updates.size))
+                    })
+                }
+            }
+            if (browsing) browseSection(browse, viewModel::setQuery, viewModel::openDetail)
+            if (!browsing) items(state.rows, key = { it.key }) { row ->
                 ExtensionCard(
                     row = row,
+                    updateTo = browse.updates[row.id]?.takeIf { row.pkg.source == Source.REGISTRY },
+                    revokedReason = browse.revoked["${row.id}@${row.pkg.directory.name}"],
                     expanded = expanded == row.key,
                     onToggleDetails = { expanded = if (expanded == row.key) null else row.key },
                     onEnabled = { viewModel.setEnabled(row, it) },
                     onUninstall = { viewModel.uninstall(row) },
+                    onRollback = { viewModel.requestRollback(row) },
+                    lineActions = LineActions(viewModel::setHidden, viewModel::move),
                 )
             }
-            item { LogSection(state.log, viewModel::clearLog) }
+            if (!browsing) item { LogSection(state.log, viewModel::clearLog) }
         }
     }
 
+    detail?.let { RegistryDetail(it, viewModel::installFromRegistry, viewModel::forgetPin, viewModel::closeDetail) }
+
     InstallDialogs(install, state.environments, viewModel)
+    CreateExtensionDialogs(create, projects, developerMode, viewModel)
+    RollbackDialogs(rollback, viewModel)
 }
 
 @Composable
@@ -122,8 +155,21 @@ private fun SafeModeBanner(reason: SafeModeReason, suspects: List<String>, onExi
     }
 }
 
+/** What the inspector can do to one contribution line. */
+private class LineActions(val setHidden: (InspectorLine, Boolean) -> Unit, val move: (InspectorLine, Int) -> Unit)
+
 @Composable
-private fun ExtensionCard(row: ExtensionRow, expanded: Boolean, onToggleDetails: () -> Unit, onEnabled: (Boolean) -> Unit, onUninstall: () -> Unit) {
+private fun ExtensionCard(
+    row: ExtensionRow,
+    updateTo: String?,
+    revokedReason: String?,
+    expanded: Boolean,
+    onToggleDetails: () -> Unit,
+    onEnabled: (Boolean) -> Unit,
+    onUninstall: () -> Unit,
+    onRollback: () -> Unit,
+    lineActions: LineActions,
+) {
     val d = row.loaded?.descriptor
     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.l).clickable(onClick = onToggleDetails)) {
         Column(modifier = Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
@@ -132,17 +178,20 @@ private fun ExtensionCard(row: ExtensionRow, expanded: Boolean, onToggleDetails:
                     Text(d?.displayName ?: row.id, style = MaterialTheme.typography.titleMedium)
                     Text("${row.id} ${d?.version ?: row.pkg.directory.name} - ${sourceLabel(row.pkg.source)}", style = MaterialTheme.typography.bodySmall)
                     Text(stateLabel(row), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                    // Update check (sec 10): a badge only; installing is the user's tap in Browse.
+                    updateTo?.let { Text(stringResource(R.string.reg_update_available, it), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary) }
+                    revokedReason?.let { Text(stringResource(R.string.ext_revoked_reason, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
                 }
                 if (d != null) Switch(checked = row.userEnabled, onCheckedChange = onEnabled)
             }
             d?.description?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-            if (expanded) Details(row, onUninstall)
+            if (expanded) Details(row, onUninstall, onRollback, lineActions)
         }
     }
 }
 
 @Composable
-private fun Details(row: ExtensionRow, onUninstall: () -> Unit) {
+private fun Details(row: ExtensionRow, onUninstall: () -> Unit, onRollback: () -> Unit, lineActions: LineActions) {
     val d = row.loaded?.descriptor
     HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.s))
     row.problem?.let { p ->
@@ -161,14 +210,39 @@ private fun Details(row: ExtensionRow, onUninstall: () -> Unit) {
     }
     Section(stringResource(R.string.ext_contributions))
     if (row.contributions.isEmpty()) Text(stringResource(R.string.ext_contributions_none))
-    row.contributions.forEach { line ->
-        Mono(line.ref)
-        line.hiddenBy?.let { Text(stringResource(R.string.ext_hidden_by, it), style = MaterialTheme.typography.bodySmall) }
-        line.conflicts.forEach { Text(it.message, style = MaterialTheme.typography.bodySmall) }
-    }
+    row.contributions.forEach { line -> ContributionLine(line, lineActions) }
     row.shadowed.forEach { Text(it.message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
     if (row.pkg.source != Source.BUILT_IN) {
-        TextButton(onClick = onUninstall) { Text(stringResource(R.string.ext_uninstall)) }
+        Row {
+            row.rollbackTo?.let { v -> TextButton(onClick = onRollback) { Text(stringResource(R.string.ext_rollback, v)) } }
+            TextButton(onClick = onUninstall) { Text(stringResource(R.string.ext_uninstall)) }
+        }
+    }
+}
+
+/** One inspector line: its ref, why it is hidden, its conflicts, and Hide/Show and Move up/down. */
+@Composable
+private fun ContributionLine(line: InspectorLine, actions: LineActions) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier.weight(1f)) {
+            Mono(line.ref)
+            line.hiddenBy?.let { Text(stringResource(R.string.ext_hidden_by, it), style = MaterialTheme.typography.bodySmall) }
+            if (!line.hideable) Text(stringResource(R.string.ext_not_hideable), style = MaterialTheme.typography.bodySmall)
+            line.conflicts.forEach { Text(it.message, style = MaterialTheme.typography.bodySmall) }
+        }
+        if (line.location != null) {
+            IconButton(onClick = { actions.move(line, -1) }, enabled = line.canMoveUp) {
+                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = stringResource(R.string.ext_move_up))
+            }
+            IconButton(onClick = { actions.move(line, 1) }, enabled = line.canMoveDown) {
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = stringResource(R.string.ext_move_down))
+            }
+        }
+        if (line.hideable || line.hidden) {
+            TextButton(onClick = { actions.setHidden(line, !line.hidden) }) {
+                Text(stringResource(if (line.hidden) R.string.ext_unhide else R.string.ext_hide))
+            }
+        }
     }
 }
 
@@ -201,7 +275,8 @@ private fun Mono(text: String) {
 @Composable
 private fun sourceLabel(source: Source): String = stringResource(when (source) {
     Source.BUILT_IN -> R.string.ext_source_builtin
-    Source.SIDELOAD, Source.DEV -> R.string.ext_source_local
+    Source.SIDELOAD -> R.string.ext_source_local
+    Source.DEV -> R.string.ext_source_dev
     Source.REGISTRY -> R.string.ext_source_registry
     Source.OPEN_VSX -> R.string.ext_source_open_vsx
 })

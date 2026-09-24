@@ -1,0 +1,5 @@
+{
+  "name": "the command is offered in the palette for any open file",
+  "editor": { "path": "/workspace/notes.md", "text": "one two three" },
+  "expect": { "visible": [ "menu:commandPalette:wasm-word-count.count" ] }
+}

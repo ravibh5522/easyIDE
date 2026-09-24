@@ -17,14 +17,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
+import dev.easyide.app.extensions.dev.DevPending
+import dev.easyide.app.extensions.dev.PromptReason
 import dev.easyide.extensions.capability.Capability
+import dev.easyide.extensions.contrib.Contributions
 import dev.easyide.extensions.manifest.InstallScope
 import dev.easyide.sandbox.model.SandboxEnvironment
 
 /**
- * The capability sheet of a local install (ECO-03): source label "unsigned, local", every
+ * The capability sheet of an install (ECO-03): source label "unsigned, local" or "registry
+ * <id>, signed by <keyId>" (registry-and-install.md sec 8.2 step 5), every
  * declared capability with its sdk-reference prompt text, the scope, and for environment
  * packs the target environment. Declining installs nothing.
  */
@@ -43,19 +48,27 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
         is InstallState.Review -> {
             val d = install.pkg.descriptor
             val needsEnv = d.scope == InstallScope.ENVIRONMENT
-            var envId by remember(install) { mutableStateOf(environments.firstOrNull()?.id) }
+            var envId by remember(install) { mutableStateOf(install.dev?.envId ?: environments.firstOrNull()?.id) }
             AlertDialog(
                 onDismissRequest = { viewModel.decline(install.pkg) },
                 title = { Text(stringResource(R.string.ext_install_review_title, d.displayName, d.version.toString())) },
                 text = {
                     Column(modifier = Modifier.heightIn(max = SHEET_MAX_DP.dp).verticalScroll(rememberScrollState())) {
-                        Text(stringResource(R.string.ext_install_unsigned), color = MaterialTheme.colorScheme.error)
+                        val signed = install.registry
+                        if (signed == null) {
+                            Text(stringResource(R.string.ext_install_unsigned), color = MaterialTheme.colorScheme.error)
+                        } else {
+                            Text(stringResource(R.string.ext_install_signed, signed.registryId, signed.signedBy))
+                            if (signed.fromCache) Text(stringResource(R.string.ext_install_from_cache), style = MaterialTheme.typography.bodySmall)
+                        }
+                        install.dev?.let { Text(devReason(it), style = MaterialTheme.typography.bodyMedium) }
                         Text(d.id.value, style = MaterialTheme.typography.bodySmall)
                         d.description?.let { Text(it) }
                         if (install.pkg.alreadyInstalled) Text(stringResource(R.string.ext_install_already), color = MaterialTheme.colorScheme.error)
                         Text(stringResource(R.string.ext_capabilities), style = MaterialTheme.typography.titleSmall)
                         if (d.capabilities.items.isEmpty()) Text(stringResource(R.string.ext_capabilities_none))
                         d.capabilities.items.sortedBy { it.id }.forEach { Text("- ${capabilityPrompt(it, envId)}") }
+                        InstallCommands(d.contributes)
                         Text(stringResource(R.string.ext_install_not_isolated), style = MaterialTheme.typography.bodySmall)
                         if (needsEnv) {
                             Text(stringResource(R.string.ext_install_environment), style = MaterialTheme.typography.titleSmall)
@@ -68,7 +81,7 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
                 },
                 confirmButton = {
                     TextButton(
-                        onClick = { viewModel.approve(install.pkg, envId) },
+                        onClick = { viewModel.approve(install, envId) },
                         enabled = !install.pkg.alreadyInstalled && (!needsEnv || envId != null),
                     ) { Text(stringResource(R.string.ext_install_approve)) }
                 },
@@ -79,7 +92,7 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
 }
 
 @Composable
-private fun ProblemDialog(title: String, problems: List<String>, onDismiss: () -> Unit) {
+internal fun ProblemDialog(title: String, problems: List<String>, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -90,6 +103,39 @@ private fun ProblemDialog(title: String, problems: List<String>, onDismiss: () -
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ext_prompt_close)) } },
     )
+}
+
+/**
+ * Environment setup steps and language server commands, verbatim (registry-and-install.md
+ * sec 8.2 step 5): what the pack will run is shown before it is approved, not after.
+ */
+@Composable
+private fun InstallCommands(c: Contributions) {
+    val steps = c.sandbox?.install.orEmpty()
+    if (steps.isNotEmpty()) {
+        Text(stringResource(R.string.ext_install_setup_steps), style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.ext_install_setup_when), style = MaterialTheme.typography.bodySmall)
+        steps.forEach { step ->
+            Text(step.title, style = MaterialTheme.typography.bodyMedium)
+            Text(step.run.source, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+        }
+    }
+    if (c.languageServers.isNotEmpty()) {
+        Text(stringResource(R.string.ext_install_servers), style = MaterialTheme.typography.titleSmall)
+        c.languageServers.forEach { s ->
+            val budget = s.memoryBudgetMb?.let { " (${stringResource(R.string.ext_install_server_budget, it)})" }.orEmpty()
+            Text(s.command.joinToString(" ") { it.source } + budget, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+        }
+    }
+}
+
+/** Why a developer install (`easyide-ext dev`) stopped at the sheet instead of reloading. */
+@Composable
+private fun devReason(p: DevPending): String = when (p.reason) {
+    PromptReason.FIRST_INSTALL -> stringResource(R.string.ext_dev_install_first)
+    PromptReason.REPLACES_NON_DEV -> stringResource(R.string.ext_dev_install_replaces)
+    PromptReason.CAPABILITIES_CHANGED -> stringResource(R.string.ext_dev_install_changed, p.added.sorted().joinToString().ifEmpty { "-" })
+    PromptReason.NEEDS_ENVIRONMENT -> stringResource(R.string.ext_dev_install_env)
 }
 
 /** The sdk-reference "Prompt text" of one capability. */
@@ -111,4 +157,4 @@ fun capabilityPrompt(c: Capability, envId: String?): String {
     }
 }
 
-private const val SHEET_MAX_DP = 420
+internal const val SHEET_MAX_DP = 420

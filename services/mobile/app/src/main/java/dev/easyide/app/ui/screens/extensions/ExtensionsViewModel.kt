@@ -8,11 +8,25 @@ import androidx.lifecycle.viewModelScope
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.data.settings.WorkbenchSettingsSchema
+import dev.easyide.app.extensions.adapters.ContributionLocations
+import dev.easyide.app.extensions.adapters.UserKeyRows
+import dev.easyide.extensions.contrib.ContributionOverrides
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.extensions.TimedLogEntry
+import dev.easyide.app.data.settings.AuthoringSettingsSchema
+import dev.easyide.app.extensions.authoring.ExtensionScaffold
+import dev.easyide.app.extensions.authoring.ScaffoldResult
+import dev.easyide.app.extensions.dev.DevPending
+import dev.easyide.app.extensions.install.FileFolder
 import dev.easyide.app.extensions.install.FolderNode
+import dev.easyide.app.extensions.install.RollbackResult
 import dev.easyide.app.extensions.install.StageResult
 import dev.easyide.app.extensions.install.StagedPackage
+import dev.easyide.app.extensions.registry.RegistryError
+import dev.easyide.app.extensions.registry.RegistryPrepare
+import dev.easyide.app.extensions.registry.RegistryStaged
+import dev.easyide.app.data.settings.RegistrySettingsSchema
 import dev.easyide.extensions.contrib.ContributionConflict
 import dev.easyide.extensions.contrib.ContributionSnapshot
 import dev.easyide.extensions.contrib.Owned
@@ -24,23 +38,51 @@ import dev.easyide.extensions.host.LoadedExtension
 import dev.easyide.extensions.host.PackageProblem
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SafeModeState
+import dev.easyide.extensions.manifest.ExtensionDescriptor
 import dev.easyide.extensions.manifest.ExtensionId
+import dev.easyide.extensions.action.LogEntry
+import dev.easyide.extensions.action.LogLevel
 import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.model.ProjectRecord
 import dev.easyide.sandbox.model.SandboxEnvironment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.time.Instant
+import java.time.Year
 
-/** One contribution as the inspector (ECO-32) lists it. */
-data class InspectorLine(val ref: String, val pointer: String, val hiddenBy: String?, val conflicts: List<ContributionConflict>)
+/**
+ * One contribution as the inspector (ECO-32) lists it, with what the user may do to it:
+ * hide/show ([hideable] false for `NON_HIDEABLE` refs) and, where it has an order
+ * [location], move up/down.
+ */
+data class InspectorLine(
+    val ref: String,
+    val pointer: String,
+    val hiddenBy: String?,
+    val conflicts: List<ContributionConflict>,
+    val hideable: Boolean = true,
+    val location: String? = null,
+    /** The id inside [location] (a menu entry's command, a row or status item id). */
+    val locationId: String = "",
+    val canMoveUp: Boolean = false,
+    val canMoveDown: Boolean = false,
+) {
+    val hidden: Boolean get() = hiddenBy != null
+}
 
 /** One row of the Extensions screen: a valid package with its state, or an invalid one with its errors. */
 data class ExtensionRow(
@@ -54,6 +96,8 @@ data class ExtensionRow(
     val contributions: List<InspectorLine>,
     /** Conflicts this extension lost (its entries were dropped, so they are not in [contributions]). */
     val shadowed: List<ContributionConflict>,
+    /** The retained version "Roll back" flips to; null when none is kept. */
+    val rollbackTo: String? = null,
 ) {
     val key: String get() = pkg.directory.absolutePath
     val id: String get() = loaded?.descriptor?.id?.value ?: pkg.directory.parentFile?.name.orEmpty()
@@ -71,16 +115,29 @@ data class ExtensionsUiState(
 sealed interface InstallState {
     data object Idle : InstallState
     data object Staging : InstallState
-    data class Review(val pkg: StagedPackage) : InstallState
+    /**
+     * [registry] is set for a signed registry package: the sheet shows its registry and signer.
+     * [dev] is set for a developer install (`easyide-ext dev`, "Create extension").
+     */
+    data class Review(val pkg: StagedPackage, val registry: RegistryStaged? = null, val dev: DevPending? = null) : InstallState
     data class Refused(val problems: List<String>) : InstallState
     data class Failed(val message: String) : InstallState
+}
+
+/** A rollback (registry-and-install.md sec 10) from confirmation to its outcome. */
+sealed interface RollbackState {
+    data object Idle : RollbackState
+    data class Confirm(val row: ExtensionRow, val version: String) : RollbackState
+    /** The retained version declares [capabilities] never approved for it. */
+    data class Approve(val row: ExtensionRow, val descriptor: ExtensionDescriptor, val capabilities: Set<String>) : RollbackState
+    data class Refused(val problems: List<String>) : RollbackState
 }
 
 /**
  * The Extensions screen: installed and built-in packs with their state, the enable toggle
  * (`extensions.disabled`, whole list per layer), crash-disable clearing, safe mode exit,
- * the contribution inspector, capabilities, the Extension Log, and "Install from
- * folder / file" (ECO-02) through [dev.easyide.app.extensions.install.LocalInstaller].
+ * the contribution inspector, capabilities, the Extension Log, "Install from
+ * folder / file" (ECO-02) and rollback through [dev.easyide.app.extensions.install.LocalInstaller].
  */
 class ExtensionsViewModel(
     private val appContext: Context,
@@ -88,11 +145,53 @@ class ExtensionsViewModel(
     private val settingsStore: SettingsStore,
     safeMode: SafeModeState,
     environmentManager: EnvironmentManager,
+    private val projectManager: ProjectManager,
+    private val projectRoot: (projectId: String) -> File,
 ) : ViewModel() {
 
     private val runtime = extensions.runtime
     private val installState = MutableStateFlow<InstallState>(InstallState.Idle)
     val install: StateFlow<InstallState> = installState.asStateFlow()
+    private val rollbackState = MutableStateFlow<RollbackState>(RollbackState.Idle)
+    val rollback: StateFlow<RollbackState> = rollbackState.asStateFlow()
+
+    private val query = MutableStateFlow("")
+    private val detailState = MutableStateFlow<BrowseItem?>(null)
+
+    /** The item whose detail sheet is open in Browse. */
+    val detail: StateFlow<BrowseItem?> = detailState.asStateFlow()
+
+    /** The Browse tab (registry-and-install.md sec 7): registries with their index age, search results, update badges. */
+    val browse: StateFlow<BrowseUiState> = combine(
+        extensions.registry.view, extensions.registry.records, query, extensions.inventory.installed,
+    ) { view, records, q, installed -> BrowseState.build(view, records, q, installed, Instant.now()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), BrowseUiState())
+
+    private val createState = MutableStateFlow<CreateState>(CreateState.Idle)
+
+    /** In-app "Create extension" (M5): the form, then what was written. */
+    val create: StateFlow<CreateState> = createState.asStateFlow()
+
+    /** Projects a template can be created in; the open one first. */
+    val projects: StateFlow<List<ProjectRecord>> = combine(projectManager.projects, extensions.dev.workspace) { list, w ->
+        list.sortedByDescending { it.id == w.projectId }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), emptyList())
+
+    val developerMode: StateFlow<Boolean> = settingsStore.snapshot.map { it[AuthoringSettingsSchema.developerMode] }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), false)
+
+    init {
+        // Opening the screen is a check point for extensions.autoCheckUpdates (sec 3.3); it only notifies.
+        viewModelScope.launch {
+            extensions.registry.refreshIfDue(settingsStore.snapshot.first()[RegistrySettingsSchema.autoCheckUpdates])
+        }
+        // A developer install waiting on its capability sheet shows once nothing else is open.
+        viewModelScope.launch {
+            combine(extensions.dev.installer.pending, installState) { p, s -> p to s }.collect { (p, s) ->
+                if (p != null && s == InstallState.Idle) installState.value = InstallState.Review(p.pkg, dev = p)
+            }
+        }
+    }
 
     private val hosts = combine(runtime.extensions.loaded, runtime.extensions.problems, runtime.extensions.disabledReasons, runtime.activation.states) { l, p, r, a ->
         HostView(l, p, r, a)
@@ -103,9 +202,9 @@ class ExtensionsViewModel(
         runtime.contributions.snapshot,
         settingsStore.snapshot,
         combine(safeMode.active, runtime.safeMode.suspects) { a, s -> a to s },
-        combine(extensions.log.entries, environmentManager.environments) { l, e -> l to e },
-    ) { h, snapshot, settings, (safe, suspects), (log, envs) ->
-        ExtensionsUiState(rows(h, snapshot, settings), safe, suspects, log.asReversed(), envs)
+        combine(extensions.log.entries, environmentManager.environments, extensions.inventory.retained) { l, e, r -> Triple(l, e, r) },
+    ) { h, snapshot, settings, (safe, suspects), (log, envs, retained) ->
+        ExtensionsUiState(rows(h, snapshot, settings, retained), safe, suspects, log.asReversed(), envs)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), ExtensionsUiState())
 
     private class HostView(
@@ -115,9 +214,8 @@ class ExtensionsViewModel(
         val states: Map<ExtensionId, ActivationState>,
     )
 
-    private fun rows(h: HostView, snapshot: ContributionSnapshot, settings: SettingsSnapshot): List<ExtensionRow> {
+    private fun rows(h: HostView, snapshot: ContributionSnapshot, settings: SettingsSnapshot, retained: Map<String, String>): List<ExtensionRow> {
         val disabled = settings[SettingsSchema.extensionsDisabled].toSet()
-        val hidden = settings[SettingsSchema.contributionsHidden]
         val valid = h.loaded.map { l ->
             val id = l.descriptor.id
             val owner = Owner.Ext(id)
@@ -125,24 +223,68 @@ class ExtensionsViewModel(
                 pkg = l.pkg, loaded = l, problem = null,
                 activation = h.states[id], disabledReason = h.reasons[id],
                 userEnabled = id.value !in disabled,
-                contributions = inspect(snapshot, owner, hidden),
+                contributions = inspect(snapshot, owner, settings),
                 shadowed = snapshot.conflicts.filter { it.loser == owner },
+                rollbackTo = retained[l.pkg.directory.absolutePath],
             )
         }
         val invalid = h.problems.map { p ->
-            ExtensionRow(p.pkg, null, p, null, null, userEnabled = true, contributions = emptyList(), shadowed = emptyList())
+            ExtensionRow(
+                p.pkg, null, p, null, null, userEnabled = true, contributions = emptyList(), shadowed = emptyList(),
+                rollbackTo = retained[p.pkg.directory.absolutePath],
+            )
         }
         return (valid + invalid).sortedWith(compareBy({ it.pkg.installedAt }, { it.id }))
     }
 
-    private fun inspect(s: ContributionSnapshot, owner: Owner, hidden: List<String>): List<InspectorLine> {
+    private fun inspect(s: ContributionSnapshot, owner: Owner, settings: SettingsSnapshot): List<InspectorLine> {
+        val hidden = settings[SettingsSchema.contributionsHidden]
+        val overrides = ContributionOverrides.of(hidden, ContributionOverrides.parseOrder(settings[WorkbenchSettingsSchema.contributionsOrder]))
+        val userRows = UserKeyRows.decode(settings[WorkbenchSettingsSchema.keyRowLayouts]).rows
+        val effective = HashMap<String, List<String>>()
         val all: List<Owned<*>> = s.commands + s.menus + s.keybindings + s.configuration + s.configurationDefaults +
             s.languages + s.grammars + s.languageConfigurations + s.snippets + s.themes + s.iconThemes + s.viewContainers +
             s.views + s.viewsWelcome + s.taskDefinitions + s.problemMatchers + s.walkthroughs + s.stages + s.statusBarItems +
             s.keyRows + s.languageServers + s.sandbox + s.viewData
         return all.filter { it.owner == owner }.map { o ->
-            val entry = runtime.contributions.inspect(o.ref, hidden)
-            InspectorLine(o.ref.toString(), o.pointer, entry?.hiddenBy, entry?.conflicts.orEmpty())
+            val entry = runtime.contributions.inspect(o.ref, overrides.hidden)
+            val ref = o.ref.toString()
+            val location = ContributionLocations.of(o)?.takeIf { !overrides.isHidden(o.ref) }
+            val ids = location?.let { effective.getOrPut(it) { ContributionLocations.effectiveIds(it, s, userRows, overrides.hidden, overrides.order) } }
+            val at = ids?.indexOf(o.ref.id) ?: -1
+            InspectorLine(
+                ref, o.pointer, entry?.hiddenBy, entry?.conflicts.orEmpty(),
+                hideable = ContributionOverrides.isHideable(ref),
+                location = location, locationId = o.ref.id,
+                canMoveUp = at > 0, canMoveDown = ids != null && at >= 0 && at < ids.size - 1,
+            )
+        }
+    }
+
+    /**
+     * Hide or show one contribution: the whole effective `workbench.contributions.hidden`
+     * list goes to the user layer (customization.md 3.3). Non-hideable refs are refused.
+     */
+    fun setHidden(line: InspectorLine, hide: Boolean) {
+        viewModelScope.launch {
+            val current = settingsStore.snapshot.first()[SettingsSchema.contributionsHidden]
+            val next = ContributionOverrides.withHidden(current, line.ref, hide) ?: return@launch
+            settingsStore.set(SettingsSchema.contributionsHidden, next)
+        }
+    }
+
+    /** Moves one contribution within its location, writing `workbench.contributions.order` to the user layer. */
+    fun move(line: InspectorLine, delta: Int) {
+        val location = line.location ?: return
+        viewModelScope.launch {
+            val settings = settingsStore.snapshot.first()
+            val overrides = ContributionOverrides.of(
+                settings[SettingsSchema.contributionsHidden], ContributionOverrides.parseOrder(settings[WorkbenchSettingsSchema.contributionsOrder]),
+            )
+            val userRows = UserKeyRows.decode(settings[WorkbenchSettingsSchema.keyRowLayouts]).rows
+            val effective = ContributionLocations.effectiveIds(location, runtime.contributions.snapshot.value, userRows, overrides.hidden, overrides.order)
+            val next = ContributionLocations.moved(overrides.order, location, effective, line.locationId, delta) ?: return@launch
+            settingsStore.set(WorkbenchSettingsSchema.contributionsOrder, ContributionOverrides.encodeOrder(next))
         }
     }
 
@@ -167,6 +309,24 @@ class ExtensionsViewModel(
         viewModelScope.launch { extensions.installer.uninstall(row.pkg) }
     }
 
+    fun requestRollback(row: ExtensionRow) {
+        row.rollbackTo?.let { rollbackState.value = RollbackState.Confirm(row, it) }
+    }
+
+    /** Rolls [row] back; [approve] is the capability set the user just approved, if any. */
+    fun confirmRollback(row: ExtensionRow, approve: Set<String> = emptySet()) {
+        rollbackState.value = RollbackState.Idle
+        viewModelScope.launch {
+            rollbackState.value = when (val r = extensions.installer.rollback(row.id, row.pkg.scope, row.pkg.envId, approve)) {
+                is RollbackResult.Done -> RollbackState.Idle
+                is RollbackResult.NeedsApproval -> RollbackState.Approve(row, r.descriptor, r.capabilities)
+                is RollbackResult.Refused -> RollbackState.Refused(r.problems)
+            }
+        }
+    }
+
+    fun dismissRollback() { rollbackState.value = RollbackState.Idle }
+
     fun clearLog() = extensions.log.clear()
 
     /** A picked `.easyext` file (SAF document). */
@@ -182,10 +342,50 @@ class ExtensionsViewModel(
         extensions.installer.stageFolder(DocumentFolder(root, appContext))
     }
 
-    fun approve(pkg: StagedPackage, envId: String?) {
+    fun setQuery(text: String) { query.value = text }
+
+    fun refreshRegistries() {
+        viewModelScope.launch { extensions.registry.refreshAll() }
+    }
+
+    fun openDetail(item: BrowseItem) { detailState.value = item }
+
+    fun closeDetail() { detailState.value = null }
+
+    /**
+     * Install or update [item]'s newest compatible entry through the signed pipeline; the
+     * capability sheet follows. Never started by anything but this tap (updates only notify).
+     */
+    fun installFromRegistry(item: BrowseItem) {
+        val entry = item.entry ?: return
+        val registryId = item.registryId ?: return
+        detailState.value = null
+        installState.value = InstallState.Staging
+        viewModelScope.launch {
+            installState.value = when (val r = extensions.registry.prepare(registryId, entry)) {
+                is RegistryPrepare.Ready -> InstallState.Review(r.staged.pkg, r.staged)
+                is RegistryPrepare.Failed -> InstallState.Refused(listOf(registryErrorText(r.error)))
+            }
+        }
+    }
+
+    fun forgetPin(item: BrowseItem) {
+        val registryId = item.registryId ?: return
+        val publisher = item.id.substringBefore('.')
+        detailState.value = null
+        viewModelScope.launch { extensions.registry.forgetPin(registryId, publisher) }
+    }
+
+    fun approve(review: InstallState.Review, envId: String?) {
+        val pkg = review.pkg
         viewModelScope.launch {
             installState.value = try {
-                extensions.installer.commit(pkg, envId)
+                val signed = review.registry
+                when {
+                    review.dev != null -> extensions.dev.installer.approve(review.dev, envId)
+                    signed != null -> extensions.registry.commit(signed, envId)
+                    else -> extensions.installer.commit(pkg, envId)
+                }
                 InstallState.Idle
             } catch (e: IOException) {
                 extensions.installer.discard(pkg)
@@ -196,12 +396,55 @@ class ExtensionsViewModel(
 
     fun decline(pkg: StagedPackage) {
         viewModelScope.launch {
+            extensions.dev.installer.decline(pkg)
             extensions.installer.discard(pkg)
             installState.value = InstallState.Idle
         }
     }
 
     fun dismissInstall() { installState.value = InstallState.Idle }
+
+    fun openCreate() { createState.value = CreateState.Editing }
+
+    fun closeCreate() { createState.value = CreateState.Idle }
+
+    /** Writes [template] into `<project>/<name>/`, mirrored to the project's linked folder if it has one. */
+    fun createExtension(template: String, publisher: String, name: String, displayName: String, projectId: String) {
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                ExtensionScaffold.create(template, publisher, name, displayName, Year.now().value, projectRoot(projectId), ::readTemplate)
+            }
+            createState.value = when (result) {
+                is ScaffoldResult.Created -> {
+                    projectManager.mirrorPath(projectId, result.relativePath)
+                    extensions.log.append(LogEntry(ExtensionId.parse(result.id), LogLevel.INFO, "created from the $template template in ${result.relativePath}/"))
+                    CreateState.Created(result)
+                }
+                is ScaffoldResult.Refused -> CreateState.Refused(result.reason, result.detail)
+            }
+        }
+    }
+
+    /**
+     * "Install from this folder" after creating: a developer install (so `dev --local` reloads
+     * it silently) while developer mode is on, else the ordinary local install.
+     */
+    fun installCreated(created: ScaffoldResult.Created) {
+        createState.value = CreateState.Idle
+        viewModelScope.launch {
+            if (settingsStore.snapshot.first()[AuthoringSettingsSchema.developerMode]) {
+                extensions.dev.installer.fromFolder(created.dir)
+            } else {
+                stage { extensions.installer.stageFolder(withContext(Dispatchers.IO) { FileFolder.of(created.dir) }) }
+            }
+        }
+    }
+
+    private fun readTemplate(template: String, path: String): String? = try {
+        appContext.assets.open("${ExtensionScaffold.ASSET_DIR}/$template/$path").use { String(it.readBytes(), Charsets.UTF_8) }
+    } catch (e: FileNotFoundException) {
+        null
+    }
 
     private fun stage(block: suspend () -> StageResult) {
         installState.value = InstallState.Staging
@@ -221,6 +464,13 @@ class ExtensionsViewModel(
     }
 
     private companion object { const val SUBSCRIPTION_TIMEOUT_MS = 5_000L }
+}
+
+/** One line with the failure's kind: network failures keep the last verified copy, rejections are hard stops. */
+internal fun registryErrorText(e: RegistryError): String = when (e) {
+    is RegistryError.Network -> "Network: ${e.reason}"
+    is RegistryError.Rejected -> "Refused: ${e.reason}"
+    is RegistryError.Storage -> "Storage: ${e.reason}"
 }
 
 /** SAF tree as a [FolderNode]; SAF has no symlinks, and names are validated by the unpacker. */

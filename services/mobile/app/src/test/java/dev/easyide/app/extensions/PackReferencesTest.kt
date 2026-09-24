@@ -111,7 +111,8 @@ class PackReferencesTest {
 
     /**
      * Settings written by [a] and the values it can write: a toggle's cycle, a literal
-     * `setConfig` value, or for `setConfig` of `${input:x}` the values of the quick pick `x`.
+     * `setConfig` value, or for `setConfig` of `${input:x}` the values of the quick pick `x`
+     * (none to check when the pick's items are computed at run time, `itemsFrom`).
      */
     private fun configWrites(a: Action, picks: Map<String, List<JsonElement>> = emptyMap()): List<Pair<String, List<JsonElement>>> = when (a) {
         is Action.ToggleConfig -> listOf(a.key to a.values)
@@ -126,8 +127,8 @@ class PackReferencesTest {
             listOf(a.key to written)
         }
         is Action.Sequence -> {
-            val bound = a.steps.filterIsInstance<Action.ShowQuickPick>().filter { it.items is QuickPickSource.Items }
-                .associate { it.id to it.values().map(::JsonPrimitive) }
+            val bound = a.steps.filterIsInstance<Action.ShowQuickPick>()
+                .associate { p -> p.id to if (p.items is QuickPickSource.Items) p.values().map(::JsonPrimitive) else emptyList() }
             a.steps.flatMap { configWrites(it, picks + bound) }
         }
         is Action.ShowMessage -> a.actions.mapNotNull { it.action }.flatMap { configWrites(it, picks) }

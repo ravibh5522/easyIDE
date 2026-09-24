@@ -1,5 +1,6 @@
 package dev.easyide.ext.cli
 
+import dev.easyide.extensions.authoring.PackageIgnores
 import dev.easyide.extensions.manifest.Diagnostic
 import dev.easyide.extensions.manifest.DiagnosticCode
 import dev.easyide.extensions.manifest.PackageFiles
@@ -22,18 +23,11 @@ import java.util.zip.ZipFile
  * the app runs on disk after unpacking.
  */
 object PackageSource {
-    /** cli.md sec 5.3 excludes, plus author-side files that are never package content. */
-    private val DEFAULT_IGNORES = listOf(
-        ".git/", "test/", "guest/", "target/", "node_modules/", "dist/",
-        ".gitignore", ".easyextignore", CliConfig.PROJECT_FILE, "*.key", "*.easyext", "*.easyext.sig", ".DS_Store",
-    )
-
-    const val IGNORE_FILE = ".easyextignore"
+    const val IGNORE_FILE = PackageIgnores.IGNORE_FILE
 
     fun ignoreRules(dir: File): IgnoreRules {
         val file = File(dir, IGNORE_FILE)
-        val extra = if (file.isFile) String(file.readBytesOrFail(), Charsets.UTF_8).lines() else emptyList()
-        return IgnoreRules(DEFAULT_IGNORES + extra)
+        return PackageIgnores.rules(if (file.isFile) String(file.readBytesOrFail(), Charsets.UTF_8) else null)
     }
 
     /** A source folder as the would-be package: ignored paths dropped, layout rules applied. */
@@ -115,55 +109,5 @@ object PackageSource {
     }
 }
 
-/**
- * The gitignore subset of cli.md sec 5.3: `*`, `**`, `/` anchoring, trailing `/` for
- * directories and `!` negation; the last matching rule wins. Paths are package-relative, and
- * directories are passed with a trailing `/`.
- */
-class IgnoreRules(lines: List<String>) {
-    private class Rule(val regex: Regex, val negate: Boolean, val dirOnly: Boolean)
-
-    private val rules: List<Rule> = lines.mapNotNull { raw ->
-        var p = raw.trim()
-        if (p.isEmpty() || p.startsWith("#")) return@mapNotNull null
-        val negate = p.startsWith("!")
-        if (negate) p = p.substring(1)
-        val dirOnly = p.endsWith("/")
-        p = p.trimEnd('/')
-        val anchored = p.contains('/')
-        p = p.trimStart('/')
-        if (p.isEmpty()) return@mapNotNull null
-        val body = globToRegex(p)
-        Rule(Regex(if (anchored) "^$body(/.*)?$" else "^(.*/)?$body(/.*)?$"), negate, dirOnly)
-    }
-
-    fun ignored(path: String): Boolean {
-        val isDir = path.endsWith("/")
-        val p = path.trimEnd('/')
-        var result = false
-        for (r in rules) {
-            // A directory-only rule matches the directory itself and anything below it.
-            val m = r.regex.matchEntire(p) ?: continue
-            if (r.dirOnly && !isDir && m.groupValues.last().isEmpty()) continue
-            result = !r.negate
-        }
-        return result
-    }
-
-    private fun globToRegex(glob: String): String {
-        val sb = StringBuilder()
-        var i = 0
-        while (i < glob.length) {
-            val c = glob[i]
-            when {
-                glob.startsWith("**/", i) -> { sb.append("(.*/)?"); i += 3; continue }
-                glob.startsWith("**", i) -> { sb.append(".*"); i += 2; continue }
-                c == '*' -> sb.append("[^/]*")
-                c == '?' -> sb.append("[^/]")
-                else -> sb.append(Regex.escape(c.toString()))
-            }
-            i++
-        }
-        return sb.toString()
-    }
-}
+/** Shared with the app's developer installs from a folder (`services/shared/extension-schema`). */
+typealias IgnoreRules = dev.easyide.extensions.authoring.IgnoreRules

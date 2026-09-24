@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Signed extension registries (docs/extension-sdk/lld/registry-and-install.md). -->
+<resources>
+    <string name="setting_registries_title">Extension registries</string>
+    <string name="setting_registries_desc">Signed registries to browse and install from, each {\"id\", \"url\", \"rootKey\"}: an https base URL and the registry\'s base64 ed25519 public key. None by default.</string>
+    <string name="setting_auto_check_updates_title">Check for extension updates</string>
+    <string name="setting_auto_check_updates_desc">How often easyIDE refreshes registries when it starts or Extensions opens. It only shows that updates are available; nothing installs by itself.</string>
+    <string name="auto_check_off">Off</string>
+    <string name="auto_check_daily">Daily</string>
+    <string name="auto_check_weekly">Weekly</string>
+
+    <string name="ext_tab_installed">Installed</string>
+    <string name="ext_tab_browse">Browse</string>
+    <string name="ext_tab_browse_updates">Browse (%1$d updates)</string>
+
+    <string name="reg_refresh">Refresh registries</string>
+    <string name="reg_none_title">No registry configured</string>
+    <string name="reg_none_body">easyIDE has no public extension registry yet. Add one in settings.json under extensions.registries as {\"id\", \"url\", \"rootKey\"}, or install a package from a file or folder with +.</string>
+    <string name="reg_config_problem">extensions.registries: %1$s</string>
+    <string name="reg_refreshing">%1$s: refreshing…</string>
+    <string name="reg_never_fetched">%1$s: no verified index yet. Refresh to fetch it.</string>
+    <string name="reg_age">%1$s: index from %2$s ago</string>
+    <string name="reg_stale">This index is over %1$d days old: newer versions and revocations may be missing.</string>
+    <string name="reg_error_network">Could not reach the registry; the last verified index stays in use. %1$s</string>
+    <string name="reg_error_rejected">Refused: %1$s</string>
+    <string name="reg_error_storage">Could not store the index: %1$s</string>
+    <string name="reg_age_now">moments</string>
+    <string name="reg_age_minutes">%1$d min</string>
+    <string name="reg_age_hours">%1$d h</string>
+    <string name="reg_age_days">%1$d days</string>
+    <string name="reg_search_hint">Search extensions</string>
+    <string name="reg_no_results">No extensions match.</string>
+    <string name="reg_badge">registry %1$s</string>
+    <string name="reg_installed">installed %1$s</string>
+    <string name="reg_update_available">Update available: %1$s</string>
+    <string name="reg_incompatible">No version is compatible with this app.</string>
+    <string name="reg_capabilities_count">%1$d capabilities</string>
+    <string name="reg_install">Install</string>
+    <string name="reg_update">Update to %1$s</string>
+    <string name="reg_reinstalled">This version is installed</string>
+    <string name="reg_detail_versions">Versions: %1$s</string>
+    <string name="reg_detail_license">License: %1$s</string>
+    <string name="reg_detail_categories">Categories: %1$s</string>
+    <string name="reg_detail_package">Package: %1$d bytes, sha256 %2$s</string>
+    <string name="reg_detail_signed">Entry signed by key %1$s</string>
+    <string name="reg_detail_published">Published %1$s</string>
+    <string name="reg_pinned">Pinned key for %1$s on this device: %2$s</string>
+    <string name="reg_forget_pin">Forget pinned key</string>
+    <string name="reg_forget_pin_warning">Only do this if the publisher announced a key change you trust. The next install from this publisher pins whatever key signed it.</string>
+    <string name="ext_install_signed">Registry %1$s, signed by %2$s. A signature shows who published this and that it was not altered; it does not make it safe.</string>
+    <string name="ext_install_from_cache">From the offline package cache.</string>
+    <string name="ext_revoked_reason">Revoked: %1$s</string>
+</resources>

@@ -1,0 +1,58 @@
+{
+  "name": "yaml",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "YAML",
+  "description": "YAML language server (yaml-language-server): validation, completion and hover, with schemas for common files.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml"
+  ],
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(registry.npmjs.org,archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.install"
+    ],
+    "languageServers": [
+      {
+        "id": "yamlls",
+        "languages": [
+          "yaml"
+        ],
+        "command": [
+          "yaml-language-server",
+          "--stdio"
+        ],
+        "memoryBudgetMb": 200
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "node",
+          "title": "Install Node.js and npm",
+          "run": "apt-get update && apt-get install -y nodejs npm",
+          "when": "envDistro in 'debian,ubuntu'"
+        },
+        {
+          "id": "server",
+          "title": "Install yaml-language-server",
+          "run": "npm install -g yaml-language-server@1"
+        }
+      ],
+      "verify": "command -v yaml-language-server",
+      "uninstall": [
+        "npm uninstall -g yaml-language-server"
+      ]
+    },
+    "memoryBudgetMb": 250
+  }
+}

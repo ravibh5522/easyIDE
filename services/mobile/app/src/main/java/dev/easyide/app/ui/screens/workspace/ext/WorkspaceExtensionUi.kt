@@ -5,6 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.WorkbenchSettingsSchema
+import dev.easyide.app.extensions.adapters.UserKeyRows
+import dev.easyide.extensions.contrib.ContributionOverrides
+import dev.easyide.extensions.contrib.KeyRowContribution
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.extensions.adapters.ActiveKeyRow
 import dev.easyide.app.extensions.adapters.KeyRows
@@ -39,6 +43,10 @@ class WorkspaceContributions(
     val context: ContextSnapshot,
     val hidden: Set<String>,
     val keyRowSetting: String,
+    /** `workbench.contributions.order`, by location. */
+    val order: Map<String, List<String>>,
+    /** The user's `keyRows.layouts` rows (bad entries already dropped). */
+    val userKeyRows: List<KeyRowContribution>,
     val keybindings: List<KeyBinding>,
     private val host: WorkspaceExtensionHost,
     private val extensions: ExtensionsContainer,
@@ -63,7 +71,7 @@ class WorkspaceContributions(
      * entry bound to a built-in command is greyed while that command is disabled.
      */
     fun menu(menuId: String, builtIns: CommandRegistry? = null, scoped: ContextLookup = context): List<MenuEntry> =
-        MenuModel.items(menuId, snapshot, scoped, hidden) { id -> builtIns?.get(id)?.enabled ?: true }
+        MenuModel.items(menuId, snapshot, scoped, hidden, { id -> builtIns?.get(id)?.enabled ?: true }, order)
 
     /** Explorer items see the node as the focused resource (`resource*` keys), VS Code's scoped context. */
     fun explorerMenu(node: FileNode): List<MenuEntry> {
@@ -82,7 +90,9 @@ class WorkspaceContributions(
     fun statusItems(): List<StatusItem> {
         val editor = host.editorState()
         val query = SettingsQuery(editor?.languageId, host.environmentId, null)
-        return StatusItems.items(snapshot, context, hidden, { key -> extensions.settings.value(key, query) }, editor, host.workspaceState())
+        val contributed = StatusItems.items(snapshot, context, hidden, { key -> extensions.settings.value(key, query) }, editor, host.workspaceState(), order)
+        // Items WASM extensions set at runtime follow the contributed ones on their side.
+        return (contributed + extensions.wasm.ui.ordered()).sortedBy { it.alignment.ordinal }
     }
 
     fun keyRow(surface: KeySurface): ActiveKeyRow? {
@@ -90,7 +100,7 @@ class WorkspaceContributions(
             KeySurface.TERMINAL -> context.with(mapOf(ContextKeys.terminalFocus.name to JsonPrimitive(true)))
             KeySurface.EDITOR -> context.with(mapOf(ContextKeys.terminalFocus.name to JsonPrimitive(false)))
         }
-        return KeyRows.active(surface, snapshot, keyRowSetting, SettingsSchema.KEY_ROWS_AUTO, scoped, hidden)
+        return KeyRows.active(surface, snapshot, keyRowSetting, SettingsSchema.KEY_ROWS_AUTO, scoped, hidden, userKeyRows, order)
     }
 
     fun run(entry: MenuEntry, args: JsonElement? = null) = host.run(entry.command.command, args)
@@ -111,11 +121,18 @@ fun rememberWorkspaceContributions(host: WorkspaceExtensionHost, extensions: Ext
     val keybindings by extensions.keybindings.collectAsStateWithLifecycle()
     val settings = LocalSettings.current
     val hidden = settings[SettingsSchema.contributionsHidden]
+    val order = settings[WorkbenchSettingsSchema.contributionsOrder]
+    val layouts = settings[WorkbenchSettingsSchema.keyRowLayouts]
     val keyRow = settings[SettingsSchema.keyRowsActive]
     // `config.*` when-clauses and `${config:}` status texts resolve lazily, so a settings
     // change (a toggle command) must rebuild the projections even when no context key moved.
     val settingsVersion by extensions.settings.version.collectAsStateWithLifecycle()
-    return remember(snapshot, context, keybindings, hidden, keyRow, settingsVersion) {
-        WorkspaceContributions(snapshot, context, hidden.toSet(), keyRow, keybindings, host, extensions)
+    val wasmStatus by extensions.wasm.ui.statusItems.collectAsStateWithLifecycle()
+    return remember(snapshot, context, keybindings, hidden, order, layouts, keyRow, settingsVersion, wasmStatus) {
+        // NON_HIDEABLE refs are dropped here, so no settings file can hide the way back.
+        val overrides = ContributionOverrides.of(hidden, ContributionOverrides.parseOrder(order))
+        WorkspaceContributions(
+            snapshot, context, overrides.hidden, keyRow, overrides.order, UserKeyRows.decode(layouts).rows, keybindings, host, extensions,
+        )
     }
 }

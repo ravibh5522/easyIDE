@@ -49,16 +49,20 @@ object ClientCapabilitiesBuilder {
         LspFeature.SELECTION_RANGE, LspFeature.CODE_LENS, LspFeature.DOCUMENT_LINK,
     )
 
-    /** The decoration layer each feature needs; features absent here render in panels or edits. */
-    private val REQUIRED_LAYER = mapOf(
-        LspFeature.COMPLETION to UiLayer.CARET_POPUP,
-        LspFeature.HOVER to UiLayer.CARET_POPUP,
-        LspFeature.SIGNATURE_HELP to UiLayer.CARET_POPUP,
-        LspFeature.DOCUMENT_HIGHLIGHT to UiLayer.BACKGROUND_RANGE,
-        LspFeature.INLAY_HINTS to UiLayer.INLINE_TEXT,
-        LspFeature.CODE_LENS to UiLayer.BETWEEN_LINE_BLOCK,
-        LspFeature.SEMANTIC_TOKENS to UiLayer.TOKEN_OVERLAY,
-        LspFeature.DOCUMENT_LINK to UiLayer.UNDERLINE,
+    /**
+     * The decoration layers that can render each feature, any one of which suffices; features
+     * absent here render in panels or edits. Code lens is a between-line block, or - on an
+     * editor without those (decision 0018) - a gutter glyph whose tap lists the line's lenses.
+     */
+    private val REQUIRED_LAYER: Map<LspFeature, Set<UiLayer>> = mapOf(
+        LspFeature.COMPLETION to setOf(UiLayer.CARET_POPUP),
+        LspFeature.HOVER to setOf(UiLayer.CARET_POPUP),
+        LspFeature.SIGNATURE_HELP to setOf(UiLayer.CARET_POPUP),
+        LspFeature.DOCUMENT_HIGHLIGHT to setOf(UiLayer.BACKGROUND_RANGE),
+        LspFeature.INLAY_HINTS to setOf(UiLayer.INLINE_TEXT),
+        LspFeature.CODE_LENS to setOf(UiLayer.BETWEEN_LINE_BLOCK, UiLayer.GUTTER_ICON),
+        LspFeature.SEMANTIC_TOKENS to setOf(UiLayer.TOKEN_OVERLAY),
+        LspFeature.DOCUMENT_LINK to setOf(UiLayer.UNDERLINE),
     )
 
     private val CODE_ACTION_KINDS = listOf(
@@ -88,9 +92,9 @@ object ClientCapabilitiesBuilder {
     fun advertisedFeatures(milestone: Milestone, ui: ClientUi): Set<LspFeature> {
         val base = if (milestone == Milestone.M4) M2_FEATURES + M4_FEATURES else M2_FEATURES
         return base.filterTo(mutableSetOf()) { f ->
-            val layer = REQUIRED_LAYER[f]
+            val layers = REQUIRED_LAYER[f]
             f !in ui.withheld &&
-                (layer == null || layer in ui.layers) &&
+                (layers == null || layers.any { it in ui.layers }) &&
                 (f != LspFeature.SEMANTIC_TOKENS || ui.semanticTokenTypes.isNotEmpty())
         }
     }

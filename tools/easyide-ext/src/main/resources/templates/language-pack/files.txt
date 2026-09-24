@@ -1,8 +1,0 @@
-package.json
-README.md
-CHANGELOG.md
-LICENSE
-.easyide-ext.json
-.gitignore
-language-configuration.json
-syntaxes/{{name}}.tmLanguage.json

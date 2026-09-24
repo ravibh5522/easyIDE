@@ -1,0 +1,44 @@
+{
+  "name": "wasm-word-count-as",
+  "publisher": "easyide-samples",
+  "version": "0.1.0",
+  "displayName": "Word Count (AssemblyScript sample)",
+  "description": "Sample L2 extension: counts the words in the active editor from an AssemblyScript WASM module.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:wasm-word-count-as.wordCount"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "wasm-word-count-as.wordCount",
+        "title": "Count Words",
+        "category": "Word Count (AssemblyScript sample)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "wasm-word-count-as.wordCount",
+          "when": "editorLangId"
+        }
+      ]
+    }
+  },
+  "easyide": {
+    "capabilities": [
+      "fs.project(read)"
+    ],
+    "wasm": {
+      "module": "./wasm/main.wasm",
+      "abi": 1,
+      "memoryMb": 16
+    }
+  }
+}

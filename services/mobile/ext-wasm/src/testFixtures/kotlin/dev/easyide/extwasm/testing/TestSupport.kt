@@ -90,6 +90,7 @@ class FakePorts {
     val writes = CopyOnWriteArrayList<String>()
     val watches = CopyOnWriteArrayList<String>()
     val configSets = CopyOnWriteArrayList<String>()
+    val messages = CopyOnWriteArrayList<JsonObject>()
     var editorText = "one two three"
     var clipboard: String? = "clip"
     var commandCapability: Map<String, String> = emptyMap()
@@ -123,7 +124,7 @@ class FakePorts {
             override fun unwatchAll(extensionId: String) { watches += "unwatch $extensionId" }
         },
         ui = object : UiPort {
-            override suspend fun showMessage(extensionId: String, args: JsonObject): JsonElement? = null
+            override suspend fun showMessage(extensionId: String, args: JsonObject): JsonElement? { messages += args; return null }
             override suspend fun showQuickPick(extensionId: String, args: JsonObject): JsonElement {
                 quickPickGate?.await()
                 return JsonPrimitive("picked")

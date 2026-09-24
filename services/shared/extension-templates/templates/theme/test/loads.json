@@ -1,0 +1,4 @@
+{
+  "name": "the pack loads with no errors",
+  "expect": { "errors": [] }
+}

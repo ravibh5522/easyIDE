@@ -595,3 +595,9 @@ JVM tests for pure pieces; Robolectric where DataStore or `FileObserver` is invo
 - Resolved in arch.md sec 5.5: `workbench.contributions.*`, `keyRows.layouts`/`active`, one
   zip export, `editor.diagnostics.*` in `[lang]`, no `lsp.servers.<id>.args` (argv `command`).
 - Pillar 5's two scopes (`GLOBAL | PROJECT_OVERRIDABLE`) become sdk-reference's four (G/E/P/L).
+- Implementation (2026-09-24): `keyRows.layouts` is a USER-layer setting, so it follows the
+  active profile; the profile file's `keyRows` field only round-trips. `NON_HIDEABLE` lives in
+  `:extensions` as `ContributionOverrides.NON_HIDEABLE`. `workbench.stages.placement` is not
+  declared until contributed stages are rendered. The Keyboard Shortcuts screen reports
+  same-chord conflicts only (not prefix or reserved), and removals still match `when` by
+  focus condition (the resolver's existing rule).

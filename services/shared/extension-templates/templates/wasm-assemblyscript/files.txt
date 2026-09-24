@@ -1,0 +1,12 @@
+package.json
+README.md
+CHANGELOG.md
+LICENSE
+.easyide-ext.json
+.gitignore
+.easyextignore
+build.sh
+guest/package.json
+guest/assembly/index.ts
+guest/assembly/easyide.ts
+test/palette.json

@@ -81,3 +81,22 @@ What **executes** extensions stays under 0008: `ActionRunner`/`StepExecutor`,
 headless `test` harness, which need those runtimes, cannot live in the Apache CLI as designed.
 `validate` checks only the WASM header until that is resolved (options: move the module
 validator and metering pass to the SDK core, or ship `test` as a separate non-Apache tool).
+
+## Second amendment (2026-09-24): the headless runners are part of the SDK
+
+The first amendment left `easyide-ext test` and full WASM validation unbuildable, because the
+L1 action runner and the WASM checks were still app-only. At the owner's direction these also
+moved to `services/shared/extension-schema` under **Apache-2.0**, with package names unchanged:
+
+- from `:extensions`: `ActionRunner`, `StepExecutor`, `VariableResolver`, `ActionContext`,
+  `HostPort` (the port interface), `WhenEvaluator` and `ContextKeyService`;
+- from `:ext-wasm`: `ModuleValidator`, the metering pass (`Meter`, `InstructionScanner`,
+  `WasmBytes`), `WasmLimits`, `WasmPolicy` and the ABI error types, plus a new
+  `WasmStaticCheck`. The shared core now depends on Chicory's parser (`com.dylibso.chicory:wasm`,
+  Apache-2.0); the interpreter (`chicory runtime`) stays in `:ext-wasm`.
+
+Still under 0008: `ContributionRegistry`/`ContributionResolver`, activation, `ExtensionHost`,
+`ExtensionsRuntime`, `WasmHost` and the rest of `:ext-wasm` (instantiation, host function
+routing, watchdog), `:lsp`, and all of `:app`. Consequence: `easyide-ext test` runs L1 actions
+with the real runner and capability checks; scenarios that execute WASM commands report that
+the harness runs L1 only.

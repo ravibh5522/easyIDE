@@ -45,6 +45,10 @@
     <string name="setting_hover_delay_desc">Mouse rest time before hover information appears.</string>
     <string name="setting_inlay_hints_title">Inlay hints</string>
     <string name="setting_inlay_hints_desc">Types and parameter names shown at line ends.</string>
+    <string name="setting_semantic_highlighting_title">Semantic highlighting</string>
+    <string name="setting_semantic_highlighting_desc">Colours from the language server over the grammar\'s colours.</string>
+    <string name="setting_code_lens_title">Code lens</string>
+    <string name="setting_code_lens_desc">Actions such as run or references, shown as a gutter icon; tap it to list them.</string>
     <string name="setting_format_on_save_title">Format on save</string>
     <string name="setting_format_on_save_desc">Format with the language server before writing the file.</string>
     <string name="setting_format_on_type_title">Format on type</string>
@@ -69,6 +73,7 @@
     <string name="setting_value_on">On</string>
     <string name="setting_value_off">Off</string>
     <string name="setting_value_smart">Smart</string>
+    <string name="setting_value_configured_by_theme">As the theme says</string>
     <string name="setting_value_on_unless_pressed">On unless Ctrl+Alt held</string>
     <string name="setting_value_trace_messages">Messages</string>
     <string name="setting_value_trace_verbose">Verbose</string>
@@ -89,6 +94,8 @@
     <string name="lsp_rename_failed">Rename failed: %1$s</string>
     <string name="lsp_rename_label">Rename to %1$s</string>
     <string name="lsp_no_code_actions">No code actions available</string>
+    <string name="lsp_code_lens_unresolved">Loading…</string>
+    <string name="lsp_code_lens_no_locations">No locations to show</string>
     <string name="lsp_format_failed">Formatting failed: %1$s</string>
     <string name="lsp_no_formatter">No formatter for this file</string>
     <string name="lsp_status_not_installed">not installed</string>

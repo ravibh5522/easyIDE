@@ -1,0 +1,63 @@
+{
+  "name": "rust",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Rust",
+  "description": "Rust language server (rust-analyzer) via rustup. Opt-in: the toolchain is a large download and rust-analyzer needs a lot of memory on big crates.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:rust"
+  ],
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(sh.rustup.rs,static.rust-lang.org,archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.install"
+    ],
+    "languageServers": [
+      {
+        "id": "rust-analyzer",
+        "languages": [
+          "rust"
+        ],
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HOME/.cargo/bin/rust-analyzer\""
+        ],
+        "rootMarkers": [
+          "Cargo.toml",
+          ".git"
+        ],
+        "memoryBudgetMb": 800
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "base",
+          "title": "Install curl and a C toolchain",
+          "run": "apt-get update && apt-get install -y curl build-essential",
+          "when": "envDistro in 'debian,ubuntu'"
+        },
+        {
+          "id": "rustup",
+          "title": "Install rustup, the stable toolchain and rust-analyzer",
+          "run": "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --component rust-analyzer"
+        }
+      ],
+      "verify": "\"$HOME/.cargo/bin/rust-analyzer\" --version",
+      "uninstall": [
+        "\"$HOME/.cargo/bin/rustup\" self uninstall -y"
+      ]
+    },
+    "memoryBudgetMb": 850
+  }
+}

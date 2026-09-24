@@ -14,6 +14,12 @@ object ExtensionUiPolicy {
     /** Snippet files are small; a larger one is refused rather than parsed on the UI path. */
     const val SNIPPET_FILE_MAX_BYTES = 1L * 1024 * 1024
 
+    /** Colour theme files (each file of an `include` chain); VS Code themes are well under this. */
+    const val THEME_FILE_MAX_BYTES = 1L * 1024 * 1024
+
+    /** How many `include` hops a colour theme may chain before loading stops. */
+    const val THEME_MAX_INCLUDE_DEPTH = 8
+
     /** `.easyide/tasks.json` size bound (same order as settings files). */
     const val TASKS_FILE_MAX_BYTES = 1L * 1024 * 1024
 

@@ -7,6 +7,7 @@ import android.net.Uri
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.ProfileManager
 import dev.easyide.app.data.settings.SettingsRegistry
+import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.data.settings.SafeModeReason as AppSafeModeReason
 import dev.easyide.app.data.settings.SafeModeState as AppSafeModeState
@@ -18,6 +19,7 @@ import dev.easyide.app.extensions.adapters.ContributedKeybindings
 import dev.easyide.app.extensions.adapters.ContributedServers
 import dev.easyide.app.extensions.adapters.ExtensionLanguages
 import dev.easyide.app.extensions.adapters.SnippetCatalog
+import dev.easyide.app.extensions.dev.DevLoop
 import dev.easyide.app.extensions.host.AppHostPort
 import dev.easyide.app.extensions.host.ExtensionUiHost
 import dev.easyide.app.extensions.host.UrlOpener
@@ -26,10 +28,21 @@ import dev.easyide.app.extensions.install.BuiltInExtensions
 import dev.easyide.app.extensions.install.DiskExtensionInventory
 import dev.easyide.app.extensions.install.ExtensionStateStore
 import dev.easyide.app.extensions.install.LocalInstaller
+import dev.easyide.app.extensions.registry.RegistryConfigs
+import dev.easyide.app.extensions.registry.RegistryService
+import dev.easyide.app.extensions.registry.TinkEd25519
+import dev.easyide.app.extensions.registry.UrlConnectionFetcher
+import dev.easyide.app.data.settings.RegistrySettingsSchema
+import dev.easyide.app.extensions.wasm.AndroidClipboard
+import dev.easyide.app.extensions.wasm.WasmDeps
+import dev.easyide.app.extensions.wasm.WasmRuntime
+import dev.easyide.extensions.AppApi
+import dev.easyide.extwasm.host.HostInfo
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeyBinding
 import dev.easyide.app.ui.screens.workspace.TerminalKeyboard
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
+import dev.easyide.app.ui.theme.ThemeTokens
 import dev.easyide.extensions.ExtensionPolicy
 import dev.easyide.extensions.ExtensionsRuntime
 import dev.easyide.extensions.RuntimePorts
@@ -51,6 +64,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,13 +79,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * [SandboxPaths] plus the APK's built-in packs, the local installer, and the adapters
  * that are not tied to one screen: grammars/languages into the highlighter, snippets,
  * keybindings (into the keymap's extension layer), `configuration` into the
- * [SettingsRegistry], and the theme seam. Screen-bound adapters (menus, palette,
- * status bar, key rows) read [runtime]'s registry directly.
+ * [SettingsRegistry], and contributed colour themes ([colorTheme]). Screen-bound adapters
+ * (menus, palette, status bar, key rows) read [runtime]'s registry directly.
  */
 class ExtensionsContainer(
     private val context: Context,
     private val paths: SandboxPaths,
-    settingsStore: SettingsStore,
+    private val settingsStore: SettingsStore,
     profiles: ProfileManager,
     private val settingsRegistry: SettingsRegistry,
     private val appSafeMode: AppSafeModeState,
@@ -81,7 +95,7 @@ class ExtensionsContainer(
 ) {
     val log = ExtensionLogRing()
     val ui = ExtensionUiHost()
-    val themes = ContributedThemeCatalog()
+    val themes = ContributedThemeCatalog(log, io)
     val settings = AppSettingsPort(settingsStore, profiles, log, scope)
     val host = AppHostPort(ui, UrlOpener(::openExternal), shellEnvironment, log, io)
 
@@ -94,8 +108,25 @@ class ExtensionsContainer(
         keyRows = listOf(TerminalKeyboard.row(context.getString(R.string.key_row_terminal_title))),
     )
 
-    val runtime = ExtensionsRuntime(
-        ports = RuntimePorts(settings, inventory, host, log, paths.extensionJournalFile),
+    /** L2: the WASM host with its ports bridged to the app (lld/wasm-host.md sec 12, 14). */
+    val wasm: WasmRuntime = WasmRuntime(
+        WasmDeps(
+            extensionsDir = paths.extensionsDir,
+            settings = settings,
+            host = host,
+            workspace = { host.workspaceBridge },
+            rootfs = paths::rootfsDir,
+            clipboard = AndroidClipboard(context),
+            log = log,
+            inventory = inventory,
+            info = HostInfo(appVersionName(), AppApi.VERSION.toString(), Locale.getDefault().toLanguageTag()),
+            scope = scope,
+            io = io,
+        ),
+    ) { runtime }
+
+    val runtime: ExtensionsRuntime = ExtensionsRuntime(
+        ports = RuntimePorts(settings, inventory, host, log, paths.extensionJournalFile, activators = listOf(wasm.activator), logic = wasm),
         scope = scope,
         builtIn = builtInContributions,
         builtInCommands = CommandIds.ALL,
@@ -106,7 +137,19 @@ class ExtensionsContainer(
         paths, state, inventory,
         ManifestParser(ManifestSchema.validator, ParseOptions(locale = Locale.getDefault(), builtInCommands = CommandIds.ALL)),
         { PackageLimits.from(settings) }, io,
+        // Declared below; only called once installs happen, after construction.
+        isRevoked = { id, version -> registry.isRevoked(id, version) },
     )
+
+    /** Signed registries: browse, install, update check, revocation (registry-and-install.md). */
+    val registry: RegistryService = RegistryService(
+        paths, state, UrlConnectionFetcher(), TinkEd25519, installer, inventory,
+        { PackageLimits.from(settings).packageBytes }, io,
+        notify = { id, message -> log.append(LogEntry(id, LogLevel.WARN, message)) },
+    )
+
+    /** `easyide-ext dev`: adb reloads and `dev --local` requests (lld/cli.md sec 5.7). */
+    val dev = DevLoop(context, installer, inventory, settingsStore, log, { paths.projectDir(it).canonicalFile }, scope, io)
 
     /** Contributed `languageServers` for the LSP registry (registered once by the composition root). */
     val languageServers = ContributedServers.Provider(runtime, settings, log)
@@ -119,6 +162,11 @@ class ExtensionsContainer(
     /** The keymap's extension layer, rebuilt when contributed keybindings change. */
     val keybindings: StateFlow<List<KeyBinding>> = keybindingState.asStateFlow()
 
+    private val colorThemeState = MutableStateFlow<ThemeTokens?>(null)
+
+    /** The selected extension colour theme's tokens; null means the built-in palette (sec 8.1). */
+    val colorTheme: StateFlow<ThemeTokens?> = colorThemeState.asStateFlow()
+
     private val started = AtomicBoolean(false)
     private val startupFinished = AtomicBoolean(false)
 
@@ -129,6 +177,7 @@ class ExtensionsContainer(
     fun start() {
         if (!started.compareAndSet(false, true)) return
         runtime.start()
+        wasm.start()
         TextMateHighlighter.onSlowGrammar = { scopeName ->
             log.append(LogEntry(null, LogLevel.WARN, "grammar $scopeName exceeded ${ExtensionPolicy.GRAMMAR_LINE_TIME_LIMIT_MS} ms on a line; the rest of that file stays plain"))
         }
@@ -167,8 +216,22 @@ class ExtensionsContainer(
         bridgeSafeMode()
         scope.launch { combine(c.themes.entries, c.iconThemes.entries) { t, i -> t to i }.collect { (t, i) -> themes.update(t, i) } }
         scope.launch {
+            val selection = settingsStore.snapshot.map { it[SettingsSchema.colorTheme] }.distinctUntilChanged()
+            themes.active(selection).collect { colorThemeState.value = it }
+        }
+        scope.launch {
             installer.clearStaging()
             inventory.rescan()
+            dev.start()
+        }
+        scope.launch {
+            var first = true
+            settingsStore.snapshot.map { it[RegistrySettingsSchema.registries] }.distinctUntilChanged().collect { value ->
+                registry.setConfigs(RegistryConfigs.parse(value))
+                // App start counts as a check point for extensions.autoCheckUpdates (sec 3.3).
+                if (first) registry.refreshIfDue(settingsStore.snapshot.first()[RegistrySettingsSchema.autoCheckUpdates])
+                first = false
+            }
         }
     }
 
@@ -218,6 +281,7 @@ class ExtensionsContainer(
     fun setRuntimeScope(scope: RuntimeScope) {
         settings.setScope(scope)
         runtime.setRuntimeScope(scope)
+        dev.setScope(scope)
     }
 
     /** For the environment binds: only enabled environment packs appear in the guest. */
@@ -246,6 +310,9 @@ class ExtensionsContainer(
     } catch (e: ActivityNotFoundException) {
         false
     }
+
+    @Suppress("DEPRECATION") // the flags overload is API 33+; minSdk is 26
+    private fun appVersionName(): String = context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty()
 
     /** Changes with every install or update of the APK, so built-ins are re-unpacked exactly then. */
     private fun apkStamp(): String =

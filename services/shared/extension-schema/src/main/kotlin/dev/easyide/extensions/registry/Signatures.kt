@@ -91,3 +91,19 @@ object Hex {
 }
 
 internal fun decodeBase64(s: String): ByteArray? = try { Base64.getDecoder().decode(s) } catch (e: IllegalArgumentException) { null }
+
+/**
+ * Producing signed registry documents: what `easyide-ext publish` and `registry build` write
+ * and what tests use. [sign] holds the private key, so this code never sees it.
+ */
+object RegistrySigning {
+    /** [entry] with its `signature` member set over the rest of it. */
+    fun signEntry(entry: JsonObject, keyId: String, sign: (ByteArray) -> ByteArray): JsonObject {
+        val unsigned = JsonObject(entry - "signature")
+        return JsonObject(unsigned + ("signature" to Sig(keyId, Sig.ALG, sign(SignedBytes.entry(unsigned))).toJson()))
+    }
+
+    /** The `.sig` document for a signed JSON file. */
+    fun fileSig(document: JsonElement, keyId: String, sign: (ByteArray) -> ByteArray): JsonObject =
+        Sig(keyId, Sig.ALG, sign(SignedBytes.file(document))).toJson()
+}

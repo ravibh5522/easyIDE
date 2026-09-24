@@ -1,0 +1,5 @@
+{
+  "name": "the command is offered in the palette while a file is open",
+  "editor": { "path": "/workspace/notes.md", "text": "one two" },
+  "expect": { "visible": [ "menu:commandPalette:{{name}}.wordCount" ] }
+}

@@ -2,6 +2,8 @@ package dev.easyide.app.ui.screens.workspace.lsp
 
 import dev.easyide.app.data.settings.AcceptOnEnter
 import dev.easyide.app.data.settings.LspSettingsSchema
+import dev.easyide.app.lsp.ExtensionProviders
+import dev.easyide.app.lsp.ProviderQuery
 import dev.easyide.app.ui.screens.workspace.edit.SCOPE_COMMENT
 import dev.easyide.app.ui.screens.workspace.edit.SCOPE_STRING
 import dev.easyide.app.ui.screens.workspace.edit.TextState
@@ -11,6 +13,9 @@ import dev.easyide.app.ui.screens.workspace.syntax.LanguageConfigs
 import dev.easyide.lsp.client.FromServer
 import dev.easyide.lsp.protocol.CompletionTriggerKind
 import dev.easyide.lsp.protocol.LspFeature
+import dev.easyide.lsp.session.ServerKey
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,7 +41,12 @@ data class CompletionUi(val path: String, val wordStart: Int, val items: List<Co
  * re-requested only for `isIncomplete` lists; the focused item resolved; accepted by tap,
  * Enter (`editor.acceptSuggestionOnEnter`), Tab or a commit character, as one buffer change.
  */
-class CompletionController(private val ws: LspWorkspace, private val snippets: SnippetController) {
+class CompletionController(
+    private val ws: LspWorkspace,
+    private val snippets: SnippetController,
+    /** WASM `providers.register{kind: completion}` sources, ranked after the servers (wasm-host.md 11.3). */
+    private val providers: ExtensionProviders = ExtensionProviders.NONE,
+) {
 
     private val state = MutableStateFlow<CompletionUi?>(null)
     val ui: StateFlow<CompletionUi?> = state.asStateFlow()
@@ -187,11 +197,19 @@ class CompletionController(private val ws: LspWorkspace, private val snippets: S
             ws.documents.ensureCurrent(caret.path, caret.text)
             val o = CompletionOrigin(caret.text, caret.offset, CompletionModel.wordStart(caret.text, caret.offset))
             val position = o.lines.position(o.caret)
-            val lists = ws.client.completion(ctx, position, kind, triggerChar)
+            val (lists, provided) = coroutineScope {
+                val query = ProviderQuery(ctx.uri, ctx.languageId, ws.documents.version(caret.path), position, triggerChar)
+                val fromExtensions = async { providers.completion(query) }
+                ws.client.completion(ctx, position, kind, triggerChar) to fromExtensions.await()
+            }
             val latest = ws.activeCaret()?.takeIf { it.path == caret.path } ?: return@launch
             if (!CompletionModel.canRefilter(o, latest.text, latest.offset)) return@launch
             origin = o
-            raw = lists.flatMap { r -> r.value.items.map { CompletionEntry(r.server, it) } }
+            // Provider items are final (no resolve round trip) and never run a server command.
+            raw = lists.flatMap { r -> r.value.items.map { CompletionEntry(r.server, it) } } + provided.flatMap { p ->
+                val source = ServerKey(ws.environmentId, ws.projectId, EXTENSION_SOURCE_PREFIX + p.source)
+                p.items.map { CompletionEntry(source, it.copy(command = null), resolved = true) }
+            }
             incomplete = lists.any { it.value.isIncomplete }
             refilter(latest, opening = true)
         }
@@ -253,5 +271,10 @@ class CompletionController(private val ws: LspWorkspace, private val snippets: S
             else -> "other"
         }
         return (obj[key] as? JsonPrimitive)?.booleanOrNull ?: (key == "other")
+    }
+
+    private companion object {
+        /** Server id of provider entries, so they never collide with a real server's key. */
+        const val EXTENSION_SOURCE_PREFIX = "extension:"
     }
 }
