@@ -6,16 +6,21 @@ import dev.easyide.app.R
 import dev.easyide.sandbox.ProjectNames
 
 /**
- * Renders whichever [HomeDialog] the ViewModel says is open. A dialog naming a
- * project that no longer exists (deleted from another path) renders nothing and
- * is dismissed by the ViewModel's own state, never left dangling.
+ * Renders whichever [HomeDialog] the ViewModel says is open. Compose it once wherever Home content
+ * can be on screen; the panel, the project page and a row's menu all ask their question here. A
+ * dialog naming a project that no longer exists (deleted from another path) renders nothing and
+ * is dismissed by the ViewModel's own state, never left dangling. Cloning and importing need an
+ * installed Linux environment, so with none they become the Install Linux prompt.
  */
 @Composable
-internal fun HomeDialogHost(state: HomeUiState, callbacks: HomeCallbacks) {
+fun HomeDialogHost(state: HomeUiState, callbacks: HomeCallbacks) {
     val dialog = state.dialog ?: return
     val busy = state.busy != null
     val dismiss = { callbacks.onDialog(null) }
     val allItems = state.projectNames
+    val installPrompt: @Composable () -> Unit = {
+        InstallLinuxDialog(onInstall = { dismiss(); callbacks.onInstallLinux() }, onDismiss = dismiss)
+    }
 
     fun others(exceptId: String?) = allItems.filterKeys { it != exceptId }.values
 
@@ -68,7 +73,7 @@ internal fun HomeDialogHost(state: HomeUiState, callbacks: HomeCallbacks) {
             )
         }
 
-        HomeDialog.Clone -> CloneDialog(
+        HomeDialog.Clone -> if (state.readyEnvironments.isEmpty()) installPrompt() else CloneDialog(
             environments = state.readyEnvironments,
             suggestedEnvironmentId = state.suggestedEnvironmentId,
             otherNames = allItems.values,
@@ -78,7 +83,7 @@ internal fun HomeDialogHost(state: HomeUiState, callbacks: HomeCallbacks) {
             onDismiss = dismiss,
         )
 
-        is HomeDialog.Import -> ImportDialog(
+        is HomeDialog.Import -> if (state.environments.isEmpty()) installPrompt() else ImportDialog(
             suggestedName = dialog.suggestedName,
             environments = state.environments,
             suggestedEnvironmentId = state.suggestedEnvironmentId,
