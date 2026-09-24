@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 
 /** Sizes, timings and addresses specific to Home; spacing, radii and colours come from `Kit`. */
 internal object HomeMetrics {
-    val monogramPage = 56.dp
+    val monogramPage = 40.dp
 
     /** How strongly a project's tile colour tints its background; the letters stay in the text colour for contrast. */
     const val MONOGRAM_TINT_ALPHA = 0.22f
@@ -12,6 +12,9 @@ internal object HomeMetrics {
     val skeletonValueWidth = 96.dp
 
     const val RECENT_PLACEHOLDER_ROWS = 3
+
+    /** Projects the stage's summary lists; the panel beside it (or the Projects section) has the rest. */
+    const val SUMMARY_PROJECTS = 5
     const val SKELETON_TITLE_FRACTION = 0.5f
     const val SKELETON_SUBTITLE_FRACTION = 0.7f
 

@@ -13,14 +13,15 @@ import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.KitTag
 
 /**
- * Each Linux environment with its backend, how many projects use it and its state. A row opens the
- * Sandbox settings document, where environments are managed. Without one, the only next step is
- * installing Linux. Size on disk is left out until the runtime can report it.
+ * Each Linux environment on one line: its state dot and name, then the backend and how many projects
+ * use it inline, and its state in words at the end. A row opens the Sandbox settings document, where
+ * environments are managed. Without one, the only next step is installing Linux. Size on disk is
+ * left out until the runtime can report it.
  */
 @Composable
-internal fun EnvironmentSection(state: HomeUiState, onOpenSettings: () -> Unit, onInstallLinux: () -> Unit) {
+internal fun EnvironmentSection(state: HomeUiState, flat: Boolean, onOpenSettings: () -> Unit, onInstallLinux: () -> Unit) {
     if (state.isLoading) return
-    KitSection(stringResource(R.string.home_section_environment)) {
+    KitSection(stringResource(R.string.home_section_environment), count = state.environments.size.takeIf { it > 0 }, flat = flat, collapsible = true) {
         if (state.environments.isEmpty()) {
             KitEmptyState(
                 art = EmptyArt.Prompt,
@@ -33,6 +34,8 @@ internal fun EnvironmentSection(state: HomeUiState, onOpenSettings: () -> Unit, 
             KitRow(
                 title = env.label,
                 subtitle = joinParts(env.backend.label(), pluralStringResource(R.plurals.home_env_projects, count, count)),
+                mono = true,
+                leading = { StateDot(env.state.tone()) },
                 onClick = onOpenSettings,
                 trailing = { KitTag(env.state.tagText(), tone = env.state.tone()) },
             )

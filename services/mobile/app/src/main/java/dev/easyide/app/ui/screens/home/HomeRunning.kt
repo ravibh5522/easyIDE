@@ -1,14 +1,10 @@
 package dev.easyide.app.ui.screens.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import dev.easyide.app.R
-import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitProgress
 import dev.easyide.app.ui.kit.KitRow
@@ -20,21 +16,24 @@ import dev.easyide.app.ui.kit.KitSection
  * install screen); stop is shown only when the owner wired it.
  *
  * @param title the section header: "Running" on Home, "Sessions" on a project page.
+ * @param flat the side-panel form, without the group border.
  * @param onStop null when nothing can stop; installs are never stoppable from here.
  */
 @Composable
 internal fun RunningSection(
     title: String,
     items: List<RunningItem>,
+    flat: Boolean,
     onAttach: (RunningItem) -> Unit,
     onStop: ((RunningItem) -> Unit)?,
 ) {
     if (items.isEmpty()) return
-    KitSection(title) {
+    KitSection(title, count = items.size, flat = flat, collapsible = true) {
         items.forEach { item -> RunningRow(item, onAttach, onStop.takeIf { item.kind != RunningKind.INSTALL }) }
     }
 }
 
+/** `[dot] name  phase . project . environment ...... size [stop]`: the state is the dot and the word. */
 @Composable
 private fun RunningRow(item: RunningItem, onAttach: (RunningItem) -> Unit, onStop: ((RunningItem) -> Unit)?) {
     KitRow(
@@ -43,14 +42,13 @@ private fun RunningRow(item: RunningItem, onAttach: (RunningItem) -> Unit, onSto
         mono = true,
         leading = { StateDot(item.phase.tone()) },
         onClick = { onAttach(item) },
-        trailing = {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
-                item.rssKb?.let { MonoText(processSize(it).text()) }
-                if (item.kind == RunningKind.INSTALL) KitProgress(null)
-                if (onStop != null) {
-                    KitIconButton(Icons.Filled.Close, stringResource(R.string.home_running_stop, item.name), { onStop(item) })
-                }
-            }
-        },
+        trailing = if (item.rssKb != null) {
+            { MonoText(processSize(item.rssKb).text()) }
+        } else if (item.kind == RunningKind.INSTALL) {
+            { KitProgress(null) }
+        } else null,
+        actions = if (onStop != null) {
+            { KitIconButton(Icons.Filled.Close, stringResource(R.string.home_running_stop, item.name), { onStop(item) }) }
+        } else null,
     )
 }

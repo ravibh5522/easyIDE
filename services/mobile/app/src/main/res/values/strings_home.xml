@@ -71,7 +71,7 @@
     <string name="home_env_install">Install Linux</string>
 
     <!-- Home: projects -->
-    <string name="home_search_hint">Search projects</string>
+    <string name="home_search_hint">Search</string>
     <string name="home_sort_recent">Recent</string>
     <string name="home_sort_name">Name</string>
     <string name="home_projects_empty">No projects yet.</string>

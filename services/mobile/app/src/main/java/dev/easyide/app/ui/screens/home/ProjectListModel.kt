@@ -112,3 +112,6 @@ fun processSize(kb: Long): ProcessSize {
     val mb = kb / KB_PER_MB
     return if (mb >= MB_PER_GB) ProcessSize(mb / MB_PER_GB, SizeUnit.GB) else ProcessSize(mb, SizeUnit.MB)
 }
+
+/** A project-relative path as an editor lists it: the file name, then the folder it is in (empty at the project root). */
+fun String.fileNameAndFolder(): Pair<String, String> = substringAfterLast('/') to substringBeforeLast('/', missingDelimiterValue = "")

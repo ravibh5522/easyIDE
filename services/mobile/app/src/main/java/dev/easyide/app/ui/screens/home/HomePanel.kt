@@ -74,7 +74,7 @@ fun HomePanel(
         HomeMessageBanner(state.message, callbacks.onMessageShown)
         if (showNow) {
             val resumeSelected = expanded && selectedProjectId != null && selectedProjectId == state.resume?.project?.id
-            NowSections(state, callbacks, nowMs, resumeSelected)
+            NowSections(state, callbacks, nowMs, resumeSelected, flat = true)
         }
         ProjectsSection(
             state = state,
@@ -94,16 +94,24 @@ fun HomePanel(
 
 /**
  * Resume, Running and Environment as a page of their own, for the stage of a wide window when no
- * project page is open; its hero is the one element marked with crop corners. Content is capped at
- * the readable width and centred. Confirmations show in the panel beside it, so this page has no
- * banner of its own.
+ * project page is open; its hero is the one element marked with crop corners. On an expanded window
+ * it is two aligned columns (Resume and Running, then Environment and the projects summary),
+ * otherwise one, capped at the readable width and centred. Confirmations show in the panel beside
+ * it, so this page has no banner of its own.
  */
 @Composable
 fun HomeNowPage(state: HomeUiState, callbacks: HomeCallbacks, modifier: Modifier = Modifier) {
     val nowMs by rememberNow()
+    val expanded = LocalWindowSize.current.width.isExpanded
+    val actionsFor = rememberProjectActions(callbacks)
+    val projects = ProjectsActions(callbacks.onQueryChanged, callbacks.onSortChanged, callbacks.onOpenProjectPage, callbacks.onNewProject, actionsFor)
     Box(modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
-        Column(Modifier.widthIn(max = Kit.contentMax).fillMaxWidth()) {
-            NowSections(state, callbacks, nowMs, resumeSelected = true)
+        Column(Modifier.widthIn(max = if (expanded) Kit.contentMax * 2 else Kit.contentMax).fillMaxWidth()) {
+            NowSections(
+                state, callbacks, nowMs, resumeSelected = true, flat = false,
+                twoColumns = expanded,
+                summary = { ProjectsSummary(state, nowMs, projects) },
+            )
             Spacer(Modifier.height(Kit.space.xxl))
         }
     }
@@ -114,7 +122,7 @@ fun HomeNowPage(state: HomeUiState, callbacks: HomeCallbacks, modifier: Modifier
 private fun HomeHeader(callbacks: HomeCallbacks, pickFolder: () -> Unit) {
     val space = Kit.space
     Row(
-        Modifier.fillMaxWidth().padding(start = space.l, end = space.xs, top = space.s),
+        Modifier.fillMaxWidth().padding(start = Kit.control.hPad, end = space.xs, top = space.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(space.xs),
     ) {
