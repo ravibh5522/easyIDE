@@ -30,9 +30,9 @@ Scope letters: G global, E environment, P project (see section 5 for what P and 
 |---|---|---|---|---|---|
 | `appearance.themeMode` | system, light, dark, amoled, dynamic, highContrast | system | G | base palette | `themeTokensFor` (exists) |
 | `appearance.accent` | `theme` or `wallpaper` or `#RRGGBB` | theme | G,E,P | overrides the accent token family | `AccentDerivation` |
-| `appearance.density` | compact, comfortable, spacious | comfortable | G | spacing 0.85 / 1 / 1.2 (4dp snapped); row heights 40 / 48 / 56 (compact width); tab heights 32 / 36 / 44; panel default widths 260 / 280 / 300 | `Metrics` |
+| `appearance.density` | compact, comfortable, spacious | comfortable | G | spacing 0.85 / 1 / 1.2 (snapped to the 2dp half step); row heights 40 / 48 / 56 (compact width); tab heights 32 / 36 / 44; panel default widths 260 / 280 / 300 | `Metrics` |
 | `appearance.corners` | sharp, soft, round | soft | G | radii sharp 0/2/2/4; soft 4/6/10/16; round 8/12/18/28 | `easyIdeShapes(metrics)`, kit |
-| `appearance.uiScale` | 0.85 to 1.30, step 0.05 | 1.0 | G | scales dp and sp together | root `LocalDensity` |
+| `appearance.uiScale` | percent, 85 to 130, step 5 (the schema has no fractional type) | 100 | G | scales dp and sp together | root `LocalDensity` |
 | `appearance.fontPairing` | geist, monoChrome, system | geist | G | UI family: Geist + Geist Mono / Geist Mono for chrome / platform sans + mono | `EasyIdeFonts`, typography |
 | `appearance.chromeContrast` | soft, normal, high | normal | G | hairline alpha and muted/faint text mix; independent of the `highContrast` mode | `Palette.tune` |
 | `appearance.motif` | off, subtle, full | subtle | G | supporting motifs (identity 2.2) | kit (`LocalFeel`) |

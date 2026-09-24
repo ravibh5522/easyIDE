@@ -21,7 +21,7 @@ val GraphiteDarkPalette = Palette(
         textMuted = Color(0xFF9AA3B0),
         textFaint = Color(0xFF7A8494),
     ),
-    accent = Accent(accent = Color(0xFF7C8CFF), onAccent = Color(0xFF0E1014)),
+    accent = Accent(accent = Color(0xFFFF8A3D), onAccent = Color(0xFF0E1014)),
     signals = Signals(
         error = Color(0xFFF87171),
         warning = Color(0xFFFBBF24),
@@ -90,7 +90,7 @@ val PaperLightPalette = Palette(
         textMuted = Color(0xFF555B66),
         textFaint = Color(0xFF656B76),
     ),
-    accent = Accent(accent = Color(0xFF4355D6), onAccent = Color(0xFFFFFFFF)),
+    accent = Accent(accent = Color(0xFFB04600), onAccent = Color(0xFFFFFFFF)),
     signals = Signals(
         error = Color(0xFFC62828),
         warning = Color(0xFF8F5F00),

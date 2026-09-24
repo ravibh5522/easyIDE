@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import dev.easyide.app.data.settings.AppearanceSettingsSchema
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.ThemeSettingsSchema
@@ -23,13 +24,12 @@ import dev.easyide.app.session.SessionPolicy
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.foundation.LocalKeymap
+import dev.easyide.app.ui.foundation.LocalMotionEnabled
 import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.foundation.LocalSettingsEditor
 import dev.easyide.app.ui.foundation.SettingsEditor
-import dev.easyide.app.ui.foundation.LocalMotionEnabled
 import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.foundation.currentWindowSize
-import dev.easyide.app.ui.foundation.systemMotionEnabled
 import dev.easyide.app.ui.navigation.AppNavHost
 import dev.easyide.app.ui.theme.EasyIdeTheme
 import dev.easyide.app.ui.theme.FileIcons
@@ -85,9 +85,6 @@ class MainActivity : ComponentActivity() {
             // First frame: onStartupFinished activations follow after the idle delay.
             LaunchedEffect(Unit) { container.extensions.onFirstFrame() }
 
-            // Read once per composition rather than observed: the system
-            // animation setting change restarts the activity anyway.
-            val motionEnabled = remember { systemMotionEnabled() }
             val settingsEditor = remember { SettingsEditor(container.settingsStore, lifecycleScope) }
             val windowSize = currentWindowSize()
 
@@ -95,10 +92,16 @@ class MainActivity : ComponentActivity() {
             val iconTheme by container.iconTheme.theme.collectAsStateWithLifecycle()
             val iconThemeChoices by container.iconTheme.choices.collectAsStateWithLifecycle()
             val fileIcons = remember(iconTheme) { iconTheme?.let(::FileIcons) }
-            EasyIdeTheme(themeMode = themeMode, contributed = contributedTheme, customizations = customizations, themeLabel = settings[SettingsSchema.colorTheme].takeIf { it.isNotEmpty() }) {
+            val appearance = remember(settings) { AppearanceSettingsSchema.appearance(settings) }
+            EasyIdeTheme(
+                themeMode = themeMode,
+                contributed = contributedTheme,
+                customizations = customizations,
+                themeLabel = settings[SettingsSchema.colorTheme].takeIf { it.isNotEmpty() },
+                appearance = appearance,
+            ) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
-                    LocalMotionEnabled provides motionEnabled,
                     LocalSettings provides settings,
                     LocalSettingsEditor provides settingsEditor,
                     LocalKeymap provides (keymap?.keymap ?: Keymap.DEFAULT),
@@ -112,7 +115,7 @@ class MainActivity : ComponentActivity() {
                         onboardingComplete?.let { complete ->
                             AppNavHost(
                                 startAtOnboarding = !complete,
-                                motionEnabled = motionEnabled,
+                                motionEnabled = LocalMotionEnabled.current,
                                 container = container,
                                 viewModelFactory = factory,
                                 onOnboardingComplete = {

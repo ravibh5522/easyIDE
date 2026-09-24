@@ -94,7 +94,7 @@ object SettingsJsonCompletion {
     }
 
     private fun valuesOf(s: Setting<*>?): List<JsonPrimitive> = when (s) {
-        is Setting.Enum<*> -> s.values.map { JsonPrimitive((it as Enum<*>).name) }
+        is Setting.Enum<*> -> s.ids.map(::JsonPrimitive)
         is Setting.Bool -> listOf(JsonPrimitive(true), JsonPrimitive(false))
         is Setting.Contributed -> when (val c = s.control) {
             is ContributedControl.Choice -> c.values.map(::JsonPrimitive)

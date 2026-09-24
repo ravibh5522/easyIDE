@@ -83,7 +83,7 @@ This document changes only how the accent is used and proposes its default.
 4. **Default accent (owner decision, section 12):** ADR 0019 chose iris (violet-blue) which
    reads as the generic "AI product" accent (research: purple/blue accents are the most
    common generated tell). Recommendation: a warm **signal orange** by default, keeping
-   iris as a swatch. Candidate values: dark `#FF8A3D`, light `#C4520A`; both are validated
+   iris as a swatch. Candidate values: dark `#FF8A3D`, light `#B04600`; both are validated
    by the existing WCAG palette test before adoption. The Ember Night pack on the phone
    already shows this direction working.
 5. **Swatches** offered in Settings: orange, iris `#7C8CFF`, violet `#B18CFF`, teal

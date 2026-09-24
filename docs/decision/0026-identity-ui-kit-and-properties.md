@@ -26,8 +26,8 @@ system fonts, identical padding, stock icons in circles, emoji, generic empty st
    shadows. A fixed copy voice. Custom icon set for identity glyphs, Material Symbols for
    generic verbs. Fifteen pass/fail anti-generated checks in the rules.
 3. **Default accent** changes from iris to a warm signal orange (dark `#FF8A3D`, light
-   `#C4520A`, validated by the palette contrast tests); iris stays as a swatch. **Owner
-   decision pending.**
+   `#B04600`, validated by the palette contrast tests); iris stays as a swatch.
+   Owner accepted 2026-09-24.
 4. **Appearance properties** (`appearance.*`, `shell.*`): accent, density, corners, UI scale,
    font pairing, chrome contrast, motif, cursor blink, reduce motion, haptics, icon style,
    handedness, layout preset, navigation position. Validated and clamped, layered

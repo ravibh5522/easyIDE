@@ -105,17 +105,22 @@ sealed class Setting<T>(
      * Stored as the constant's name, so reordering [values] never remaps a saved choice.
      * [aliases] also accepts other spellings of a value, such as VS Code's `true` /
      * `"configuredByTheme"`, so a settings.json copied from VS Code keeps working.
+     * [id] replaces the constant name for enums whose stored form must survive R8 renaming.
      */
     class Enum<E : kotlin.Enum<E>>(
         key: String, category: SettingCategory, @StringRes title: Int, @StringRes description: Int,
         default: E, scope: SettingScope, val values: List<E>, val label: (E) -> Int,
         private val aliases: (JsonElement) -> E? = { null },
+        val id: (E) -> String = { it.name },
     ) : Setting<E>(key, SettingGroup.BuiltIn(category), Text.Res(title), Text.Res(description), default, scope) {
+        /** The stored spellings, in display order. */
+        val ids: List<String> get() = values.map(id)
+
         override fun decode(value: JsonElement): E? {
             val name = SchemaValidator.stringOrNull(value) ?: return aliases(value)
-            return values.find { it.name == name } ?: aliases(value)
+            return values.find { id(it) == name } ?: aliases(value)
         }
-        override fun encode(value: E): JsonElement = JsonPrimitive(value.name)
+        override fun encode(value: E): JsonElement = JsonPrimitive(id(value))
     }
 
     class Str(
