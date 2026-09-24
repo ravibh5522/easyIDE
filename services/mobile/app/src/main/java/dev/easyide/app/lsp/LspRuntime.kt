@@ -4,6 +4,7 @@ import android.content.ComponentCallbacks2
 import android.content.Context
 import android.util.Log
 import dev.easyide.app.R
+import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsQuery
 import dev.easyide.app.data.settings.SettingsSnapshot
@@ -25,6 +26,7 @@ import dev.easyide.sandbox.SandboxPaths
 import dev.easyide.sandbox.shell.ServerProcessFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -45,6 +47,7 @@ class LspRuntime(
     processFactory: ServerProcessFactory,
     projectManager: ProjectManager,
     private val settingsStore: SettingsStore,
+    safeMode: Flow<SafeModeReason?>,
     private val scope: CoroutineScope,
 ) {
     /** The global (user-layer) settings: the `lsp.*` limits are G scope. */
@@ -63,7 +66,7 @@ class LspRuntime(
         }
 
     /** Register the extension runtime's contributed servers here ([ServerRegistry.register]). */
-    val servers = ServerRegistry(::projectSettings, scope) { keys -> Log.w(TAG, "lsp.servers entries ignored (no languages/command): $keys") }
+    val servers = ServerRegistry(::projectSettings, scope, safeMode.map { it != null }) { keys -> Log.w(TAG, "lsp.servers entries ignored (no languages/command): $keys") }
 
     val messages = LspMessageBus()
 

@@ -190,6 +190,7 @@ class AppContainer(context: Context) {
         processFactory = ServerProcessFactory(linuxEnvironment, Dispatchers.IO),
         projectManager = projectManager,
         settingsStore = settingsStore,
+        safeMode = safeMode.active,
         scope = applicationScope,
     )
 
