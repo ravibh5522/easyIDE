@@ -40,11 +40,15 @@ internal fun SettingRowFor(setting: Setting<*>, env: PageEnv, contextLabel: Stri
 internal fun pageSettings(category: SettingsCategory, settings: List<Setting<*>>): List<Setting<*>> =
     settings.filter { SettingsCategory.of(it) == category && it.key !in SettingsSchema.managedElsewhere }
 
-/** The page's schema rows as sections: built-in rows first, then one section per contributing extension. */
+/**
+ * The page's schema rows as sections: built-in rows first, under [title] (the page's own name), then
+ * one section per contributing extension. Each header carries its row count and collapses.
+ */
 @Composable
-internal fun CategoryRows(rows: List<Setting<*>>, env: PageEnv, inlineChoice: Boolean = false) {
+internal fun CategoryRows(rows: List<Setting<*>>, env: PageEnv, title: String? = null, inlineChoice: Boolean = false) {
     SettingsSearch.sections(rows).forEach { section ->
-        KitSection(section.title?.let { stringResource(R.string.settings_contributed_section, it) }) {
+        val name = section.title?.let { stringResource(R.string.settings_contributed_section, it) } ?: title
+        KitSection(name, count = section.rows.size, collapsible = name != null) {
             section.rows.forEach { SettingRowFor(it, env, inlineChoice = inlineChoice) }
         }
     }

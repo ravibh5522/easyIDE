@@ -2,7 +2,7 @@ package dev.easyide.app.ui.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,7 +19,6 @@ import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.TrustRequest
 import dev.easyide.app.data.settings.TrustState
 import dev.easyide.app.ui.kit.EmptyArt
-import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitBanner
 import dev.easyide.app.ui.kit.KitButton
@@ -43,27 +42,32 @@ internal fun PageHeader(viewModel: SettingsViewModel, ui: SettingsUiState, ctx: 
     val language by viewModel.language.collectAsStateWithLifecycle()
     var reviewing by rememberSaveable { mutableStateOf(false) }
     val perLanguage = page == null || pageSettings(page, env.settings).any { it.scope.languageOverridable }
-    val gutter = Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.l)
 
-    Row(gutter, Arrangement.SpaceBetween, Alignment.CenterVertically) {
-        KitTag(layerText(ui), tone = Tone.Accent)
-        KitButton(stringResource(R.string.settings_edit_json), ctx.onEditJson, style = KitButtonStyle.Ghost)
-    }
+    PageToolbar(layerText(ui), ctx.onEditJson, perLanguage, language, viewModel::onLanguageChanged)
     system.trust?.takeIf { it.state != TrustState.NOT_REQUIRED && ui.tab is LayerTab.Project }?.let { request ->
         KitBanner(
-            stringResource(trustStateRes(request.state)), gutter, Tone.Warning,
+            stringResource(trustStateRes(request.state)), Modifier.pageGutter(), Tone.Warning,
             KitAction(stringResource(R.string.trust_review)) { reviewing = true },
         )
         if (reviewing) TrustReview(request, viewModel) { reviewing = false }
     }
+}
+
+/** One line: the layer badge at the start edge, "Edit as JSON" at the end; the language override under it. */
+@Composable
+internal fun PageToolbar(layer: String, onEditJson: () -> Unit, perLanguage: Boolean, language: String, onLanguage: (String) -> Unit) {
+    Row(Modifier.pageGutter().fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+        KitTag(layer, tone = Tone.Accent)
+        KitButton(stringResource(R.string.settings_edit_json), onEditJson, style = KitButtonStyle.Ghost)
+    }
     if (perLanguage) {
         KitField(
             value = language,
-            onValueChange = viewModel::onLanguageChanged,
+            onValueChange = onLanguage,
             label = stringResource(R.string.settings_language_override),
             hint = stringResource(R.string.settings_language_override_hint),
             mono = true,
-            modifier = gutter,
+            modifier = Modifier.pageGutter(),
         )
     }
 }
@@ -127,7 +131,7 @@ internal fun SearchResultsPage(env: PageEnv, filter: SettingsFilter, ui: Setting
         KitEmptyState(EmptyArt.Search, stringResource(R.string.settings_search_empty))
         return
     }
-    KitSection(null) {
+    KitSection(stringResource(R.string.settings_results_title), count = results.size) {
         results.forEach { SettingRowFor(it, env, contextLabel = stringResource(SettingsCategory.of(it).title)) }
     }
 }
@@ -142,7 +146,7 @@ internal fun CategoryPage(viewModel: SettingsViewModel, page: SettingsCategory, 
         }
     }
     if (page == SettingsCategory.FILES && user) StorageSection(viewModel, ui, host)
-    CategoryRows(pageSettings(page, env.settings), env)
+    CategoryRows(pageSettings(page, env.settings), env, stringResource(page.title))
     if (page == SettingsCategory.GIT && user) {
         val entries by viewModel.gitCredentialEntries.collectAsStateWithLifecycle()
         GitCredentialsSection(entries, viewModel::saveGitToken, viewModel::forgetGitHost)

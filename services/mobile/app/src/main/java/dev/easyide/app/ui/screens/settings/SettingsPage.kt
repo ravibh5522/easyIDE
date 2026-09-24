@@ -1,19 +1,14 @@
 package dev.easyide.app.ui.screens.settings
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.EmptyArt
-import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.shell.LayoutPresets
 import dev.easyide.app.ui.shell.LayoutPreset
@@ -69,14 +64,12 @@ fun SettingsPage(
     val env = PageEnv(ctx, ui.settings.schema.settings, themeCards, viewModel, keyRows)
     val page = SettingsCategory.ofId(category)
 
-    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-        PageColumn(Modifier.widthIn(max = Kit.contentMax).fillMaxWidth()) {
-            if (page == null && category != SettingsCategory.SEARCH_ID) {
-                KitEmptyState(EmptyArt.Prompt, stringResource(R.string.settings_page_unknown, category))
-            } else {
-                PageHeader(viewModel, ui, ctx, page, env)
-                PageBody(viewModel, ui, env, host, page, filter)
-            }
+    SettingsPageFrame(modifier) {
+        if (page == null && category != SettingsCategory.SEARCH_ID) {
+            KitEmptyState(EmptyArt.Prompt, stringResource(R.string.settings_page_unknown, category))
+        } else {
+            PageHeader(viewModel, ui, ctx, page, env)
+            PageBody(viewModel, ui, env, host, page, filter)
         }
     }
     PageDialogs(viewModel)

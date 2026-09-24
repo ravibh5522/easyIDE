@@ -34,7 +34,7 @@ internal fun SandboxPage(viewModel: SettingsViewModel, ui: SettingsUiState) {
         KitEmptyState(EmptyArt.Environment, stringResource(R.string.settings_environments_empty))
         return
     }
-    KitSection(stringResource(R.string.settings_sandbox_section)) {
+    KitSection(stringResource(R.string.settings_sandbox_section), count = ui.environments.size, collapsible = true) {
         ui.environments.forEach { item ->
             EnvironmentRow(
                 item = item,
@@ -99,7 +99,7 @@ internal fun StorageSection(viewModel: SettingsViewModel, ui: SettingsUiState, h
         onFailed = viewModel::onDefaultProjectsFolderPickFailed,
     )
     val folder = ui.defaultProjectsFolderName
-    KitSection(stringResource(R.string.settings_storage_section)) {
+    KitSection(stringResource(R.string.settings_storage_section), collapsible = true) {
         KitRow(
             title = folder ?: stringResource(R.string.settings_storage_app_default),
             subtitle = stringResource(if (folder != null) R.string.settings_storage_folder_chosen_body else R.string.settings_storage_app_default_body),

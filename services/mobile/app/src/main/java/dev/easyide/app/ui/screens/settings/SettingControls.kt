@@ -102,18 +102,22 @@ private fun JsonAction(enabled: Boolean, ctx: SettingsContext) {
     KitButton(stringResource(R.string.setting_edit_in_json), ctx.onEditJson, style = KitButtonStyle.Ghost, enabled = enabled)
 }
 
-/** Controls that need the row's full width: text fields and list editors. */
+/** Controls that need a field's width: text fields and list editors sit in the control column, or under the label on a narrow page. */
+internal fun isWideControl(setting: Setting<*>): Boolean = when (setting) {
+    is Setting.Str, is Setting.StrList -> true
+    is Setting.Contributed -> setting.control.let { it is ContributedControl.TextField || it == ContributedControl.NumberField || it == ContributedControl.StringList }
+    else -> false
+}
+
 @Composable
 internal fun WideControl(setting: Setting<*>, value: Any?, enabled: Boolean, language: String?, actions: SettingActions) {
     when (setting) {
-        is Setting.Str -> RowBlock { SettingTextField(value as String, singleLine = true, enabled = enabled) { actions.set(setting, it, language) } }
+        is Setting.Str -> SettingTextField(value as String, singleLine = true, enabled = enabled) { actions.set(setting, it, language) }
         is Setting.StrList -> {
             @Suppress("UNCHECKED_CAST") // Setting.StrList decodes to List<String> by construction
             val lines = value as List<String>
-            RowBlock {
-                SettingTextField(lines.joinToString("\n"), singleLine = false, enabled = enabled, mono = true) {
-                    actions.set(setting, it.lines().filter(String::isNotBlank), language)
-                }
+            SettingTextField(lines.joinToString("\n"), singleLine = false, enabled = enabled, mono = true) {
+                actions.set(setting, it.lines().filter(String::isNotBlank), language)
             }
         }
         is Setting.Contributed -> ContributedWideControl(setting, value as JsonElement, enabled, language, actions)
@@ -124,30 +128,24 @@ internal fun WideControl(setting: Setting<*>, value: Any?, enabled: Boolean, lan
 @Composable
 private fun ContributedWideControl(setting: Setting.Contributed, value: JsonElement, enabled: Boolean, language: String?, actions: SettingActions) {
     when (setting.control) {
-        is ContributedControl.TextField -> RowBlock {
-            SettingTextField(
-                initial = (value as? JsonPrimitive)?.takeIf { it.isString }?.content.orEmpty(),
-                singleLine = true,
-                enabled = enabled,
-                isValid = { setting.isValid(JsonPrimitive(it)) },
-            ) { actions.setJson(setting, JsonPrimitive(it), language) }
-        }
-        ContributedControl.NumberField -> RowBlock {
-            SettingTextField(
-                initial = (value as? JsonPrimitive)?.takeIf { !it.isString }?.content.orEmpty(),
-                singleLine = true,
-                enabled = enabled,
-                isValid = { text -> text.toDoubleOrNull()?.let { setting.isValid(numberJson(text)) } == true },
-            ) { text -> if (text.toDoubleOrNull() != null) actions.setJson(setting, numberJson(text), language) }
-        }
-        ContributedControl.StringList -> RowBlock {
-            SettingTextField(
-                initial = (value as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.content }?.joinToString("\n").orEmpty(),
-                singleLine = false,
-                enabled = enabled,
-                mono = true,
-            ) { text -> actions.setJson(setting, JsonArray(text.lines().filter(String::isNotBlank).map(::JsonPrimitive)), language) }
-        }
+        is ContributedControl.TextField -> SettingTextField(
+            initial = (value as? JsonPrimitive)?.takeIf { it.isString }?.content.orEmpty(),
+            singleLine = true,
+            enabled = enabled,
+            isValid = { setting.isValid(JsonPrimitive(it)) },
+        ) { actions.setJson(setting, JsonPrimitive(it), language) }
+        ContributedControl.NumberField -> SettingTextField(
+            initial = (value as? JsonPrimitive)?.takeIf { !it.isString }?.content.orEmpty(),
+            singleLine = true,
+            enabled = enabled,
+            isValid = { text -> text.toDoubleOrNull()?.let { setting.isValid(numberJson(text)) } == true },
+        ) { text -> if (text.toDoubleOrNull() != null) actions.setJson(setting, numberJson(text), language) }
+        ContributedControl.StringList -> SettingTextField(
+            initial = (value as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.content }?.joinToString("\n").orEmpty(),
+            singleLine = false,
+            enabled = enabled,
+            mono = true,
+        ) { text -> actions.setJson(setting, JsonArray(text.lines().filter(String::isNotBlank).map(::JsonPrimitive)), language) }
         else -> Unit
     }
 }

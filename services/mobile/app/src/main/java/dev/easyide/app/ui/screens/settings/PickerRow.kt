@@ -5,17 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Restore
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitChoice
-import dev.easyide.app.ui.kit.KitIconButton
-import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.kit.Twistie
+import dev.easyide.app.ui.kit.TwistieSlot
 
 /**
  * A setting chosen from a list that is not a plain enum (icon theme, key row): the row shows the
@@ -35,19 +30,12 @@ internal fun PickerRow(
     notes: @Composable () -> Unit = {},
 ) {
     var open by rememberSaveable(id) { mutableStateOf(false) }
-    KitRow(
-        title = title,
-        subtitle = subtitle,
-        leading = { ModifiedDot(modified) },
-        trailing = {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
-                if (modified) KitIconButton(Icons.Filled.Restore, stringResource(R.string.setting_reset), onReset)
-                ValueText(labels.getOrNull(selected) ?: stringResource(R.string.setting_no_value))
-            }
-        },
-        onClick = { open = !open },
-        id = "setting:$id",
-    )
+    SettingLine(title, subtitle, "setting:$id", modified, onClick = { open = !open }) {
+        WithReset(modified, onReset) {
+            ValueText(labels.getOrNull(selected) ?: stringResource(R.string.setting_no_value))
+            TwistieSlot(if (open) Twistie.Expanded else Twistie.Collapsed, Kit.colors.textMuted)
+        }
+    }
     notes()
     if (open) RowBlock { KitChoice(labels.indices.toList(), selected, { labels[it] }, { onPick(it); open = false }) }
 }

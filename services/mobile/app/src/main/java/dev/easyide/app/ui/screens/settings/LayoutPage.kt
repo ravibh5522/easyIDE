@@ -32,7 +32,7 @@ import kotlinx.serialization.json.JsonObject
 @Composable
 internal fun LayoutPage(env: PageEnv, host: SettingsHost) {
     val ctx = env.ctx
-    KitSection(stringResource(R.string.layout_arrangement_section)) {
+    KitSection(stringResource(R.string.layout_arrangement_section), count = ARRANGEMENT_ROWS, collapsible = true) {
         PresetRow(ctx, host)
         SettingRow(ShellSettingsSchema.navigationPosition, ctx, inlineChoice = true)
         SettingRow(ShellSettingsSchema.navigationLabels, ctx, inlineChoice = true)
@@ -40,6 +40,9 @@ internal fun LayoutPage(env: PageEnv, host: SettingsHost) {
     NavigationRows(ctx, host.layout)
     ContainerRows(ctx, host.layout)
 }
+
+/** The preset and the two navigation settings the first section lists. */
+private const val ARRANGEMENT_ROWS = 3
 
 /** `shell.layout.preset`: auto, then every preset the shell offers; a preset that is gone stays visible so the choice is not lost. */
 @Composable
@@ -72,7 +75,7 @@ private fun ContainerRows(ctx: SettingsContext, catalog: LayoutCatalog) {
     val hidden = ctx.snapshot[ShellSettingsSchema.containersHidden]
     val placed = ShellSettingsSchema.placementMap(placement)
     val editable = RowState.blockOf(ShellSettingsSchema.containerPlacement, ctx.layer, ctx.language) == null
-    KitSection(stringResource(R.string.layout_panels_section)) {
+    KitSection(stringResource(R.string.layout_panels_section), count = catalog.containers.size, collapsible = true) {
         catalog.containers.forEach { c ->
             var open by rememberSaveable(c.id) { mutableStateOf(false) }
             val at = placed[c.id]?.takeIf { it in c.allowed } ?: c.placement
@@ -84,7 +87,7 @@ private fun ContainerRows(ctx: SettingsContext, catalog: LayoutCatalog) {
                 onClick = if (editable) ({ open = !open }) else null,
                 id = "container:${c.id}",
             )
-            if (open && editable) RowBlock {
+            if (open && editable) RowBlock(underLeading = true) {
                 val labels = c.allowed.associateWith { stringResource(placementLabel(it)) }
                 KitChoice(
                     c.allowed, at, { labels.getValue(it) },

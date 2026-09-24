@@ -42,7 +42,7 @@ internal fun NavigationRows(ctx: SettingsContext, catalog: LayoutCatalog) {
 
     groups.filter { (_, entries) -> entries.isNotEmpty() }.forEach { (scope, entries) ->
         val ids = entries.map { it.id }
-        KitSection(stringResource(if (scope == ShellScope.APP) R.string.layout_nav_app else R.string.layout_nav_workspace)) {
+        KitSection(stringResource(if (scope == ShellScope.APP) R.string.layout_nav_app else R.string.layout_nav_workspace), count = entries.size, collapsible = true) {
             entries.forEach { entry ->
                 val visible = entry.id !in hidden
                 KitRow(

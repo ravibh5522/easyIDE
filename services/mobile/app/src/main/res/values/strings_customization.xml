@@ -40,7 +40,9 @@
     <string name="lsp_source_pack">From %1$s</string>
     <string name="lsp_source_custom">Custom (lsp.servers)</string>
     <string name="lsp_languages">Languages: %1$s</string>
-    <string name="lsp_customized">Changed by lsp.servers</string>
+    <string name="lsp_tag_custom">custom</string>
+    <string name="lsp_tag_changed">changed</string>
+    <string name="lsp_limits_section">Limits</string>
     <string name="lsp_issue_no_languages">No languages: a new server needs a list of language ids.</string>
     <string name="lsp_issue_no_command">No command: a server needs its argv.</string>
     <string name="lsp_issue_not_declared">No enabled pack declares this server here, so its overrides do nothing.</string>

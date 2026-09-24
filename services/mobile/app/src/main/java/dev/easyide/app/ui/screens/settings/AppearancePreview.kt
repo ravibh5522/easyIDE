@@ -40,7 +40,7 @@ import dev.easyide.app.ui.theme.SyntaxRole
 internal fun AppearancePreview() {
     val space = Kit.space
     Column(
-        Modifier.padding(start = space.l, end = space.l, top = space.l).clearAndSetSemantics { },
+        Modifier.pageGutter().padding(top = space.s).clearAndSetSemantics { },
         verticalArrangement = Arrangement.spacedBy(space.m),
     ) {
         KitGroup {
@@ -57,9 +57,15 @@ internal fun AppearancePreview() {
                 trailing = { KitToggle(true, null) },
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(space.m), verticalAlignment = Alignment.Top) {
-            PreviewDialog(Modifier.weight(1f))
-            PreviewEditor(Modifier.weight(1f))
+        if (LocalRowLayout.current.narrow) {
+            // Half a phone is too narrow for the dialog's two buttons: stacked, each keeps its full label.
+            PreviewDialog(Modifier.fillMaxWidth())
+            PreviewEditor(Modifier.fillMaxWidth())
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(space.m), verticalAlignment = Alignment.Top) {
+                PreviewDialog(Modifier.weight(1f))
+                PreviewEditor(Modifier.weight(1f))
+            }
         }
     }
 }
