@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="kitin_clear">Clear</string>
+    <string name="kitin_dismiss">Dismiss</string>
+    <string name="kitin_loading">Loading</string>
+    <string name="kitin_step_of">Step %1$d of %2$d</string>
+</resources>
