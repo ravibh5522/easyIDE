@@ -44,4 +44,4 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | **M7 WASM layer** | | |
 | Runtime embed, ABI v1, host API, capability enforcement | in-progress | `:ext-wasm` host on Chicory landed in b322368 after the on-device spike passed (ABI v1, capability-gated host functions, metering and limits); this row was not updated then |
 | **M8 Node host (conditional)** | | |
-| vscode API subset in sandbox | not-started | only if M3+M7 insufficient |
+| vscode API subset in sandbox | not-started (by decision) | [m8-gap-analysis.md](m8-gap-analysis.md) (2026-09-24): none of the top 60 Open VSX extensions needs the Node host itself; what blocks the rest is DAP, notebooks, webviews/sign-in and container daemons, none of which L3 provides. Not building; next are L1 gaps: formatter contribution, test explorer, Open VSX subset import |
