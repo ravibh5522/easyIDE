@@ -1,16 +1,6 @@
 package dev.easyide.app.ui.screens.extensions
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,10 +8,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
 import dev.easyide.app.extensions.authoring.ScaffoldRefusal
 import dev.easyide.app.extensions.authoring.ScaffoldResult
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitAction
+import dev.easyide.app.ui.kit.KitBanner
+import dev.easyide.app.ui.kit.KitChoice
+import dev.easyide.app.ui.kit.KitDialog
+import dev.easyide.app.ui.kit.KitField
+import dev.easyide.app.ui.kit.Tone
 import dev.easyide.extensions.authoring.ExtensionTemplates
 import dev.easyide.extensions.manifest.ExtensionId
 import dev.easyide.sandbox.model.ProjectRecord
@@ -34,32 +30,33 @@ sealed interface CreateState {
     data class Refused(val reason: ScaffoldRefusal, val detail: String) : CreateState
 }
 
+/** Whether publisher and name make an extension id; the ids are lower-case, so input is folded first. */
+internal fun validExtensionId(publisher: String, name: String): Boolean =
+    ExtensionId.of(publisher.trim().lowercase(), name.trim().lowercase()) != null
+
 /**
  * The in-app "Create extension" (M5): pick a declarative template, publisher, name and the
  * project to write `<name>/` into; then "Install from this folder". Same templates and
  * substitution as `easyide-ext init`.
  */
 @Composable
-fun CreateExtensionDialogs(state: CreateState, projects: List<ProjectRecord>, developerMode: Boolean, viewModel: ExtensionsViewModel) {
+internal fun CreateExtensionDialogs(state: CreateState, projects: List<ProjectRecord>, developerMode: Boolean, viewModel: ExtensionsViewModel) {
     when (state) {
         CreateState.Idle -> Unit
         CreateState.Editing -> CreateForm(projects, viewModel)
         is CreateState.Refused -> ProblemDialog(stringResource(R.string.create_ext_refused_title), listOf(refusalText(state)), viewModel::closeCreate)
-        is CreateState.Created -> AlertDialog(
-            onDismissRequest = viewModel::closeCreate,
-            title = { Text(stringResource(R.string.create_ext_created_title, state.result.id)) },
-            text = {
-                Column {
-                    Text(stringResource(R.string.create_ext_created_body, state.result.relativePath))
-                    Text(
-                        if (developerMode) stringResource(R.string.create_ext_dev_hint, state.result.relativePath) else stringResource(R.string.create_ext_dev_off_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            },
-            confirmButton = { TextButton(onClick = { viewModel.installCreated(state.result) }) { Text(stringResource(R.string.create_ext_install)) } },
-            dismissButton = { TextButton(onClick = viewModel::closeCreate) { Text(stringResource(R.string.ext_prompt_close)) } },
-        )
+        is CreateState.Created -> KitDialog(
+            title = stringResource(R.string.create_ext_created_title, state.result.id),
+            onDismiss = viewModel::closeCreate,
+            confirm = KitAction(stringResource(R.string.create_ext_install)) { viewModel.installCreated(state.result) },
+            dismiss = KitAction(stringResource(R.string.ext_prompt_close), viewModel::closeCreate),
+        ) {
+            DialogText(stringResource(R.string.create_ext_created_body, state.result.relativePath))
+            DialogText(
+                if (developerMode) stringResource(R.string.create_ext_dev_hint, state.result.relativePath) else stringResource(R.string.create_ext_dev_off_hint),
+                muted = true,
+            )
+        }
     }
 }
 
@@ -70,38 +67,29 @@ private fun CreateForm(projects: List<ProjectRecord>, viewModel: ExtensionsViewM
     var name by rememberSaveable { mutableStateOf("") }
     var displayName by rememberSaveable { mutableStateOf("") }
     var projectId by rememberSaveable { mutableStateOf<String?>(null) }
-    val target = projectId ?: projects.firstOrNull()?.id
-    val valid = ExtensionId.of(publisher.trim().lowercase(), name.trim().lowercase()) != null
-    AlertDialog(
-        onDismissRequest = viewModel::closeCreate,
-        title = { Text(stringResource(R.string.create_ext_title)) },
-        text = {
-            Column(modifier = Modifier.heightIn(max = SHEET_MAX_DP.dp).verticalScroll(rememberScrollState())) {
-                Text(stringResource(R.string.create_ext_template), style = MaterialTheme.typography.titleSmall)
-                FlowRow {
-                    ExtensionTemplates.DECLARATIVE.forEach { t ->
-                        FilterChip(selected = t == template, onClick = { template = t }, label = { Text(templateLabel(t)) })
-                    }
-                }
-                Text(stringResource(R.string.create_ext_wasm_note), style = MaterialTheme.typography.bodySmall)
-                OutlinedTextField(publisher, { publisher = it }, label = { Text(stringResource(R.string.create_ext_publisher)) }, singleLine = true)
-                OutlinedTextField(name, { name = it }, label = { Text(stringResource(R.string.create_ext_name)) }, singleLine = true)
-                OutlinedTextField(displayName, { displayName = it }, label = { Text(stringResource(R.string.create_ext_display_name)) }, singleLine = true)
-                Text(stringResource(R.string.create_ext_id_hint), style = MaterialTheme.typography.bodySmall)
-                Text(stringResource(R.string.create_ext_project), style = MaterialTheme.typography.titleSmall)
-                if (projects.isEmpty()) Text(stringResource(R.string.create_ext_no_project), color = MaterialTheme.colorScheme.error)
-                FlowRow {
-                    projects.forEach { p -> FilterChip(selected = p.id == target, onClick = { projectId = p.id }, label = { Text(p.name) }) }
-                }
-            }
+    val target = projects.firstOrNull { it.id == projectId } ?: projects.firstOrNull()
+    val valid = validExtensionId(publisher, name)
+    val idError = if ((publisher.isNotBlank() || name.isNotBlank()) && !valid) stringResource(R.string.create_ext_id_hint) else null
+    val gap = Modifier.padding(top = Kit.space.s)
+    val templateLabels = ExtensionTemplates.DECLARATIVE.associateWith { templateLabel(it) }
+    KitDialog(
+        title = stringResource(R.string.create_ext_title),
+        onDismiss = viewModel::closeCreate,
+        confirm = target?.takeIf { valid }?.let { p ->
+            KitAction(stringResource(R.string.create_ext_create)) { viewModel.createExtension(template, publisher, name, displayName, p.id) }
         },
-        confirmButton = {
-            TextButton(onClick = { target?.let { viewModel.createExtension(template, publisher, name, displayName, it) } }, enabled = valid && target != null) {
-                Text(stringResource(R.string.create_ext_create))
-            }
-        },
-        dismissButton = { TextButton(onClick = viewModel::closeCreate) { Text(stringResource(R.string.ext_prompt_cancel)) } },
-    )
+        dismiss = KitAction(stringResource(R.string.ext_prompt_cancel), viewModel::closeCreate),
+    ) {
+        DialogHeading(stringResource(R.string.create_ext_template))
+        KitChoice(ExtensionTemplates.DECLARATIVE, template, { templateLabels.getValue(it) }, { template = it })
+        DialogText(stringResource(R.string.create_ext_wasm_note), muted = true)
+        KitField(publisher, { publisher = it }, gap, label = stringResource(R.string.create_ext_publisher), mono = true, error = idError)
+        KitField(name, { name = it }, gap, label = stringResource(R.string.create_ext_name), mono = true)
+        KitField(displayName, { displayName = it }, gap, label = stringResource(R.string.create_ext_display_name))
+        DialogHeading(stringResource(R.string.create_ext_project))
+        if (target == null) KitBanner(stringResource(R.string.create_ext_no_project), tone = Tone.Warning)
+        else KitChoice(projects, target, { it.name }, { projectId = it.id })
+    }
 }
 
 @Composable
