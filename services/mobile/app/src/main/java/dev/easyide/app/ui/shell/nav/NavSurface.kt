@@ -1,5 +1,6 @@
 package dev.easyide.app.ui.shell.nav
 
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -53,7 +54,8 @@ fun NavSurface(surface: NavSurfaceState, onSelect: (NavItem) -> Unit, modifier: 
     val label = stringResource(R.string.shell_nav_label)
     var moreOpen by remember { mutableStateOf(false) }
     val bottom = surface.placement == NavPlacement.BOTTOM
-    val width = if (surface.showLabels) ShellTokens.railWidthLabelled else ShellTokens.railWidth
+    val width = Kit.control.railWidth + if (surface.showLabels) ShellTokens.railLabelExtra else 0.dp
+    val cellHeight = NavRules.cellHeight(surface.placement, surface.showLabels, Kit.control)
     val sides = if (bottom) {
         WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
     } else {
@@ -64,8 +66,7 @@ fun NavSurface(surface: NavSurfaceState, onSelect: (NavItem) -> Unit, modifier: 
         modifier.then(frame).background(colors.activityBar).windowInsetsPadding(WindowInsets.safeDrawing.only(sides))
             .semantics { contentDescription = label }.focusGroup(),
     ) {
-        val cellDp = ShellTokens.navCell.value
-        val capacity = if (bottom) NavRules.barCapacity(maxWidth.value, Kit.metrics.touchFloor.value) else NavRules.railCapacity(maxHeight.value, cellDp)
+        val capacity = if (bottom) NavRules.barCapacity(maxWidth.value, Kit.metrics.touchFloor.value) else NavRules.railCapacity(maxHeight.value, cellHeight.value)
         val cells = NavRules.cells(surface.items, capacity, surface.pinned, surface.active)
         val landing = if (cells.moreActive) MORE_ID else (cells.shown.firstOrNull { it.id == surface.active } ?: cells.shown.firstOrNull())?.id
         val cell: @Composable (id: String, item: NavItem?, Modifier) -> Unit = { id, item, m ->
@@ -83,14 +84,14 @@ fun NavSurface(surface: NavSurfaceState, onSelect: (NavItem) -> Unit, modifier: 
             }
         }
         if (bottom) {
-            Row(Modifier.fillMaxWidth().height(ShellTokens.navCell)) {
+            Row(Modifier.fillMaxWidth().height(cellHeight)) {
                 cells.shown.forEach { cell(it.id, it, Modifier.weight(1f).fillMaxHeight()) }
                 if (cells.hasMore) cell(MORE_ID, null, Modifier.weight(1f).fillMaxHeight())
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                cells.shown.forEach { cell(it.id, it, Modifier.fillMaxWidth().height(ShellTokens.navCell)) }
-                if (cells.hasMore) cell(MORE_ID, null, Modifier.fillMaxWidth().height(ShellTokens.navCell))
+                cells.shown.forEach { cell(it.id, it, Modifier.fillMaxWidth().height(cellHeight)) }
+                if (cells.hasMore) cell(MORE_ID, null, Modifier.fillMaxWidth().height(cellHeight))
             }
         }
         if (moreOpen) {

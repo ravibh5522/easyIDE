@@ -66,7 +66,7 @@ fun StatusStrip(parts: StatusParts, width: WidthClass, modifier: Modifier = Modi
     val density = LocalDensity.current
     val gap = with(density) { Kit.space.l.roundToPx() }
     val nameMin = with(density) { ShellTokens.statusNameMin.roundToPx() }
-    val text = Kit.type.labelSmall.tabular().copy(color = colors.statusBarText)
+    val text = Kit.text.caption.tabular().copy(color = colors.statusBarText)
     Layout(
         content = {
             if (StatusId.PROJECT in allowed) Slot(StatusId.PROJECT) { Named(Icons.Filled.FolderCopy, parts.project, text) }
@@ -77,7 +77,7 @@ fun StatusStrip(parts: StatusParts, width: WidthClass, modifier: Modifier = Modi
             if (StatusId.EXT_RIGHT in allowed) Slot(StatusId.EXT_RIGHT) { parts.extRight() }
             if (StatusId.SAVE in allowed && parts.dirty) Slot(StatusId.SAVE) { SaveButton(parts.onSave, text) }
         },
-        modifier = modifier.fillMaxWidth().kitTag("status-strip").background(colors.statusBar).height(ShellTokens.statusHeight).padding(horizontal = Kit.space.m),
+        modifier = modifier.fillMaxWidth().kitTag("status-strip").background(colors.statusBar).height(Kit.control.statusHeight).padding(horizontal = Kit.control.hPad),
     ) { measurables, constraints ->
         val height = constraints.maxHeight
         val slots = measurables.map { m ->

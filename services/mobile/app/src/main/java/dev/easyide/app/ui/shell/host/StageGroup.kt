@@ -162,19 +162,19 @@ private fun DocumentSwitcher(
     Row(
         Modifier.background(colors.panel)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-            .defaultMinSize(minHeight = Kit.metrics.touchFloor),
+            .defaultMinSize(minHeight = Kit.control.tabHeight),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.weight(1f)) {
             Row(
-                Modifier.defaultMinSize(minHeight = Kit.metrics.touchFloor).kitTag("doc-switcher")
+                Modifier.defaultMinSize(minHeight = Kit.control.tabHeight).kitTag("doc-switcher")
                     .kitPressable({ open = group.tabs.isNotEmpty() }, role = Role.Button)
                     .semantics(mergeDescendants = true) { contentDescription = label }
-                    .padding(horizontal = Kit.space.m),
+                    .padding(horizontal = Kit.control.hPad),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                BasicText(title, Modifier.weight(1f, fill = false), style = Kit.type.titleSmall.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (group.tabs.size > 1) BasicText(" ${group.tabs.size}", style = Kit.type.labelMedium.copy(color = colors.textMuted))
+                BasicText(title, Modifier.weight(1f, fill = false), style = Kit.text.title.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (group.tabs.size > 1) BasicText(" ${group.tabs.size}", style = Kit.text.caption.copy(color = colors.textMuted))
                 if (group.tabs.isNotEmpty()) Image(Icons.Filled.ExpandMore, null, Modifier.size(IconSize.m), colorFilter = ColorFilter.tint(colors.textMuted))
             }
             KitMenu(

@@ -60,7 +60,6 @@ internal fun NavCell(
             .kitTag(tag)
             .kitPressable(onClick, role = Role.Tab)
             .navMarker(selected, placement)
-            .defaultMinSize(minWidth = Kit.metrics.touchFloor, minHeight = Kit.metrics.touchFloor)
             .semantics(mergeDescendants = true) {
                 this.selected = selected
                 contentDescription = listOfNotNull(title, badgeDescription).joinToString(", ")
@@ -69,14 +68,14 @@ internal fun NavCell(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Kit.space.xxs)) {
             Box {
-                Image(icon, null, Modifier.size(ShellTokens.navIcon), colorFilter = ColorFilter.tint(tint))
+                Image(icon, null, Modifier.size(Kit.control.railIcon), colorFilter = ColorFilter.tint(tint))
                 if (badge != null) Badge(badgeText, Modifier.align(Alignment.TopEnd))
             }
             if (showLabel) {
                 BasicText(
                     title,
                     Modifier.padding(horizontal = Kit.space.xs),
-                    style = Kit.type.labelSmall.copy(color = tint),
+                    style = Kit.text.label.copy(color = tint),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -97,7 +96,7 @@ private fun Badge(text: String?, modifier: Modifier) {
         modifier.defaultMinSize(ShellTokens.badgeCount, ShellTokens.badgeCount).background(colors.accent, RoundedCornerShape(Kit.radius.xs)),
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(text, Modifier.padding(horizontal = Kit.space.xxs), style = Kit.type.labelSmall.copy(color = colors.onAccent), maxLines = 1)
+        BasicText(text, Modifier.padding(horizontal = Kit.space.xxs), style = Kit.text.label.copy(color = colors.onAccent), maxLines = 1)
     }
 }
 

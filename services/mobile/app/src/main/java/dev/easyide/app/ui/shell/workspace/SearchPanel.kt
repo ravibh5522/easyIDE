@@ -57,7 +57,7 @@ fun SearchPanel(env: WorkspaceEnv, modifier: Modifier = Modifier) {
         BasicText(
             stringResource(R.string.wshell_search_title),
             Modifier.padding(start = space.l, end = space.l, top = space.m, bottom = space.s),
-            style = Kit.type.titleSmall.copy(color = Kit.colors.plainText),
+            style = Kit.text.title.copy(color = Kit.colors.plainText),
         )
         KitField(query, { query = it }, Modifier.fillMaxWidth().padding(horizontal = space.m), hint = stringResource(R.string.wshell_search_hint))
         val note = when {
@@ -77,7 +77,7 @@ fun SearchPanel(env: WorkspaceEnv, modifier: Modifier = Modifier) {
                     id = "search-hit",
                 )
             }
-            if (hits.isNotEmpty() && note != null) item { BasicText(note, Modifier.padding(space.l), style = Kit.type.bodySmall.copy(color = Kit.colors.textMuted)) }
+            if (hits.isNotEmpty() && note != null) item { BasicText(note, Modifier.padding(space.l), style = Kit.text.caption.copy(color = Kit.colors.textMuted)) }
         }
     }
 }

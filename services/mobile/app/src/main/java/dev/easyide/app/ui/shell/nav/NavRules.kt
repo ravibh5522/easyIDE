@@ -1,5 +1,7 @@
 package dev.easyide.app.ui.shell.nav
 
+import dev.easyide.app.ui.props.ControlScale
+import androidx.compose.ui.unit.Dp
 import dev.easyide.app.ui.foundation.WidthClass
 import dev.easyide.app.ui.shell.NavItem
 import dev.easyide.app.ui.shell.NavLayout
@@ -45,6 +47,10 @@ object NavRules {
         NavLabels.NEVER -> false
         NavLabels.AUTO -> placement == NavPlacement.BOTTOM || width.isExpanded
     }
+
+    /** The height of one cell: the bar's own height, a labelled rail cell as tall as the bar, a bare icon a square of the rail width. */
+    fun cellHeight(placement: NavPlacement, labelled: Boolean, control: ControlScale): Dp =
+        if (placement == NavPlacement.BOTTOM || labelled) control.bottomBarHeight else control.railWidth
 
     /** Cells a bottom bar can hold: at most [ShellLimits.COMPACT_NAV_CAPACITY], fewer when the window is too narrow for 44dp each. */
     fun barCapacity(widthDp: Float, cellDp: Float): Int =
