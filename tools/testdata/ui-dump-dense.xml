@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[0,0][1800,2880]">
+    <node index="0" text="" resource-id="app.easyide:id/toolbar" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[0,0][1800,90]">
+      <node index="0" text="" resource-id="" class="android.widget.ImageButton" package="app.easyide" content-desc="Open" clickable="true" scrollable="false" bounds="[20,10][100,90]" />
+      <node index="0" text="" resource-id="" class="android.widget.ImageButton" package="app.easyide" content-desc="Search" clickable="true" scrollable="false" bounds="[110,10][190,90]" />
+    </node>
+    <node index="0" text="" resource-id="app.easyide:id/tab_strip" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[0,90][1800,175]">
+      <node index="0" text="main.kt" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[0,90][300,175]" />
+      <node index="0" text="README.md" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[300,90][600,175]" />
+      <node index="0" text="build.gradle" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[600,90][900,175]" />
+    </node>
+    <node index="0" text="" resource-id="app.easyide:id/explorer_list" class="androidx.compose.ui.platform.ComposeView" package="app.easyide" content-desc="" clickable="false" scrollable="true" bounds="[0,195][900,715]">
+      <node index="0" text="" resource-id="" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[0,195][900,265]">
+        <node index="0" text="" resource-id="" class="android.widget.ImageView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[20,210][60,250]" />
+        <node index="0" text="src" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[80,195][380,265]" />
+      </node>
+      <node index="0" text="" resource-id="" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[0,265][900,335]">
+        <node index="0" text="" resource-id="" class="android.widget.ImageView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[20,280][60,320]" />
+        <node index="0" text="docs" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[80,265][380,335]" />
+      </node>
+      <node index="0" text="" resource-id="" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[0,335][900,405]">
+        <node index="0" text="" resource-id="" class="android.widget.ImageView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[20,350][60,390]" />
+        <node index="0" text="tools" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[80,335][380,405]" />
+      </node>
+      <node index="0" text="" resource-id="" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[0,405][900,475]">
+        <node index="0" text="" resource-id="" class="android.widget.ImageView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[20,420][60,460]" />
+        <node index="0" text="services" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[80,405][380,475]" />
+      </node>
+      <node index="0" text="" resource-id="" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[0,475][900,545]">
+        <node index="0" text="" resource-id="" class="android.widget.ImageView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[20,490][60,530]" />
+        <node index="0" text="README.md" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[80,475][380,545]" />
+      </node>
+      <node index="0" text="" resource-id="" class="android.view.ViewGroup" package="app.easyide" content-desc="" clickable="true" scrollable="false" bounds="[0,545][900,615]">
+        <node index="0" text="" resource-id="" class="android.widget.ImageView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[20,560][60,600]" />
+        <node index="0" text="build.gradle" resource-id="" class="android.widget.TextView" package="app.easyide" content-desc="" clickable="false" scrollable="false" bounds="[80,545][380,615]" />
+      </node>
+    </node>
+  </node>
+</hierarchy>
