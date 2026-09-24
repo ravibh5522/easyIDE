@@ -32,4 +32,6 @@ class SystemGit(private val env: Map<String, String> = emptyMap(), private val t
 /** CLI-only constants (cli.md sec 7). */
 object CliPolicy {
     const val GIT_TIMEOUT_SEC = 300L
+    const val ADB_TIMEOUT_SEC = 120L
+    const val WATCH_DEBOUNCE_MS = 400L
 }

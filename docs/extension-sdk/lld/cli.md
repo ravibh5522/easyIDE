@@ -2,7 +2,7 @@
 
 Low-level design of `tools/easyide-ext`, the author-side tool that scaffolds, validates, packages, signs, publishes, tests and live-deploys extensions.
 
-Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish`, `registry build` and `test` in `tools/easyide-ext` (`dev` not yet); see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
+Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish`, `registry build`, `test` and `dev` in `tools/easyide-ext` (the app-side dev receiver and watcher are pending); see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
 Contract (commands, flags, exit codes, index format): [sdk-reference.md#cli](../sdk-reference.md#cli), [#registry-index-format](../sdk-reference.md#registry-index-format).
 Feature area: arch.md sec 5.4 (Ecosystem: Publish, Dev loop, In-app authoring). License Apache-2.0 per ADR-G (0015).
 
@@ -297,8 +297,8 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
 
 ## 10. Open issues
 
-1. `--local` dev handoff path between guest and app (guest-writable, host-watched directory
-   that does not assume isolation).
+1. ~~`--local` dev handoff path~~ resolved 2026-09-24: `<workspace>/.easyide/dev/<id>.json` naming the
+   folder relative to the workspace root (the project dir is guest-writable and already host-watched).
 2. Result channel for `dev` over adb (logcat tag parsing vs a content provider).
 3. Whether `publish` should also open the PR via the host API when the author opts in (would
    need a token; currently deliberately not).
@@ -346,3 +346,7 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
     files are pretty-printed for review; signatures cover the canonical form, so formatting never matters.
   - `registry build` creates an empty `revocations.json` when the repo has none and requires every entry
     file at `entries/<publisher>/<name>/<version>.json`.
+  - `dev`: adb pushes to `/sdcard/Android/data/<appId>/files/dev-inbox/<id>.easyext` and broadcasts
+    `dev.easyide.app.action.DEV_RELOAD` to `dev.easyide.app.extensions.dev.DevReloadReceiver`; `--local`
+    writes `<workspace>/.easyide/dev/<id>.json` (`--workspace`, default `/workspace`); `--watch` re-deploys
+    on changes to non-ignored files, debounced (`CliPolicy.WATCH_DEBOUNCE_MS`).
