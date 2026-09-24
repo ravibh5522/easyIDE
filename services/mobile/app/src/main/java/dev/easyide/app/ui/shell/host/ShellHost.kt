@@ -72,9 +72,9 @@ fun ShellHost(
     )
     val callbacks = StageCallbacks(
         onBack = { shell.back() },
-        onActivate = shell::activate,
-        onKeep = shell::keep,
-        onClose = shell::close,
+        onActivate = { _, uri -> shell.activate(uri) },
+        onKeep = { _, uri -> shell.keep(uri) },
+        onClose = { _, uri -> shell.close(uri) },
     )
     CompositionLocalProvider(LocalShellState provides state, LocalShellActions provides actions) {
         Box(

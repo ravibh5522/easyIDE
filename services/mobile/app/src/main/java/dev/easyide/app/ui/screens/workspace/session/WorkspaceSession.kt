@@ -1,7 +1,6 @@
 package dev.easyide.app.ui.screens.workspace.session
 
 import android.content.Context
-import androidx.compose.runtime.snapshotFlow
 import dev.easyide.app.R
 import dev.easyide.app.diagnostics.LogSink
 import dev.easyide.app.session.ExternalState
@@ -10,7 +9,9 @@ import dev.easyide.app.session.SessionPolicy
 import dev.easyide.app.session.SessionStore
 import dev.easyide.app.ui.screens.workspace.EditorSelections
 import dev.easyide.app.ui.screens.workspace.EditorTab
-import dev.easyide.app.ui.screens.workspace.WorkspaceLayoutHolder
+import dev.easyide.app.ui.shell.host.AppDocuments
+import dev.easyide.app.ui.shell.workspace.WorkspaceShellModel
+import dev.easyide.app.ui.shell.workspace.forWorkspace
 import dev.easyide.app.ui.screens.workspace.WorkspaceUiState
 import dev.easyide.sandbox.files.ProjectFiles
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,7 +29,7 @@ import kotlinx.coroutines.launch
 
 /** What the workspace screen needs of its session, kept apart from the view model's own callbacks. */
 class WorkspaceSessionUi(
-    val layout: WorkspaceLayoutHolder,
+    val shell: WorkspaceShellModel,
     val scrolls: EditorScrolls,
     /** Applies the user's answer to the conflict dialog: keep the buffer, or take the disk text. */
     val onResolveConflict: (path: String, keepMine: Boolean) -> Unit,
@@ -65,12 +66,12 @@ internal class WorkspaceSession(
     private val restoreOpenTabs: suspend () -> Boolean,
 ) {
     private val scrolls = EditorScrolls()
-    private val layout = WorkspaceLayoutHolder()
+    private val shell = AppDocuments.registries(appContext::getString).forWorkspace().let { WorkspaceShellModel(it.documents, it.containers) }
     private val changes = ExternalChanges(projectId, state, projectFiles, scope, appContext, host::showStatus)
-    private val persistence = SessionPersistence(projectId, state, selections, scrolls, layout, store, io, clock, log)
+    private val persistence = SessionPersistence(projectId, state, selections, scrolls, shell::snapshot, store, io, clock, log)
     private val restore = SessionRestore(projectId, store, projectFiles, io)
 
-    val ui = WorkspaceSessionUi(layout, scrolls, changes::resolve)
+    val ui = WorkspaceSessionUi(shell, scrolls, changes::resolve)
 
     /** Directories that hold an editable open tab: the watcher must cover them to see outside edits. */
     val tabDirectories: Flow<Set<String>> = state.map(::tabDirs).distinctUntilChanged()
@@ -93,7 +94,7 @@ internal class WorkspaceSession(
             state.map { Triple(it.openTabs, it.activeTabPath, it.expandedDirs) }.distinctUntilChanged().map { },
             selections.changes.map { },
             scrolls.changes.map { },
-            snapshotFlow { layout.snapshot() }.map { },
+            shell.snapshots.map { },
         ).conflate().collect {
             delay(SessionPolicy.SAVE_DELAY_MS)
             persistence.save()
@@ -101,7 +102,7 @@ internal class WorkspaceSession(
     }
 
     private fun apply(restored: RestoredSession) {
-        restored.layout?.let(layout::restore)
+        restored.shell?.let(shell::restore)
         state.update { s ->
             val open = s.openTabs.map { it.relativePath }.toSet()
             s.copy(

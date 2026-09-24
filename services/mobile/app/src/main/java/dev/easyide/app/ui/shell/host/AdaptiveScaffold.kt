@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import dev.easyide.app.ui.shell.nav.NavPlacement
+import dev.easyide.app.ui.shell.nav.NavRules
 
 /**
  * Lays the navigation surface beside or under the content and settles the insets between them.
@@ -32,7 +33,7 @@ fun AdaptiveScaffold(
     val keyboardUp = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     when (placement) {
         NavPlacement.BOTTOM -> Column(modifier.fillMaxSize()) {
-            val barShown = !keyboardUp
+            val barShown = NavRules.barShown(placement, keyboardUp)
             val consumed = if (barShown) Modifier.consumeWindowInsets(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)) else Modifier
             Box(Modifier.weight(1f).then(consumed)) { content(Modifier) }
             if (barShown) nav()

@@ -10,7 +10,6 @@ import dev.easyide.app.session.SessionStore
 import dev.easyide.app.session.TabSnapshot
 import dev.easyide.app.ui.screens.workspace.EditorSelections
 import dev.easyide.app.ui.screens.workspace.EditorTab
-import dev.easyide.app.ui.screens.workspace.WorkspaceLayoutHolder
 import dev.easyide.app.ui.screens.workspace.WorkspaceUiState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +21,7 @@ import java.io.IOException
  *
  * Every state that is worth restoring is read here from where it already lives (tabs and
  * explorer folders in the UI state, carets in [EditorSelections], offsets in [EditorScrolls],
- * stages in [WorkspaceLayoutHolder]); nothing is mirrored, so the snapshot cannot drift from
+ * the shell's panels and pages in the workspace shell model); nothing is mirrored, so the snapshot cannot drift from
  * what the user sees.
  *
  * Writes are serialised by a lock and stop for good once [discard] ran: an explicit close
@@ -33,7 +32,8 @@ internal class SessionPersistence(
     private val state: MutableStateFlow<WorkspaceUiState>,
     private val selections: EditorSelections,
     private val scrolls: EditorScrolls,
-    private val layout: WorkspaceLayoutHolder,
+    /** The workspace shell's snapshot text, or null while it has none. */
+    private val shell: () -> String?,
     private val store: SessionStore,
     private val io: CoroutineDispatcher,
     private val clock: () -> Long,
@@ -96,7 +96,7 @@ internal class SessionPersistence(
             tabs = tabs,
             activePath = s.activeTabPath,
             expandedDirs = s.expandedDirs.sorted(),
-            layout = layout.snapshot(),
+            shell = shell(),
         )
         return Built(snapshot, backups, liveKeys)
     }

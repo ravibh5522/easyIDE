@@ -4,7 +4,6 @@ import androidx.compose.ui.text.TextRange
 import dev.easyide.app.session.BackupRef
 import dev.easyide.app.session.ExternalState
 import dev.easyide.app.session.Hashes
-import dev.easyide.app.session.LayoutSnapshot
 import dev.easyide.app.session.SessionSnapshot
 import dev.easyide.app.session.SessionStore
 import dev.easyide.app.session.TabSnapshot
@@ -33,7 +32,7 @@ class SessionRestoreTest {
 
     private fun stored(vararg tabs: TabSnapshot, active: String? = null, dirs: List<String> = emptyList(), backups: Map<String, String> = emptyMap()) {
         store.save(
-            SessionSnapshot("p", 1, tabs.toList(), active, dirs, LayoutSnapshot(true, false, true, "SOURCE_CONTROL")),
+            SessionSnapshot("p", 1, tabs.toList(), active, dirs, "shell-json"),
             backups,
         )
     }
@@ -62,7 +61,7 @@ class SessionRestoreTest {
         assertEquals(ScrollPos(120, 4), r.tabs[0].scroll)
         assertEquals("src/b.kt", r.activePath)
         assertEquals(setOf("src"), r.expandedDirs)
-        assertEquals(LayoutSnapshot(true, false, true, "SOURCE_CONTROL"), r.layout)
+        assertEquals("shell-json", r.shell)
         assertEquals(0, r.unsavedCount)
     }
 

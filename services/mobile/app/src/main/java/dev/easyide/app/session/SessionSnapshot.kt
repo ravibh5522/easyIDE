@@ -31,9 +31,6 @@ data class TabSnapshot(
     val backup: BackupRef? = null,
 )
 
-/** Which stages showed, and which panel the left stage held ([sidePanel] is the enum's name). */
-data class LayoutSnapshot(val left: Boolean, val right: Boolean, val bottom: Boolean, val sidePanel: String)
-
 /**
  * Everything about a workspace that survives the process. Terminals are not here: a shell
  * is a process and dies with the app, so a restore starts a fresh one.
@@ -44,10 +41,11 @@ data class SessionSnapshot(
     val tabs: List<TabSnapshot>,
     val activePath: String?,
     val expandedDirs: List<String>,
-    val layout: LayoutSnapshot?,
+    /** The workspace shell's own snapshot (panels, sizes, preset, pages), opaque here: `ShellSnapshot` reads and writes it. */
+    val shell: String?,
 ) {
     /** Nothing worth restoring: an empty snapshot is not written, it clears the stored one. */
-    val isEmpty: Boolean get() = tabs.isEmpty() && expandedDirs.isEmpty() && layout == null
+    val isEmpty: Boolean get() = tabs.isEmpty() && expandedDirs.isEmpty() && shell == null
 }
 
 /**
@@ -71,14 +69,7 @@ object SessionSnapshotCodec {
         put("activePath", snapshot.activePath)
         put("tabs", buildJsonArray { snapshot.tabs.forEach { add(tabJson(it)) } })
         put("expandedDirs", buildJsonArray { snapshot.expandedDirs.forEach { add(JsonPrimitive(it)) } })
-        snapshot.layout?.let { layout ->
-            put("layout", buildJsonObject {
-                put("left", layout.left)
-                put("right", layout.right)
-                put("bottom", layout.bottom)
-                put("sidePanel", layout.sidePanel)
-            })
-        }
+        snapshot.shell?.let { put("shell", it) }
     }.toString()
 
     /**
@@ -101,7 +92,7 @@ object SessionSnapshotCodec {
             tabs = (root["tabs"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonObject)?.let(::tabOf) },
             activePath = root.string("activePath"),
             expandedDirs = (root["expandedDirs"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.contentOrNull },
-            layout = (root["layout"] as? JsonObject)?.let(::layoutOf),
+            shell = root.string("shell"),
         )
     }
 
@@ -136,13 +127,6 @@ object SessionSnapshotCodec {
             showPreview = json.bool("showPreview") ?: false,
             backup = backup,
         )
-    }
-
-    private fun layoutOf(json: JsonObject): LayoutSnapshot? {
-        val left = json.bool("left") ?: return null
-        val right = json.bool("right") ?: return null
-        val bottom = json.bool("bottom") ?: return null
-        return LayoutSnapshot(left, right, bottom, json.string("sidePanel").orEmpty())
     }
 
     private fun JsonObject.string(key: String): String? = (this[key] as? JsonPrimitive)?.contentOrNull

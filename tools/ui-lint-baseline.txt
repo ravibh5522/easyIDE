@@ -1,5 +1,3 @@
 U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	animationSpec = infiniteRepeatable(
 U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	import androidx.compose.animation.core.rememberInfiniteTransition
 U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	rememberInfiniteTransition(label = "empty-state-pulse").animateFloat(
-U-TYP-08	dev/easyide/app/ui/screens/workspace/WorkspaceChrome.kt	text = "${LineCount.of(activeTab.content)} lines",
-U-TYP-08	dev/easyide/app/ui/screens/workspace/WorkspaceChrome.kt	text = "Save",

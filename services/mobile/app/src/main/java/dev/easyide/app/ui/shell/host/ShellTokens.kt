@@ -20,6 +20,10 @@ object ShellTokens {
     /** The drag target of a pane edge (LayoutTokens.splitterGrab) is wider than the hairline it draws. */
     val splitterLine = 1.dp
 
+    /** The status strip's height (layout-spec.md section 5), and the least a truncatable name in it is squeezed to. */
+    val statusHeight = 24.dp
+    val statusNameMin = 64.dp
+
     /** The primary panel never takes more than this share of the window (layout-spec.md section 4.3: 200dp to 45%). */
     const val PANEL_MAX_FRACTION = 0.45f
 

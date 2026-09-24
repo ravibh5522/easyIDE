@@ -16,15 +16,15 @@ class SessionSnapshotCodecTest {
         ),
         activePath = "README.md",
         expandedDirs = listOf("src", "src/main"),
-        layout = LayoutSnapshot(left = true, right = false, bottom = true, sidePanel = "SOURCE_CONTROL"),
+        shell = """{"v":1,"scope":"workspace"}""",
     )
 
     @Test fun `a snapshot survives an encode decode round trip`() {
         assertEquals(full, SessionSnapshotCodec.decode(SessionSnapshotCodec.encode(full)))
     }
 
-    @Test fun `no active tab and no layout round trip as null`() {
-        val bare = SessionSnapshot("p", 1, listOf(TabSnapshot("a")), activePath = null, expandedDirs = emptyList(), layout = null)
+    @Test fun `no active tab and no shell snapshot round trip as null`() {
+        val bare = SessionSnapshot("p", 1, listOf(TabSnapshot("a")), activePath = null, expandedDirs = emptyList(), shell = null)
         assertEquals(bare, SessionSnapshotCodec.decode(SessionSnapshotCodec.encode(bare)))
     }
 
@@ -32,29 +32,29 @@ class SessionSnapshotCodecTest {
         val text = """
             {"v": 7, "projectId": "p", "savedAtMs": 5, "futureThing": {"x": [1, 2]},
              "tabs": [{"path": "a.txt", "caretStart": 2, "somethingNew": true, "backup": {"file": "0123456789abcdef.txt", "baseSha256": "s", "codec": "zstd"}}],
-             "layout": {"left": true, "right": false, "bottom": false, "sidePanel": "EXPLORER", "dock": "top"}}
+             "layout": {"left": true}, "shell": "{\"v\":2}"}
         """.trimIndent()
         val decoded = SessionSnapshotCodec.decode(text)!!
         assertEquals("a.txt", decoded.tabs.single().path)
         assertEquals(2, decoded.tabs.single().caretStart)
         assertEquals(BackupRef("0123456789abcdef.txt", "s"), decoded.tabs.single().backup)
-        assertEquals(LayoutSnapshot(true, false, false, "EXPLORER"), decoded.layout)
+        assertEquals("""{"v":2}""", decoded.shell)
     }
 
     @Test fun `an older file with only the required keys decodes with defaults`() {
         val decoded = SessionSnapshotCodec.decode("""{"v": 1, "projectId": "p"}""")!!
         assertEquals(emptyList<TabSnapshot>(), decoded.tabs)
         assertNull(decoded.activePath)
-        assertNull(decoded.layout)
+        assertNull(decoded.shell)
         assertTrue(decoded.isEmpty)
     }
 
-    @Test fun `tabs without a path and layouts missing a stage are dropped, the rest survives`() {
+    @Test fun `tabs without a path are dropped and the old layout key is ignored, the rest survives`() {
         val decoded = SessionSnapshotCodec.decode(
             """{"v":1,"projectId":"p","tabs":[{"caretStart":1},{"path":""},{"path":"ok"},"junk"],"layout":{"left":true}}""",
         )!!
         assertEquals(listOf("ok"), decoded.tabs.map { it.path })
-        assertNull(decoded.layout)
+        assertNull(decoded.shell)
     }
 
     @Test fun `unusable files decode to null`() {

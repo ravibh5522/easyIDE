@@ -27,7 +27,7 @@ class NavRegistryTest {
     fun `core items appear per scope in default order`() {
         val core = CoreShell.navigation()
         assertEquals(listOf("home", "extensions", "settings"), core.ids(ShellScope.APP))
-        assertEquals(listOf("files", "search", "git", "problems", "terminal", "outline"), core.ids(ShellScope.WORKSPACE))
+        assertEquals(listOf("files", "search", "git", "terminal", "problems", "outline", "extensions", "settings", "commands", "projects", "close-project"), core.ids(ShellScope.WORKSPACE))
     }
 
     @Test
@@ -36,7 +36,7 @@ class NavRegistryTest {
             .register(item("acme.docker.nav", order = 0), docker).registry
             .register(item("acme.agent.nav", order = -50), agent).registry
         assertEquals(
-            listOf("files", "search", "git", "problems", "terminal", "outline", "acme.docker.nav", "acme.agent.nav"),
+            listOf("files", "search", "git", "terminal", "problems", "outline", "extensions", "settings", "commands", "projects", "close-project", "acme.docker.nav", "acme.agent.nav"),
             r.ids(ShellScope.WORKSPACE),
         )
         assertEquals(ShellLimits.EXTENSION_ORDER_FLOOR, r.byId("acme.docker.nav")?.order)
@@ -108,7 +108,7 @@ class NavRegistryTest {
     fun `user hidden items disappear but hiding cannot empty the surface`() {
         val r = CoreShell.navigation().register(item("acme.docker.nav"), docker).registry
         assertEquals(
-            listOf("files", "search", "problems", "terminal", "outline"),
+            listOf("files", "search", "terminal", "problems", "outline", "extensions", "settings", "commands", "projects", "close-project"),
             r.ids(ShellScope.WORKSPACE, NavPrefs(hidden = setOf("git", "acme.docker.nav"))),
         )
         assertEquals(listOf("home", "settings"), r.ids(ShellScope.APP, NavPrefs(hidden = setOf("extensions"))))
@@ -122,7 +122,7 @@ class NavRegistryTest {
         val r = CoreShell.navigation().register(item("acme.docker.nav"), docker).registry
         val prefs = NavPrefs(order = listOf("acme.docker.nav", "outline", "nope", "outline", "files"))
         assertEquals(
-            listOf("acme.docker.nav", "outline", "files", "search", "git", "problems", "terminal"),
+            listOf("acme.docker.nav", "outline", "files", "search", "git", "terminal", "problems", "extensions", "settings", "commands", "projects", "close-project"),
             r.ids(ShellScope.WORKSPACE, prefs),
         )
     }

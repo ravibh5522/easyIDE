@@ -20,7 +20,7 @@ class ContainerRegistryTest {
     fun `core containers fill each placement per scope`() {
         val r = CoreShell.containers()
         assertEquals(listOf("home.projects", "extensions.list", "settings.categories"), r.ids(Placement.SIDEBAR, ShellScope.APP))
-        assertEquals(listOf("explorer", "search", "scm"), r.ids(Placement.SIDEBAR, ShellScope.WORKSPACE))
+        assertEquals(listOf("explorer", "search", "scm", "extensions.list", "settings.categories"), r.ids(Placement.SIDEBAR, ShellScope.WORKSPACE))
         assertEquals(listOf("outline"), r.ids(Placement.SECONDARY_SIDEBAR, ShellScope.WORKSPACE))
         assertEquals(listOf("terminal", "problems", "output"), r.ids(Placement.PANEL, ShellScope.WORKSPACE))
         assertEquals(emptyList<String>(), r.ids(Placement.PANEL, ShellScope.APP))
@@ -31,7 +31,7 @@ class ContainerRegistryTest {
         val r = CoreShell.containers()
             .register(spec("acme.docker.main"), docker).registry
             .register(spec("acme.docker.logs", Placement.PANEL), docker).registry
-        assertEquals(listOf("explorer", "search", "scm", "acme.docker.main"), r.ids(Placement.SIDEBAR, ShellScope.WORKSPACE))
+        assertEquals(listOf("explorer", "search", "scm", "extensions.list", "settings.categories", "acme.docker.main"), r.ids(Placement.SIDEBAR, ShellScope.WORKSPACE))
         assertEquals("acme.docker.logs", r.ids(Placement.PANEL, ShellScope.WORKSPACE).last())
         assertEquals(listOf("home.projects", "extensions.list", "settings.categories", "acme.docker.main"), r.ids(Placement.SIDEBAR, ShellScope.APP))
         val gone = r.unregister("acme.docker")
@@ -80,7 +80,7 @@ class ContainerRegistryTest {
     @Test
     fun `hidden containers are gone everywhere`() {
         val hidden = ContainerPrefs(hidden = setOf("scm"))
-        assertEquals(listOf("explorer", "search"), CoreShell.containers().ids(Placement.SIDEBAR, ShellScope.WORKSPACE, hidden))
+        assertEquals(listOf("explorer", "search", "extensions.list", "settings.categories"), CoreShell.containers().ids(Placement.SIDEBAR, ShellScope.WORKSPACE, hidden))
     }
 
     @Test

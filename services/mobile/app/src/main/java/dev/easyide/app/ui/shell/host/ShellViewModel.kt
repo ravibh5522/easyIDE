@@ -26,6 +26,7 @@ import dev.easyide.app.ui.shell.ShellSnapshot
 import dev.easyide.app.ui.shell.ShellState
 import dev.easyide.app.ui.shell.nav.NavItemSource
 import dev.easyide.app.ui.shell.nav.NavSettings
+import dev.easyide.app.ui.shell.workspace.WorkspaceNav
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -74,11 +75,16 @@ class ShellViewModel(
     /** The toast on screen, or null. */
     val toast: StateFlow<String?> = toasts.map { it.current }.stateIn(scope, SharingStarted.Eagerly, null)
 
-    val navItems: StateFlow<List<NavItem>> =
+    val navItems: StateFlow<List<NavItem>> = itemsIn(ShellScope.APP)
+
+    /** The items of an open workspace's navigation surface: the same registry and settings, workspace scope. */
+    val workspaceNavItems: StateFlow<List<NavItem>> = itemsIn(ShellScope.WORKSPACE)
+
+    private fun itemsIn(shellScope: ShellScope): StateFlow<List<NavItem>> =
         combine(source.contributions, navSettings) { contributions, nav ->
             val registry = contributions.fold(registries.navigation) { r, c -> r.register(c.item, Origin.Extension(c.extensionId)).registry }
-            visible(registry, nav)
-        }.stateIn(scope, SharingStarted.Eagerly, visible(registries.navigation, NavSettings()))
+            visible(registry, nav, shellScope)
+        }.stateIn(scope, SharingStarted.Eagerly, visible(registries.navigation, NavSettings(), shellScope))
 
     private val env = ShellEnv(::typeOf)
     private var restoring = false
@@ -94,8 +100,12 @@ class ShellViewModel(
         }
     }
 
-    private fun visible(registry: NavRegistry, nav: NavSettings): List<NavItem> =
-        registry.visible(ShellScope.APP, nav.prefs, NavEnv(source::holds) { it is NavTarget.Container && registries.containers.byId(it.id) != null })
+    private fun visible(registry: NavRegistry, nav: NavSettings, shellScope: ShellScope): List<NavItem> =
+        if (shellScope == ShellScope.WORKSPACE) {
+            WorkspaceNav.items(registry, registries.containers, nav.prefs, source::holds)
+        } else {
+            registry.visible(shellScope, nav.prefs, NavEnv(source::holds) { it is NavTarget.Container && registries.containers.byId(it.id) != null })
+        }
 
     fun typeOf(uri: DocumentUri): DocumentType = registries.documents.resolve(uri)
 

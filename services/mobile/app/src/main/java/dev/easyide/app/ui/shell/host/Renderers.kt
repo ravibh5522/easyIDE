@@ -45,6 +45,9 @@ sealed interface DocumentChoice {
 class DocumentRendererRegistry(private val byType: Map<String, DocumentRenderer> = emptyMap()) {
     fun choose(type: DocumentType): DocumentChoice =
         byType[type.id]?.takeIf { type.id != DocumentType.UNAVAILABLE_ID }?.let(DocumentChoice::Render) ?: DocumentChoice.Unavailable
+
+    /** This registry's renderers and [other]'s (the workspace adds its files to the app's pages). */
+    operator fun plus(other: DocumentRendererRegistry) = DocumentRendererRegistry(byType + other.byType)
 }
 
 /** The title of [uri]'s tab: the renderer's own subject name, else the fixed title of its type. */
@@ -58,6 +61,8 @@ fun DocumentRendererRegistry.titleOf(documents: DocumentRegistry, uri: DocumentU
 /** Panel renderers by container id; a container with none gets the "panel unavailable" message. */
 class PanelRendererRegistry(private val byContainer: Map<String, PanelBinding> = emptyMap()) {
     fun binding(containerId: String): PanelBinding? = byContainer[containerId]
+
+    operator fun plus(other: PanelRendererRegistry) = PanelRendererRegistry(byContainer + other.byContainer)
 }
 
 /** A [PanelRenderer] from a composable lambda: the app's bindings are all of this shape. */

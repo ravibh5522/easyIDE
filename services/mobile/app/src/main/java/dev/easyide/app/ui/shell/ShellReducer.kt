@@ -16,6 +16,9 @@ sealed interface ShellAction {
     data class SelectNav(val navId: String, val container: ContainerRef) : ShellAction
     data class TogglePanel(val placement: Placement) : ShellAction
 
+    /** Opens [placement] showing [container] (or what it already shows), marking [nav] selected; unlike [SelectNav] it never collapses an open panel. */
+    data class ShowPanel(val placement: Placement, val container: String? = null, val nav: String? = null) : ShellAction
+
     /** A dragged pane edge; a null [size] forgets the drag so the pane follows its default again. */
     data class ResizePane(val pane: Pane, val size: Float?) : ShellAction
 
@@ -48,6 +51,7 @@ object ShellReducer {
             is ShellAction.Resize -> resize(state, action.window, env)
             is ShellAction.SelectNav -> selectNav(state, action, env)
             is ShellAction.TogglePanel -> onLayout(state) { it.toggle(action.placement, state.rule) }
+            is ShellAction.ShowPanel -> state.withCurrent(state.current.let { it.copy(nav = action.nav ?: it.nav, layout = it.layout.show(action.placement, state.rule, action.container)) })
             is ShellAction.ResizePane -> onLayout(state) { it.copy(sizes = it.sizes.with(action.pane, action.size)) }
             is ShellAction.Open -> open(state, action.uri, action.options, env)
             is ShellAction.Close -> onStage(state) { it.close(action.group, action.key) }

@@ -1,102 +1,108 @@
 package dev.easyide.app.ui.screens.workspace
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.foundation.focusable
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.termux.view.TerminalView
-import dev.easyide.app.ui.commands.CommandPalette
+import dev.easyide.app.R
+import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.extensions.adapters.KeySurface
 import dev.easyide.app.ui.commands.ChordDispatcher
 import dev.easyide.app.ui.commands.CommandIds
+import dev.easyide.app.ui.commands.CommandPalette
 import dev.easyide.app.ui.commands.KeyChord
-import dev.easyide.app.ui.screens.workspace.find.FindBar
+import dev.easyide.app.ui.foundation.LocalKeymap
+import dev.easyide.app.ui.foundation.LocalWindowSize
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitIconButton
+import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
+import dev.easyide.app.ui.screens.workspace.ext.ContributedMenu
+import dev.easyide.app.ui.screens.workspace.ext.EditorTitleActions
+import dev.easyide.app.ui.screens.workspace.ext.ExtensionEffects
+import dev.easyide.app.ui.screens.workspace.ext.PickerLabels
+import dev.easyide.app.ui.screens.workspace.ext.StatusItemsRow
+import dev.easyide.app.ui.screens.workspace.ext.WorkspaceExtensionHost
+import dev.easyide.app.ui.screens.workspace.ext.rememberHardwareKeyboard
+import dev.easyide.app.ui.screens.workspace.ext.rememberInputMode
+import dev.easyide.app.ui.screens.workspace.ext.rememberWorkspaceContributions
+import dev.easyide.app.ui.screens.workspace.ext.trackInputMode
 import dev.easyide.app.ui.screens.workspace.lsp.LspDialogs
-import dev.easyide.app.ui.screens.workspace.lsp.LspEditorOverlay
 import dev.easyide.app.ui.screens.workspace.lsp.LspInstallNotice
-import dev.easyide.app.ui.screens.workspace.lsp.LspSidePanel
 import dev.easyide.app.ui.screens.workspace.lsp.LspStatusItems
 import dev.easyide.app.ui.screens.workspace.lsp.SymbolScope
 import dev.easyide.app.ui.screens.workspace.lsp.WorkspaceLspController
 import dev.easyide.app.ui.screens.workspace.lsp.lspCommands
 import dev.easyide.app.ui.screens.workspace.session.ExternalChangeDialog
 import dev.easyide.app.ui.screens.workspace.session.WorkspaceSessionUi
-import androidx.compose.runtime.collectAsState
-import dev.easyide.app.ui.foundation.LocalKeymap
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import dev.easyide.app.ui.foundation.HeightClass
-import dev.easyide.app.ui.foundation.LocalWindowSize
-import dev.easyide.app.ui.foundation.MotionTokens
-import dev.easyide.app.ui.foundation.WidthClass
-import dev.easyide.app.ui.foundation.motionSpec
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.Stroke
+import dev.easyide.app.ui.shell.CoreShell
+import dev.easyide.app.ui.shell.host.AppRenderers
+import dev.easyide.app.ui.shell.host.ShellDeps
+import dev.easyide.app.ui.shell.host.ShellTokens
+import dev.easyide.app.ui.shell.host.ShellViewModel
+import dev.easyide.app.ui.shell.host.panelRenderer
+import dev.easyide.app.ui.shell.workspace.DockFocus
+import dev.easyide.app.ui.shell.workspace.DockRules
+import dev.easyide.app.ui.shell.workspace.FileDocuments
+import dev.easyide.app.ui.shell.workspace.InputDock
+import dev.easyide.app.ui.shell.workspace.LayoutPresetPicker
+import dev.easyide.app.ui.shell.workspace.LocalWorkspaceEnv
+import dev.easyide.app.ui.shell.workspace.StatusParts
+import dev.easyide.app.ui.shell.workspace.StatusStrip
+import dev.easyide.app.ui.shell.workspace.ShellStageAccess
+import dev.easyide.app.ui.shell.workspace.WorkspaceActions
+import dev.easyide.app.ui.shell.workspace.WorkspaceChrome
+import dev.easyide.app.ui.shell.workspace.WorkspaceEffects
+import dev.easyide.app.ui.shell.workspace.WorkspaceEnv
+import dev.easyide.app.ui.shell.workspace.WorkspaceNavState
+import dev.easyide.app.ui.shell.workspace.WorkspacePanels
+import dev.easyide.app.ui.shell.workspace.WorkspaceParts
+import dev.easyide.app.ui.shell.workspace.WorkspaceShell
+import dev.easyide.app.ui.shell.workspace.WorkspaceShellHost
+import dev.easyide.app.ui.shell.workspace.WorkspaceSlots
+import dev.easyide.app.ui.shell.workspace.terminalRowKey
+import dev.easyide.app.ui.shell.workspace.workspaceShellCommands
 import dev.easyide.app.ui.theme.editorColors
-import dev.easyide.sandbox.files.FileNode
-import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
-import dev.easyide.app.R
-import dev.easyide.app.extensions.ExtensionsContainer
-import dev.easyide.app.extensions.adapters.KeySurface
-import dev.easyide.app.ui.screens.workspace.ext.ContributedMenu
-import dev.easyide.app.ui.screens.workspace.ext.EditorTitleActions
-import dev.easyide.app.ui.screens.workspace.ext.ExtensionEffects
-import dev.easyide.app.ui.screens.workspace.ext.InputModeState
-import dev.easyide.app.ui.screens.workspace.ext.PickerLabels
-import dev.easyide.app.ui.screens.workspace.ext.StatusItemsRow
-import dev.easyide.app.ui.screens.workspace.ext.TouchToolbar
-import dev.easyide.app.ui.screens.workspace.ext.WorkspaceExtensionHost
-import dev.easyide.app.ui.screens.workspace.ext.rememberInputMode
-import dev.easyide.app.ui.screens.workspace.ext.rememberWorkspaceContributions
-import dev.easyide.app.ui.screens.workspace.ext.sections
-import dev.easyide.app.ui.screens.workspace.ext.trackInputMode
-import dev.easyide.extensions.contrib.KeyAction
 import dev.easyide.extensions.contrib.MenuIds
 import dev.easyide.extensions.contrib.StatusBarAlignment
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.res.stringResource
+import dev.easyide.sandbox.files.FileNode
+import kotlinx.coroutines.launch
 
 /**
- * The IDE screen: activity rail, explorer, tabbed editor, terminals, status bar,
- * separated by 1dp rules so the panes read as distinct surfaces.
+ * The IDE screen. The layout, navigation and documents are the workspace shell's
+ * ([WorkspaceShell]); what stays here is what needs the workspace's whole state at once: the
+ * commands and key dispatch, the dialogs and overlays that sit over everything, and the guard on
+ * closing anything with unsaved edits.
  */
 @Composable
 fun WorkspaceScreen(
@@ -112,21 +118,29 @@ fun WorkspaceScreen(
     selections: EditorSelections,
     session: WorkspaceSessionUi,
     editing: WorkspaceEditing,
-    onOpenExtensions: () -> Unit,
-    onOpenSettings: () -> Unit,
+    shell: ShellViewModel,
+    deps: ShellDeps,
     /** Ends the project (shells and buffers), as opposed to [WorkspaceCallbacks.onBack], which only leaves it running. */
     onCloseProject: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val onRefreshGit = gitCallbacks.onRefresh
     val windowSize = LocalWindowSize.current
-    val colors = editorColors
-    val stages = rememberWorkspaceStageState(windowSize, session.layout)
+    val model = session.shell
+    val shellState by model.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val clipboard = LocalClipboardManager.current
 
     var menuNode by remember { mutableStateOf<FileNode?>(null) }
     var prompt by remember { mutableStateOf<PendingPrompt?>(null) }
+    var paletteOpen by rememberSaveable { mutableStateOf(false) }
+    // What Go to File's `>` prefix hands over to the palette.
+    var paletteQuery by remember { mutableStateOf("") }
+    var presetsOpen by remember { mutableStateOf(false) }
+    var editorFocus by remember { mutableStateOf(false) }
+    var terminalFocus by remember { mutableStateOf(false) }
+    val overlays = remember { EditingOverlays() }
+    val recentFiles by editing.files.recent.collectAsState()
 
     LaunchedEffect(uiState.statusMessage) {
         val message = uiState.statusMessage ?: return@LaunchedEffect
@@ -134,16 +148,9 @@ fun WorkspaceScreen(
         callbacks.onStatusShown()
     }
 
-    val sidePanel = stages.sidePanel
-    var paletteOpen by rememberSaveable { mutableStateOf(false) }
-    // What Go to File's `>` prefix hands over to the palette.
-    var paletteQuery by remember { mutableStateOf("") }
-    val overlays = remember { EditingOverlays() }
-    val recentFiles by editing.files.recent.collectAsState()
-
-    // Leaving (system back, the rail's Back arrow) parks the workspace: shells keep
-    // running and buffers stay in memory, so there is nothing to lose and nothing to ask.
-    // Closing it is the explicit act that drops them, and that one asks about unsaved edits.
+    // Leaving (system back, the rail's Back item) parks the workspace: shells keep running and buffers stay in
+    // memory, so there is nothing to lose and nothing to ask. Closing it is the explicit act that drops them,
+    // and that one asks about unsaved edits, as does closing a dirty tab.
     val dirtyTabs = uiState.openTabs.filter { it.isDirty }
     val requestClose: () -> Unit = {
         if (dirtyTabs.isEmpty()) onCloseProject() else prompt = PendingPrompt.CloseWithUnsaved(dirtyTabs)
@@ -153,16 +160,6 @@ fun WorkspaceScreen(
         if (tab?.isDirty == true) prompt = PendingPrompt.CloseDirtyTab(tab) else callbacks.onTabClosed(path)
     }
 
-    // Clicking the active destination collapses the panel; clicking the other
-    // one switches to it, which is how every rail of this shape behaves.
-    val toggleExplorer = {
-        if (sidePanel == SidePanel.EXPLORER) stages.toggleLeft(exclusive = false)
-        else { stages.sidePanel = SidePanel.EXPLORER; stages.showLeft() }
-    }
-    val toggleSourceControl = {
-        if (sidePanel == SidePanel.SOURCE_CONTROL) stages.toggleLeft(exclusive = false)
-        else { stages.sidePanel = SidePanel.SOURCE_CONTROL; stages.showLeft(); onRefreshGit() }
-    }
     val contributions = rememberWorkspaceContributions(extensionHost, extensions)
     val snippetLabels = PickerLabels(
         stringResource(R.string.command_insert_snippet), stringResource(R.string.ext_snippet_pick_hint), stringResource(R.string.ext_snippet_none),
@@ -173,38 +170,33 @@ fun WorkspaceScreen(
         uiState = uiState,
         callbacks = callbacks,
         shell = WorkspaceShellActions(
-            toggleExplorer = toggleExplorer,
-            toggleSourceControl = toggleSourceControl,
-            toggleTerminal = stages::toggleBottom,
+            toggleExplorer = { model.toggleContainer(CoreShell.EXPLORER) },
+            toggleSourceControl = { model.toggleContainer(CoreShell.SOURCE_CONTROL) },
+            toggleTerminal = { model.toggleContainer(CoreShell.TERMINAL) },
             showCommands = { paletteOpen = true },
             closeTab = requestCloseTab,
             insertSnippet = { extensionHost.pickSnippet(snippetLabels) },
             toggleLineComment = extensionHost.lineComments::toggle,
             runTask = { extensionHost.pickTask(taskLabels) { label, code -> taskExited.format(label, code) } },
-            showExtensions = onOpenExtensions,
+            showExtensions = { model.toggleContainer(CoreShell.EXTENSIONS_LIST) },
         ),
-        extra = lspCommands(lsp) + editingCommands(uiState, editing, overlays),
+        extra = lspCommands(lsp) + editingCommands(uiState, editing, overlays) +
+            workspaceShellCommands(shellState, model, callbacks.onBack, requestClose) { presetsOpen = true },
     ) + contributions.commands()
     // Built-in < extension layer < keybindings.json, resolved once in AppContainer.
     val keymap = LocalKeymap.current
     // Per screen: the pending half of a two-step chord (Ctrl+K ...) is UI state.
     val dispatcher = remember(keymap) { ChordDispatcher(keymap) }
     val keyContext = contributions.context
-    val lspPanel by lsp.panel.collectAsState()
-    val semanticOverlays by lsp.semanticTokens.overlays.collectAsState()
-    val themeSemantic = colors.semantic.highlighting ?: false
+    val themeSemantic = editorColors.semantic.highlighting ?: false
     LaunchedEffect(lsp, themeSemantic) { lsp.onThemeSemanticHighlighting(themeSemantic) }
-    // An install recipe was started in a new terminal: show it, the user watches it run.
-    LaunchedEffect(uiState.terminalRevealRequests) { if (uiState.terminalRevealRequests > 0) stages.showBottom() }
     SideEffect {
         extensionHost.commands = commands
         extensionHost.projectName = projectName
     }
     val inputMode = rememberInputMode()
-    var terminalFocus by remember { mutableStateOf(false) }
-    var editorFocus by remember { mutableStateOf(false) }
-    var editorMenuOpen by remember { mutableStateOf(false) }
-    val runShortcut: (dev.easyide.app.ui.commands.KeyChord) -> Unit = { chord ->
+    val hardwareKeyboard = rememberHardwareKeyboard()
+    val runShortcut: (KeyChord) -> Unit = { chord ->
         keymap.bindingFor(chord, terminalFocused = false, context = keyContext)?.let { commands.execute(it.command, it.args) }
     }
     val hostView = LocalView.current
@@ -217,10 +209,96 @@ fun WorkspaceScreen(
         if (hostView.rootView.findFocus() == null) rootFocus.requestFocus()
     }
 
+    val env = WorkspaceEnv(
+        projectName, uiState, callbacks, gitState, gitCallbacks, lsp, decorations, selections, session, editing, contributions, commands, extensionHost,
+        WorkspaceActions(
+            onNodeMenu = { menuNode = it },
+            onNewFile = { prompt = PendingPrompt.NewFile("") },
+            onNewFolder = { prompt = PendingPrompt.NewFolder("") },
+            onRenameTerminal = { id, title -> prompt = PendingPrompt.RenameTerminal(id, title) },
+            closeFile = requestCloseTab,
+            onTerminalKey = { e -> dispatcher.dispatch(e, terminalFocused = true, commands, keyContext) },
+            onTerminalRowKey = { action, terminal -> terminalRowKey(action, terminal, extensionHost::run) },
+            onEditorRowKey = { extensionHost.editorKey(it, runShortcut) },
+            onEditorFocus = { editorFocus = it },
+            onTerminalFocus = { terminalFocus = it },
+            onFindFieldFocus = { overlays.findFieldFocused = it },
+        ),
+    )
+
+    // What the active group shows, when it is a file: the status strip, the title actions and the dock speak for it.
+    val activeFile = FileDocuments.pathOf(shellState?.current?.stage?.activeGroup?.active)?.let { path -> uiState.openTabs.find { it.relativePath == path } }
+    val keyboardUp = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    val compact = windowSize.width.isCompact
+    val dockFocus = when {
+        terminalFocus -> DockFocus.TERMINAL
+        editorFocus -> DockFocus.EDITOR
+        else -> DockFocus.NONE
+    }
+    val dockShown = DockRules.visible(dockFocus, keyboardUp, hardwareKeyboard, compact)
+
+    val transientOpen = paletteOpen || overlays.quickOpen || overlays.goToLine || editing.find.isOpen || presetsOpen
+    val navItems by shell.workspaceNavItems.collectAsStateWithLifecycle()
+    val navSettings by shell.navSettings.collectAsStateWithLifecycle()
+    val navBadges by shell.navBadges.collectAsStateWithLifecycle()
+    val parts = remember(model, deps) {
+        WorkspaceParts(model.documents, model.containers, AppRenderers.panels(deps) + WorkspacePanels.panels(), AppRenderers.documents(deps) + WorkspacePanels.documents())
+    }
+    val slots = WorkspaceSlots(
+        idle = panelRenderer { m ->
+            WelcomeView(
+                recent = recentFiles.paths,
+                registry = commands,
+                keymap = keymap,
+                onOpenFile = { path -> callbacks.onFileOpened(FileNode(path.substringAfterLast('/'), path, isDirectory = false, sizeBytes = 0)) },
+                modifier = m,
+            )
+        },
+        emptyTitle = projectName,
+        trailing = { EditorActions(activeFile, callbacks, env) },
+        notice = { LspInstallNotice(lsp) },
+        onTerminalFocus = { terminalFocus = it },
+    )
+    val host = WorkspaceShellHost(
+        runCommand = { commands.execute(it) },
+        notify = { message -> scope.launch { snackbarHostState.showSnackbar(message) } },
+        transientOpen = transientOpen,
+        dismissTransient = {
+            paletteOpen = false
+            paletteQuery = ""
+            overlays.quickOpen = false
+            overlays.goToLine = false
+            presetsOpen = false
+            editing.find.close()
+        },
+        leave = callbacks.onBack,
+        activateFile = callbacks.onTabSelected,
+        closeFile = requestCloseTab,
+        isFileDirty = { path -> uiState.openTabs.find { it.relativePath == path }?.isDirty == true },
+    )
+    val chrome = WorkspaceChrome(
+        status = {
+            StatusStrip(
+                StatusParts(
+                    project = projectName,
+                    file = activeFile?.name,
+                    lines = activeFile?.let { LineCount.of(it.content) },
+                    dirty = activeFile?.isDirty == true,
+                    onSave = callbacks.onSave,
+                    extLeft = { StatusItemsRow(contributions.statusItems(), StatusBarAlignment.LEFT) { extensionHost.run(it) } },
+                    extRight = { StatusItemsRow(contributions.statusItems(), StatusBarAlignment.RIGHT) { extensionHost.run(it) } },
+                    problems = { LspStatusItems(lsp) },
+                ),
+                windowSize.width,
+            )
+        },
+        dock = if (dockShown) ({ InputDock(env, dockFocus, activeFile?.editable == true, inputMode, runShortcut) }) else null,
+        statusHidden = compact && keyboardUp,
+    )
+
     Box(
         modifier = modifier
-            .fillMaxSize()
-            .background(colors.background)
+            .background(editorColors.background)
             .onPreviewKeyEvent { event ->
                 // A focused terminal dispatches its own keys (see
                 // EasyTerminalViewClient.onHardwareKey); handling them here as
@@ -237,166 +315,9 @@ fun WorkspaceScreen(
             .focusRequester(rootFocus)
             .focusable(),
     ) {
-        Column(
-            // imePadding after systemBars: the keyboard's inset minus the nav bar
-            // already consumed, so the whole layout (editor caret, terminal, key
-            // row, status bar) resizes above the keyboard instead of under it.
-            modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars).imePadding(),
-        ) {
-            Row(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                ActivityBar(
-                    explorerVisible = stages.leftVisible && sidePanel == SidePanel.EXPLORER,
-                    sourceControlVisible = stages.leftVisible && sidePanel == SidePanel.SOURCE_CONTROL,
-                    terminalVisible = stages.bottomVisible,
-                    onToggleExplorer = toggleExplorer,
-                    onToggleSourceControl = toggleSourceControl,
-                    onToggleTerminal = stages::toggleBottom,
-                    onShowCommands = { paletteOpen = true },
-                    onShowExtensions = onOpenExtensions,
-                    onOpenSettings = onOpenSettings,
-                    onBack = callbacks.onBack,
-                    onCloseProject = requestClose,
-                )
-                VerticalDivider()
-
-                Box(modifier = Modifier.fillMaxHeight().weight(1f)) {
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        if (!windowSize.width.isCompact) {
-                            ExplorerColumn(
-                                visible = stages.leftVisible,
-                                width = windowSize.width.explorerWidth(),
-                                uiState = uiState,
-                                callbacks = callbacks,
-                                sidePanel = sidePanel,
-                                gitState = gitState,
-                                gitCallbacks = gitCallbacks,
-                                onNodeMenu = { menuNode = it },
-                                onNewFile = { prompt = PendingPrompt.NewFile("") },
-                                onNewFolder = { prompt = PendingPrompt.NewFolder("") },
-                            )
-                        }
-
-                        Column(modifier = Modifier.fillMaxHeight().weight(1f)) {
-                            EditorTabBar(
-                                tabs = uiState.openTabs,
-                                activeTabPath = uiState.activeTabPath,
-                                onTabSelected = callbacks.onTabSelected,
-                                onTabClosed = requestCloseTab,
-                                onTogglePreview = callbacks.onTogglePreview,
-                                actions = {
-                                    if (uiState.activeTab != null) {
-                                        EditorTitleActions(
-                                            title = contributions.menu(MenuIds.EDITOR_TITLE, commands),
-                                            context = contributions.menu(MenuIds.EDITOR_CONTEXT, commands),
-                                            onRun = { contributions.run(it) },
-                                        )
-                                    }
-                                },
-                            )
-                            HorizontalDividerLine()
-
-                            LspInstallNotice(lsp)
-                            Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                            if (editing.find.isOpen) FindBar(editing.find, onFieldFocusChanged = { overlays.findFieldFocused = it })
-                            Box(modifier = Modifier.fillMaxWidth().weight(1f).onFocusChanged { editorFocus = it.hasFocus }) {
-                                val activePath = uiState.activeTabPath
-                                EditorPane(
-                                    tab = uiState.activeTab,
-                                    onContentChanged = { content -> activePath?.let { callbacks.onContentChanged(it, content) } },
-                                    decorations = activePath?.let(decorations::model),
-                                    onGutterTap = { line -> activePath?.let { lsp.onGutterTap(it, line) } },
-                                    overlay = { geometry -> activePath?.let { LspEditorOverlay(lsp, it, geometry) } },
-                                    interaction = lsp,
-                                    selections = selections,
-                                    scrolls = session.scrolls,
-                                    onSecondaryClick = { editorMenuOpen = true },
-                                    semanticTokens = activePath?.let(semanticOverlays::get),
-                                    session = editing.session,
-                                    empty = {
-                                        WelcomeView(
-                                            recent = recentFiles.paths,
-                                            registry = commands,
-                                            keymap = keymap,
-                                            onOpenFile = { path -> callbacks.onFileOpened(FileNode(path.substringAfterLast('/'), path, isDirectory = false, sizeBytes = 0)) },
-                                        )
-                                    },
-                                )
-                                ContributedMenu(
-                                    expanded = editorMenuOpen,
-                                    sections = contributions.menu(MenuIds.EDITOR_CONTEXT, commands).sections(),
-                                    onRun = { contributions.run(it) },
-                                    onDismiss = { editorMenuOpen = false },
-                                )
-                            }
-                            }
-                            if (uiState.activeTab?.editable == true) {
-                                if (inputMode.mode == InputModeState.TOUCH) {
-                                    TouchToolbar(contributions.menu(MenuIds.EDITOR_TOUCH_TOOLBAR, commands)) { contributions.run(it) }
-                                }
-                                contributions.keyRow(KeySurface.EDITOR)?.let { row ->
-                                    KeyRowBar(keys = row.keys, onKey = { extensionHost.editorKey(it, runShortcut) })
-                                }
-                            }
-
-                            TerminalDock(visible = stages.bottomVisible, onFocusChanged = { terminalFocus = it }) {
-                                Column {
-                                    HorizontalDividerLine()
-                                    TerminalPane(
-                                        tabs = uiState.terminals,
-                                        activeTabId = uiState.activeTerminalId,
-                                        linuxReady = uiState.linuxReady,
-                                        isInstalling = uiState.isInstalling,
-                                        onNewTab = callbacks.onNewTerminal,
-                                        onSelectTab = callbacks.onSelectTerminal,
-                                        onCloseTab = callbacks.onCloseTerminal,
-                                        onRenameTab = { id, title -> prompt = PendingPrompt.RenameTerminal(id, title) },
-                                        onInstallLinux = callbacks.onInstallLinux,
-                                        onHardwareKey = { e -> dispatcher.dispatch(e, terminalFocused = true, commands, keyContext) },
-                                        rowKeys = contributions.keyRow(KeySurface.TERMINAL)?.keys.orEmpty(),
-                                        onRowKey = { action, session ->
-                                            if (action is KeyAction.Command) extensionHost.run(action.id)
-                                            else TerminalKeyInput.bytesFor(action, session)?.let(session::write)
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(windowSize.height.terminalHeight()),
-                                    )
-                                }
-                            }
-                        }
-
-                        lspPanel?.let { panel ->
-                            VerticalDivider()
-                            LspSidePanel(lsp, panel, Modifier.width(windowSize.width.explorerWidth()))
-                        }
-                    }
-
-                    if (windowSize.width.isCompact) {
-                        ExplorerOverlay(
-                            visible = stages.leftVisible,
-                            width = windowSize.width.explorerWidth(),
-                            uiState = uiState,
-                            callbacks = callbacks,
-                            sidePanel = sidePanel,
-                            gitState = gitState,
-                            gitCallbacks = gitCallbacks,
-                            onNodeMenu = { menuNode = it },
-                            onNewFile = { prompt = PendingPrompt.NewFile("") },
-                            onNewFolder = { prompt = PendingPrompt.NewFolder("") },
-                        )
-                    }
-                }
-            }
-
-            StatusBar(
-                projectName = projectName,
-                branch = gitState.status?.branch,
-                activeTab = uiState.activeTab,
-                onSave = callbacks.onSave,
-                leading = { StatusItemsRow(contributions.statusItems(), StatusBarAlignment.LEFT) { extensionHost.run(it) } },
-                trailing = { StatusItemsRow(contributions.statusItems(), StatusBarAlignment.RIGHT) { extensionHost.run(it) } },
-                extra = { LspStatusItems(lsp) },
-            )
+        CompositionLocalProvider(LocalWorkspaceEnv provides env) {
+            WorkspaceShell(model, parts, WorkspaceNavState(navItems, navSettings, navBadges), slots, host, chrome)
+            WorkspaceEffects(model, env)
         }
 
         FileContextMenu(
@@ -423,11 +344,12 @@ fun WorkspaceScreen(
             onExtensionEntry = { entry, node -> menuNode = null; contributions.runOnNode(entry, node) },
         )
 
-        ExtensionEffects(extensionHost, extensions, stages, windowSize, inputMode, terminalFocus, editorFocus, snackbarHostState)
+        ExtensionEffects(extensionHost, extensions, ShellStageAccess(shellState, model), hardwareKeyboard, windowSize, inputMode, terminalFocus, editorFocus, snackbarHostState)
 
         PromptDialogs(prompt, callbacks, onCloseProject) { prompt = null }
         ExternalChangeDialog(uiState.openTabs, session.onResolveConflict)
         LspDialogs(lsp)
+        AppRenderers.ExtensionsDialogs(deps)
 
         // Shared by the palette and Go to File: `@` and `#` open the language servers' symbol pickers.
         val openSymbolPicker: (Char, String) -> Boolean = { prefix, query ->
@@ -455,47 +377,36 @@ fun WorkspaceScreen(
             onCommands = { query -> paletteQuery = query; paletteOpen = true },
             onPrefix = openSymbolPicker,
         )
+        if (presetsOpen) {
+            shellState?.let { LayoutPresetPicker(it, { id -> model.dispatch(dev.easyide.app.ui.shell.ShellAction.ApplyPreset(id)) }, { presetsOpen = false }) }
+        }
 
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = Spacing.xxxl),
+                .padding(bottom = if (compact) ShellTokens.navCell + Kit.space.m else Kit.space.xxxl),
         )
     }
 }
 
-/**
- * The bottom terminal stage, kept composed while hidden.
- *
- * It used to sit in an AnimatedVisibility that expanded and shrank it: that
- * resized the editor above it on every frame of the animation (a full relayout
- * of the buffer's text each time) and disposed the TerminalView on hide, so each
- * toggle rebuilt its renderer and re-attached the session. Now the size snaps
- * and only alpha animates. Hidden, the dock is still measured at full height -
- * the terminal grid keeps its rows and the shell gets no resize - but reports
- * zero height and is not placed, so it neither draws nor takes touches.
- */
+/** The active group's own actions: the markdown preview toggle and the contributed `editor/title` entries, for a file. */
 @Composable
-private fun TerminalDock(visible: Boolean, onFocusChanged: (Boolean) -> Unit, content: @Composable () -> Unit) {
-    val alpha by animateFloatAsState(if (visible) 1f else 0f, motionSpec(), label = "terminalDock")
-    val focusManager = LocalFocusManager.current
-    var hasFocus by remember { mutableStateOf(false) }
-    // A hidden terminal must not keep the keyboard and swallow typing.
-    LaunchedEffect(visible) { if (!visible && hasFocus) focusManager.clearFocus(force = true) }
-
-    Box(
-        modifier = Modifier
-            .onFocusChanged { hasFocus = it.hasFocus; onFocusChanged(it.hasFocus) }
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                if (visible) layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                else layout(placeable.width, 0) {}
-            }
-            .graphicsLayer { this.alpha = alpha },
-    ) {
-        content()
+private fun RowScope.EditorActions(file: EditorTab?, callbacks: WorkspaceCallbacks, env: WorkspaceEnv) {
+    if (file == null) return
+    val contributions = env.contributions
+    if (file.isMarkdown) {
+        KitIconButton(
+            if (file.showPreview) Icons.Filled.Code else Icons.Filled.Visibility,
+            stringResource(if (file.showPreview) R.string.wshell_preview_source else R.string.wshell_preview_show),
+            callbacks.onTogglePreview,
+        )
     }
+    EditorTitleActions(
+        title = contributions.menu(MenuIds.EDITOR_TITLE, env.commands),
+        context = contributions.menu(MenuIds.EDITOR_CONTEXT, env.commands),
+        onRun = { contributions.run(it) },
+    )
 }
 
 /** Command-palette quick-open prefixes (VS Code's): document symbols, workspace symbols. */

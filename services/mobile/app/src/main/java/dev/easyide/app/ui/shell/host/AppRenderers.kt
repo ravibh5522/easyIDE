@@ -34,6 +34,10 @@ object AppRenderers {
     @Composable
     fun Dialogs(deps: ShellDeps) {
         HomeDialogs(deps)
-        ExtensionsDialogsHost(deps)
+        ExtensionsDialogs(deps)
     }
+
+    /** The extension install, rollback and create dialogs alone: the workspace shows extension pages but no project list. */
+    @Composable
+    fun ExtensionsDialogs(deps: ShellDeps) = ExtensionsDialogsHost(deps)
 }
