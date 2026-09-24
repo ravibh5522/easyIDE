@@ -2,8 +2,13 @@ package dev.easyide.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import dev.easyide.app.extensions.BuiltInPackFixtures
+import dev.easyide.app.extensions.adapters.ContributedThemes
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
+import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -28,7 +33,18 @@ class BuiltInPaletteContrastTest {
     )
 
     @Test fun `every text and mark pair meets its WCAG threshold`() {
-        val failures = palettes.flatMap { (name, palette) -> failuresFor(name, palette) }
+        val failures = palettes.flatMap { (name, palette) -> failuresFor(name, palette.toTokens(), palette.isHighContrast) }
+        assertTrue("contrast failures:\n" + failures.joinToString("\n"), failures.isEmpty())
+    }
+
+    /** The first-party theme pack is held to the same bar as the built-in palettes. */
+    @Test fun `the shipped extension themes meet the same thresholds`() {
+        val pack = BuiltInPackFixtures.load("easyide.themes").descriptor
+        val failures = pack.contributes.themes.flatMap { theme ->
+            val tokens = ContributedThemes.resolve(theme, { File(it).readText() }, warn = { fail(it) })
+            assertNotNull(theme.label, tokens)
+            failuresFor(theme.label, tokens!!, highContrast = false)
+        }
         assertTrue("contrast failures:\n" + failures.joinToString("\n"), failures.isEmpty())
     }
 
@@ -39,9 +55,8 @@ class BuiltInPaletteContrastTest {
         assertClose(4.48, contrast(Color(0xFF777777), Color.White))
     }
 
-    private fun failuresFor(name: String, palette: Palette): List<String> {
-        val t = palette.toTokens()
-        val text = if (palette.isHighContrast) AAA else AA
+    private fun failuresFor(name: String, t: ThemeTokens, highContrast: Boolean): List<String> {
+        val text = if (highContrast) AAA else AA
         val out = mutableListOf<String>()
         fun check(label: String, fg: Color, bg: Color, min: Double) {
             val ratio = contrast(fg, bg)
@@ -89,7 +104,7 @@ class BuiltInPaletteContrastTest {
         check("tab accent bar", t[ColorToken.TAB_ACTIVE_BORDER], t[ColorToken.TAB_ACTIVE], GRAPHIC)
         listOf(ColorToken.DIAGNOSTIC_ERROR, ColorToken.DIAGNOSTIC_WARNING, ColorToken.DIAGNOSTIC_INFORMATION)
             .forEach { check("$it squiggle", t[it], editor, GRAPHIC) }
-        if (palette.isHighContrast) check("hairline", t[ColorToken.HAIRLINE], t[ColorToken.PANEL], GRAPHIC)
+        if (highContrast) check("hairline", t[ColorToken.HAIRLINE], t[ColorToken.PANEL], GRAPHIC)
 
         val terminal = t[ColorToken.TERMINAL_BACKGROUND]
         check("terminal text", t[ColorToken.TERMINAL_FOREGROUND], terminal, text)

@@ -1,9 +1,16 @@
 package dev.easyide.app.extensions
 
+import dev.easyide.app.extensions.adapters.ColorThemeFile
+import dev.easyide.app.extensions.adapters.ContributedThemes
 import dev.easyide.app.extensions.adapters.SnippetFile
+import dev.easyide.app.ui.theme.SyntaxRole
+import dev.easyide.app.ui.theme.VsCodeThemeMapper
+import dev.easyide.extensions.contrib.UiTheme
 import dev.easyide.extensions.contrib.Owner
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import java.io.File
 
@@ -17,7 +24,7 @@ class BuiltInPacksTest {
         assertEquals(
             listOf(
                 "easyide.core-snippets", "easyide.git-commands", "easyide.git-extras", "easyide.key-rows",
-                "easyide.project-tasks", "easyide.python", "easyide.tablet-toolbar", "easyide.toggles",
+                "easyide.project-tasks", "easyide.python", "easyide.tablet-toolbar", "easyide.themes", "easyide.toggles",
             ),
             ids,
         )
@@ -30,6 +37,22 @@ class BuiltInPacksTest {
         assertEquals(d.contributes.commands.map { it.command }.toSet(), d.actions.keys)
         assertTrue(d.contributes.menus.any { it.menuId == "explorer/context" })
         assertTrue(d.contributes.keybindings.isNotEmpty())
+    }
+
+    @Test fun `the theme pack's themes load clean, with every colour key mapped`() {
+        val d = load("easyide.themes").descriptor
+        assertEquals(setOf("Themes"), d.categories.toSet())
+        assertEquals(listOf(UiTheme.DARK, UiTheme.LIGHT), d.contributes.themes.map { it.uiTheme })
+        d.contributes.themes.forEach { t ->
+            val read = { path: String -> File(path).readText() }
+            val parsed = ColorThemeFile.load(t.file, read) { fail("${t.label}: $it") }!!
+            val mapped = VsCodeThemeMapper.map(parsed, ContributedThemes.baseTokensFor(t.uiTheme))
+            assertEquals(t.label, emptyList<String>(), mapped.unmappedKeys + mapped.invalidEntries)
+            assertEquals(t.label, t.uiTheme == UiTheme.DARK, mapped.tokens.isDark)
+            // Every syntax role is the theme's own, not the base palette's.
+            val base = ContributedThemes.baseTokensFor(t.uiTheme).syntax
+            SyntaxRole.entries.forEach { role -> assertNotEquals("${t.label} $role", base[role], mapped.tokens.syntax[role]) }
+        }
     }
 
     @Test fun `every contributed snippet file parses`() {

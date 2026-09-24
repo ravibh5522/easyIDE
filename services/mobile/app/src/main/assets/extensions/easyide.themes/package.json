@@ -1,0 +1,16 @@
+{
+  "name": "themes",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "easyIDE Themes",
+  "description": "Two original colour themes: Ember Night, warm charcoal with an amber accent, and Morning Linen, soft paper with a teal accent. Pick them in Settings under Theme.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Themes"],
+  "contributes": {
+    "themes": [
+      { "id": "ember-night", "label": "Ember Night", "uiTheme": "vs-dark", "path": "./themes/ember-night-color-theme.json" },
+      { "id": "morning-linen", "label": "Morning Linen", "uiTheme": "vs", "path": "./themes/morning-linen-color-theme.json" }
+    ]
+  }
+}

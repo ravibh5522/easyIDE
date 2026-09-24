@@ -5,7 +5,7 @@ import dev.easyide.app.ui.screens.workspace.syntax.ScopeRules
 
 /**
  * The colour sections of a VS Code colour theme file, already read out of its
- * JSON (reading the file is the extension runtime's job; this layer is pure).
+ * JSON (`extensions/adapters/ColorThemeFile` reads the file; this layer is pure).
  */
 data class VsCodeColorTheme(
     /** `colors`: workbench colour id -> `#hex`. */

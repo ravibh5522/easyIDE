@@ -7,6 +7,7 @@ import android.net.Uri
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.ProfileManager
 import dev.easyide.app.data.settings.SettingsRegistry
+import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.data.settings.SafeModeReason as AppSafeModeReason
 import dev.easyide.app.data.settings.SafeModeState as AppSafeModeState
@@ -30,6 +31,7 @@ import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeyBinding
 import dev.easyide.app.ui.screens.workspace.TerminalKeyboard
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
+import dev.easyide.app.ui.theme.ThemeTokens
 import dev.easyide.extensions.ExtensionPolicy
 import dev.easyide.extensions.ExtensionsRuntime
 import dev.easyide.extensions.RuntimePorts
@@ -65,13 +67,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * [SandboxPaths] plus the APK's built-in packs, the local installer, and the adapters
  * that are not tied to one screen: grammars/languages into the highlighter, snippets,
  * keybindings (into the keymap's extension layer), `configuration` into the
- * [SettingsRegistry], and the theme seam. Screen-bound adapters (menus, palette,
- * status bar, key rows) read [runtime]'s registry directly.
+ * [SettingsRegistry], and contributed colour themes ([colorTheme]). Screen-bound adapters
+ * (menus, palette, status bar, key rows) read [runtime]'s registry directly.
  */
 class ExtensionsContainer(
     private val context: Context,
     private val paths: SandboxPaths,
-    settingsStore: SettingsStore,
+    private val settingsStore: SettingsStore,
     profiles: ProfileManager,
     private val settingsRegistry: SettingsRegistry,
     private val appSafeMode: AppSafeModeState,
@@ -81,7 +83,7 @@ class ExtensionsContainer(
 ) {
     val log = ExtensionLogRing()
     val ui = ExtensionUiHost()
-    val themes = ContributedThemeCatalog()
+    val themes = ContributedThemeCatalog(log, io)
     val settings = AppSettingsPort(settingsStore, profiles, log, scope)
     val host = AppHostPort(ui, UrlOpener(::openExternal), shellEnvironment, log, io)
 
@@ -118,6 +120,11 @@ class ExtensionsContainer(
 
     /** The keymap's extension layer, rebuilt when contributed keybindings change. */
     val keybindings: StateFlow<List<KeyBinding>> = keybindingState.asStateFlow()
+
+    private val colorThemeState = MutableStateFlow<ThemeTokens?>(null)
+
+    /** The selected extension colour theme's tokens; null means the built-in palette (sec 8.1). */
+    val colorTheme: StateFlow<ThemeTokens?> = colorThemeState.asStateFlow()
 
     private val started = AtomicBoolean(false)
     private val startupFinished = AtomicBoolean(false)
@@ -166,6 +173,10 @@ class ExtensionsContainer(
         }
         bridgeSafeMode()
         scope.launch { combine(c.themes.entries, c.iconThemes.entries) { t, i -> t to i }.collect { (t, i) -> themes.update(t, i) } }
+        scope.launch {
+            val selection = settingsStore.snapshot.map { it[SettingsSchema.colorTheme] }.distinctUntilChanged()
+            themes.active(selection).collect { colorThemeState.value = it }
+        }
         scope.launch {
             installer.clearStaging()
             inventory.rescan()

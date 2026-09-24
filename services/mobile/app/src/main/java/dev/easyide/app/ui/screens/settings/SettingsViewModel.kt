@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.easyide.app.data.UiPreferences
+import dev.easyide.app.extensions.ContributedThemeCatalog
+import dev.easyide.app.extensions.adapters.ContributedThemes
 import dev.easyide.app.data.settings.ConfigTarget
 import dev.easyide.app.data.settings.ImportMode
 import dev.easyide.app.data.settings.ImportPreview
@@ -15,10 +17,13 @@ import dev.easyide.app.data.settings.SafeModeState
 import dev.easyide.app.data.settings.Setting
 import dev.easyide.app.data.settings.SettingEdit
 import dev.easyide.app.data.settings.SettingsQuery
+import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.data.settings.SettingsTransfer
 import dev.easyide.app.data.settings.TrustRequest
+import dev.easyide.app.ui.theme.ThemeMode
+import dev.easyide.app.ui.theme.toEditorColors
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.external.ExternalFolderSync
@@ -31,6 +36,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonElement
@@ -105,7 +111,8 @@ class SettingsViewModel(
     private val environmentManager: EnvironmentManager,
     private val externalFolderSync: ExternalFolderSync,
     projectManager: ProjectManager,
-) : ViewModel(), SettingActions {
+    themes: ContributedThemeCatalog,
+) : ViewModel(), SettingActions, ThemeActions {
 
     private val tab = MutableStateFlow<LayerTab>(LayerTab.User)
 
@@ -152,6 +159,15 @@ class SettingsViewModel(
     ) { profiles, active, safe, trust -> SettingsSystemState(profiles, active, safe, trust) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), SettingsSystemState())
 
+    /** Preview cards for the contributed themes that load; a broken one is logged and left out. */
+    val themeCards: StateFlow<List<ContributedThemeCard>> = themes.themes
+        .mapLatest { list ->
+            list.mapNotNull { t ->
+                themes.tokensFor(t)?.let { ContributedThemeCard(t.value.label, ContributedThemes.refOf(t), it.toEditorColors()) }
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), emptyList())
+
     fun onTabSelected(next: LayerTab) {
         tab.value = next
     }
@@ -167,6 +183,19 @@ class SettingsViewModel(
     override fun reset(setting: Setting<*>, language: String?) {
         write(listOf(SettingEdit(setting.key, language, null)))
     }
+
+    /** A built-in card also clears an extension theme, which would otherwise keep winning. */
+    override fun selectBuiltInTheme(mode: ThemeMode) = write(listOf(
+        SettingEdit(SettingsSchema.themeMode.key, null, SettingsSchema.themeMode.encode(mode)),
+        SettingEdit(SettingsSchema.colorTheme.key, null, null),
+    ))
+
+    override fun selectContributedTheme(label: String) = set(SettingsSchema.colorTheme, label, null)
+
+    override fun resetTheme() = write(listOf(
+        SettingEdit(SettingsSchema.themeMode.key, null, null),
+        SettingEdit(SettingsSchema.colorTheme.key, null, null),
+    ))
 
     fun resetAll() {
         viewModelScope.launch {

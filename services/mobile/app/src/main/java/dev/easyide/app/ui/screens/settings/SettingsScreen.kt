@@ -74,6 +74,7 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val system by viewModel.systemState.collectAsStateWithLifecycle()
+    val themeCards by viewModel.themeCards.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
     val errorDetail by viewModel.errorDetail.collectAsStateWithLifecycle()
     val importPreview by viewModel.importPreview.collectAsStateWithLifecycle()
@@ -178,7 +179,7 @@ fun SettingsScreen(
                     // The theme is chosen by looking, so on the user layer (its only
                     // writable one) it gets preview cards rather than a dropdown.
                     if (setting === SettingsSchema.themeMode && uiState.tab.layer == LayerId.USER) {
-                        ThemePickerRow(uiState.settings, viewModel, Modifier.contentWidth())
+                        ThemePickerRow(uiState.settings, themeCards, viewModel, Modifier.contentWidth())
                     } else {
                         SettingRow(
                             setting = setting,

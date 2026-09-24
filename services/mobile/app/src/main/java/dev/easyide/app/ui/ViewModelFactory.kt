@@ -45,6 +45,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 environmentManager = container.environmentManager,
                 externalFolderSync = container.externalFolderSync,
                 projectManager = container.projectManager,
+                themes = container.extensions.themes,
             )
 
             ExtensionsViewModel::class.java -> ExtensionsViewModel(
