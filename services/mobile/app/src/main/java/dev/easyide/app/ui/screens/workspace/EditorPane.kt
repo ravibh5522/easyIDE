@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.screens.workspace.syntax.SemanticOverlay
-import dev.easyide.app.ui.screens.workspace.syntax.SemanticPaint
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.EditorColors
@@ -91,6 +90,10 @@ import dev.easyide.app.ui.screens.workspace.decor.textDecorations
 import dev.easyide.app.ui.screens.workspace.session.EditorScrolls
 import dev.easyide.app.ui.screens.workspace.session.ExternalStateNotice
 import dev.easyide.app.ui.screens.workspace.session.rememberEditorScrollStates
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import dev.easyide.app.ui.screens.workspace.zoom.pinchToZoom
+import dev.easyide.app.ui.screens.workspace.zoom.rememberFontZoom
 
 /**
  * The code surface. Three modes, picked by what the tab holds:
@@ -124,11 +127,15 @@ fun EditorPane(
     semanticTokens: SemanticOverlay? = null,
     /** Scroll offsets of every tab, hoisted so a parked workspace comes back scrolled where it was. */
     scrolls: EditorScrolls = remember { EditorScrolls() },
+    /** History, reveal and focus requests from commands and find; null for a plain editor. */
+    session: EditorSession? = null,
+    /** Shown when no tab is open. */
+    empty: @Composable () -> Unit = {},
 ) {
     val colors = editorColors
 
     if (tab == null) {
-        EmptyEditor(modifier)
+        Box(modifier = modifier.fillMaxSize().background(colors.background)) { empty() }
         return
     }
 
@@ -138,7 +145,7 @@ fun EditorPane(
 
         when {
             tab.isMarkdown && tab.showPreview -> MarkdownPreview(tab.content)
-            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction, selections, onSecondaryClick, semanticTokens, scrolls)
+            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction, selections, onSecondaryClick, semanticTokens, scrolls, session)
             else -> ReadOnlySurface(tab, interaction)
         }
     }
@@ -156,6 +163,7 @@ private fun EditableSurface(
     onSecondaryClick: (() -> Unit)?,
     semanticTokens: SemanticOverlay?,
     scrolls: EditorScrolls,
+    session: EditorSession?,
 ) {
     val colors = editorColors
     val scrollStates = rememberEditorScrollStates(tab.relativePath, scrolls)
@@ -168,6 +176,9 @@ private fun EditableSurface(
         value = withContext(Dispatchers.IO) { LanguageConfigs.forFile(tab.name) }
     }
     val languageId = rememberLanguageId(tab.name)
+    val zoom = rememberFontZoom(SettingsSchema.editorFontSize, languageId)
+    val codeStyle = codeTextStyle(languageId, zoom.size)
+    val editorFocus = remember { FocusRequester() }
 
     // Text comes from the tab, the selection from the hoisted EditorSelections
     // (so actions can read and move it), IME composition is local - the
@@ -212,7 +223,8 @@ private fun EditableSurface(
         modifier = Modifier
             .fillMaxSize()
             .onPreviewKeyEvent { event -> interaction?.onPreviewKey(tab.relativePath, event) == true }
-            .dismissPopupsOnEscape(popupHost),
+            .dismissPopupsOnEscape(popupHost)
+            .pinchToZoom(zoom),
     ) {
         val viewportHeight = maxHeight
         val textMinWidth = maxWidth - gutterWidth
@@ -241,6 +253,19 @@ private fun EditableSurface(
             EditorGeometry({ layout }, { selections[path] }, verticalScroll, horizontalScroll, origin)
         }
 
+        if (session != null) {
+            val request = session.reveal
+            LaunchedEffect(request) {
+                if (request == null || request.path != path) return@LaunchedEffect
+                revealOffsetIfHidden(request.offset, request.textLength, { layout }, verticalScroll, horizontalScroll, viewportPx)
+                session.revealHandled(request)
+            }
+            // An undo or replace rewrote text and caret behind the IME's back: its composing region is stale.
+            LaunchedEffect(session.generation(path)) { composition = null }
+            val initialFocusTicks = remember { session.focusTicks }
+            LaunchedEffect(session.focusTicks) { if (session.focusTicks != initialFocusTicks) editorFocus.requestFocus() }
+        }
+
         if (interaction != null) {
             LaunchedEffect(interaction, path, tab.content, selection) { interaction.onCaretChanged(path, tab.content, selection) }
             LaunchedEffect(interaction, path, liveWindow) {
@@ -260,7 +285,7 @@ private fun EditableSurface(
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
             Text(
                 text = numbered,
-                style = codeTextStyle(languageId).copy(color = colors.gutterText),
+                style = codeStyle.copy(color = colors.gutterText),
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .width(gutterWidth)
@@ -287,19 +312,23 @@ private fun EditableSurface(
                                 selections[path] = TextRange(result.selectionStart, result.selectionEnd)
                                 composition = null
                             }
-                            if (result.text != field.text) onContentChanged(result.text)
+                            if (result.text != field.text) {
+                                session?.onUserEdit(path, old, result)
+                                onContentChanged(result.text)
+                            }
                         },
-                        textStyle = codeTextStyle(languageId).copy(color = colors.plainText),
+                        textStyle = codeStyle.copy(color = colors.plainText),
                         cursorBrush = SolidColor(colors.cursor),
                         visualTransformation = transformation,
                         onTextLayout = { layout = it },
                         modifier = Modifier
+                            .focusRequester(editorFocus)
                             .defaultMinSize(minWidth = textMinWidth, minHeight = viewportHeight)
                             .drawCurrentLine({ layout }, { selection.start }, colors.currentLine, TEXT_PADDING_V_DP.dp)
                             .padding(horizontal = TEXT_PADDING_H_DP.dp, vertical = TEXT_PADDING_V_DP.dp)
                             .editorPointer(tab.relativePath, interaction) { layout }
                             .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
-                            .textDecorations(paint, colors.decorations, measurer, codeTextStyle(languageId))
+                            .textDecorations(paint, colors.decorations, measurer, codeStyle)
                             .secondaryClicks(onSecondaryClick)
                             // Own layer for the text itself: a decoration redraw then replays
                             // the recorded paragraph instead of drawing it again.
@@ -312,26 +341,6 @@ private fun EditableSurface(
         CompositionLocalProvider(LocalEditorPopupHost provides popupHost) {
             overlay(geometry)
         }
-    }
-}
-
-/**
- * Scrolls so [offset] sits a third of the way down the viewport (the reading position
- * navigation lands on), waiting for the layout of the text the offset refers to.
- */
-private suspend fun revealOffset(
-    offset: Int,
-    textLength: Int,
-    layout: () -> TextLayoutResult?,
-    vertical: ScrollState,
-    horizontal: ScrollState,
-    viewportPx: Float,
-) {
-    val result = snapshotFlow { layout() }.first { it != null && it.layoutInput.text.length == textLength } ?: return
-    val caret = result.getCursorRect(offset.coerceIn(0, textLength))
-    vertical.animateScrollTo((caret.top - viewportPx * REVEAL_VIEWPORT_FRACTION).roundToInt().coerceAtLeast(0))
-    if (caret.left < horizontal.value || caret.left > horizontal.value + horizontal.viewportSize) {
-        horizontal.animateScrollTo((caret.left - horizontal.viewportSize * REVEAL_VIEWPORT_FRACTION).roundToInt().coerceAtLeast(0))
     }
 }
 
@@ -354,20 +363,6 @@ private fun Modifier.drawBracketMatch(
     }
 }
 
-/** Typing pause before re-colouring, so a burst of keystrokes costs one pass. */
-private const val HIGHLIGHT_DEBOUNCE_MS = 120L
-
-/** Lines coloured beyond the viewport, so a normal scroll never outruns the colour. */
-private const val HIGHLIGHT_OVERSCAN_LINES = 250
-
-/**
- * Scroll re-quantised to blocks of this many lines. Without it the window would
- * change on every line crossed and restart the highlight pass.
- */
-private const val HIGHLIGHT_WINDOW_BLOCK = 250
-
-/** Fallback window when the text has not been laid out yet and line height is unknown. */
-private const val HIGHLIGHT_INITIAL_LINES = 400
 
 /**
  * Typing behaviour until the settings schema supplies `editor.autoClosingBrackets`,
@@ -376,130 +371,6 @@ private const val HIGHLIGHT_INITIAL_LINES = 400
  */
 private val TYPING_OPTIONS = TypingOptions()
 
-/**
- * The span of lines worth colouring right now.
- *
- * Quantised so that scrolling within a block does not restart the pass, and
- * held as a value class so it can key [produceState] by equality.
- */
-private data class LineWindow(val first: Int, val last: Int)
-
-/**
- * The last finished colouring pass and what it was computed from, so the next
- * pass can tell a keystroke (debounce) from a tab switch or scroll (run now).
- * [source] is compared by identity: an unchanged buffer is the same instance.
- */
-private class HighlightPass(val path: String, val source: String, val styled: AnnotatedString)
-
-/**
- * Which lines are on screen, derived from the scroll state rather than from a
- * measured text layout.
- *
- * `maxValue + viewport` is the full scrollable content height, and every line in
- * a monospace editor is the same height, so the visible range follows from the
- * scroll offset and the line count alone. An earlier version read the line
- * height out of `onTextLayout`; that value never propagated, the window stayed
- * pinned at its initial guess, and colour stopped after the first few hundred
- * lines. This has no such dependency.
- */
-private fun visibleLineWindow(scrollOffsetPx: Int, maxScrollPx: Int, viewportPx: Float, totalLines: Int): LineWindow {
-    val contentPx = maxScrollPx + viewportPx
-    if (totalLines <= 0 || contentPx <= 0f) return LineWindow(0, HIGHLIGHT_INITIAL_LINES)
-
-    val lineHeightPx = contentPx / totalLines
-    if (lineHeightPx <= 0f) return LineWindow(0, HIGHLIGHT_INITIAL_LINES)
-
-    val firstVisible = (scrollOffsetPx / lineHeightPx).toInt()
-    val visibleCount = (viewportPx / lineHeightPx).toInt() + 1
-    val rawFirst = (firstVisible - HIGHLIGHT_OVERSCAN_LINES).coerceAtLeast(0)
-    val rawLast = firstVisible + visibleCount + HIGHLIGHT_OVERSCAN_LINES
-
-    return LineWindow(
-        first = rawFirst / HIGHLIGHT_WINDOW_BLOCK * HIGHLIGHT_WINDOW_BLOCK,
-        last = (rawLast / HIGHLIGHT_WINDOW_BLOCK + 1) * HIGHLIGHT_WINDOW_BLOCK,
-    )
-}
-
-/**
- * The window the highlighter should colour, updated only once scrolling stops.
- *
- * The scroll offset is read inside [derivedStateOf] and a snapshot flow, never
- * directly in composition, so a scroll frame recomposes nothing unless the
- * quantised window actually moves. While a drag or fling is in progress the
- * last window is kept: re-keying mid-fling cancelled and restarted the pass on
- * every block crossed, burning the CPU the fling needed. The wider overscan
- * covers the lines a short fling reveals before the pass catches up.
- */
-@Composable
-private fun rememberSettledLineWindow(scroll: ScrollState, live: State<LineWindow>): LineWindow {
-    // Seeded without a read observation, or composition would subscribe to
-    // every window change and the point of settling would be lost.
-    val settled = remember { mutableStateOf(Snapshot.withoutReadObservation { live.value }) }
-    LaunchedEffect(live) {
-        snapshotFlow { if (scroll.isScrollInProgress) null else live.value }
-            .filterNotNull()
-            .collect { settled.value = it }
-    }
-    return settled.value
-}
-
-/**
- * Colouring runs off the composition thread, incrementally, over the visible
- * window only.
- *
- * Three things keep this off the critical path, and all three are needed:
- * the pass runs on [Dispatchers.Default] after a debounce; the tokenizer keeps
- * per-line state so an edit only re-scans from the line that changed; and only
- * the lines in [window] get spans, so the styled-span count stays flat however
- * long the file is.
- */
-@Composable
-private fun rememberHighlightTransformation(
-    tab: EditorTab,
-    colors: EditorColors,
-    window: LineWindow,
-    semantic: SemanticOverlay?,
-    languageId: String?,
-): VisualTransformation {
-    val plain = remember(tab.content) { AnnotatedString(tab.content) }
-    val pass by produceState(
-        HighlightPass(tab.relativePath, tab.content, plain),
-        tab.content, tab.relativePath, tab.highlightingEnabled, colors, window, semantic, languageId,
-    ) {
-        if (!tab.highlightingEnabled) {
-            value = HighlightPass(tab.relativePath, tab.content, plain)
-            return@produceState
-        }
-        // Only a burst of keystrokes is worth waiting out. Opening a file,
-        // switching tabs, scrolling to a new window or a theme change must
-        // colour immediately; debouncing those was a visible 120 ms+ of grey.
-        val edited = value.path == tab.relativePath && value.source !== tab.content
-        if (edited) delay(HIGHLIGHT_DEBOUNCE_MS)
-        val styled = withContext(Dispatchers.Default) {
-            val context = coroutineContext
-            TextMateHighlighter.highlight(
-                key = tab.relativePath,
-                source = tab.content,
-                fileName = tab.name,
-                colors = colors.syntax,
-                firstLine = window.first,
-                lastLine = window.last,
-                checkCancelled = { context.ensureActive() },
-                semantic = SemanticPaint.of(semantic, tab.content, colors, languageId),
-            )
-        }
-        value = HighlightPass(tab.relativePath, tab.content, styled)
-    }
-    val highlighted = pass.styled
-    return remember(highlighted) {
-        VisualTransformation { current ->
-            // A pass that finished against an older buffer must not be applied:
-            // VisualTransformation requires the text to match the field exactly.
-            val styled = if (highlighted.text == current.text) highlighted else current
-            TransformedText(styled, OffsetMapping.Identity)
-        }
-    }
-}
 
 /** Explains why a file is read-only or truncated, instead of behaving oddly in silence. */
 @Composable
@@ -516,39 +387,15 @@ internal fun NoticeBar(text: String) {
     )
 }
 
-@Composable
-private fun EmptyEditor(modifier: Modifier) {
-    val colors = editorColors
-    Box(
-        modifier = modifier.fillMaxSize().background(colors.background),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(
-                text = "No file open",
-                style = MaterialTheme.typography.titleSmall,
-                color = colors.textMuted,
-            )
-            Text(
-                text = "Pick a file from the explorer to start editing",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.textMuted,
-            )
-        }
-    }
-}
-
 /**
  * One definition so the gutter and buffer share a line height and never drift.
- * [languageId] applies `[lang]` settings blocks for the open document.
+ * [languageId] applies `[lang]` settings blocks for the open document; [fontSizeOverride] is
+ * the live size while a pinch is in progress.
  */
 @Composable
-fun codeTextStyle(languageId: String? = null): TextStyle {
+fun codeTextStyle(languageId: String? = null, fontSizeOverride: Int? = null): TextStyle {
     val settings = LocalSettings.current
-    val fontSize = settings.get(SettingsSchema.editorFontSize, languageId)
+    val fontSize = fontSizeOverride ?: settings.get(SettingsSchema.editorFontSize, languageId)
     return TextStyle(
         fontFamily = EasyIdeFonts.mono,
         fontSize = fontSize.sp,
@@ -568,9 +415,6 @@ internal fun rememberLanguageId(fileName: String): String? {
 }
 
 internal const val GUTTER_WIDTH_DP = 52
-
-/** Revealed lines land this far down the viewport, so the context above stays visible. */
-private const val REVEAL_VIEWPORT_FRACTION = 1f / 3
 
 /**
  * Inset of the text inside the editable surface. Named because three things must agree on

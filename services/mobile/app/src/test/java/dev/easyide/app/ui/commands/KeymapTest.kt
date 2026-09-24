@@ -93,6 +93,6 @@ class KeymapTest {
         assertNull(keymap.commandFor(ctrl(KeyEvent.KEYCODE_SPACE), terminalFocused = true))
         assertEquals(CommandIds.REVEAL_DEFINITION, keymap.commandFor(KeyChord(KeyEvent.KEYCODE_F12), terminalFocused = false))
         assertEquals(CommandIds.GO_TO_REFERENCES, keymap.commandFor(KeyChord(KeyEvent.KEYCODE_F12, shift = true), terminalFocused = false))
-        assertTrue(CommandIds.ALL.containsAll(Keymap.DEFAULT.bindings.map { it.command }))
+        assertTrue(CommandIds.KNOWN.containsAll(Keymap.DEFAULT.bindings.map { it.command }))
     }
 }

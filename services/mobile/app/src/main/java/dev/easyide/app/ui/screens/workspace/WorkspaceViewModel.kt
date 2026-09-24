@@ -7,6 +7,7 @@ import dev.easyide.app.diagnostics.LogLevel
 import dev.easyide.app.diagnostics.LogSink
 import dev.easyide.app.diagnostics.LogSource
 import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.data.UiPreferences
 import dev.easyide.app.lsp.LspRuntime
 import dev.easyide.app.session.ExternalState
 import dev.easyide.app.session.SessionStore
@@ -59,6 +60,7 @@ class WorkspaceViewModel(
     /** The previous session of this project, if it is still writing its last save; restore waits for it. */
     settled: Job?,
     private val log: LogSink,
+    uiPreferences: UiPreferences,
 ) : ViewModel(), EditorBuffers {
 
     private val _uiState = MutableStateFlow(WorkspaceUiState())
@@ -72,6 +74,18 @@ class WorkspaceViewModel(
 
     /** Caret/selection per open tab, shared by the editor and extension actions. */
     val selections = EditorSelections()
+
+    /** Undo/redo, find and replace, quick open: the editing workflows over the state above. */
+    val editing: WorkspaceEditing = WorkspaceEditing(
+        scope = viewModelScope,
+        state = uiState,
+        selections = selections,
+        decorations = decorations,
+        setContent = ::onContentChanged,
+        projectId = projectId,
+        projectFiles = projectFiles,
+        preferences = uiPreferences,
+    )
 
     val terminals = WorkspaceTerminals(
         _uiState, viewModelScope, appContext, linuxEnvironment, environmentId, projectFiles.projectRoot(projectId),
@@ -312,7 +326,10 @@ class WorkspaceViewModel(
 
     override fun replaceContent(path: String, content: String): Boolean {
         val tab = _uiState.value.openTabs.find { it.relativePath == path }?.takeIf { it.editable } ?: return false
-        if (tab.content != content) updateTab(path) { it.copy(content = content) }
+        if (tab.content != content) {
+            editing.onContentChanged(path, tab.content, content)
+            updateTab(path) { it.copy(content = content) }
+        }
         return true
     }
 
@@ -332,6 +349,7 @@ class WorkspaceViewModel(
 
     fun onTabClosed(path: String) {
         decorations.remove(path)
+        editing.onTabClosed(path)
         selections.remove(path)
         _uiState.update { state ->
             val remaining = state.openTabs.filterNot { it.relativePath == path }
@@ -346,8 +364,12 @@ class WorkspaceViewModel(
         }
     }
 
-    fun onContentChanged(path: String, content: String) = updateTab(path) { tab ->
-        if (tab.editable) tab.copy(content = content) else tab
+    fun onContentChanged(path: String, content: String) {
+        // Every buffer change passes here (typing, language server, extensions, undo), which is
+        // what lets undo history see edits the text field never reported.
+        _uiState.value.openTabs.find { it.relativePath == path }?.takeIf { it.editable }
+            ?.let { editing.onContentChanged(path, it.content, content) }
+        updateTab(path) { tab -> if (tab.editable) tab.copy(content = content) else tab }
     }
 
     fun onTogglePreview() {
@@ -446,6 +468,7 @@ class WorkspaceViewModel(
             projectFiles.delete(projectId, node.relativePath)
                 .onSuccess {
                     onTabClosed(node.relativePath)
+                    editing.onDeleted(node.relativePath)
                     refreshTree()
                     setStatus("Deleted ${node.name}")
                     externalMirror.delete(node.relativePath)
@@ -498,6 +521,7 @@ class WorkspaceViewModel(
     private fun followPath(old: String, new: String) {
         decorations.rename(old, new)
         selections.rename(old, new)
+        editing.onRenamed(old, new)
     }
 
     private fun runFileAction(name: String, action: suspend () -> Result<Unit>) {

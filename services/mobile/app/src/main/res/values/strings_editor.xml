@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Editor workflows: undo/redo, find and replace, go to line, quick open, the welcome view
+  and the explorer's file filter. Kept apart from strings.xml to avoid collisions.
+-->
+<resources>
+    <string name="command_undo">Undo</string>
+    <string name="command_redo">Redo</string>
+    <string name="command_find">Find</string>
+    <string name="command_replace">Replace</string>
+    <string name="command_find_next">Find Next</string>
+    <string name="command_find_previous">Find Previous</string>
+    <string name="command_go_to_line">Go to Line</string>
+    <string name="command_quick_open">Go to File</string>
+
+    <string name="find_hint">Find</string>
+    <string name="find_replace_hint">Replace with</string>
+    <string name="find_toggle_case">Match case</string>
+    <string name="find_toggle_word">Whole word</string>
+    <string name="find_toggle_regex">Regular expression</string>
+    <string name="find_toggle_case_label">Aa</string>
+    <string name="find_toggle_word_label">ab</string>
+    <string name="find_toggle_regex_label">.*</string>
+    <string name="find_toggle_replace">Show replace</string>
+    <string name="find_previous">Previous match</string>
+    <string name="find_next">Next match</string>
+    <string name="find_close">Close find</string>
+    <string name="find_replace_one">Replace</string>
+    <string name="find_replace_all">Replace all</string>
+    <string name="find_count">%1$d of %2$d</string>
+    <string name="find_count_capped">%1$d of %2$d+</string>
+    <string name="find_no_results">No results</string>
+    <string name="find_invalid_pattern">Invalid pattern</string>
+    <string name="find_timed_out">Pattern too slow</string>
+    <string name="find_replaced">%1$d replaced</string>
+
+    <string name="goto_line_hint">Line number, or line:column</string>
+    <string name="goto_line_preview">Go to line %1$d of %2$d</string>
+    <string name="goto_line_invalid">Enter a line from 1 to %1$d</string>
+
+    <string name="quick_open_hint">Search files by name</string>
+    <string name="quick_open_empty">No matching files</string>
+    <string name="quick_open_indexing">Indexing files...</string>
+    <string name="quick_open_truncated">Showing the first %1$d files of a large project</string>
+
+    <string name="welcome_recent">Recent files</string>
+    <string name="welcome_shortcuts">Keyboard shortcuts</string>
+    <string name="welcome_no_recent">Files you open appear here</string>
+    <string name="welcome_open_hint">Pick a file from the explorer, or search for one</string>
+
+    <string name="explorer_filter">Filter files</string>
+    <string name="explorer_hide_hidden">Hide dotfiles</string>
+    <string name="explorer_hide_ignored">Hide git-ignored files</string>
+
+    <string name="setting_explorer_hide_hidden_title">Hide dotfiles</string>
+    <string name="setting_explorer_hide_hidden_desc">Leave files and folders whose names start with a dot out of the explorer and out of Go to File.</string>
+    <string name="setting_explorer_hide_ignored_title">Hide git-ignored files</string>
+    <string name="setting_explorer_hide_ignored_desc">Leave files that the project\'s .gitignore excludes out of the explorer. Go to File always skips them.</string>
+</resources>

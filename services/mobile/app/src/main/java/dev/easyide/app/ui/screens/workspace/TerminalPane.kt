@@ -32,7 +32,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.termux.view.TerminalView
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.SettingsSchema
-import dev.easyide.app.ui.foundation.LocalSettings
+import dev.easyide.app.ui.screens.workspace.zoom.rememberFontZoom
 import androidx.core.content.res.ResourcesCompat
 import dev.easyide.app.ui.theme.ControlSize
 import dev.easyide.app.ui.theme.IconSize
@@ -115,8 +115,8 @@ private fun EasyTerminalView(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    val fontSp = LocalSettings.current[SettingsSchema.terminalFontSize]
-    val textSizePx = with(density) { fontSp.sp.roundToPx() }
+    val zoom = rememberFontZoom(SettingsSchema.terminalFontSize)
+    val textSizePx = with(density) { zoom.size.sp.roundToPx() }
     // setTextSize() rebuilds the renderer and resizes the emulator, so it runs
     // only on a real change, not on every recomposition that re-runs update.
     val appliedTextSize = remember { AppliedTextSize(textSizePx) }
@@ -144,6 +144,7 @@ private fun EasyTerminalView(
             // stays correct if Compose ever recreates the AndroidView.
             tab.client.onScreenChanged = { view.onScreenUpdated(); view.invalidate() }
             client.onHardwareKey = onHardwareKey
+            client.onZoom = { scale -> if (zoom.zoomTo(zoom.size, scale)) 1f else scale }
             if (appliedTextSize.px != textSizePx) {
                 appliedTextSize.px = textSizePx
                 view.setTextSize(textSizePx)

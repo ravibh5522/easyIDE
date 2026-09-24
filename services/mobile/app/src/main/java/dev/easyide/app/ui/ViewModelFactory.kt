@@ -139,6 +139,7 @@ class WorkspaceViewModelFactory(
             restoreOpenTabs = { container.settingsStore.snapshot.first()[WorkspaceSettingsSchema.restoreOpenTabs] },
             settled = settled,
             log = container.appLog,
+            uiPreferences = container.uiPreferences,
         ) as T
     }
 }

@@ -24,6 +24,8 @@ import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.foundation.LocalKeymap
 import dev.easyide.app.ui.foundation.LocalSettings
+import dev.easyide.app.ui.foundation.LocalSettingsEditor
+import dev.easyide.app.ui.foundation.SettingsEditor
 import dev.easyide.app.ui.foundation.LocalMotionEnabled
 import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.foundation.currentWindowSize
@@ -86,6 +88,7 @@ class MainActivity : ComponentActivity() {
             // Read once per composition rather than observed: the system
             // animation setting change restarts the activity anyway.
             val motionEnabled = remember { systemMotionEnabled() }
+            val settingsEditor = remember { SettingsEditor(container.settingsStore, lifecycleScope) }
             val windowSize = currentWindowSize()
 
             val customizations = remember(settings) { ThemeSettingsSchema.customizations(settings) }
@@ -97,6 +100,7 @@ class MainActivity : ComponentActivity() {
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,
                     LocalSettings provides settings,
+                    LocalSettingsEditor provides settingsEditor,
                     LocalKeymap provides (keymap?.keymap ?: Keymap.DEFAULT),
                     LocalFileIcons provides fileIcons,
                     LocalIconThemeChoices provides iconThemeChoices,

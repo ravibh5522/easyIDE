@@ -35,7 +35,7 @@ IDs match [arch.md](arch.md).
 | Git semantic + lane palette tokens | done | |
 | `SettingsStore` schema + generic settings UI + search | in-progress | schema + store + generated rows + search; editor/terminal font size, line height live; layering beyond global not yet |
 | Command registry + Keymap + hardware shortcuts | in-progress | registry, default keymap, hardware dispatch incl. terminal focus done; no when-clauses/user keymap yet |
-| Command palette + quick open | in-progress | palette done (Ctrl+Shift+P + rail button); quick open not yet |
+| Command palette + quick open | done | palette (Ctrl+Shift+P + rail button) and quick open (Ctrl+P: off-main file index honouring .gitignore and `explorer.hideHiddenFiles`, fuzzy `PathMatcher`, recents first, `>` `@` `#` prefixes) share `PickerOverlay`. Built + unit tests; not run on device |
 | PS1 Split `WorkspaceUiState` (also fixes 600-line cap) | not-started | |
 | PS2 Per-tab `TextFieldState` | not-started | |
 | PS3 Version counter / incremental line count | done | LineCount cache + lazy isDirty |
@@ -48,9 +48,10 @@ IDs match [arch.md](arch.md).
 | Stepped onboarding | done | Welcome, battery exemption (real system intent, state re-read on resume), notifications (API 33+), first environment (preset, real download/unpack/setup progress, cancel, retry/resume, classified actionable errors), Done; complete only at the end; skipping the environment leaves Home's Install Linux prompt (same content on `install_linux`). See [0021](../decision/0021-onboarding-permissions-and-install-keepalive.md). Built + unit tests; not run on device |
 | Living status bar | not-started | |
 | Tab strip (overflow, reorder, MRU, menus) | not-started | |
-| Right-click / hover / pinch zoom | not-started | |
+| Right-click / hover / pinch zoom | in-progress | pinch done: editor writes `editor.fontSize`, terminal `terminal.fontSize` (schema bounds, committed after 400 ms idle). Right-click menu and hover were already in via the LSP/extension work. Not run on device |
 | PE1 Virtualised editor | not-started | direction set by 0018: own line-virtualised Compose editor keeping `EditorGeometry` / decoration seams |
-| Undo/redo, find/replace, go to line | not-started | |
+| Undo/redo, find/replace, go to line | done | [0022](../decision/0022-editing-workflows-history-find-quick-open.md): patch history (coalescing, selection restore, capped) fed from the text field and the workspace content choke point; find bar (Ctrl+F/H, F3, case/word/regex with timeout guard, replace one/all as one undo step) painted via `SearchMatches`; Ctrl+G. Engine-neutral models. Built + unit tests; not run on device |
+| Pillar 3 editor polish (welcome view, file-type icons, tree filter) | done | welcome view (watermark, recents, cheat sheet from live Keymap), `FileIcon` in the explorer (tabs still to adopt it), persisted `explorer.hideHiddenFiles` / `explorer.hideGitIgnored` with a header filter menu. Multi-select + copy/move in the tree not started. Not run on device |
 | **Phase 3 — features** | | |
 | Git remote UI, identity, diff view | not-started | backend exists |
 | Claude Code install + pane + key handling | not-started | |

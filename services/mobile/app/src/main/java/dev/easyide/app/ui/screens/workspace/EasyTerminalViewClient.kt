@@ -36,7 +36,14 @@ class EasyTerminalViewClient : TerminalViewClient {
      */
     var onHardwareKey: (KeyEvent) -> Boolean = { false }
 
-    override fun onScale(scale: Float): Float = 1f
+    /**
+     * Pinch zoom. `TerminalView` accumulates the scale of the gesture and hands the running
+     * product to [onScale]; the returned value replaces it, so returning 1 after a font-size step
+     * starts the next step from scratch and returning [scale] keeps accumulating toward one.
+     */
+    var onZoom: (scale: Float) -> Float = { 1f }
+
+    override fun onScale(scale: Float): Float = onZoom(scale)
 
     /**
      * Raises the soft keyboard on tap.

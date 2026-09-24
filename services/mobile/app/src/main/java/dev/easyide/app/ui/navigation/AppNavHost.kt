@@ -1,6 +1,7 @@
 package dev.easyide.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +32,7 @@ import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.ProjectNotFound
 import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
+import dev.easyide.app.ui.screens.workspace.files.LocalIgnoreIndex
 
 /**
  * Top-level nav graph. Home is the stack root; everything else is one level
@@ -139,7 +141,9 @@ fun AppNavHost(
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
             LaunchedEffect(projectId) { if (openTerminal) workspaceViewModel.revealTerminal() }
 
+            val ignoreIndex by workspaceViewModel.editing.files.ignore.collectAsStateWithLifecycle()
             ProjectSettingsScope(container, projectId, environmentId) {
+            CompositionLocalProvider(LocalIgnoreIndex provides ignoreIndex) {
             WorkspaceScreen(
                 projectName = project.name,
                 uiState = uiState,
@@ -151,6 +155,7 @@ fun AppNavHost(
                 selections = workspaceViewModel.selections,
                 session = workspaceViewModel.sessionUi,
                 onCloseProject = { container.workspaces.close(projectId) },
+                editing = workspaceViewModel.editing,
                 onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 onOpenSettings = { navController.navigate(Destination.Settings.route) },
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
@@ -189,6 +194,7 @@ fun AppNavHost(
                     onBack = { navController.popBackStack() },
                 ),
             )
+            }
             }
             }
         }

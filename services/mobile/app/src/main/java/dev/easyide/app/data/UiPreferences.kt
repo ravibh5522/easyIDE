@@ -46,6 +46,18 @@ class UiPreferences(private val context: Context) {
         prefs[KEY_DEFAULT_PROJECTS_FOLDER]?.takeIf { it.isNotEmpty() }
     }
 
+    /** A project's recently opened files, newest first; see `RecentFiles`. Paths never contain a newline. */
+    fun recentFiles(projectId: String): Flow<List<String>> = flow.map { prefs ->
+        prefs[recentFilesKey(projectId)]?.split('\n')?.filter { it.isNotEmpty() }.orEmpty()
+    }
+
+    suspend fun setRecentFiles(projectId: String, paths: List<String>) {
+        context.preferencesStore.edit { prefs ->
+            val safe = paths.filterNot { '\n' in it }
+            if (safe.isEmpty()) prefs.remove(recentFilesKey(projectId)) else prefs[recentFilesKey(projectId)] = safe.joinToString("\n")
+        }
+    }
+
     suspend fun setOnboardingComplete(complete: Boolean) {
         context.preferencesStore.edit { it[KEY_ONBOARDING_COMPLETE] = complete }
     }
@@ -66,5 +78,6 @@ class UiPreferences(private val context: Context) {
         val KEY_ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val KEY_DEFAULT_ENVIRONMENT = stringPreferencesKey("default_environment_id")
         val KEY_DEFAULT_PROJECTS_FOLDER = stringPreferencesKey("default_projects_folder_uri")
+        fun recentFilesKey(projectId: String) = stringPreferencesKey("recent_files_$projectId")
     }
 }
