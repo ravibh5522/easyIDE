@@ -187,17 +187,6 @@ class GitRepository private constructor(
         }
     }
 
-    private fun RevCommit.toGitCommit() = GitCommit(
-        id = name,
-        shortId = name.take(SHORT_ID_LENGTH),
-        parents = parents.map { it.name },
-        subject = shortMessage,
-        body = fullMessage,
-        authorName = authorIdent.name,
-        authorEmail = authorIdent.emailAddress,
-        timestampMillis = authorIdent.whenAsInstant.toEpochMilli(),
-    )
-
     fun branches(): List<String> = git.branchList().call()
         .mapNotNull { it.name?.removePrefix(Constants.R_HEADS) }
         .sorted()
@@ -229,7 +218,7 @@ class GitRepository private constructor(
 
     companion object {
         const val DETACHED = "detached"
-        private const val SHORT_ID_LENGTH = 7
+        internal const val SHORT_ID_LENGTH = 7
         private const val DRAFT_FILE = "EASYIDE_COMMIT_DRAFT"
         private const val DEFAULT_LOG_LIMIT = 200
 
@@ -314,4 +303,15 @@ data class GitCommit(
     val authorName: String,
     val authorEmail: String,
     val timestampMillis: Long,
+)
+
+internal fun RevCommit.toGitCommit() = GitCommit(
+    id = name,
+    shortId = name.take(GitRepository.SHORT_ID_LENGTH),
+    parents = parents.map { it.name },
+    subject = shortMessage,
+    body = fullMessage,
+    authorName = authorIdent.name,
+    authorEmail = authorIdent.emailAddress,
+    timestampMillis = authorIdent.whenAsInstant.toEpochMilli(),
 )
