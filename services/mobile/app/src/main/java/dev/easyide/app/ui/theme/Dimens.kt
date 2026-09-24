@@ -52,18 +52,3 @@ object IconSize {
     val m = 18.dp
     val l = 22.dp
 }
-
-/** Heights and widths of repeated chrome, so rows in different panes line up. */
-object ControlSize {
-    /** Tree and change rows: dense, still a comfortable finger target with the row's full width. */
-    val row = 28.dp
-    /** Editor and terminal tabs: the 32-40dp hit box band from ux-overhaul "Tabs". */
-    val tab = 36.dp
-    /** Icon buttons inside pane headers. */
-    val headerAction = 32.dp
-    /** Activity rail width, and each rail button's square. */
-    val rail = 48.dp
-    /** Terminal accessory keys. */
-    val keyMinWidth = 40.dp
-    val keyHeight = 36.dp
-}

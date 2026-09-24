@@ -3,7 +3,7 @@
     <string name="setting_accent_title">Accent colour</string>
     <string name="setting_accent_desc">"theme", "wallpaper" (Android 12+) or a hex colour such as #FF8A3D. Adjusted when it would be hard to read.</string>
     <string name="setting_density_title">Density</string>
-    <string name="setting_density_desc">Spacing and row heights. Touch targets never drop below 44 dp.</string>
+    <string name="setting_density_desc">Row and control size. Auto is dense on a tablet and comfortable on a phone. Isolated controls keep a 40 to 44 dp touch area.</string>
     <string name="setting_corners_title">Corners</string>
     <string name="setting_corners_desc">How round buttons, cards, dialogs and tags are.</string>
     <string name="setting_ui_scale_title">Interface scale (%)</string>
@@ -25,7 +25,8 @@
     <string name="setting_handedness_title">Handedness</string>
     <string name="setting_handedness_desc">Mirrors sheets and dialog buttons for left-handed use.</string>
 
-    <string name="density_compact">Compact</string>
+    <string name="density_auto">Auto</string>
+    <string name="density_dense">Dense</string>
     <string name="density_comfortable">Comfortable</string>
     <string name="density_spacious">Spacious</string>
     <string name="corners_sharp">Sharp</string>

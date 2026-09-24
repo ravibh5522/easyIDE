@@ -13,8 +13,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.Density
 import dev.easyide.app.ui.foundation.LocalMotionEnabled
+import dev.easyide.app.ui.foundation.WidthClass
+import dev.easyide.app.ui.foundation.currentWindowSize
+import dev.easyide.app.ui.kit.TouchFloorConfiguration
+import dev.easyide.app.ui.kit.KitText
+import dev.easyide.app.ui.kit.LocalKitText
 import dev.easyide.app.ui.foundation.systemMotionEnabled
 import dev.easyide.app.ui.props.AccentChoice
 import dev.easyide.app.ui.props.Appearance
@@ -63,6 +69,8 @@ fun EasyIdeTheme(
     /** The active theme's label, selecting `"[label]"` blocks of [customizations]. */
     themeLabel: String? = null,
     appearance: Appearance = Appearance.DEFAULT,
+    /** Picks the density while `appearance.density` is auto, and the touch floor. */
+    width: WidthClass = currentWindowSize().width,
     content: @Composable () -> Unit,
 ) {
     val systemInDark = isSystemInDarkTheme()
@@ -81,21 +89,27 @@ fun EasyIdeTheme(
     val colorScheme = remember(customized, dynamicScheme) { dynamicScheme?.takeIf { accentColor == null } ?: customized.toColorScheme() }
     val editorColors = remember(customized) { customized.toEditorColors() }
 
-    val metrics = remember(appearance) { UiMetrics.of(appearance) }
+    val metrics = remember(appearance, width) { UiMetrics.of(appearance, width) }
     val systemReducesMotion = remember { !systemMotionEnabled() }
     val motion = remember(appearance, systemReducesMotion) { Motion.of(appearance, systemReducesMotion) }
     val feel = remember(appearance) { Feel.of(appearance) }
-    val typography = remember(appearance.fontPairing) { easyIdeTypography(appearance.fontPairing) }
+    val kitText = remember(metrics.density, appearance.fontPairing) { KitText.of(metrics.density, appearance.fontPairing) }
+    val typography = remember(kitText) { easyIdeTypography(kitText) }
     val shapes = remember(metrics) { easyIdeShapes(metrics) }
     val baseDensity = LocalDensity.current
     val scaledDensity = remember(baseDensity, appearance.uiScale) {
         Density(baseDensity.density * appearance.uiScale, baseDensity.fontScale * appearance.uiScale)
     }
 
+    val baseConfiguration = LocalViewConfiguration.current
+    val touchConfiguration = remember(baseConfiguration, metrics.touchFloor) { TouchFloorConfiguration(baseConfiguration, metrics.touchFloor) }
+
     MaterialTheme(colorScheme = colorScheme, typography = typography, shapes = shapes) {
         CompositionLocalProvider(
             LocalEditorColors provides editorColors,
             LocalMetrics provides metrics,
+            LocalKitText provides kitText,
+            LocalViewConfiguration provides touchConfiguration,
             LocalMotion provides motion,
             LocalFeel provides feel,
             LocalMotionEnabled provides !motion.reduce,
