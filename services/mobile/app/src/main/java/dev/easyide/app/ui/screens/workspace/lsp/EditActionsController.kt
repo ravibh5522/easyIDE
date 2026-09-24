@@ -69,9 +69,11 @@ class EditActionsController(private val ws: LspWorkspace, private val diagnostic
         }
     }
 
-    /** Gutter tap: the lightbulb's line opens its menu. */
-    fun onGutterTap(path: String, line: Int) {
-        if (lightbulbLine == (path to line)) openMenu(path, line, CodeActionTriggerKind.AUTOMATIC)
+    /** Gutter tap: the lightbulb's line opens its menu; false when the line has no lightbulb. */
+    fun onGutterTap(path: String, line: Int): Boolean {
+        if (lightbulbLine != (path to line)) return false
+        openMenu(path, line, CodeActionTriggerKind.AUTOMATIC)
+        return true
     }
 
     /** Ctrl+. / long-press "Quick fix": actions for the caret line (or selection). */

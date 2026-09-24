@@ -155,7 +155,10 @@ class ColorThemesTest {
             UiTheme.HIGH_CONTRAST_DARK to HighContrastDarkPalette, UiTheme.HIGH_CONTRAST_LIGHT to HighContrastLightPalette,
         )
         expected.forEach { (ui, palette) ->
-            assertEquals(ui.wire, palette.toTokens(), ContributedThemes.resolve(theme("E", "empty.json", ui).value, read, { warnings += it }))
+            val resolved = ContributedThemes.resolve(theme("E", "empty.json", ui).value, read, { warnings += it })!!
+            // Colours and syntax come from the base palette; a theme that omits `semanticHighlighting` has it off.
+            assertEquals(ui.wire, palette.toTokens().withOverrides(emptyMap(), semantic = resolved.semantic), resolved)
+            assertEquals(ui.wire, false, resolved.semantic.highlighting == true)
         }
     }
 

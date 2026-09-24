@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Theme and colour customization strings (customization.md sec 8-9). -->
+<resources>
+    <string name="setting_icon_theme_title">File icon theme</string>
+    <string name="setting_icon_theme_desc">Icons in the explorer from an installed icon theme (PNG icons; SVG icons are not shown yet).</string>
+    <string name="icon_theme_builtin">Built-in icons</string>
+    <string name="icon_theme_none_installed">No icon themes installed. Extensions can contribute one.</string>
+    <string name="icon_theme_missing">%1$s (not installed)</string>
+    <string name="setting_color_customizations_title">Colour customizations</string>
+    <string name="setting_color_customizations_desc">Workbench colours laid over the theme, by VS Code colour id; a \"[Theme name]\" block applies to one theme.</string>
+    <string name="setting_token_color_customizations_title">Token colour customizations</string>
+    <string name="setting_token_color_customizations_desc">Syntax colours and font styles (textMateRules, roles) laid over the theme.</string>
+    <string name="setting_semantic_token_customizations_title">Semantic token colour customizations</string>
+    <string name="setting_semantic_token_customizations_desc">Colours for language server tokens by selector, and whether semantic colouring is on.</string>
+</resources>

@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.foundation.LocalSettings
+import dev.easyide.app.ui.screens.workspace.syntax.SemanticOverlay
+import dev.easyide.app.ui.screens.workspace.syntax.SemanticPaint
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.EditorColors
@@ -116,6 +118,8 @@ fun EditorPane(
     selections: EditorSelections = remember { EditorSelections() },
     /** A secondary click (mouse right button, stylus button) on the text: the `editor/context` menu. */
     onSecondaryClick: (() -> Unit)? = null,
+    /** The language server's semantic tokens for this document, painted over TextMate colouring. */
+    semanticTokens: SemanticOverlay? = null,
 ) {
     val colors = editorColors
 
@@ -129,7 +133,7 @@ fun EditorPane(
 
         when {
             tab.isMarkdown && tab.showPreview -> MarkdownPreview(tab.content)
-            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction, selections, onSecondaryClick)
+            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction, selections, onSecondaryClick, semanticTokens)
             else -> ReadOnlySurface(tab, interaction)
         }
     }
@@ -145,6 +149,7 @@ private fun EditableSurface(
     interaction: EditorInteraction?,
     selections: EditorSelections,
     onSecondaryClick: (() -> Unit)?,
+    semanticTokens: SemanticOverlay?,
 ) {
     val colors = editorColors
     val verticalScroll = rememberScrollState()
@@ -211,7 +216,7 @@ private fun EditableSurface(
             derivedStateOf { visibleLineWindow(verticalScroll.value, verticalScroll.maxValue, viewportPx, totalLines) }
         }
         val window = rememberSettledLineWindow(verticalScroll, liveWindow)
-        val transformation = rememberHighlightTransformation(tab, colors, window)
+        val transformation = rememberHighlightTransformation(tab, colors, window, semanticTokens, languageId)
         // Painting follows the live window, not the settled one: it is cheap, and a fling
         // must not outrun the squiggles the way it may briefly outrun colouring.
         val paint = remember(snapshot, liveWindow) {
@@ -446,11 +451,13 @@ private fun rememberHighlightTransformation(
     tab: EditorTab,
     colors: EditorColors,
     window: LineWindow,
+    semantic: SemanticOverlay?,
+    languageId: String?,
 ): VisualTransformation {
     val plain = remember(tab.content) { AnnotatedString(tab.content) }
     val pass by produceState(
         HighlightPass(tab.relativePath, tab.content, plain),
-        tab.content, tab.relativePath, tab.highlightingEnabled, colors, window,
+        tab.content, tab.relativePath, tab.highlightingEnabled, colors, window, semantic, languageId,
     ) {
         if (!tab.highlightingEnabled) {
             value = HighlightPass(tab.relativePath, tab.content, plain)
@@ -471,6 +478,7 @@ private fun rememberHighlightTransformation(
                 firstLine = window.first,
                 lastLine = window.last,
                 checkCancelled = { context.ensureActive() },
+                semantic = SemanticPaint.of(semantic, tab.content, colors, languageId),
             )
         }
         value = HighlightPass(tab.relativePath, tab.content, styled)

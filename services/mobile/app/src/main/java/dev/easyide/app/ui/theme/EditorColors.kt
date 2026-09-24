@@ -71,6 +71,8 @@ data class EditorColors(
     /** Squiggles, highlights, find matches, inlay hints and gutter icons. */
     val decorations: DecorationColors,
     val terminal: TerminalPalette,
+    /** Semantic token styling of the active theme and `editor.semanticTokenColorCustomizations`. */
+    val semantic: SemanticTokenColors = SemanticTokenColors.BUILT_IN,
 )
 
 /** Working-tree state colours, shared by source control rows and (later) tree badges. */
@@ -164,6 +166,7 @@ fun ThemeTokens.toEditorColors(): EditorColors = EditorColors(
         cursor = this[ColorToken.TERMINAL_CURSOR],
         ansi = ColorToken.ANSI.map { this[it] },
     ),
+    semantic = semantic,
 )
 
 /** Provided by [EasyIdeTheme]; the default only serves previews and tests without a theme. */

@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.commands.Keymap
@@ -28,6 +29,9 @@ import dev.easyide.app.ui.foundation.currentWindowSize
 import dev.easyide.app.ui.foundation.systemMotionEnabled
 import dev.easyide.app.ui.navigation.AppNavHost
 import dev.easyide.app.ui.theme.EasyIdeTheme
+import dev.easyide.app.ui.theme.FileIcons
+import dev.easyide.app.ui.theme.LocalFileIcons
+import dev.easyide.app.ui.theme.LocalIconThemeChoices
 import kotlinx.coroutines.launch
 
 /**
@@ -81,12 +85,18 @@ class MainActivity : ComponentActivity() {
             val motionEnabled = remember { systemMotionEnabled() }
             val windowSize = currentWindowSize()
 
-            EasyIdeTheme(themeMode = themeMode, contributed = contributedTheme) {
+            val customizations = remember(settings) { ThemeSettingsSchema.customizations(settings) }
+            val iconTheme by container.iconTheme.theme.collectAsStateWithLifecycle()
+            val iconThemeChoices by container.iconTheme.choices.collectAsStateWithLifecycle()
+            val fileIcons = remember(iconTheme) { iconTheme?.let(::FileIcons) }
+            EasyIdeTheme(themeMode = themeMode, contributed = contributedTheme, customizations = customizations, themeLabel = settings[SettingsSchema.colorTheme].takeIf { it.isNotEmpty() }) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,
                     LocalSettings provides settings,
                     LocalKeymap provides (keymap?.keymap ?: Keymap.DEFAULT),
+                    LocalFileIcons provides fileIcons,
+                    LocalIconThemeChoices provides iconThemeChoices,
                 ) {
                     Surface(modifier = Modifier.fillMaxSize()) {
                         // Null means preferences have not loaded yet; showing

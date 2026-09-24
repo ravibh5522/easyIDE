@@ -4,11 +4,13 @@ import android.content.ComponentCallbacks2
 import android.content.Context
 import android.util.Log
 import dev.easyide.app.R
+import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsQuery
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.lsp.servers.ServerRegistry
+import dev.easyide.app.ui.screens.workspace.syntax.SemanticRules
 import dev.easyide.lsp.client.LspClient
 import dev.easyide.lsp.manager.LanguageServerManager
 import dev.easyide.lsp.manager.ManagerDeps
@@ -25,6 +27,7 @@ import dev.easyide.sandbox.SandboxPaths
 import dev.easyide.sandbox.shell.ServerProcessFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -45,6 +48,7 @@ class LspRuntime(
     processFactory: ServerProcessFactory,
     projectManager: ProjectManager,
     private val settingsStore: SettingsStore,
+    safeMode: Flow<SafeModeReason?>,
     private val scope: CoroutineScope,
 ) {
     /** The global (user-layer) settings: the `lsp.*` limits are G scope. */
@@ -63,7 +67,7 @@ class LspRuntime(
         }
 
     /** Register the extension runtime's contributed servers here ([ServerRegistry.register]). */
-    val servers = ServerRegistry(::projectSettings, scope) { keys -> Log.w(TAG, "lsp.servers entries ignored (no languages/command): $keys") }
+    val servers = ServerRegistry(::projectSettings, scope, safeMode.map { it != null }) { keys -> Log.w(TAG, "lsp.servers entries ignored (no languages/command): $keys") }
 
     val messages = LspMessageBus()
 
@@ -120,14 +124,19 @@ class LspRuntime(
 
         /**
          * What the editor renders today (decision 0018): underline, background ranges, gutter
-         * icons, caret popups and end-of-line inlay text; no between-line blocks and no token
-         * overlay yet. Folding, selection ranges and document links have no presenter, so they
-         * are withheld rather than advertised and discarded.
+         * icons (also code lens, listed on a gutter tap), caret popups, end-of-line inlay text
+         * and the semantic token overlay over TextMate colouring, with the token types
+         * [SemanticRules] can colour. No between-line blocks. Folding, selection ranges and
+         * document links have no presenter, so they are withheld rather than advertised and
+         * discarded.
          */
         val CLIENT_UI = ClientUi(
-            layers = setOf(UiLayer.UNDERLINE, UiLayer.BACKGROUND_RANGE, UiLayer.GUTTER_ICON, UiLayer.CARET_POPUP, UiLayer.INLINE_TEXT),
-            semanticTokenTypes = emptyList(),
-            semanticTokenModifiers = emptyList(),
+            layers = setOf(
+                UiLayer.UNDERLINE, UiLayer.BACKGROUND_RANGE, UiLayer.GUTTER_ICON, UiLayer.CARET_POPUP, UiLayer.INLINE_TEXT,
+                UiLayer.TOKEN_OVERLAY,
+            ),
+            semanticTokenTypes = SemanticRules.TOKEN_TYPES,
+            semanticTokenModifiers = SemanticRules.TOKEN_MODIFIERS,
             withheld = setOf(LspFeature.FOLDING_RANGE, LspFeature.SELECTION_RANGE, LspFeature.DOCUMENT_LINK),
         )
 

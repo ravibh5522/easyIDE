@@ -40,6 +40,10 @@ fun themeTokensFor(mode: ThemeMode, systemInDark: Boolean, dynamicAccent: Accent
 fun EasyIdeTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM_DEFAULT,
     contributed: ThemeTokens? = null,
+    /** `workbench.colorCustomizations` and friends, laid over whichever palette is active. */
+    customizations: ColorCustomizations = ColorCustomizations.NONE,
+    /** The active theme's label, selecting `"[label]"` blocks of [customizations]. */
+    themeLabel: String? = null,
     content: @Composable () -> Unit,
 ) {
     val systemInDark = isSystemInDarkTheme()
@@ -50,8 +54,9 @@ fun EasyIdeTheme(
     val tokens = remember(themeMode, systemInDark, dynamicScheme, contributed) {
         contributed ?: themeTokensFor(themeMode, systemInDark, dynamicScheme?.let { Accent(it.primary, it.onPrimary) })
     }
-    val colorScheme = remember(tokens, dynamicScheme) { dynamicScheme ?: tokens.toColorScheme() }
-    val editorColors = remember(tokens) { tokens.toEditorColors() }
+    val customized = remember(tokens, customizations, themeLabel) { ThemeCustomizer.apply(tokens, customizations, themeLabel).tokens }
+    val colorScheme = remember(customized, dynamicScheme) { dynamicScheme ?: customized.toColorScheme() }
+    val editorColors = remember(customized) { customized.toEditorColors() }
 
     MaterialTheme(
         colorScheme = colorScheme,

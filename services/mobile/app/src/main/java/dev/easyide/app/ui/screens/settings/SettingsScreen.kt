@@ -50,6 +50,7 @@ import dev.easyide.app.data.settings.SettingCategory
 import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.TrustRequest
 import dev.easyide.app.data.settings.TrustState
 import dev.easyide.app.ui.theme.Spacing
@@ -196,6 +197,8 @@ fun SettingsScreen(
                         ThemePickerRow(uiState.settings, themeCards, viewModel, Modifier.contentWidth())
                     } else if (setting === SettingsSchema.keyRowsActive) {
                         KeyRowPickerRow(keyRows, uiState.settings, uiState.tab.layer, filter.language, viewModel, Modifier.contentWidth())
+                    } else if (setting === ThemeSettingsSchema.iconTheme && uiState.tab.layer == LayerId.USER) {
+                        IconThemePickerRow(uiState.settings, viewModel, Modifier.contentWidth())
                     } else {
                         SettingRow(
                             setting = setting,

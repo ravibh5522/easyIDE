@@ -157,7 +157,7 @@ object TextMateHighlighter {
      * [key] identifies the buffer (its project-relative path) so tokenizer state
      * survives edits, scrolling and switching between recent tabs.
      * [checkCancelled] is polled between lines; it should throw when the caller
-     * no longer wants the result.
+     * no longer wants the result. [semantic] tokens are painted over the grammar's colours.
      */
     @Synchronized
     fun highlight(
@@ -168,17 +168,33 @@ object TextMateHighlighter {
         firstLine: Int,
         lastLine: Int,
         checkCancelled: () -> Unit = {},
+        semantic: SemanticPaint? = null,
     ): AnnotatedString {
         if (source.isEmpty()) return AnnotatedString(source)
         val head = source.substringBefore('\n').take(ExtensionPolicy.FIRST_LINE_MAX_CHARS)
-        val scope = scopeFor(fileName, head) ?: return AnnotatedString(source)
-        val grammar = grammarForScope(scope) ?: return AnnotatedString(source)
+        val scope = scopeFor(fileName, head)
+        val grammar = scope?.let(::grammarForScope)
+        if (scope == null || grammar == null) return semantic?.let { semanticOnly(source, it, firstLine, lastLine) } ?: AnnotatedString(source)
 
         // A rename to a different extension keeps the key but changes grammar.
         val doc = documents[key]?.takeIf { it.grammar === grammar }
             ?: newDocument(grammar, scope).also { documents[key] = it }
         doc.setContent(source)
-        return doc.annotate(source, colors, firstLine, lastLine, checkCancelled)
+        return doc.annotate(source, colors, firstLine, lastLine, checkCancelled, semantic)
+    }
+
+    /** A file no grammar colours can still get the language server's colours. */
+    private fun semanticOnly(source: String, semantic: SemanticPaint, firstLine: Int, lastLine: Int): AnnotatedString {
+        val builder = AnnotatedString.Builder(source)
+        var lineStart = 0
+        var line = 0
+        while (line <= lastLine && lineStart <= source.length) {
+            val end = source.indexOf('\n', lineStart).let { if (it < 0) source.length else it }
+            if (line >= firstLine) semantic.addLine(builder, line, lineStart, end - lineStart)
+            lineStart = end + 1
+            line++
+        }
+        return builder.toAnnotatedString()
     }
 
     /**
