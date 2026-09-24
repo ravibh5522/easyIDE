@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Timings in this suite are only meaningful without debuggable-mode ART (JIT and
+     compiled code are restricted for debuggable apps), the same rule as androidx.benchmark. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application
+        android:debuggable="false"
+        tools:ignore="HardcodedDebugMode"
+        tools:replace="android:debuggable" />
+</manifest>

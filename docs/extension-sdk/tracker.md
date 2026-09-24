@@ -8,7 +8,7 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 |---|---|---|
 | **Decisions** | | |
 | ADR-E SDK shape, manifest, `.easyext` | in-progress | drafted as [0013](../decision/0013-extension-sdk-shape-manifest-easyext.md), Proposed |
-| ADR-F WASM logic layer + runtime | in-progress | drafted as [0014](../decision/0014-wasm-logic-layer-chicory.md); ART spike pending |
+| ADR-F WASM logic layer + runtime | done | [0014](../decision/0014-wasm-logic-layer-chicory.md) Accepted; ART spike passed 2026-09-24 (results in the ADR) |
 | ADR-G SDK licensing (Apache-2.0 proposal) | in-progress | drafted as [0015](../decision/0015-extension-sdk-licensing-apache.md); app stays under 0008 |
 | ADR-H Registry + signing model | in-progress | drafted as [0016](../decision/0016-extension-registry-static-index-ed25519.md) |
 | ADR-I LSP client + server lifecycle | in-progress | drafted as [0017](../decision/0017-lsp-client-hand-rolled-server-lifecycle.md) |
@@ -41,6 +41,6 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | Static signed index repo + browse/install UI | not-started | no backend |
 | Open VSX secondary source | not-started | |
 | **M7 WASM layer** | | |
-| Runtime embed, ABI v1, host API, capability enforcement | not-started | |
+| Runtime embed, ABI v1, host API, capability enforcement | in-progress | EXT-50/51/52 and EXT-53 provider/command/view-data messages done in `:ext-wasm` (JVM + ART tests); `:app` port bridges, `:extensions` `LogicHost` wiring and guest SDKs/templates (EXT-54) not started |
 | **M8 Node host (conditional)** | | |
 | vscode API subset in sandbox | not-started | only if M3+M7 insufficient |
