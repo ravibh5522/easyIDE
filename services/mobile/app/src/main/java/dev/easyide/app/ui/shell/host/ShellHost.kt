@@ -10,11 +10,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeyChord
@@ -36,6 +39,7 @@ import dev.easyide.app.ui.shell.nav.NavSurfaceState
  * system takes it back (and the app leaves) only when the shell has nothing left to do. [dialogs] is
  * where dialogs that belong to no one panel are mounted, once (Home's, the extensions').
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ShellHost(
     shell: ShellViewModel,
@@ -74,7 +78,10 @@ fun ShellHost(
     )
     CompositionLocalProvider(LocalShellState provides state, LocalShellActions provides actions) {
         Box(
-            modifier.fillMaxSize().background(Kit.colors.background).onPreviewKeyEvent { event ->
+            modifier.fillMaxSize().background(Kit.colors.background)
+                // Test tags become resource ids so the baseline profile generator and ui-device-check can find kit ids.
+                .semantics { testTagsAsResourceId = true }
+                .onPreviewKeyEvent { event ->
                 val toggle = event.type == KeyEventType.KeyDown && !state.compact &&
                     keymap.commandFor(KeyChord.of(event.nativeKeyEvent), terminalFocused = false) == CommandIds.TOGGLE_EXPLORER
                 if (toggle) shell.togglePanel(Placement.SIDEBAR)

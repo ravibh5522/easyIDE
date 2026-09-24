@@ -36,6 +36,7 @@ internal fun ProjectRow(
             subtitle = item.locationLabel(),
             selected = selected,
             onClick = onClick,
+            id = HomeMetrics.PROJECT_ROW_ID,
             modifier = Modifier.contextMenuTrigger { menuOpen = true },
             trailing = {
                 Column(horizontalAlignment = Alignment.End) {

@@ -35,6 +35,7 @@ import dev.easyide.app.ui.kit.EmptyArt
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.kitTag
 import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitMenu
@@ -106,7 +107,7 @@ private fun ProjectPageBody(item: ProjectListItem, state: HomeUiState, callbacks
         KitButton(
             stringResource(R.string.home_page_open),
             { callbacks.onOpenProject(item, false) },
-            Modifier.weight(1f),
+            Modifier.weight(1f).kitTag(HomeMetrics.PROJECT_OPEN_ID),
             icon = Icons.Filled.FolderOpen,
         )
         KitButton(

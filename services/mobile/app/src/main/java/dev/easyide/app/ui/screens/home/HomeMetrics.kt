@@ -21,6 +21,13 @@ internal object HomeMetrics {
     /** How long a confirmation stays before it clears itself (identity.md 10: toast 3s). */
     const val MESSAGE_MS = 3_000L
 
+    /**
+     * Stable ids (`kit:<id>` test tags) of the project row and the page's Open button. The baseline
+     * profile generator finds them by resource id (`baselineprofile` module, which cannot import this).
+     */
+    const val PROJECT_ROW_ID = "project-row"
+    const val PROJECT_OPEN_ID = "project-open"
+
     /** The Sandbox settings document, where environments are managed. */
     const val SANDBOX_SETTINGS_URI = "easyide://settings/sandbox"
 }
