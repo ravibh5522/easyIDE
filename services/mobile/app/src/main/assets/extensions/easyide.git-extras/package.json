@@ -1,0 +1,125 @@
+{
+  "name": "git-extras",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Git Extras",
+  "description": "More git from the palette: create, switch to remote and delete branches, stash and restore changes, branch graph, file history and blame, pull with a chosen strategy and push, publish or force-push after a confirmation.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      { "command": "git-extras.createBranch", "title": "Create Branch", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.switchRemoteBranch", "title": "Switch to Remote Branch", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.deleteBranch", "title": "Delete Branch", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.stash", "title": "Stash Changes", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.stashIncludingUntracked", "title": "Stash Changes Including Untracked Files", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.stashPop", "title": "Pop Stash", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.stashApply", "title": "Apply Stash", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.stashDrop", "title": "Drop Stash", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.graph", "title": "Show Branch Graph", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.fileHistory", "title": "Show File History", "shortTitle": "History", "category": "Git", "enablement": "envState == ready && gitRepo && resourcePath" },
+      { "command": "git-extras.blameLine", "title": "Blame Current Line", "shortTitle": "Blame", "category": "Git", "enablement": "envState == ready && gitRepo && resourcePath" },
+      { "command": "git-extras.fetch", "title": "Fetch All Remotes", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.pullWithStrategy", "title": "Pull (Choose Strategy)", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.pushConfirm", "title": "Push (Confirm)", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.publishBranch", "title": "Publish Branch", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-extras.forcePushWithLease", "title": "Force Push With Lease", "category": "Git", "enablement": "envState == ready && gitRepo" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "git-extras.fileHistory", "when": "gitRepo && resourcePath", "group": "git@5" },
+        { "command": "git-extras.blameLine", "when": "gitRepo && resourcePath", "group": "git@6" }
+      ],
+      "editor/context": [
+        { "command": "git-extras.blameLine", "when": "gitRepo && resourcePath", "group": "git@2" },
+        { "command": "git-extras.fileHistory", "when": "gitRepo && resourcePath", "group": "git@3" }
+      ],
+      "commandPalette": [
+        { "command": "git-extras.fileHistory", "when": "resourcePath" },
+        { "command": "git-extras.blameLine", "when": "resourcePath" }
+      ]
+    }
+  },
+  "easyide": {
+    "capabilities": ["sandbox.exec"],
+    "actions": {
+      "git-extras.createBranch": { "type": "sequence", "steps": [
+        { "type": "showInputBox", "id": "name", "prompt": "Name of the new branch (created from the current commit and checked out)", "placeHolder": "feature/my-change", "validate": "[A-Za-z0-9_][A-Za-z0-9._/-]*" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git switch -c ${input:name}" }
+      ] },
+      "git-extras.switchRemoteBranch": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["sh", "-c", "git for-each-ref --format='%(refname:lstrip=3)' refs/remotes | grep -vx HEAD | sort -u"], "output": "capture", "as": "branches" },
+        { "type": "showQuickPick", "id": "branch", "itemsFrom": "${result:branches}", "placeHolder": "Remote branch to check out (a local tracking branch is created)" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git switch ${input:branch}" }
+      ] },
+      "git-extras.deleteBranch": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["sh", "-c", "current=$(git branch --show-current); git for-each-ref --format='%(refname:short)' refs/heads | grep -vxF -e \"$current\""], "output": "capture", "as": "branches" },
+        { "type": "showQuickPick", "id": "branch", "itemsFrom": "${result:branches}", "placeHolder": "Local branch to delete" },
+        { "type": "showMessage", "severity": "warning", "text": "Delete the local branch ${input:branch}? git refuses if it has commits not merged anywhere.", "actions": [
+          { "title": "Delete", "action": { "type": "runInTerminal", "terminal": "Git", "command": "git branch -d ${input:branch}" } }
+        ] }
+      ] },
+      "git-extras.stash": { "type": "sequence", "steps": [
+        { "type": "showInputBox", "id": "message", "prompt": "Stash message", "value": "WIP", "validate": ".*\\S.*" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git stash push -m ${input:message}" }
+      ] },
+      "git-extras.stashIncludingUntracked": { "type": "sequence", "steps": [
+        { "type": "showInputBox", "id": "message", "prompt": "Stash message (untracked files are stashed too)", "value": "WIP", "validate": ".*\\S.*" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git stash push --include-untracked -m ${input:message}" }
+      ] },
+      "git-extras.stashPop": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["git", "stash", "list", "--format=%gd: %s"], "output": "capture", "as": "stashes" },
+        { "type": "showQuickPick", "id": "stash", "itemsFrom": "${result:stashes}", "placeHolder": "Stash to apply and remove" },
+        { "type": "sandboxExec", "command": ["sh", "-c", "printf '%s' \"$1\" | cut -d: -f1", "sh", "${input:stash}"], "output": "capture", "as": "ref" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git stash pop ${result:ref}" }
+      ] },
+      "git-extras.stashApply": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["git", "stash", "list", "--format=%gd: %s"], "output": "capture", "as": "stashes" },
+        { "type": "showQuickPick", "id": "stash", "itemsFrom": "${result:stashes}", "placeHolder": "Stash to apply (it is kept)" },
+        { "type": "sandboxExec", "command": ["sh", "-c", "printf '%s' \"$1\" | cut -d: -f1", "sh", "${input:stash}"], "output": "capture", "as": "ref" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git stash apply ${result:ref}" }
+      ] },
+      "git-extras.stashDrop": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["git", "stash", "list", "--format=%gd: %s"], "output": "capture", "as": "stashes" },
+        { "type": "showQuickPick", "id": "stash", "itemsFrom": "${result:stashes}", "placeHolder": "Stash to delete" },
+        { "type": "sandboxExec", "command": ["sh", "-c", "printf '%s' \"$1\" | cut -d: -f1", "sh", "${input:stash}"], "output": "capture", "as": "ref" },
+        { "type": "showMessage", "severity": "warning", "text": "Delete ${input:stash}? Its changes are lost.", "actions": [
+          { "title": "Drop", "action": { "type": "runInTerminal", "terminal": "Git", "command": "git stash drop ${result:ref}" } }
+        ] }
+      ] },
+      "git-extras.graph": { "type": "runInTerminal", "terminal": "Git", "command": "git --no-pager log --graph --oneline --decorate --all -n 80" },
+      "git-extras.fileHistory": { "type": "runInTerminal", "terminal": "Git", "command": "git --no-pager log --follow --oneline --decorate -n 50 -- ${relativeFile}" },
+      "git-extras.blameLine": { "type": "runInTerminal", "terminal": "Git", "command": "git --no-pager blame -L ${lineNumber},${lineNumber} -- ${relativeFile}" },
+      "git-extras.fetch": { "type": "runInTerminal", "terminal": "Git", "command": "git fetch --all --prune" },
+      "git-extras.pullWithStrategy": { "type": "sequence", "steps": [
+        { "type": "showQuickPick", "id": "mode", "placeHolder": "How to bring in the upstream changes", "items": [
+          { "label": "Fast-forward only", "description": "git pull --ff-only: stops if the branches diverged", "value": "--ff-only" },
+          { "label": "Rebase", "description": "git pull --rebase: replays your commits on top", "value": "--rebase" },
+          { "label": "Merge", "description": "git pull --no-rebase: creates a merge commit if needed", "value": "--no-rebase" }
+        ] },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git pull ${input:mode}" }
+      ] },
+      "git-extras.pushConfirm": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["sh", "-c", "b=$(git branch --show-current); if [ -z \"$b\" ]; then echo 'HEAD is detached: switch to a branch before pushing.'; elif u=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null); then echo \"Push $(git rev-list --count '@{u}..HEAD') commit(s) from $b to $u?\"; else echo \"$b has no upstream: push it to origin/$b and track it?\"; fi"], "output": "capture", "as": "summary" },
+        { "type": "showMessage", "severity": "info", "text": "${result:summary}", "actions": [
+          { "title": "Push", "action": { "type": "runInTerminal", "terminal": "Git", "command": "if git rev-parse -q --verify '@{u}' >/dev/null; then git push; else git push -u origin HEAD; fi" } }
+        ] }
+      ] },
+      "git-extras.publishBranch": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["git", "remote"], "output": "capture", "as": "remotes" },
+        { "type": "showQuickPick", "id": "remote", "itemsFrom": "${result:remotes}", "placeHolder": "Remote to publish the current branch to" },
+        { "type": "sandboxExec", "command": ["git", "branch", "--show-current"], "output": "capture", "as": "branch" },
+        { "type": "showMessage", "severity": "info", "text": "Push ${result:branch} to ${input:remote} and track it?", "actions": [
+          { "title": "Publish", "action": { "type": "runInTerminal", "terminal": "Git", "command": "git push -u ${input:remote} HEAD" } }
+        ] }
+      ] },
+      "git-extras.forcePushWithLease": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["sh", "-c", "b=$(git branch --show-current); u=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null) || u='its upstream (none set)'; echo \"Force-push $b over $u? The remote branch is overwritten; git refuses if it has commits you have not fetched.\""], "output": "capture", "as": "summary" },
+        { "type": "showMessage", "severity": "warning", "text": "${result:summary}", "actions": [
+          { "title": "Force push", "action": { "type": "runInTerminal", "terminal": "Git", "command": "git push --force-with-lease" } }
+        ] }
+      ] }
+    }
+  }
+}

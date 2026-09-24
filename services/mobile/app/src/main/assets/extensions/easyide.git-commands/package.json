@@ -50,7 +50,7 @@
       "git-commands.diffFile": { "type": "runInTerminal", "terminal": "Git", "command": "git --no-pager diff -- ${relativeFile}" },
       "git-commands.log": { "type": "runInTerminal", "terminal": "Git", "command": "git --no-pager log --oneline --graph --decorate -n 30" },
       "git-commands.commitAll": { "type": "sequence", "steps": [
-        { "type": "showInputBox", "id": "message", "prompt": "Commit message for all changes", "placeHolder": "Describe the change", "validate": "\\S" },
+        { "type": "showInputBox", "id": "message", "prompt": "Commit message for all changes", "placeHolder": "Describe the change", "validate": ".*\\S.*" },
         { "type": "runInTerminal", "terminal": "Git", "command": "git add -A && git commit -m ${input:message}" }
       ] },
       "git-commands.pull": { "type": "runInTerminal", "terminal": "Git", "command": "git pull --ff-only" },

@@ -14,6 +14,7 @@ import dev.easyide.app.extensions.adapters.MenuModel
 import dev.easyide.app.extensions.adapters.StatusItem
 import dev.easyide.app.extensions.adapters.StatusItems
 import dev.easyide.app.ui.commands.Command
+import dev.easyide.app.ui.commands.CommandRegistry
 import dev.easyide.app.ui.commands.CommandTitle
 import dev.easyide.app.ui.commands.KeyBinding
 import dev.easyide.app.ui.foundation.LocalSettings
@@ -57,7 +58,12 @@ class WorkspaceContributions(
             )
         }
 
-    fun menu(menuId: String, scoped: ContextLookup = context): List<MenuEntry> = MenuModel.items(menuId, snapshot, scoped, hidden)
+    /**
+     * Entries of [menuId]. [builtIns] is the screen's command list of this composition: an
+     * entry bound to a built-in command is greyed while that command is disabled.
+     */
+    fun menu(menuId: String, builtIns: CommandRegistry? = null, scoped: ContextLookup = context): List<MenuEntry> =
+        MenuModel.items(menuId, snapshot, scoped, hidden) { id -> builtIns?.get(id)?.enabled ?: true }
 
     /** Explorer items see the node as the focused resource (`resource*` keys), VS Code's scoped context. */
     fun explorerMenu(node: FileNode): List<MenuEntry> {
@@ -70,7 +76,7 @@ class WorkspaceContributions(
             ContextKeys.resourceIsFolder.name to JsonPrimitive(node.isDirectory),
             ContextKeys.explorerFocus.name to JsonPrimitive(true),
         ))
-        return menu(dev.easyide.extensions.contrib.MenuIds.EXPLORER_CONTEXT, lookup)
+        return menu(dev.easyide.extensions.contrib.MenuIds.EXPLORER_CONTEXT, scoped = lookup)
     }
 
     fun statusItems(): List<StatusItem> {
@@ -106,7 +112,10 @@ fun rememberWorkspaceContributions(host: WorkspaceExtensionHost, extensions: Ext
     val settings = LocalSettings.current
     val hidden = settings[SettingsSchema.contributionsHidden]
     val keyRow = settings[SettingsSchema.keyRowsActive]
-    return remember(snapshot, context, keybindings, hidden, keyRow) {
+    // `config.*` when-clauses and `${config:}` status texts resolve lazily, so a settings
+    // change (a toggle command) must rebuild the projections even when no context key moved.
+    val settingsVersion by extensions.settings.version.collectAsStateWithLifecycle()
+    return remember(snapshot, context, keybindings, hidden, keyRow, settingsVersion) {
         WorkspaceContributions(snapshot, context, hidden.toSet(), keyRow, keybindings, host, extensions)
     }
 }

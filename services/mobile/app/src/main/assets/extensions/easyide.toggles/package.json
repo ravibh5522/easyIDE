@@ -1,0 +1,55 @@
+{
+  "name": "toggles",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Editor Toggles",
+  "description": "One-command switches for editor settings: format on save and on type, inlay hints, hover, parameter hints, suggestions, diagnostics display, font size and theme, with status bar items that show and flip the current state.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      { "command": "toggles.formatOnSave", "title": "Toggle Format on Save", "category": "Editor" },
+      { "command": "toggles.formatOnType", "title": "Toggle Format on Type", "category": "Editor" },
+      { "command": "toggles.inlayHints", "title": "Toggle Inlay Hints", "category": "Editor" },
+      { "command": "toggles.hover", "title": "Toggle Hover Popups", "category": "Editor" },
+      { "command": "toggles.parameterHints", "title": "Toggle Parameter Hints", "category": "Editor" },
+      { "command": "toggles.quickSuggestions", "title": "Toggle Suggestions While Typing", "category": "Editor" },
+      { "command": "toggles.suggestOnTriggerCharacters", "title": "Toggle Suggestions on Trigger Characters", "category": "Editor" },
+      { "command": "toggles.lightbulb", "title": "Toggle Code Action Lightbulb", "category": "Editor" },
+      { "command": "toggles.occurrencesHighlight", "title": "Toggle Occurrence Highlighting", "category": "Editor" },
+      { "command": "toggles.squiggles", "title": "Toggle Diagnostic Squiggles", "category": "Editor" },
+      { "command": "toggles.gutterDiagnostics", "title": "Toggle Diagnostics in Gutter", "category": "Editor" },
+      { "command": "toggles.minSeverity", "title": "Cycle Minimum Diagnostic Severity", "category": "Editor" },
+      { "command": "toggles.editorFontSize", "title": "Cycle Editor Font Size", "category": "Editor" },
+      { "command": "toggles.terminalFontSize", "title": "Cycle Terminal Font Size", "category": "Terminal" },
+      { "command": "toggles.themeMode", "title": "Cycle Theme: System, Light, Dark", "category": "Appearance" }
+    ]
+  },
+  "easyide": {
+    "capabilities": ["ui.settings"],
+    "actions": {
+      "toggles.formatOnSave": { "type": "toggleConfig", "key": "editor.formatOnSave" },
+      "toggles.formatOnType": { "type": "toggleConfig", "key": "editor.formatOnType" },
+      "toggles.inlayHints": { "type": "toggleConfig", "key": "editor.inlayHints.enabled", "values": ["ON", "OFF"] },
+      "toggles.hover": { "type": "toggleConfig", "key": "editor.hover.enabled" },
+      "toggles.parameterHints": { "type": "toggleConfig", "key": "editor.parameterHints.enabled" },
+      "toggles.quickSuggestions": { "type": "toggleConfig", "key": "editor.quickSuggestions", "values": [false, { "other": true, "comments": false, "strings": false }] },
+      "toggles.suggestOnTriggerCharacters": { "type": "toggleConfig", "key": "editor.suggestOnTriggerCharacters" },
+      "toggles.lightbulb": { "type": "toggleConfig", "key": "editor.lightbulb.enabled" },
+      "toggles.occurrencesHighlight": { "type": "toggleConfig", "key": "editor.occurrencesHighlight" },
+      "toggles.squiggles": { "type": "toggleConfig", "key": "editor.diagnostics.showSquiggles" },
+      "toggles.gutterDiagnostics": { "type": "toggleConfig", "key": "editor.diagnostics.showInGutter" },
+      "toggles.minSeverity": { "type": "toggleConfig", "key": "editor.diagnostics.minSeverity", "values": ["HINT", "INFORMATION", "WARNING", "ERROR"] },
+      "toggles.editorFontSize": { "type": "toggleConfig", "key": "editor.fontSize", "values": [13, 15, 17, 20, 24] },
+      "toggles.terminalFontSize": { "type": "toggleConfig", "key": "terminal.fontSize", "values": [13, 15, 17, 20, 24] },
+      "toggles.themeMode": { "type": "toggleConfig", "key": "appearance.themeMode", "values": ["SYSTEM_DEFAULT", "LIGHT", "DARK"] }
+    },
+    "statusBarItems": [
+      { "id": "toggles.formatOnSaveOn", "text": "Format on save: on", "tooltip": "Turn format on save off", "command": "toggles.formatOnSave", "alignment": "right", "priority": 20, "when": "editorLangId && config.editor.formatOnSave" },
+      { "id": "toggles.formatOnSaveOff", "text": "Format on save: off", "tooltip": "Turn format on save on", "command": "toggles.formatOnSave", "alignment": "right", "priority": 20, "when": "editorLangId && !config.editor.formatOnSave" },
+      { "id": "toggles.inlayHintsOn", "text": "Inlay hints: on", "tooltip": "Turn inlay hints off", "command": "toggles.inlayHints", "alignment": "right", "priority": 19, "when": "editorLangId && config.editor.inlayHints.enabled != OFF" },
+      { "id": "toggles.inlayHintsOff", "text": "Inlay hints: off", "tooltip": "Turn inlay hints on", "command": "toggles.inlayHints", "alignment": "right", "priority": 19, "when": "editorLangId && config.editor.inlayHints.enabled == OFF" }
+    ]
+  }
+}

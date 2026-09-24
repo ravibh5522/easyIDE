@@ -47,13 +47,27 @@ object MenuModel {
         { it.command.title },
     )
 
-    fun items(menuId: String, snapshot: ContributionSnapshot, context: ContextLookup, hidden: Set<String>): List<MenuEntry> {
+    /**
+     * [builtInEnabled] is the live enabled state of an app command (its `CommandRegistry`
+     * entry): built-ins carry no `enablement` clause, their availability (an editable tab,
+     * a server offering the feature) is known only to the screen, so an entry bound to one
+     * is greyed exactly when the palette greys the command.
+     */
+    fun items(
+        menuId: String,
+        snapshot: ContributionSnapshot,
+        context: ContextLookup,
+        hidden: Set<String>,
+        builtInEnabled: (String) -> Boolean = { true },
+    ): List<MenuEntry> {
         val commands = snapshot.commands.associateBy { it.value.command }
         return snapshot.menus
             .filter { it.value.menuId == menuId && it.ref.toString() !in hidden && holds(it.value.`when`, context) }
             .mapNotNull { m ->
-                val command = commands[m.value.command]?.value ?: return@mapNotNull null
-                Candidate(m, command, holds(command.enablement, context))
+                val owned = commands[m.value.command] ?: return@mapNotNull null
+                val command = owned.value
+                val live = owned.owner !is Owner.BuiltIn || builtInEnabled(command.command)
+                Candidate(m, command, live && holds(command.enablement, context))
             }
             .sortedWith(ORDER)
             .map { MenuEntry(it.item.ref, it.item.owner, it.command, it.group, it.enabled) }

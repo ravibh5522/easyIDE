@@ -93,6 +93,7 @@ object CommandIds {
     const val QUICK_FIX = "editor.action.quickFix"
     const val FORMAT_DOCUMENT = "editor.action.formatDocument"
     const val FORMAT_SELECTION = "editor.action.formatSelection"
+    const val TOGGLE_LINE_COMMENT = "editor.action.commentLine"
     const val GOTO_SYMBOL = "workbench.action.gotoSymbol"
     const val SHOW_ALL_SYMBOLS = "workbench.action.showAllSymbols"
     const val SHOW_PROBLEMS = "workbench.actions.view.problems"
@@ -109,6 +110,6 @@ object CommandIds {
         INSERT_SNIPPET, RUN_TASK, SHOW_EXTENSIONS,
         TRIGGER_SUGGEST, TRIGGER_PARAMETER_HINTS, SHOW_HOVER, REVEAL_DEFINITION, GO_TO_DECLARATION,
         GO_TO_TYPE_DEFINITION, GO_TO_IMPLEMENTATION, GO_TO_REFERENCES, RENAME, QUICK_FIX, FORMAT_DOCUMENT,
-        FORMAT_SELECTION, GOTO_SYMBOL, SHOW_ALL_SYMBOLS, SHOW_PROBLEMS, SHOW_OUTLINE, RESTART_LANGUAGE_SERVERS,
+        FORMAT_SELECTION, TOGGLE_LINE_COMMENT, GOTO_SYMBOL, SHOW_ALL_SYMBOLS, SHOW_PROBLEMS, SHOW_OUTLINE, RESTART_LANGUAGE_SERVERS,
     )
 }

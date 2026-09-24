@@ -167,6 +167,7 @@ fun WorkspaceScreen(
             showCommands = { paletteOpen = true },
             closeTab = requestCloseTab,
             insertSnippet = { extensionHost.pickSnippet(snippetLabels) },
+            toggleLineComment = extensionHost.lineComments::toggle,
             runTask = { extensionHost.pickTask(taskLabels) { label, code -> taskExited.format(label, code) } },
             showExtensions = onOpenExtensions,
         ),
@@ -264,8 +265,8 @@ fun WorkspaceScreen(
                                 actions = {
                                     if (uiState.activeTab != null) {
                                         EditorTitleActions(
-                                            title = contributions.menu(MenuIds.EDITOR_TITLE),
-                                            context = contributions.menu(MenuIds.EDITOR_CONTEXT),
+                                            title = contributions.menu(MenuIds.EDITOR_TITLE, commands),
+                                            context = contributions.menu(MenuIds.EDITOR_CONTEXT, commands),
                                             onRun = { contributions.run(it) },
                                         )
                                     }
@@ -288,14 +289,14 @@ fun WorkspaceScreen(
                                 )
                                 ContributedMenu(
                                     expanded = editorMenuOpen,
-                                    sections = contributions.menu(MenuIds.EDITOR_CONTEXT).sections(),
+                                    sections = contributions.menu(MenuIds.EDITOR_CONTEXT, commands).sections(),
                                     onRun = { contributions.run(it) },
                                     onDismiss = { editorMenuOpen = false },
                                 )
                             }
                             if (uiState.activeTab?.editable == true) {
                                 if (inputMode.mode == InputModeState.TOUCH) {
-                                    TouchToolbar(contributions.menu(MenuIds.EDITOR_TOUCH_TOOLBAR)) { contributions.run(it) }
+                                    TouchToolbar(contributions.menu(MenuIds.EDITOR_TOUCH_TOOLBAR, commands)) { contributions.run(it) }
                                 }
                                 contributions.keyRow(KeySurface.EDITOR)?.let { row ->
                                     KeyRowBar(keys = row.keys, onKey = { extensionHost.editorKey(it, runShortcut) })

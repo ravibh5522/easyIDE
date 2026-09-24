@@ -128,6 +128,7 @@ class Keymap(val bindings: List<KeyBinding>) {
                 KeyBinding(KeyChord(KeyEvent.KEYCODE_F2), CommandIds.RENAME, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrl(KeyEvent.KEYCODE_PERIOD), CommandIds.QUICK_FIX, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(KeyChord(KeyEvent.KEYCODE_F, shift = true, alt = true), CommandIds.FORMAT_DOCUMENT, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_SLASH), CommandIds.TOGGLE_LINE_COMMENT, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrlShift(KeyEvent.KEYCODE_O), CommandIds.GOTO_SYMBOL, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrl(KeyEvent.KEYCODE_T), CommandIds.SHOW_ALL_SYMBOLS, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrlShift(KeyEvent.KEYCODE_M), CommandIds.SHOW_PROBLEMS, KeyFocus.ANYWHERE),

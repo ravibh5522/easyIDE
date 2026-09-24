@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Built-in command texts that packs render: the title of commands added for them and the
+  short labels used when a pack places a built-in command on a narrow surface (the touch
+  toolbar, an inline editor-title button). Kept apart from strings.xml to avoid collisions.
+-->
+<resources>
+    <string name="command_toggle_line_comment">Toggle Line Comment</string>
+
+    <string name="command_short_show_commands">Commands</string>
+    <string name="command_short_toggle_line_comment">Comment</string>
+    <string name="command_short_format_document">Format</string>
+    <string name="command_short_format_selection">Format sel.</string>
+    <string name="command_short_go_to_definition">Definition</string>
+    <string name="command_short_find_references">References</string>
+    <string name="command_short_rename_symbol">Rename</string>
+    <string name="command_short_quick_fix">Fix</string>
+    <string name="command_short_show_hover">Info</string>
+    <string name="command_short_go_to_symbol">Symbols</string>
+</resources>

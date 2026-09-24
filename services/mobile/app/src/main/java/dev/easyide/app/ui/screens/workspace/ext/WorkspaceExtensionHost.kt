@@ -19,6 +19,7 @@ import dev.easyide.app.ui.screens.workspace.EditorSelections
 import dev.easyide.app.ui.screens.workspace.GitPanelState
 import dev.easyide.app.ui.screens.workspace.WorkspaceTerminals
 import dev.easyide.app.ui.screens.workspace.WorkspaceUiState
+import dev.easyide.app.ui.screens.workspace.edit.LineCommentToggle
 import dev.easyide.app.ui.screens.workspace.lsp.LspLanguageFacts
 import dev.easyide.app.ui.screens.workspace.lsp.LspRequestGateway
 import dev.easyide.extensions.action.ActionOutcome
@@ -97,6 +98,9 @@ class WorkspaceExtensionHost(
     val context = WorkspaceContextFeed(
         environmentId, projectRoot, state, git, selections, runtime, environmentManager, linuxEnvironment, lspFacts, scope,
     )
+
+    /** The built-in `editor.action.commentLine` over this workspace's buffers. */
+    val lineComments = LineCommentToggle(state, selections, editor, scope)
 
     /** Set by the screen each composition: the name shown for `${workspaceFolderBasename}`. */
     @Volatile var projectName: String = ""

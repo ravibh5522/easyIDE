@@ -36,6 +36,7 @@ import dev.easyide.extensions.RuntimePorts
 import dev.easyide.extensions.action.LogEntry
 import dev.easyide.extensions.action.LogLevel
 import dev.easyide.extensions.contrib.CommandContribution
+import dev.easyide.extensions.contrib.CommandIcon
 import dev.easyide.extensions.contrib.Contributions
 import dev.easyide.extensions.manifest.ManifestParser
 import dev.easyide.extensions.manifest.PackageLimits
@@ -235,8 +236,8 @@ class ExtensionsContainer(
     private fun ownerId(owner: dev.easyide.extensions.contrib.Owner) = (owner as? dev.easyide.extensions.contrib.Owner.Ext)?.id
 
     /** The app's own commands as built-in contributions: menus and keybindings of packs can then name them. */
-    private fun builtInCommands(): List<CommandContribution> = BUILT_IN_TITLES.map { (id, title) ->
-        CommandContribution(id, context.getString(title), null, null, null, null)
+    private fun builtInCommands(): List<CommandContribution> = BuiltInCommandTable.ALL.map { c ->
+        CommandContribution(c.id, context.getString(c.title), null, c.shortTitle?.let(context::getString), c.icon?.let(CommandIcon::Token), null)
     }
 
     private fun openExternal(url: String): Boolean = try {
@@ -249,24 +250,4 @@ class ExtensionsContainer(
     /** Changes with every install or update of the APK, so built-ins are re-unpacked exactly then. */
     private fun apkStamp(): String =
         context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime.toString()
-
-    private companion object {
-        val BUILT_IN_TITLES: List<Pair<String, Int>> = listOf(
-            CommandIds.SHOW_COMMANDS to R.string.command_show_commands,
-            CommandIds.SAVE to R.string.command_save,
-            CommandIds.SAVE_ALL to R.string.command_save_all,
-            CommandIds.CLOSE_EDITOR to R.string.command_close_editor,
-            CommandIds.NEXT_EDITOR to R.string.command_next_editor,
-            CommandIds.PREVIOUS_EDITOR to R.string.command_previous_editor,
-            CommandIds.TOGGLE_MARKDOWN_PREVIEW to R.string.command_toggle_markdown_preview,
-            CommandIds.TOGGLE_EXPLORER to R.string.command_toggle_explorer,
-            CommandIds.TOGGLE_SOURCE_CONTROL to R.string.command_toggle_source_control,
-            CommandIds.REFRESH_EXPLORER to R.string.command_refresh_explorer,
-            CommandIds.TOGGLE_TERMINAL to R.string.command_toggle_terminal,
-            CommandIds.NEW_TERMINAL to R.string.command_new_terminal,
-            CommandIds.INSERT_SNIPPET to R.string.command_insert_snippet,
-            CommandIds.RUN_TASK to R.string.command_run_task,
-            CommandIds.SHOW_EXTENSIONS to R.string.command_show_extensions,
-        )
-    }
 }

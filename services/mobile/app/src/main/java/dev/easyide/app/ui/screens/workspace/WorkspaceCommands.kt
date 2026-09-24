@@ -14,6 +14,7 @@ class WorkspaceShellActions(
     /** Close with the unsaved-changes guard, not the raw ViewModel close. */
     val closeTab: (String) -> Unit,
     val insertSnippet: () -> Unit,
+    val toggleLineComment: () -> Unit,
     val runTask: () -> Unit,
     val showExtensions: () -> Unit,
 )
@@ -68,6 +69,12 @@ fun workspaceCommands(
             Command(CommandIds.TOGGLE_TERMINAL, R.string.command_toggle_terminal, run = shell.toggleTerminal),
             Command(CommandIds.NEW_TERMINAL, R.string.command_new_terminal, run = callbacks.onNewTerminal),
             Command(CommandIds.INSERT_SNIPPET, R.string.command_insert_snippet, enabled = active?.editable == true, run = shell.insertSnippet),
+            Command(
+                CommandIds.TOGGLE_LINE_COMMENT,
+                R.string.command_toggle_line_comment,
+                enabled = active?.editable == true,
+                run = shell.toggleLineComment,
+            ),
             Command(CommandIds.RUN_TASK, R.string.command_run_task, run = shell.runTask),
             Command(CommandIds.SHOW_EXTENSIONS, R.string.command_show_extensions, run = shell.showExtensions),
         ) + extra,
