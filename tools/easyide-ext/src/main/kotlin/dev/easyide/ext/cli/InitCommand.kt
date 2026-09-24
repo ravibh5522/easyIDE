@@ -16,8 +16,8 @@ object InitCommand : Command {
     override val summary = "Scaffold an extension from a template"
     override val usage = "init [dir] --template <t> [--name <n>] [--publisher <p>] [--display-name <d>] [--yes]"
 
-    /** Implemented templates; sdk-reference also names wasm-assemblyscript (not yet shipped). */
-    val TEMPLATES = listOf("theme", "snippets", "language-pack", "lsp-pack", "toolbar-command", "wasm-rust")
+    /** Every template sdk-reference names. */
+    val TEMPLATES = listOf("theme", "snippets", "language-pack", "lsp-pack", "toolbar-command", "wasm-rust", "wasm-assemblyscript")
 
     override fun run(args: List<String>, ctx: CliContext): ExitCode {
         val a = Args.parse(args, setOf("template", "name", "publisher", "display-name"), setOf("yes"), 1)

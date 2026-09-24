@@ -208,6 +208,7 @@ class WasmHost(
         }
         slot.state.value = InstanceState.Activating
         return try {
+            live.instance.initialize()
             val version = live.instance.abiVersion()
             if (version != WasmPolicy.ABI_VERSION) {
                 closeLive(ext.id, live)

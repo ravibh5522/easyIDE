@@ -98,6 +98,12 @@ class WasmHostTest {
         assertEquals(listOf(ProviderRegistration(e.id, "completion", listOf("python"))), h.providers.value)
     }
 
+    @Test fun reactorInitializeRunsBeforeTheAbiCheck() {
+        // reactor_init answers ext_abi_version with a global only `_initialize` sets to 1.
+        val h = host()
+        assertEquals(HostResult.Ok(null), activate(h, ext(name = "reactor_init")))
+    }
+
     @Test fun commandRoundTripsThroughHostFunctionsAndFreesEveryBuffer() {
         val h = host()
         val e = ext(listOf(Cap.FS_READ))

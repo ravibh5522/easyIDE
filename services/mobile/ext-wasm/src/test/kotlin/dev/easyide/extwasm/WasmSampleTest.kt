@@ -34,14 +34,15 @@ class WasmSampleTest {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val module = File("../../shared/samples/wasm-word-count/wasm/main.wasm")
+    private val asModule = File("../../shared/samples/wasm-word-count-as/wasm/main.wasm")
     private val fake = FakePorts()
 
     @After fun tearDown() { scope.cancel() }
 
-    private fun sample(caps: List<String>) = WasmExtension(
-        id = "easyide-samples.wasm-word-count", version = "0.1.0", moduleFile = module,
-        moduleSha256 = MessageDigest.getInstance("SHA-256").digest(module.readBytes()).joinToString("") { "%02x".format(it) },
-        manifestMemoryMb = 16, capabilities = CapabilitySet(caps), commands = setOf(COMMAND),
+    private fun sample(caps: List<String>, file: File = module, id: String = "easyide-samples.wasm-word-count", command: String = COMMAND) = WasmExtension(
+        id = id, version = "0.1.0", moduleFile = file,
+        moduleSha256 = MessageDigest.getInstance("SHA-256").digest(file.readBytes()).joinToString("") { "%02x".format(it) },
+        manifestMemoryMb = 16, capabilities = CapabilitySet(caps), commands = setOf(command),
     )
 
     private val context = ActivationContext(apiVersion = "0.3.0", settings = JsonObject(emptyMap()), env = EnvInfo("env1", "ubuntu", "arm64"))
@@ -72,7 +73,21 @@ class WasmSampleTest {
         host.close()
     }
 
+    @Test fun `the AssemblyScript sample runs through its _initialize export`() {
+        assertNull(WasmStaticCheck.reject(asModule.readBytes(), WasmLimits.resolve(MapSettings(), 16)))
+        val host = WasmHost(WasmModuleLoader(tmp.newFolder()), fake.ports, MapSettings(), { _, _ -> }, scope)
+        val e = sample(listOf("fs.project(read)"), asModule, "easyide-samples.wasm-word-count-as", AS_COMMAND)
+        assertEquals(HostResult.Ok(null), runBlocking { host.activate(e, context) })
+        assertEquals(listOf(e.id to AS_COMMAND), fake.registeredCommands)
+        fake.editorText = "héllo wörld, three\nfour"
+        val r = runBlocking { host.executeCommand(e.id, AS_COMMAND, JsonArray(emptyList()), JsonObject(emptyMap())) }
+        assertEquals(HostResult.Ok(JsonPrimitive(4)), r)
+        assertEquals("4 words", fake.messages.single()["text"]!!.jsonPrimitive.content)
+        host.close()
+    }
+
     private companion object {
+        const val AS_COMMAND = "wasm-word-count-as.wordCount"
         const val COMMAND = "wasm-word-count.count"
     }
 }

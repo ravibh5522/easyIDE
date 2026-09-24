@@ -20,6 +20,15 @@ object AbiV1 {
     const val ACTIVATE = "ext_activate"
     const val HANDLE = "ext_handle"
 
+    /**
+     * Optional reactor initializer (the WASI `_initialize` convention): toolchains such as
+     * AssemblyScript need their runtime set up before any other export runs. A start function
+     * is refused because it would run on instantiation, before limits are armed; `_initialize`
+     * is called by the host once, under the same fuel and time limits as activation.
+     */
+    const val INITIALIZE = "_initialize"
+    val INITIALIZE_TYPE: FunctionType = FunctionType.of(listOf(), listOf())
+
     val HOST_CALL_TYPE: FunctionType = FunctionType.of(listOf(ValType.I32, ValType.I32), listOf(ValType.I32))
 
     /** Required function exports and their exact types. */
@@ -93,6 +102,7 @@ object ModuleValidator {
             val actual = found[name] ?: reject("missing export: $name")
             if (actual != type) reject("export $name has type ${sig(actual)}, expected ${sig(type)}")
         }
+        found[AbiV1.INITIALIZE]?.let { if (it != AbiV1.INITIALIZE_TYPE) reject("export ${AbiV1.INITIALIZE} has type ${sig(it)}, expected ${sig(AbiV1.INITIALIZE_TYPE)}") }
     }
 
     private fun memoryLimits(module: WasmModule, capPages: Int): MemoryLimits {

@@ -33,10 +33,17 @@ val guestCrate by tasks.registering(Copy::class) {
     into(layout.buildDirectory.dir("generated/guest/templates/wasm-rust/guest/easyide-guest"))
 }
 
+// The wasm-assemblyscript template vendors the AssemblyScript bindings the same way.
+val guestAs by tasks.registering(Copy::class) {
+    from(shared.dir("../guest-as/assembly")) { include("easyide.ts") }
+    into(layout.buildDirectory.dir("generated/guest-as/templates/wasm-assemblyscript/guest/assembly"))
+}
+
 sourceSets.main {
     kotlin.srcDir(shared.dir("src/main/kotlin"))
     resources.srcDir(schemaResources)
     resources.srcDir(guestCrate.map { layout.buildDirectory.dir("generated/guest").get() })
+    resources.srcDir(guestAs.map { layout.buildDirectory.dir("generated/guest-as").get() })
 }
 
 dependencies {
