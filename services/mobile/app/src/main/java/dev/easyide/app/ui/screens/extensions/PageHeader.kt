@@ -22,7 +22,6 @@ import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.KitToggle
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.extensions.manifest.Source
 
 /** What the person can do to the open extension; the page wires these to the view model. */
@@ -49,14 +48,14 @@ internal class PageActions(
 internal fun PageHeader(row: ExtensionRow, item: ExtensionListItem, revokedReason: String?, updateTo: String?, actions: PageActions) {
     val space = Kit.space
     Column(Modifier.padding(start = space.l, end = space.l, top = space.l), verticalArrangement = Arrangement.spacedBy(space.s)) {
-        BasicText(item.name, Modifier.semantics { heading() }, style = Kit.type.headlineMedium.copy(color = Kit.colors.plainText))
-        BasicText("${item.id}  ${item.version}", style = Kit.type.bodyMedium.kitMono().copy(color = Kit.colors.textMuted))
+        BasicText(item.name, Modifier.semantics { heading() }, style = Kit.text.display.copy(color = Kit.colors.plainText))
+        BasicText("${item.id}  ${item.version}", style = Kit.text.mono.copy(color = Kit.colors.textMuted))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(space.xs), verticalArrangement = Arrangement.spacedBy(space.xs)) {
             KitTag(sourceTag(item.source))
             item.tags.forEach { KitTag(tagText(it), tone = it.tone) }
         }
-        item.description?.let { BasicText(it, style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText)) }
-        BasicText(stateLabel(row), style = Kit.type.bodySmall.copy(color = Kit.colors.textMuted))
+        item.description?.let { BasicText(it, style = Kit.text.body.copy(color = Kit.colors.plainText)) }
+        BasicText(stateLabel(row), style = Kit.text.caption.copy(color = Kit.colors.textMuted))
     }
     revokedReason?.let { KitBanner(stringResource(R.string.ext_revoked_reason, it), Modifier.padding(top = space.m), Tone.Danger) }
     if (updateTo != null && actions.onUpdate != null) {

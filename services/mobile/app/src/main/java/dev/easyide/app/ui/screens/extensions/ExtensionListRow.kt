@@ -14,7 +14,6 @@ import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.KitToggle
-import dev.easyide.app.ui.kit.kitMono
 
 /**
  * One installed extension (screens.md 4): mono id, tabular version, one line of description,
@@ -34,7 +33,7 @@ internal fun ExtensionListRow(item: ExtensionListItem, selected: Boolean, onSele
             id = "extension-row",
             trailing = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.s)) {
-                    BasicText(item.version, style = Kit.type.bodySmall.kitMono().copy(color = Kit.colors.textMuted))
+                    BasicText(item.version, style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
                     if (item.toggleable) KitToggle(item.enabled, onEnabled)
                 }
             },

@@ -11,7 +11,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 
 /** Code-like text (branch, path, size, time) in the chrome monospace, muted unless it is the row's subject. */
 @Composable
@@ -24,14 +23,14 @@ internal fun MonoText(
 ) {
     val colors = Kit.colors
     val color = tone?.content(colors) ?: if (muted) colors.textMuted else colors.plainText
-    BasicText(text, modifier, style = Kit.type.bodySmall.kitMono().copy(color = color), maxLines = 1, overflow = overflow)
+    BasicText(text, modifier, style = Kit.text.monoSmall.copy(color = color), maxLines = 1, overflow = overflow)
 }
 
 /** Prose inside a dialog or page: body size, plain or muted. */
 @Composable
 internal fun BodyText(text: String, modifier: Modifier = Modifier, muted: Boolean = false) {
     val colors = Kit.colors
-    BasicText(text, modifier, style = Kit.type.bodyMedium.copy(color = if (muted) colors.textMuted else colors.plainText))
+    BasicText(text, modifier, style = Kit.text.body.copy(color = if (muted) colors.textMuted else colors.plainText))
 }
 
 private val DOT = 8.dp

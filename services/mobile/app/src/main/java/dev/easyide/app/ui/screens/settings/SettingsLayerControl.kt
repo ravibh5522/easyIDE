@@ -57,7 +57,7 @@ fun SettingsLayerControl(
             BasicText(
                 stringResource(if (it == SettingsLayerModel.ENVIRONMENT) R.string.settings_layer_no_environment else R.string.settings_layer_no_project),
                 Modifier.padding(top = Kit.space.s),
-                style = Kit.type.bodySmall.copy(color = Kit.colors.textMuted),
+                style = Kit.text.caption.copy(color = Kit.colors.textMuted),
             )
         }
     }

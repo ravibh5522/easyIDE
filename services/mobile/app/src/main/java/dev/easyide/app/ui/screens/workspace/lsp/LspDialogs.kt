@@ -24,7 +24,6 @@ import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitDialog
 import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.screens.workspace.NameInputDialog
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /** Rename input and preview, server questions and the symbol quick pick of one workspace. */
 @Composable
@@ -52,7 +51,7 @@ fun LspDialogs(controller: WorkspaceLspController) {
             confirm = q.actions.firstOrNull()?.let { first -> KitAction(first) { q.answer(first) } },
             dismiss = KitAction(stringResource(R.string.lsp_action_dismiss)) { q.answer(null) },
         ) {
-            BasicText(q.text, style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText))
+            BasicText(q.text, style = Kit.text.body.copy(color = Kit.colors.plainText))
             for (action in q.actions.drop(1)) {
                 KitButton(action, { q.answer(action) }, Modifier.padding(top = Kit.space.s), KitButtonStyle.Secondary)
             }
@@ -75,7 +74,7 @@ private fun RenamePreviewDialog(p: RenamePreviewUi, controller: WorkspaceLspCont
                 KitRow(
                     title = label,
                     mono = true,
-                    trailing = { BasicText(stringResource(R.string.lsp_rename_edits, count), style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted)) },
+                    trailing = { BasicText(stringResource(R.string.lsp_rename_edits, count), style = Kit.text.monoSmall.copy(color = colors.textMuted)) },
                 )
             }
         }
@@ -108,7 +107,7 @@ private fun SymbolPicker(ui: SymbolPickerUi, controller: WorkspaceLspController)
                 BasicText(
                     stringResource(if (ui.loading) R.string.lsp_picker_loading else R.string.lsp_picker_empty),
                     Modifier.fillMaxWidth().padding(Kit.space.m),
-                    style = Kit.type.bodySmall.copy(color = Kit.colors.textMuted),
+                    style = Kit.text.caption.copy(color = Kit.colors.textMuted),
                 )
             }
         },

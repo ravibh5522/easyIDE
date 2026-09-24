@@ -118,7 +118,7 @@ private fun HomeHeader(callbacks: HomeCallbacks, pickFolder: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(space.xs),
     ) {
-        BasicText(stringResource(R.string.app_name), style = Kit.type.headlineMedium.copy(color = Kit.colors.plainText))
+        BasicText(stringResource(R.string.app_name), style = Kit.text.display.copy(color = Kit.colors.plainText))
         CursorBlock()
         Spacer(Modifier.weight(1f))
         HomeAddMenu(callbacks, pickFolder)

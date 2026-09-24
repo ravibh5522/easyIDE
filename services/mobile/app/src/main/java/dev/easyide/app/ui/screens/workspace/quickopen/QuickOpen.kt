@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import dev.easyide.app.R
 import dev.easyide.app.ui.commands.PickerOverlay
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.screens.workspace.files.FileIcon
 import dev.easyide.app.ui.screens.workspace.files.FileIndex
 import dev.easyide.app.ui.screens.workspace.files.FileIndexer
@@ -83,7 +83,7 @@ fun QuickOpen(
             note?.let {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = Kit.text.caption,
                     color = colors.gutterText,
                     modifier = Modifier.padding(horizontal = Spacing.m, vertical = Spacing.s),
                 )
@@ -95,7 +95,7 @@ fun QuickOpen(
             Column(modifier = Modifier.weight(1f).padding(start = Spacing.m)) {
                 Text(
                     text = highlighted(hit.fileName, hit.matched, hit.path.length - hit.fileName.length, colors.accent),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = Kit.text.body,
                     color = colors.plainText,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -103,7 +103,7 @@ fun QuickOpen(
                 if (hit.directory.isNotEmpty()) {
                     Text(
                         text = hit.directory,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = Kit.text.label,
                         color = colors.textMuted,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

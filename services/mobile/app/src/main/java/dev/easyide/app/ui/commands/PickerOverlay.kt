@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
@@ -99,13 +100,13 @@ fun <T> PickerOverlay(
         ) {
             Box(modifier = Modifier.fillMaxWidth().minimumInteractiveComponentSize().padding(Spacing.m), contentAlignment = Alignment.CenterStart) {
                 if (value.text.isEmpty()) {
-                    Text(text = hint, style = MaterialTheme.typography.bodyMedium, color = colors.gutterText)
+                    Text(text = hint, style = Kit.text.body, color = colors.gutterText)
                 }
                 BasicTextField(
                     value = value,
                     onValueChange = onValueChange,
                     singleLine = true,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = colors.plainText),
+                    textStyle = Kit.text.body.copy(color = colors.plainText),
                     cursorBrush = SolidColor(colors.plainText),
                     keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = ImeAction.Go),
                     keyboardActions = KeyboardActions(onGo = { items.getOrNull(current)?.let(onChoose) }),

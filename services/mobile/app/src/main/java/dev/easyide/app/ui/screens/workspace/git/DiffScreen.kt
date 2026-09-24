@@ -40,7 +40,6 @@ import dev.easyide.app.ui.kit.KitProgress
 import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.screens.workspace.GitPanelState
 import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.sandbox.git.DiffHunk
 import dev.easyide.sandbox.git.DiffSource
 import dev.easyide.sandbox.git.FileDiff
@@ -97,15 +96,15 @@ private fun DiffToolbar(state: GitPanelState, diffState: GitDiffState, callbacks
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = Kit.space.s)) {
             KitIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.git_diff_close), git.diff::close)
             Column(modifier = Modifier.weight(1f)) {
-                BasicText(name, style = Kit.type.titleSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                BasicText(name, style = Kit.text.mono.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (directory.isNotEmpty()) {
-                    BasicText(directory, style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    BasicText(directory, style = Kit.text.monoSmall.copy(color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
             (diffState.diff as? FileDiff.Text)?.let { text ->
                 BasicText(
                     text = stringResource(R.string.git_diff_stats, text.added, text.removed),
-                    style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted),
+                    style = Kit.text.monoSmall.copy(color = colors.textMuted),
                 )
             }
             KitIconButton(Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.git_diff_open_file), { git.diff.close(); callbacks.onOpenFile(path) })
@@ -126,7 +125,7 @@ private fun DiffToolbar(state: GitPanelState, diffState: GitDiffState, callbacks
             } else {
                 BasicText(
                     text = stringResource(if (diffState.source == DiffSource.STAGED) R.string.git_diff_staged else R.string.git_diff_unstaged),
-                    style = Kit.type.labelLarge.copy(color = colors.textMuted),
+                    style = Kit.text.title.copy(color = colors.textMuted),
                     modifier = Modifier.weight(1f).padding(horizontal = Kit.space.s),
                 )
             }
@@ -145,7 +144,7 @@ private fun DiffBody(diffState: GitDiffState, controller: GitDiffController, bus
     when (val diff = diffState.diff) {
         null -> Centered {
             if (diffState.error != null) {
-                BasicText(diffState.error, style = Kit.type.bodyMedium.copy(color = colors.error))
+                BasicText(diffState.error, style = Kit.text.body.copy(color = colors.error))
             } else {
                 KitProgress(fraction = null)
             }
@@ -205,7 +204,7 @@ private fun HunkHeader(hunk: DiffHunk, source: DiffSource, controller: GitDiffCo
     ) {
         BasicText(
             text = hunk.header,
-            style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted),
+            style = Kit.text.monoSmall.copy(color = colors.textMuted),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -231,5 +230,5 @@ private fun Centered(content: @Composable () -> Unit) {
 
 @Composable
 private fun Message(text: String) = Centered {
-    BasicText(text, style = Kit.type.bodyMedium.copy(color = Kit.colors.textMuted))
+    BasicText(text, style = Kit.text.body.copy(color = Kit.colors.textMuted))
 }

@@ -46,7 +46,6 @@ import dev.easyide.app.ui.screens.workspace.git.ScmCommitBox
 import dev.easyide.app.ui.screens.workspace.git.ScmHeader
 import dev.easyide.app.ui.screens.workspace.git.StashSheet
 import dev.easyide.app.ui.screens.workspace.git.commitGraph
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.GitColors
 import dev.easyide.sandbox.git.DiffSource
 import dev.easyide.sandbox.git.GitChange
@@ -174,7 +173,7 @@ private fun ChangeRow(change: GitChange, busy: Boolean, callbacks: SourceControl
                 }
                 BasicText(
                     text = change.type.letter,
-                    style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = change.type.tint(colors.git)),
+                    style = Kit.text.monoSmall.copy(color = change.type.tint(colors.git)),
                 )
             }
         },

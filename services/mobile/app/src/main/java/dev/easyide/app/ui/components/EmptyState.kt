@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.foundation.LocalMotionEnabled
 import dev.easyide.app.ui.foundation.MotionTokens
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.theme.Spacing
 
 /**
@@ -84,12 +85,12 @@ fun EmptyState(
             }
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge,
+                style = Kit.text.display,
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = body,
-                style = MaterialTheme.typography.bodyMedium,
+                style = Kit.text.body,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )

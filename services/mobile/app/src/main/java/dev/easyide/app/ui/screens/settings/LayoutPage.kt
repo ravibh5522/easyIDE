@@ -94,7 +94,7 @@ private fun ContainerRows(ctx: SettingsContext, catalog: LayoutCatalog) {
                     BasicText(
                         stringResource(if (c.id in hidden) R.string.layout_show_panel else R.string.layout_hide_panel),
                         Modifier.padding(end = Kit.space.s),
-                        style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText),
+                        style = Kit.text.body.copy(color = Kit.colors.plainText),
                     )
                     KitToggle(c.id !in hidden, { ctx.actions.set(ShellSettingsSchema.containersHidden, NavOrdering.toggled(hidden, c.id), ctx.language) })
                 }

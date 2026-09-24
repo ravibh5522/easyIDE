@@ -22,7 +22,6 @@ import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.KitToggle
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /** KitSection and KitRow in every state: plain, supported, tappable, selected, disabled, mono, wrapping, with slots. */
 @Composable
@@ -59,7 +58,7 @@ fun RowsSection() {
 
 @Composable
 private fun MonoValue(text: String) {
-    BasicText(text, style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = Kit.colors.textMuted))
+    BasicText(text, style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
 }
 
 /** KitGroup in each tone, and a nested group, which flattens by rule instead of drawing a card in a card. */

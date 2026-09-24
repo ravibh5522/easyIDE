@@ -3,7 +3,6 @@ package dev.easyide.app.ui.commands
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import dev.easyide.app.R
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.editorColors
 
@@ -74,7 +74,7 @@ fun CommandPalette(
             {
                 Text(
                     text = stringResource(R.string.palette_empty),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = Kit.text.caption,
                     color = colors.gutterText,
                     modifier = Modifier.padding(horizontal = Spacing.m, vertical = Spacing.s),
                 )
@@ -84,12 +84,12 @@ fun CommandPalette(
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = entry.title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = Kit.text.body,
                 color = if (entry.command.enabled) colors.plainText else colors.gutterText,
                 modifier = Modifier.weight(1f),
             )
             entry.chord?.let {
-                Text(text = it, style = MaterialTheme.typography.labelSmall, color = colors.gutterText)
+                Text(text = it, style = Kit.text.label, color = colors.gutterText)
             }
         }
     }

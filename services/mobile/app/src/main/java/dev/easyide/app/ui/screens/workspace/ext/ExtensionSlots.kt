@@ -141,7 +141,7 @@ fun StatusItemsRow(items: List<StatusItem>, alignment: StatusBarAlignment, onRun
             val command = item.command
             BasicText(
                 text = item.text,
-                style = Kit.type.labelSmall.copy(color = colors.statusBarText),
+                style = Kit.text.label.copy(color = colors.statusBarText),
                 maxLines = 1,
                 modifier = if (command != null) Modifier.clickable(role = Role.Button) { onRun(command) } else Modifier,
             )

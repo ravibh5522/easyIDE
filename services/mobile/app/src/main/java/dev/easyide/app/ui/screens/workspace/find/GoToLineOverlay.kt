@@ -1,6 +1,5 @@
 package dev.easyide.app.ui.screens.workspace.find
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -13,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import dev.easyide.app.R
 import dev.easyide.app.ui.commands.PickerOverlay
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.screens.workspace.edit.GoToLine
 import dev.easyide.app.ui.screens.workspace.edit.GoToTarget
 import dev.easyide.app.ui.theme.Spacing
@@ -41,7 +41,7 @@ fun GoToLineOverlay(lineCount: Int, onGo: (GoToTarget) -> Unit, onDismiss: () ->
             {
                 Text(
                     text = stringResource(R.string.goto_line_invalid, lineCount),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = Kit.text.caption,
                     color = colors.error,
                     modifier = Modifier.padding(horizontal = Spacing.m, vertical = Spacing.s),
                 )
@@ -50,7 +50,7 @@ fun GoToLineOverlay(lineCount: Int, onGo: (GoToTarget) -> Unit, onDismiss: () ->
     ) { it, _ ->
         Text(
             text = stringResource(R.string.goto_line_preview, it.line + 1, lineCount),
-            style = MaterialTheme.typography.bodyMedium,
+            style = Kit.text.body,
             color = colors.plainText,
         )
     }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -18,7 +17,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import dev.easyide.app.ui.theme.EasyIdeFonts
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.theme.GitColors
 import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.editorColors
@@ -88,7 +87,7 @@ private fun CodeText(row: DiffRow, scroll: ScrollState, modifier: Modifier) {
 }
 
 @Composable
-private fun codeStyle() = MaterialTheme.typography.bodySmall.copy(fontFamily = EasyIdeFonts.mono)
+private fun codeStyle() = Kit.text.monoSmall
 
 private fun sign(kind: DiffLineKind) = when (kind) {
     DiffLineKind.ADDED -> "+"

@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.foundation.LocalSettings
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.screens.workspace.syntax.SemanticOverlay
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.app.ui.theme.EasyIdeFonts
@@ -378,7 +378,7 @@ internal fun NoticeBar(text: String) {
     val colors = editorColors
     Text(
         text = text,
-        style = MaterialTheme.typography.labelSmall,
+        style = Kit.text.label,
         color = colors.textMuted,
         modifier = Modifier
             .fillMaxWidth()

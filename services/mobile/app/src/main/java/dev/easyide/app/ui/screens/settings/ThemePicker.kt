@@ -87,7 +87,7 @@ fun ThemePickerRow(snapshot: SettingsSnapshot, contributed: List<ContributedThem
             BasicText(
                 stringResource(R.string.theme_picker_extension_themes),
                 Modifier.padding(top = Kit.space.l),
-                style = Kit.type.labelMedium.copy(color = Kit.colors.textMuted),
+                style = Kit.text.caption.copy(color = Kit.colors.textMuted),
             )
             FlowRow(
                 Modifier.padding(top = Kit.space.s).fillMaxWidth().selectableGroup(),
@@ -140,7 +140,7 @@ private fun ThemeCard(colors: EditorColors, label: String, selected: Boolean, on
         BasicText(
             label,
             Modifier.padding(horizontal = Kit.space.s, vertical = Kit.space.s),
-            style = Kit.type.labelMedium.copy(color = if (selected) chrome.accent else chrome.plainText),
+            style = Kit.text.caption.copy(color = if (selected) chrome.accent else chrome.plainText),
         )
     }
 }
@@ -173,7 +173,7 @@ private fun MiniEditor(colors: EditorColors) {
                         drawLine(colors.cursor, Offset(x, 0f), Offset(x, size.height), bar.toPx())
                     }
                     .padding(horizontal = Kit.space.s),
-                style = monoStyle(Kit.type.labelSmall).copy(color = colors.plainText),
+                style = Kit.text.monoSmall.copy(color = colors.plainText),
                 maxLines = 1,
             )
         }

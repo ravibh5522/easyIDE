@@ -60,7 +60,7 @@ fun SettingsPanel(
         BasicText(
             stringResource(R.string.nav_settings),
             Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.m).semantics { heading() },
-            style = Kit.type.titleMedium.copy(color = Kit.colors.plainText),
+            style = Kit.text.heading.copy(color = Kit.colors.plainText),
         )
         system.safeMode?.let { reason ->
             KitBanner(

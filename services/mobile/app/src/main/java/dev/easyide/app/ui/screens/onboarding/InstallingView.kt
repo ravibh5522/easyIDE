@@ -41,7 +41,7 @@ internal fun InstallingView(stage: SetupStage.Installing, onCancel: () -> Unit) 
     Column(Modifier.padding(horizontal = space.l), verticalArrangement = Arrangement.spacedBy(space.m)) {
         BasicText(
             stringResource(R.string.setup_installing_title, stage.imageLabel),
-            style = Kit.type.titleMedium.copy(color = Kit.colors.plainText),
+            style = Kit.text.heading.copy(color = Kit.colors.plainText),
         )
         KitProgress(stage.fraction, Modifier.fillMaxWidth().kitTag("install-progress").semantics { stateDescription = description })
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

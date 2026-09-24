@@ -19,7 +19,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.kit.Kit
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 private val ROW_HEIGHT = 44.dp
 private val LANE_WIDTH = 14.dp
@@ -63,13 +62,13 @@ private fun CommitRow(row: GraphRow, onCommitClick: (String) -> Unit) {
         Column(modifier = Modifier.weight(1f).padding(end = Kit.space.s)) {
             BasicText(
                 text = row.commit.subject,
-                style = Kit.type.bodySmall.copy(color = colors.plainText),
+                style = Kit.text.caption.copy(color = colors.plainText),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             BasicText(
                 text = "${row.commit.shortId}  ${row.commit.authorName}",
-                style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted),
+                style = Kit.text.monoSmall.copy(color = colors.textMuted),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

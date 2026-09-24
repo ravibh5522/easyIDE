@@ -26,7 +26,6 @@ import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 
 /** What the Browse tab does with its rows; the panel wires these to the view model. */
 internal class BrowseActions(
@@ -78,7 +77,7 @@ private fun RegistryHeader(line: RegistryLine) {
         else -> stringResource(R.string.reg_age, line.id, ageText(age))
     }
     Column {
-        BasicText(text, Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s), style = Kit.type.bodySmall.kitMono().copy(color = Kit.colors.textMuted))
+        BasicText(text, Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s), style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
         if (line.stale) KitBanner(stringResource(R.string.reg_stale, RegistryPolicy.STALE_INDEX_WARN_DAYS.toInt()), tone = Tone.Warning)
         line.error?.let { KitBanner(registryErrorLine(it), tone = Tone.Danger) }
     }
@@ -97,7 +96,7 @@ private fun BrowseRow(item: BrowseItem, actions: BrowseActions) {
             id = "browse-row",
             trailing = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.s)) {
-                    item.entry?.let { BasicText(it.version.toString(), style = Kit.type.bodySmall.kitMono().copy(color = Kit.colors.textMuted)) }
+                    item.entry?.let { BasicText(it.version.toString(), style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted)) }
                     if (action == BrowseAction.Install || action == BrowseAction.Update) {
                         val label = if (action == BrowseAction.Install) R.string.reg_install else R.string.extui_update
                         KitButton(stringResource(label), { actions.onInstall(item) }, style = KitButtonStyle.Secondary)

@@ -48,7 +48,7 @@ internal fun CapabilitiesTab(row: ExtensionRow, actions: PageActions) {
                 BasicText(
                     capabilityPrompt(line.id, row.pkg.envId),
                     Modifier.padding(start = Kit.space.l, end = Kit.space.l, bottom = Kit.space.s),
-                    style = Kit.type.bodyMedium.copy(color = Kit.colors.textMuted),
+                    style = Kit.text.body.copy(color = Kit.colors.textMuted),
                 )
             }
         }
@@ -56,7 +56,7 @@ internal fun CapabilitiesTab(row: ExtensionRow, actions: PageActions) {
     BasicText(
         stringResource(R.string.ext_install_not_isolated),
         Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.s),
-        style = Kit.type.bodySmall.copy(color = Kit.colors.textMuted),
+        style = Kit.text.caption.copy(color = Kit.colors.textMuted),
     )
 }
 

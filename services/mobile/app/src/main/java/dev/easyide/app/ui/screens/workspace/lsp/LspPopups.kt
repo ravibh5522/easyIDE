@@ -152,7 +152,7 @@ private fun CompletionRow(entry: CompletionEntry, selected: Boolean, onClick: ()
             modifier = Modifier.weight(1f),
         )
         (item.labelDescription ?: item.detail)?.let {
-            BasicText(it, style = Kit.type.labelSmall.copy(color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            BasicText(it, style = Kit.text.label.copy(color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }

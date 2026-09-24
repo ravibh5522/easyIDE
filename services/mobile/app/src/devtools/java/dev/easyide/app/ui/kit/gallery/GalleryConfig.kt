@@ -19,7 +19,8 @@ import dev.easyide.app.ui.theme.ThemeMode
  */
 @Immutable
 data class GalleryConfig(
-    val density: Density = Density.COMFORTABLE,
+    /** Null is auto: the density of the window, as in the app. */
+    val density: Density? = null,
     val corners: Corners = Corners.SOFT,
     val fontScale: Float = GalleryOptions.FONT_SCALES.first(),
     val accent: AccentChoice = AccentChoice.Theme,
@@ -42,8 +43,9 @@ class Option<out T>(val value: T, @StringRes val label: Int)
 
 /** The single table of what each live control offers. */
 object GalleryOptions {
-    val DENSITIES = listOf(
-        Option(Density.COMPACT, R.string.gallery_density_compact),
+    val DENSITIES: List<Option<Density?>> = listOf(
+        Option(null, R.string.gallery_density_auto),
+        Option(Density.DENSE, R.string.gallery_density_dense),
         Option(Density.COMFORTABLE, R.string.gallery_density_comfortable),
         Option(Density.SPACIOUS, R.string.gallery_density_spacious),
     )

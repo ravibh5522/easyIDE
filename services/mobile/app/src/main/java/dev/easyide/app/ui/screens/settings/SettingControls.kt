@@ -51,7 +51,7 @@ private fun <E : Enum<E>> enumChoice(setting: Setting.Enum<E>, value: Any?, lang
 internal fun ChoiceBlock(choice: Choice) {
     KitChoice(choice.labels.indices.toList(), choice.selected, { choice.labels[it] }, choice.pick)
     choice.details.getOrNull(choice.selected)?.let {
-        BasicText(it, style = Kit.type.bodySmall.copy(color = Kit.colors.textMuted))
+        BasicText(it, style = Kit.text.caption.copy(color = Kit.colors.textMuted))
     }
 }
 
