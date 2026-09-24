@@ -8,6 +8,10 @@ import androidx.lifecycle.viewModelScope
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.data.settings.WorkbenchSettingsSchema
+import dev.easyide.app.extensions.adapters.ContributionLocations
+import dev.easyide.app.extensions.adapters.UserKeyRows
+import dev.easyide.extensions.contrib.ContributionOverrides
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.extensions.TimedLogEntry
 import dev.easyide.app.extensions.install.FolderNode
@@ -39,8 +43,25 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 
-/** One contribution as the inspector (ECO-32) lists it. */
-data class InspectorLine(val ref: String, val pointer: String, val hiddenBy: String?, val conflicts: List<ContributionConflict>)
+/**
+ * One contribution as the inspector (ECO-32) lists it, with what the user may do to it:
+ * hide/show ([hideable] false for `NON_HIDEABLE` refs) and, where it has an order
+ * [location], move up/down.
+ */
+data class InspectorLine(
+    val ref: String,
+    val pointer: String,
+    val hiddenBy: String?,
+    val conflicts: List<ContributionConflict>,
+    val hideable: Boolean = true,
+    val location: String? = null,
+    /** The id inside [location] (a menu entry's command, a row or status item id). */
+    val locationId: String = "",
+    val canMoveUp: Boolean = false,
+    val canMoveDown: Boolean = false,
+) {
+    val hidden: Boolean get() = hiddenBy != null
+}
 
 /** One row of the Extensions screen: a valid package with its state, or an invalid one with its errors. */
 data class ExtensionRow(
@@ -117,7 +138,6 @@ class ExtensionsViewModel(
 
     private fun rows(h: HostView, snapshot: ContributionSnapshot, settings: SettingsSnapshot): List<ExtensionRow> {
         val disabled = settings[SettingsSchema.extensionsDisabled].toSet()
-        val hidden = settings[SettingsSchema.contributionsHidden]
         val valid = h.loaded.map { l ->
             val id = l.descriptor.id
             val owner = Owner.Ext(id)
@@ -125,7 +145,7 @@ class ExtensionsViewModel(
                 pkg = l.pkg, loaded = l, problem = null,
                 activation = h.states[id], disabledReason = h.reasons[id],
                 userEnabled = id.value !in disabled,
-                contributions = inspect(snapshot, owner, hidden),
+                contributions = inspect(snapshot, owner, settings),
                 shadowed = snapshot.conflicts.filter { it.loser == owner },
             )
         }
@@ -135,14 +155,54 @@ class ExtensionsViewModel(
         return (valid + invalid).sortedWith(compareBy({ it.pkg.installedAt }, { it.id }))
     }
 
-    private fun inspect(s: ContributionSnapshot, owner: Owner, hidden: List<String>): List<InspectorLine> {
+    private fun inspect(s: ContributionSnapshot, owner: Owner, settings: SettingsSnapshot): List<InspectorLine> {
+        val hidden = settings[SettingsSchema.contributionsHidden]
+        val overrides = ContributionOverrides.of(hidden, ContributionOverrides.parseOrder(settings[WorkbenchSettingsSchema.contributionsOrder]))
+        val userRows = UserKeyRows.decode(settings[WorkbenchSettingsSchema.keyRowLayouts]).rows
+        val effective = HashMap<String, List<String>>()
         val all: List<Owned<*>> = s.commands + s.menus + s.keybindings + s.configuration + s.configurationDefaults +
             s.languages + s.grammars + s.languageConfigurations + s.snippets + s.themes + s.iconThemes + s.viewContainers +
             s.views + s.viewsWelcome + s.taskDefinitions + s.problemMatchers + s.walkthroughs + s.stages + s.statusBarItems +
             s.keyRows + s.languageServers + s.sandbox + s.viewData
         return all.filter { it.owner == owner }.map { o ->
-            val entry = runtime.contributions.inspect(o.ref, hidden)
-            InspectorLine(o.ref.toString(), o.pointer, entry?.hiddenBy, entry?.conflicts.orEmpty())
+            val entry = runtime.contributions.inspect(o.ref, overrides.hidden)
+            val ref = o.ref.toString()
+            val location = ContributionLocations.of(o)?.takeIf { !overrides.isHidden(o.ref) }
+            val ids = location?.let { effective.getOrPut(it) { ContributionLocations.effectiveIds(it, s, userRows, overrides.hidden, overrides.order) } }
+            val at = ids?.indexOf(o.ref.id) ?: -1
+            InspectorLine(
+                ref, o.pointer, entry?.hiddenBy, entry?.conflicts.orEmpty(),
+                hideable = ContributionOverrides.isHideable(ref),
+                location = location, locationId = o.ref.id,
+                canMoveUp = at > 0, canMoveDown = ids != null && at >= 0 && at < ids.size - 1,
+            )
+        }
+    }
+
+    /**
+     * Hide or show one contribution: the whole effective `workbench.contributions.hidden`
+     * list goes to the user layer (customization.md 3.3). Non-hideable refs are refused.
+     */
+    fun setHidden(line: InspectorLine, hide: Boolean) {
+        viewModelScope.launch {
+            val current = settingsStore.snapshot.first()[SettingsSchema.contributionsHidden]
+            val next = ContributionOverrides.withHidden(current, line.ref, hide) ?: return@launch
+            settingsStore.set(SettingsSchema.contributionsHidden, next)
+        }
+    }
+
+    /** Moves one contribution within its location, writing `workbench.contributions.order` to the user layer. */
+    fun move(line: InspectorLine, delta: Int) {
+        val location = line.location ?: return
+        viewModelScope.launch {
+            val settings = settingsStore.snapshot.first()
+            val overrides = ContributionOverrides.of(
+                settings[SettingsSchema.contributionsHidden], ContributionOverrides.parseOrder(settings[WorkbenchSettingsSchema.contributionsOrder]),
+            )
+            val userRows = UserKeyRows.decode(settings[WorkbenchSettingsSchema.keyRowLayouts]).rows
+            val effective = ContributionLocations.effectiveIds(location, runtime.contributions.snapshot.value, userRows, overrides.hidden, overrides.order)
+            val next = ContributionLocations.moved(overrides.order, location, effective, line.locationId, delta) ?: return@launch
+            settingsStore.set(WorkbenchSettingsSchema.contributionsOrder, ContributionOverrides.encodeOrder(next))
         }
     }
 

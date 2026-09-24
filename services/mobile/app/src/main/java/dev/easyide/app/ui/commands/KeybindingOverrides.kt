@@ -56,12 +56,19 @@ data class KeyConflict(val chord: KeyChord, val winner: KeyBinding, val shadowed
  */
 object KeymapResolver {
 
-    data class Result(val keymap: Keymap, val diagnostics: List<SettingsDiagnostic>, val conflicts: List<KeyConflict>)
+    /** [userEntries]: each binding keybindings.json added, with the entry that added it (same instances as in [keymap]). */
+    data class Result(
+        val keymap: Keymap,
+        val diagnostics: List<SettingsDiagnostic>,
+        val conflicts: List<KeyConflict>,
+        val userEntries: List<Pair<KeyBinding, KeybindingEntry>> = emptyList(),
+    )
 
     fun resolve(defaults: Keymap, user: KeybindingsFile.Parsed, knownCommands: Set<String>): Result {
         val effective = defaults.bindings.toMutableList()
         val diagnostics = user.diagnostics.toMutableList()
         val offsets = HashMap<KeyBinding, Int>()
+        val added = ArrayList<Pair<KeyBinding, KeybindingEntry>>()
         for (e in user.entries) {
             val keys = e.key?.let { k -> KeyNames.parseSequence(k) ?: run { diagnostics += diag(DiagnosticCode.BAD_CHORD, e, k); null } }
             if (e.key != null && keys == null) continue
@@ -79,6 +86,7 @@ object KeymapResolver {
                 val binding = KeyBinding(seq.chord, command, focus ?: KeyFocus.ANYWHERE, prefix = seq.prefix)
                 effective += binding
                 offsets[binding] = e.offset
+                added += binding to e
             }
         }
         val conflicts = conflictsOf(effective)
@@ -88,7 +96,7 @@ object KeymapResolver {
                 offset = offsets[c.winner] ?: offsets[c.shadowed],
             )
         }
-        return Result(Keymap(effective), diagnostics, conflicts)
+        return Result(Keymap(effective), diagnostics, conflicts, added.filter { (b, _) -> effective.any { it === b } })
     }
 
     /**

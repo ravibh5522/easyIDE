@@ -87,8 +87,7 @@ class ManifestParserTest {
         assertEquals("%nope%", de.license)
         assertEquals("Base", Manifests.ok(manifest, extra).displayName)
         assertTrue(DiagnosticCode.NLS_MISSING in Manifests.parse(manifest, extra).warnings.map { it.code })
-        assertEquals(listOf("l10n/package.nls.pt-br.json", "l10n/package.nls.pt.json", "l10n/package.nls.json", "package.nls.json"),
-            Nls.candidates(Locale.forLanguageTag("pt-BR")))
+        // Bundle lookup order: NlsTest in :extension-schema (Nls is internal there).
     }
 
     @Test fun `phase 4 - schema errors are path precise`() {

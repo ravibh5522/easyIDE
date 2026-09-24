@@ -66,7 +66,7 @@ class ServerRegistry(
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun declarations(environmentId: String): Flow<List<ServerDeclaration>> = providers.flatMapLatest { list ->
+    fun declarations(environmentId: String): Flow<List<ServerDeclaration>> = providers.flatMapLatest { list ->
         if (list.isEmpty()) flowOf(emptyList())
         else combine(list.map { it.declarations(environmentId) }) { parts -> parts.flatMap { it } }
     }

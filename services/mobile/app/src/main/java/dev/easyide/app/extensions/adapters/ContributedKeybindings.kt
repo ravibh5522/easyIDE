@@ -19,6 +19,10 @@ import dev.easyide.extensions.whenclause.ContextKeys
 object ContributedKeybindings {
 
     fun bindings(entries: List<Owned<KeybindingContribution>>, onSkipped: (Owned<KeybindingContribution>, String) -> Unit): List<KeyBinding> =
+        owned(entries, onSkipped).map { it.first }
+
+    /** [bindings] with each one's contributing owner (`builtin` or the extension id), for the Keyboard Shortcuts screen. */
+    fun owned(entries: List<Owned<KeybindingContribution>>, onSkipped: (Owned<KeybindingContribution>, String) -> Unit): List<Pair<KeyBinding, String>> =
         entries.mapNotNull { owned ->
             val k = owned.value
             val text = k.linux ?: k.key
@@ -34,6 +38,6 @@ object ContributedKeybindings {
                 focus = if (k.`when`?.keys?.contains(ContextKeys.terminalFocus.name) == true) KeyFocus.ANYWHERE else KeyFocus.OUTSIDE_TERMINAL,
                 whenExpr = k.`when`,
                 args = k.args,
-            )
+            ) to owned.owner.toString()
         }
 }
