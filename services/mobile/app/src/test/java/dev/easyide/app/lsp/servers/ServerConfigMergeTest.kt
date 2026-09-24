@@ -84,6 +84,21 @@ class ServerConfigMergeTest {
         val r = ServerConfigMerge.merge(listOf(pyright), o, defaults, lspEnabled = true)
         assertEquals(listOf("easyide.python/pyright"), r.servers.map { it.config.serverId })
         assertEquals(listOf("easyide.go/gopls", "half"), r.rejected)
+        assertEquals(setOf(RejectReason.NO_LANGUAGES, RejectReason.NO_COMMAND), r.rejections[0].reasons)
+        assertEquals(setOf(RejectReason.NO_LANGUAGES), r.rejections[1].reasons)
+        // A declared server whose override empties its command cannot start either.
+        val emptied = ServerConfigMerge.merge(listOf(pyright), overrides("""{"easyide.python/pyright": {"command": []}}"""), defaults, true)
+        assertEquals(listOf(ServerRejection("easyide.python/pyright", setOf(RejectReason.NO_COMMAND))), emptied.rejections)
+    }
+
+    @Test
+    fun fieldProblemsNameEveryIgnoredField() {
+        val entry = Json.parseToJsonElement(
+            """{"languages": ["zig"], "command": "zls", "env": {"A": 1}, "memoryBudgetMb": 0, "priority": 2, "enabled": "yes", "bogus": 1,
+                "features": {"only": ["hover"]}, "rootMarkers": [".git"], "initializationOptions": []}""",
+        )
+        assertEquals(listOf("command", "env", "memoryBudgetMb", "enabled", "bogus", "initializationOptions"), ServerConfigMerge.fieldProblems(entry))
+        assertEquals(listOf(ServerConfigMerge.ENTRY), ServerConfigMerge.fieldProblems(Json.parseToJsonElement("3")))
     }
 
     @Test

@@ -1,0 +1,106 @@
+{
+  "name": "typescript",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "TypeScript and JavaScript",
+  "description": "TypeScript and JavaScript language server (typescript-language-server over tsserver): diagnostics, completion, navigation, rename, formatting; run the current file with Node.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:tsx",
+    "onLanguage:jsx"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "typescript.runFile",
+        "title": "Run File with Node",
+        "shortTitle": "Run",
+        "category": "TypeScript",
+        "icon": "play_arrow",
+        "enablement": "envState == ready && resourcePath"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "typescript.runFile",
+          "when": "editorLangId == javascript",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "typescript.runFile",
+          "when": "editorLangId == javascript"
+        }
+      ]
+    }
+  },
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(registry.npmjs.org,archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.exec",
+      "sandbox.install"
+    ],
+    "actions": {
+      "typescript.runFile": {
+        "type": "runInTerminal",
+        "terminal": "Node",
+        "cwd": "${fileDirname}",
+        "command": "node ${file}"
+      }
+    },
+    "languageServers": [
+      {
+        "id": "tsserver",
+        "languages": [
+          "typescript",
+          "javascript",
+          "tsx",
+          "jsx"
+        ],
+        "command": [
+          "typescript-language-server",
+          "--stdio"
+        ],
+        "rootMarkers": [
+          "tsconfig.json",
+          "jsconfig.json",
+          "package.json",
+          ".git"
+        ],
+        "memoryBudgetMb": 400
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "node",
+          "title": "Install Node.js and npm",
+          "run": "apt-get update && apt-get install -y nodejs npm",
+          "when": "envDistro in 'debian,ubuntu'"
+        },
+        {
+          "id": "server",
+          "title": "Install typescript-language-server and TypeScript",
+          "run": "npm install -g typescript-language-server@4 typescript@5"
+        }
+      ],
+      "verify": "command -v typescript-language-server && command -v tsc",
+      "uninstall": [
+        "npm uninstall -g typescript-language-server typescript"
+      ]
+    },
+    "memoryBudgetMb": 450
+  }
+}

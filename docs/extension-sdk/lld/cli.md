@@ -2,7 +2,7 @@
 
 Low-level design of `tools/easyide-ext`, the author-side tool that scaffolds, validates, packages, signs, publishes, tests and live-deploys extensions.
 
-Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign` and `verify` in `tools/easyide-ext`; see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
+Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish`, `registry build`, `test` and `dev` in `tools/easyide-ext`; the app side of `dev` (developer mode, `DevReloadReceiver`, `.easyide/dev/` watcher) and the in-app "Create extension" are in `:app` (`app/extensions/dev/`, `app/extensions/authoring/`); see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
 Contract (commands, flags, exit codes, index format): [sdk-reference.md#cli](../sdk-reference.md#cli), [#registry-index-format](../sdk-reference.md#registry-index-format).
 Feature area: arch.md sec 5.4 (Ecosystem: Publish, Dev loop, In-app authoring). License Apache-2.0 per ADR-G (0015).
 
@@ -297,8 +297,8 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
 
 ## 10. Open issues
 
-1. `--local` dev handoff path between guest and app (guest-writable, host-watched directory
-   that does not assume isolation).
+1. ~~`--local` dev handoff path~~ resolved 2026-09-24: `<workspace>/.easyide/dev/<id>.json` naming the
+   folder relative to the workspace root (the project dir is guest-writable and already host-watched).
 2. Result channel for `dev` over adb (logcat tag parsing vs a content provider).
 3. Whether `publish` should also open the PR via the host API when the author opts in (would
    need a token; currently deliberately not).
@@ -319,20 +319,48 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
     `services/mobile` needs the Android SDK to configure, which authors should not need.
   - JSON is kotlinx-serialization-json (Apache-2.0), the app's tree type, not org.json (open
     issue 5 resolved).
-  - `validate` step 8 is a WebAssembly header check only: `WasmModuleLoader` and the metering pass
-    live in `:ext-wasm`, which stays under the app licence. `test` (sec 5.6) needs `ActionRunner`
-    and `WasmHost` for the same reason and is not built; see the 0015 amendment for options.
+  - `validate` step 8 runs the app's static WASM check (`WasmStaticCheck`: size, metering pass,
+    parse, ABI v1 rules) from the shared core since the 0015 second amendment.
+  - `test` runs L1 actions with the app's `ActionRunner`, capability checks and `WhenEvaluator` on a
+    recording host. `WasmHost` stays app-only, so WASM commands report "L1 only" in scenarios.
+    `visible`/`hidden` refs are evaluated over the pack's own menus, keybindings (`keybinding:<cmd>`),
+    status bar items and key rows (no cross-pack registry, no user hides). Scenarios start with
+    `envState` = `ready`. Calls are recorded as `{type, ...}` objects (`runInTerminal` with the final
+    command line, `sandboxExec` argv, `setConfig`, `showQuickPick`, `showMessage`, ...).
   - Step 4 (grammar/theme parse and role reporting) is what `ManifestParser`'s content checks do
     today; the ScopeRules role report is not implemented.
   - Built-in command ids come from `services/shared/extension-schema/builtin-commands.json`, kept
     equal to the app's `CommandIds.ALL` by a unit test, so references to app commands resolve as
     they do on device.
   - Added `verify <file.easyext> --pub <key.pub.json>`: checks a `.sig` with the app's verifier.
-  - `init` ships `theme`, `snippets`, `language-pack`, `toolbar-command`; templates have no `test/`
-    scenario until `test` exists. Dotfiles are stored as `dot-<name>` in the jar. Template
+  - `init` ships `theme`, `snippets`, `language-pack`, `toolbar-command`, each with `test/` scenarios
+    that pass as generated. Dotfiles are stored as `dot-<name>` in the jar. Template
     `LICENSE` is MIT so `validate --strict` passes out of the box; authors change it.
   - `keygen` writes `EncryptedPrivateKeyInfo` itself (PBES2 AlgorithmIdentifier + JDK cipher
     parameters) because `javax.crypto.EncryptedPrivateKeyInfo` cannot name PBES2 on JDK 17+;
     public keys are re-derived from the PKCS#8 seed.
   - `package` also excludes `dist/`, `*.key`, `*.easyext`, `*.easyext.sig`, `.gitignore`,
     `.easyextignore` and `.easyide-ext.json`.
+  - `publish` needs `--url` or `--package-base` (the https raw base of the index repo, to commit the package
+    under `packages/`): the entry's `url` must be https and the CLI cannot guess a host's raw URL. Entry
+    files are pretty-printed for review; signatures cover the canonical form, so formatting never matters.
+  - `registry build` creates an empty `revocations.json` when the repo has none and requires every entry
+    file at `entries/<publisher>/<name>/<version>.json`.
+  - `dev`: adb pushes to `/sdcard/Android/data/<appId>/files/dev-inbox/<id>.easyext` and broadcasts
+    `dev.easyide.app.action.DEV_RELOAD` to `dev.easyide.app.extensions.dev.DevReloadReceiver`; `--local`
+    writes `<workspace>/.easyide/dev/<id>.json` (`--workspace`, default `/workspace`); `--watch` re-deploys
+    on changes to non-ignored files, debounced (`CliPolicy.WATCH_DEBOUNCE_MS`).
+  - App side (2026-09-24): `DevReloadReceiver` (exported, `android:permission="android.permission.DUMP"`;
+    that only the adb shell can send it is **to verify** on a device, as is the app reading and deleting a
+    file adb pushed into its external dir on API 30+) and a `ProjectFileWatcher` on the open project's
+    `.easyide/dev/` (plus the root and `.easyide/`, so the dir is picked up once created), both acting only
+    with `extensions.developerMode` on. Requests are deleted once read; a `folder` that is absolute, uses
+    `..` or resolves outside the project (links included) is refused. Installs go through `LocalInstaller`
+    as `Source.DEV` (the LLD's `LOCAL_FOLDER_DEV`) and each reload is staged as `<version>-dev.<n>` (millis,
+    strictly increasing): the runtime caches version dirs as immutable and reloads only on an
+    `(id, version)` change, so an in-place same-version replace would not show. The previous reload is
+    retained, so rollback works. Folder installs drop the same files `package` does (the ignore rules and
+    template rendering moved to the shared `dev.easyide.extensions.authoring`, used by the CLI too).
+    Result channel stays open (issue 2): outcomes are a toast plus an Extension Log line. On API < 30 the
+    external inbox is writable by apps holding storage permission; a planted archive still needs the
+    adb broadcast and a capability change still prompts.

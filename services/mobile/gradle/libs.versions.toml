@@ -23,6 +23,8 @@ androidxTestRunner = "1.7.0"
 uiautomator = "2.4.0"
 # Pure-JVM wasm interpreter for L2 extensions, confined to :ext-wasm (decision 0014).
 chicory = "1.7.5"
+# Pure-Java ed25519 verify for registry signatures in :app only (decision 0016 amendment).
+tink = "1.23.0"
 
 [libraries]
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
@@ -56,8 +58,11 @@ androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 chicory-runtime = { group = "com.dylibso.chicory", name = "runtime", version.ref = "chicory" }
+# Parser and types only: static module validation in the Apache-2.0 SDK core (0015 amendment).
+chicory-wasm = { group = "com.dylibso.chicory", name = "wasm", version.ref = "chicory" }
 # Build-time only: compiles .wat test fixtures; never on an app classpath.
 chicory-wabt = { group = "com.dylibso.chicory", name = "wabt", version.ref = "chicory" }
+tink-android = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tink" }
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 
 [plugins]

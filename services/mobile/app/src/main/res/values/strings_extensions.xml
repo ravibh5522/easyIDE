@@ -27,6 +27,10 @@
     <string name="ext_install_review_title">Install %1$s %2$s?</string>
     <string name="ext_install_unsigned">Unsigned, local. Not checked by any registry and never updated automatically.</string>
     <string name="ext_install_already">This version is already installed. Uninstall it first, or install a newer version.</string>
+    <string name="ext_install_setup_steps">Environment setup commands</string>
+    <string name="ext_install_setup_when">Not run now. They run in a visible terminal when you choose Install on a missing language server.</string>
+    <string name="ext_install_servers">Language servers</string>
+    <string name="ext_install_server_budget">up to %1$d MB</string>
     <string name="ext_install_not_isolated">Commands an extension runs in an environment are not contained: they can do anything a process in that environment can.</string>
     <string name="ext_install_environment">Environment</string>
     <string name="ext_install_no_environment">This extension installs into an environment, and there is none yet.</string>
@@ -69,6 +73,14 @@
     <string name="ext_contributions_none">None registered (the extension is off or contributes nothing)</string>
     <string name="ext_hidden_by">Hidden by %1$s</string>
     <string name="ext_uninstall">Uninstall</string>
+    <string name="ext_rollback">Roll back to %1$s</string>
+    <string name="ext_rollback_confirm_title">Roll back %1$s to %2$s?</string>
+    <string name="ext_rollback_confirm_body">Version %1$s stays installed, so you can roll forward to it again. Changes the newer version made inside an environment are not undone.</string>
+    <string name="ext_rollback_action">Roll back</string>
+    <string name="ext_rollback_approve_title">Approve %1$s %2$s?</string>
+    <string name="ext_rollback_approve_body">This version asks for capabilities that were never approved for it:</string>
+    <string name="ext_rollback_approve">Approve and roll back</string>
+    <string name="ext_rollback_refused">Rollback refused</string>
     <string name="ext_log_title">Extension log</string>
     <string name="ext_log_clear">Clear</string>
     <string name="ext_log_empty">Nothing logged yet.</string>

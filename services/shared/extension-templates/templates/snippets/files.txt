@@ -1,0 +1,8 @@
+package.json
+README.md
+CHANGELOG.md
+LICENSE
+.easyide-ext.json
+.gitignore
+snippets/{{name}}.code-snippets
+test/loads.json

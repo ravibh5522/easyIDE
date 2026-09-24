@@ -1,0 +1,58 @@
+{
+  "name": "markdown",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Markdown Language Server",
+  "description": "Markdown language server from VS Code: link validation, go to heading or file, document symbols and path completion.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(registry.npmjs.org,archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.install"
+    ],
+    "languageServers": [
+      {
+        "id": "mdls",
+        "languages": [
+          "markdown"
+        ],
+        "command": [
+          "vscode-markdown-language-server",
+          "--stdio"
+        ],
+        "memoryBudgetMb": 150
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "node",
+          "title": "Install Node.js and npm",
+          "run": "apt-get update && apt-get install -y nodejs npm",
+          "when": "envDistro in 'debian,ubuntu'"
+        },
+        {
+          "id": "server",
+          "title": "Install vscode-langservers-extracted",
+          "run": "npm install -g vscode-langservers-extracted@4"
+        }
+      ],
+      "verify": "command -v vscode-markdown-language-server",
+      "uninstall": [
+        "npm uninstall -g vscode-langservers-extracted"
+      ]
+    },
+    "memoryBudgetMb": 200
+  }
+}

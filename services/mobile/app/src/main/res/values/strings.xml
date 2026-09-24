@@ -70,6 +70,9 @@
     <string name="setting_decrease">Decrease</string>
     <string name="setting_theme_mode_title">Theme</string>
     <string name="setting_theme_mode_desc">Color theme for the app, editor and terminal.</string>
+    <string name="setting_color_theme_title">Extension color theme</string>
+    <string name="setting_color_theme_desc">A color theme contributed by an extension; empty uses the built-in theme above.</string>
+    <string name="theme_picker_extension_themes">From extensions</string>
     <string name="setting_editor_font_size_title">Editor font size</string>
     <string name="setting_editor_font_size_desc">Code text size, in sp.</string>
     <string name="setting_editor_line_height_title">Editor line height</string>

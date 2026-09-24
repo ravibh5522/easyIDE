@@ -311,6 +311,7 @@ fuel is injected by our own metering pass at load time (lld/wasm-host.md sec 4).
 | guest export | `ext_abi_version` | `() -> i32` | Must return `1`; otherwise load refused. |
 | guest export | `ext_activate` | `(ptr: i32, len: i32) -> i32` | Activation message in; returns response pointer. |
 | guest export | `ext_handle` | `(ptr: i32, len: i32) -> i32` | Event/command message in; returns response pointer (0 = no response). |
+| guest export (optional) | `_initialize` | `() -> ()` | Toolchain runtime setup (WASI reactor convention, e.g. AssemblyScript `--exportStart _initialize`). Called once after instantiation, before `ext_abi_version`, under the activation limits. A start function is still refused. |
 | host import `easyide` | `host_call` | `(ptr: i32, len: i32) -> i32` | Request in; returns pointer to response in guest memory (allocated via guest `alloc`). |
 
 Returned pointers address a buffer `[u32 little-endian length][UTF-8 JSON]`; the receiver

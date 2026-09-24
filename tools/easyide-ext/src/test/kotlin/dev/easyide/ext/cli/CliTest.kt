@@ -53,6 +53,8 @@ class CliTest {
         for (t in InitCommand.TEMPLATES) {
             val dir = "ext-$t"
             assertEquals(t, 0, cli("init", dir, "--template", t, "--publisher", "acme").exit)
+            // WASM templates need their module built first (cargo + wasm32 target); skipped where absent.
+            if (t.startsWith("wasm-") && !WasmBuild.build(File(tmp.root, dir))) continue
             val v = cli("validate", dir, "--strict", "--json")
             assertEquals("$t: ${v.stderr}", 0, v.exit)
             assertEquals(t, emptyList<String>(), v.codes())

@@ -23,7 +23,9 @@ class VsCodeThemeMapperTest {
 
     @Test fun `an empty theme is the base unchanged`() {
         val mapped = map()
-        assertEquals(base, mapped.tokens)
+        // Colours and roles unchanged; a theme that does not say `semanticHighlighting` turns
+        // configuredByTheme semantic colouring off (customization.md 8.3).
+        assertEquals(base.withOverrides(emptyMap(), semantic = SemanticTokenColors(emptyMap(), highlighting = false)), mapped.tokens)
         assertTrue(mapped.unmappedKeys.isEmpty() && mapped.invalidEntries.isEmpty() && mapped.semanticColors.isEmpty())
     }
 
@@ -135,6 +137,7 @@ class VsCodeThemeMapperTest {
     @Test fun `semantic colours are validated and kept by selector`() {
         val mapped = map(semantic = mapOf("function.declaration" to "#aabbcc", "variable.readonly:kotlin" to "nope"))
         assertEquals(mapOf("function.declaration" to Color(0xFFAABBCC)), mapped.semanticColors)
+        assertEquals(mapOf("function.declaration" to TokenStyle(Color(0xFFAABBCC))), mapped.tokens.semantic.rules)
         assertEquals(listOf("semanticTokenColors:variable.readonly:kotlin"), mapped.invalidEntries)
     }
 

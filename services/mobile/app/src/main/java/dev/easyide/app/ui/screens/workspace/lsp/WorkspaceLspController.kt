@@ -21,6 +21,7 @@ import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
 import dev.easyide.app.ui.screens.workspace.edit.TextState
 import dev.easyide.lsp.manager.ServerStatus
 import dev.easyide.lsp.protocol.LspFeature
+import dev.easyide.lsp.session.RefreshKind
 import dev.easyide.lsp.session.ServerKey
 import dev.easyide.lsp.session.SessionState
 import kotlinx.coroutines.CoroutineScope
@@ -87,11 +88,18 @@ class WorkspaceLspController(
 
     val snippets = SnippetController(ws)
     val diagnostics = DiagnosticsPresenter(ws)
-    val completion = CompletionController(ws, snippets)
-    val info = InfoController(ws)
+    val completion = CompletionController(ws, snippets, runtime.extensionProviders)
+    val info = InfoController(ws, runtime.extensionProviders)
     val navigation = NavigationController(ws)
     val actions = EditActionsController(ws, diagnostics)
     private val caretDecorations = CaretDecorations(ws)
+    val semanticTokens = SemanticTokensController(ws)
+    val codeLens = CodeLensController(ws) { title, locations ->
+        scope.launch {
+            navigation.showLocations(title, locations)
+            showPanel(LspPanel.REFERENCES)
+        }
+    }
 
     /** Extension `lspRequest`s against this workspace's servers. */
     val extensionRequests = LspRequestGateway(ws, navigation) { showPanel(LspPanel.REFERENCES) }
@@ -147,6 +155,24 @@ class WorkspaceLspController(
             combine(host.state.map { it.openTabs }.distinctUntilChanged(), ws.settingsState) { tabs, settings -> tabs to settings }.conflate().collect { (tabs, settings) ->
                 withContext(Dispatchers.Default) { documents.sync(tabs) { lang -> settings.get(LspSettingsSchema.enabled, lang) } }
                 ws.onTabsChanged(host.state.value)
+                val synced = documents.paths.value
+                semanticTokens.retain(synced)
+                codeLens.retain(synced)
+            }
+        }
+        scope.launch {
+            // `editor.semanticHighlighting.enabled` / `editor.codeLens` may have changed.
+            ws.settingsState.collect { refreshViewportFeatures() }
+        }
+        scope.launch {
+            runtime.client.refreshes(environmentId, projectId).collect { kind ->
+                val active = ws.activeTab()?.relativePath ?: return@collect
+                when (kind) {
+                    RefreshKind.SEMANTIC_TOKENS -> semanticTokens.refresh(active, debounce = false)
+                    RefreshKind.CODE_LENS -> codeLens.refresh(active, debounce = false)
+                    RefreshKind.INLAY_HINTS -> caretDecorations.refreshInlays(active)
+                    RefreshKind.DIAGNOSTICS -> Unit
+                }
             }
         }
         scope.launch {
@@ -157,6 +183,8 @@ class WorkspaceLspController(
                 info.dismissHover()
                 info.dismissSignature()
                 actions.closeMenu()
+                codeLens.closeMenu()
+                refreshViewportFeatures()
                 if (panelState.value == LspPanel.OUTLINE) navigation.refreshOutline()
             }
         }
@@ -168,6 +196,7 @@ class WorkspaceLspController(
                 .filter { it > 0 }
                 .collect {
                     ws.activeTab()?.relativePath?.let(caretDecorations::refreshInlays)
+                    refreshViewportFeatures()
                     if (panelState.value == LspPanel.OUTLINE) navigation.refreshOutline()
                 }
         }
@@ -177,6 +206,16 @@ class WorkspaceLspController(
                 .collect { host.showStatus("${it.key.serverId}: ${it.text}") }
         }
     }
+
+    /** Semantic tokens and code lenses of the active document, now. */
+    private fun refreshViewportFeatures() {
+        val active = ws.activeTab()?.relativePath?.takeIf { documents.doc(it) != null } ?: return
+        semanticTokens.refresh(active, debounce = false)
+        codeLens.refresh(active, debounce = false)
+    }
+
+    /** The active theme's `semanticHighlighting` flag (`configuredByTheme`). */
+    fun onThemeSemanticHighlighting(enabled: Boolean) = semanticTokens.onThemeFlag(enabled)
 
     /** Ends the integration: documents close (servers go idle), buffer edits route to disk. */
     fun release() {
@@ -298,10 +337,19 @@ class WorkspaceLspController(
         info.onCaret(caret, char, textChanged)
         actions.onCaret(caret)
         caretDecorations.onCaret(caret, textChanged)
+        if (textChanged) {
+            semanticTokens.onTextChanged(path)
+            codeLens.refresh(path, debounce = true)
+        }
         if (char != null) actions.onTyped(caret, char)
     }
 
-    override fun onVisibleLinesChanged(path: String, first: Int, last: Int) = caretDecorations.onVisibleLines(path, first, last)
+    override fun onVisibleLinesChanged(path: String, first: Int, last: Int) {
+        caretDecorations.onVisibleLines(path, first, last)
+        if (documents.doc(path) == null) return
+        semanticTokens.onVisibleLines(path, first, last)
+        codeLens.onVisibleLines(path, first, last)
+    }
 
     override fun onLongPress(path: String, offset: Int) = info.showHover(path, offset, HoverOrigin.LONG_PRESS)
 
@@ -311,7 +359,10 @@ class WorkspaceLspController(
 
     override fun onSelectionRequestApplied(request: SelectionRequest) = ws.onSelectionApplied(request)
 
-    fun onGutterTap(path: String, line: Int) = actions.onGutterTap(path, line)
+    /** The lightbulb's line opens code actions; a code lens line lists its lenses. */
+    fun onGutterTap(path: String, line: Int) {
+        if (!actions.onGutterTap(path, line)) codeLens.onGutterTap(path, line)
+    }
 
     private fun statusUi(s: ServerStatus, command: String, install: InstallRecipe?) = ServerStatusUi(
         key = s.key,

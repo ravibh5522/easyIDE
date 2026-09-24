@@ -113,11 +113,46 @@ baselineProfile {
     mergeIntoMain = true
 }
 
+// The declarative extension templates, shared with `easyide-ext init`, as APK assets under
+// authoring-templates/ for "Create extension". One copy in git (services/shared); the WASM
+// templates need a toolchain and build-time guest bindings, so they stay CLI-only.
+abstract class CopyAuthoringTemplates : DefaultTask() {
+    @get:InputDirectory
+    abstract val templates: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:Inject
+    abstract val fs: FileSystemOperations
+
+    @TaskAction
+    fun copy() {
+        fs.sync {
+            from(templates) { exclude("wasm-*/**") }
+            into(outputDir.dir("authoring-templates"))
+        }
+    }
+}
+
+val copyAuthoringTemplates by tasks.registering(CopyAuthoringTemplates::class) {
+    templates.set(layout.projectDirectory.dir("../../shared/extension-templates/templates"))
+    outputDir.set(layout.buildDirectory.dir("generated/authoring-template-assets"))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyAuthoringTemplates, CopyAuthoringTemplates::outputDir)
+    }
+}
+
 dependencies {
     implementation(project(":sandbox-runtime"))
     implementation(project(":extensions"))
     implementation(project(":terminal-view"))
     implementation(project(":lsp"))
+    // L2 extension logic (decision 0014); the only route to Chicory is through this module.
+    implementation(project(":ext-wasm"))
     baselineProfile(project(":baselineprofile"))
 
     implementation(libs.androidx.core.ktx)
@@ -142,7 +177,17 @@ dependencies {
     // Tree API only (JsonElement), no serialization plugin - decision 0013.
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.documentfile)
+    // Registry signature verification (Ed25519Verify only); decision 0016 amendment.
+    implementation(libs.tink.android)
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(testFixtures(project(":ext-wasm")))
+    testImplementation(testFixtures(project(":extension-schema")))
+}
+
+// WASM port tests drive the real host with :ext-wasm's compiled `.wat` fixtures (proxy.wasm).
+tasks.withType<Test>().configureEach {
+    dependsOn(":ext-wasm:compileWatFixtures")
+    systemProperty("easyide.wasmFixtures", rootProject.file("ext-wasm/build/generated/wasm-fixtures").absolutePath)
 }

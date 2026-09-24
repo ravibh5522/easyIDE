@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import dev.easyide.app.ui.theme.ControlSize
 import dev.easyide.app.ui.theme.IconSize
+import dev.easyide.app.ui.theme.rememberThemedFileIcon
 import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
@@ -194,7 +196,11 @@ private fun FileTreeRow(
     ) {
         IndentGuides(depth)
 
-        Icon(
+        // `workbench.iconTheme`: the theme's image replaces the file or folder glyph when it has one.
+        val themed = rememberThemedFileIcon(node.name, node.isDirectory, expanded)
+        if (themed != null && !node.isDirectory) {
+            Image(themed, contentDescription = null, modifier = Modifier.size(IconSize.xs))
+        } else Icon(
             imageVector = when {
                 node.isDirectory && expanded -> Icons.Filled.KeyboardArrowDown
                 node.isDirectory -> Icons.Filled.KeyboardArrowRight
@@ -205,7 +211,9 @@ private fun FileTreeRow(
             modifier = Modifier.size(IconSize.xs),
         )
 
-        if (node.isDirectory) {
+        if (node.isDirectory && themed != null) {
+            Image(themed, contentDescription = null, modifier = Modifier.padding(start = Spacing.xxs).size(IconSize.xs))
+        } else if (node.isDirectory) {
             Icon(
                 imageVector = if (expanded) Icons.Filled.FolderOpen else Icons.Filled.Folder,
                 contentDescription = null,

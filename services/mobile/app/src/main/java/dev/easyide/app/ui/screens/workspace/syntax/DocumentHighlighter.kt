@@ -2,6 +2,8 @@ package dev.easyide.app.ui.screens.workspace.syntax
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import dev.easyide.app.ui.theme.EditorColors
+import dev.easyide.app.ui.theme.SemanticStyler
 import dev.easyide.app.ui.theme.SyntaxColors
 import dev.easyide.app.ui.theme.SyntaxRole
 import dev.textmate.grammar.Grammar
@@ -129,7 +131,8 @@ internal class DocumentHighlighter(
     }
 
     /**
-     * Style only lines `[from, to]`.
+     * Style only lines `[from, to]`, with [semantic] tokens (if any) painted over the
+     * grammar's colours.
      *
      * The editor is one text field holding the whole document, so the text has
      * to be complete - but the *spans* do not. Restricting them to the visible
@@ -142,6 +145,7 @@ internal class DocumentHighlighter(
         from: Int,
         to: Int,
         checkCancelled: () -> Unit = {},
+        semantic: SemanticPaint? = null,
     ): AnnotatedString {
         val first = from.coerceAtLeast(0)
         val last = to.coerceAtMost(lines.lastIndex)
@@ -150,15 +154,23 @@ internal class DocumentHighlighter(
         tokenizeThrough(last, checkCancelled)
 
         val builder = AnnotatedString.Builder(text)
+        // One style per role for the pass: its colour plus any customized bold/italic/underline.
+        val roleStyles = SyntaxRole.entries.map { role ->
+            colors.styles[role]?.copy(color = colors[role])?.toSpanStyle() ?: SpanStyle(color = colors[role])
+        }
         for (i in first..last) {
             val lineStart = lineStarts[i]
             for (span in lineSpans[i]) {
                 builder.addStyle(
-                    SpanStyle(color = colors[span.role]),
+                    roleStyles[span.role.ordinal],
                     lineStart + span.start,
                     lineStart + span.end,
                 )
             }
+            // Added after the TextMate spans of the line: a later SpanStyle wins where they
+            // overlap, so the server's classification replaces the grammar's colour there
+            // and TextMate still colours everything the server left out (augmentsSyntaxTokens).
+            semantic?.addLine(builder, i, lineStart, lines[i].length)
         }
         return builder.toAnnotatedString()
     }
@@ -169,5 +181,25 @@ internal class DocumentHighlighter(
          * very long time; past this it is advanced but not coloured.
          */
         const val MAX_LINE_LENGTH = 2_000
+    }
+}
+
+/** Semantic tokens for one highlight pass: per-line spans already shifted onto the text, and their styling. */
+class SemanticPaint(private val lines: Array<List<SemanticSpan>?>, private val styler: SemanticStyler) {
+
+    companion object {
+        /** [overlay] shifted onto [text] and styled with [colors] for [languageId]; null without an overlay. */
+        fun of(overlay: SemanticOverlay?, text: String, colors: EditorColors, languageId: String?): SemanticPaint? =
+            overlay?.let { SemanticPaint(it.linesFor(text), SemanticStyler(colors.syntax, colors.semantic, languageId)) }
+    }
+
+    fun addLine(builder: AnnotatedString.Builder, line: Int, lineStart: Int, lineLength: Int) {
+        val spans = lines.getOrNull(line) ?: return
+        for (span in spans) {
+            val end = minOf(span.end, lineLength)
+            if (end <= span.start) continue
+            val style = styler.styleFor(span.key) ?: continue
+            builder.addStyle(style, lineStart + span.start, lineStart + end)
+        }
     }
 }

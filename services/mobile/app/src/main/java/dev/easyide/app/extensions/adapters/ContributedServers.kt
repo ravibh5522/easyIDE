@@ -19,6 +19,7 @@ import dev.easyide.extensions.contrib.SandboxContribution
 import dev.easyide.extensions.host.EnabledExtension
 import dev.easyide.extensions.host.EnabledSet
 import dev.easyide.extensions.manifest.ExtensionId
+import dev.easyide.extensions.manifest.Source
 import dev.easyide.extensions.settings.SettingsPort
 import dev.easyide.extensions.settings.SettingsQuery
 import dev.easyide.extensions.whenclause.ContextLookup
@@ -39,7 +40,8 @@ import kotlinx.serialization.json.JsonPrimitive
  * registry (extension-runtime.md sec 7: languageServers -> lsp-client.md). Pure, so every
  * rule is a unit test; [Provider] feeds it from the live runtime.
  *
- * A server is declared only for its own environment (servers force `scope: environment`)
+ * A server is declared only for its own environment (servers force `scope: environment`;
+ * built-in packs count as installed in every environment)
  * and only while its pack is enabled with `lsp.spawn` granted, so enabling, disabling or
  * uninstalling a pack starts or stops its servers through the registry's diff. `command`
  * and `env` accept `${extensionPath}` and `${config:...}` (sdk-reference); any other or an
@@ -63,7 +65,8 @@ object ContributedServers {
         val skipped = ArrayList<Pair<ExtensionId, String>>()
         for (owned in servers) {
             val ext = (owned.owner as? Owner.Ext)?.id?.let(enabled::byId) ?: continue
-            if (ext.pkg.envId != environmentId) continue
+            // Built-ins ship in the APK and belong to every environment; installed packs to their own.
+            if (ext.pkg.source != Source.BUILT_IN && ext.pkg.envId != environmentId) continue
             val s = owned.value
             if (!ext.granted.satisfies(Capability.LspSpawn)) {
                 skipped += ext.id to "language server ${s.key} not started: ${Capability.LspSpawn.id} is not granted"

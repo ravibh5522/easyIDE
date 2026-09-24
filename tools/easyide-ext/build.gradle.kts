@@ -27,15 +27,40 @@ val schemaResources by tasks.registering(Copy::class) {
     into(layout.buildDirectory.dir("generated/schema"))
 }
 
+// The wasm-rust template vendors the easyide-guest crate; copied at build time so there is one source.
+val guestCrate by tasks.registering(Copy::class) {
+    from(shared.dir("../guest-rust")) { include("Cargo.toml", "README.md", "LICENSE", "src/lib.rs") }
+    into(layout.buildDirectory.dir("generated/guest/templates/wasm-rust/guest/easyide-guest"))
+}
+
+// The wasm-assemblyscript template vendors the AssemblyScript bindings the same way.
+val guestAs by tasks.registering(Copy::class) {
+    from(shared.dir("../guest-as/assembly")) { include("easyide.ts") }
+    into(layout.buildDirectory.dir("generated/guest-as/templates/wasm-assemblyscript/guest/assembly"))
+}
+
+// Templates are shared with the app's "Create extension"; only templates/ goes into the jar.
+val templateResources by tasks.registering(Copy::class) {
+    from(shared.dir("../extension-templates")) { include("templates/**") }
+    into(layout.buildDirectory.dir("generated/templates"))
+}
+
 sourceSets.main {
     kotlin.srcDir(shared.dir("src/main/kotlin"))
     resources.srcDir(schemaResources)
+    resources.srcDir(templateResources)
+    resources.srcDir(guestCrate.map { layout.buildDirectory.dir("generated/guest").get() })
+    resources.srcDir(guestAs.map { layout.buildDirectory.dir("generated/guest-as").get() })
 }
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
+    // Parser only, for the shared WASM static check; the interpreter never ships in the CLI.
+    implementation(libs.chicory.wasm)
     testImplementation(libs.junit)
+    // Compiles .wat test fixtures into modules.
+    testImplementation(libs.chicory.wabt)
 }
 
 application {

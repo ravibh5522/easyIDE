@@ -12,6 +12,7 @@ import dev.easyide.extensions.contrib.KeyAction
 import dev.easyide.app.extensions.adapters.SyncVariables
 import dev.easyide.app.extensions.adapters.TaskSpec
 import dev.easyide.app.extensions.adapters.Tasks
+import dev.easyide.app.extensions.host.ActiveDocument
 import dev.easyide.app.extensions.host.TextEdits
 import dev.easyide.app.extensions.host.WorkspaceBridge
 import dev.easyide.app.ui.commands.CommandRegistry
@@ -99,6 +100,9 @@ class WorkspaceExtensionHost(
         environmentId, projectRoot, state, git, selections, runtime, environmentManager, linuxEnvironment, lspFacts, scope,
     )
 
+    /** Tab and caret changes for WASM extensions (`workspace.*`, `editor.didChangeSelection`). */
+    private val wasmEvents = WasmEventFeed(state, selections, context::languageOf, ::selectionJson, extensions.wasm::post, scope)
+
     /** The built-in `editor.action.commentLine` over this workspace's buffers. */
     val lineComments = LineCommentToggle(state, selections, editor, scope)
 
@@ -115,12 +119,14 @@ class WorkspaceExtensionHost(
         extensions.host.attach(this)
         extensions.setRuntimeScope(RuntimeScope(environmentId, projectId))
         context.start()
+        wasmEvents.start()
     }
 
     fun detach() {
         extensions.host.detach(this)
         extensions.setRuntimeScope(RuntimeScope.NONE)
         context.clear()
+        wasmEvents.stop()
     }
 
     /**
@@ -222,6 +228,39 @@ class WorkspaceExtensionHost(
             currentWord = EditorText.wordAt(text, caret),
             lineText = EditorText.lineAt(text, caret),
         )
+    }
+
+    // ---- WASM editor access
+
+    override val projectDirectory: File get() = projectRoot
+
+    override fun activeDocument(): ActiveDocument? {
+        val tab = state.value.activeTab ?: return null
+        val sel = selections[tab.relativePath]
+        val path = guestPath(tab.relativePath)
+        return ActiveDocument(
+            path, context.languageOf(tab.relativePath), wasmEvents.diff.version(path), tab.content,
+            sel.min.coerceIn(0, tab.content.length), sel.max.coerceIn(0, tab.content.length), tab.editable,
+        )
+    }
+
+    override suspend fun select(path: String, start: Int, end: Int): Boolean = withContext(Dispatchers.Main.immediate) {
+        val rel = relative(path) ?: return@withContext false
+        val tab = state.value.openTabs.find { it.relativePath == rel } ?: return@withContext false
+        selections[rel] = TextRange(start.coerceIn(0, tab.content.length), end.coerceIn(0, tab.content.length))
+        true
+    }
+
+    /** `{start, end}` LSP positions of a selection, for `editor.didChangeSelection`. */
+    private fun selectionJson(text: String, start: Int, end: Int): kotlinx.serialization.json.JsonObject {
+        fun pos(offset: Int): kotlinx.serialization.json.JsonObject {
+            val (line, column) = TextEdits.lineColumn(text, offset)
+            return kotlinx.serialization.json.buildJsonObject {
+                put("line", JsonPrimitive(line - 1))
+                put("character", JsonPrimitive(column - 1))
+            }
+        }
+        return kotlinx.serialization.json.buildJsonObject { put("start", pos(start)); put("end", pos(end)) }
     }
 
     // ---- terminals and processes

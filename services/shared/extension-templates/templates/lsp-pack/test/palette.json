@@ -1,0 +1,10 @@
+{
+  "name": "the version command runs in a named terminal",
+  "editor": { "path": "/workspace/config.yaml", "text": "a: 1\n" },
+  "steps": [ { "execute": "{{name}}.version" } ],
+  "expect": {
+    "visible": [ "menu:commandPalette:{{name}}.version" ],
+    "calls": [ { "type": "runInTerminal", "terminal": "{{displayName}}" } ],
+    "errors": []
+  }
+}

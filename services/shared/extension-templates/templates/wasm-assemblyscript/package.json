@@ -1,0 +1,19 @@
+{
+  "name": "{{name}}",
+  "publisher": "{{publisher}}",
+  "version": "0.1.0",
+  "displayName": "{{displayName}}",
+  "description": "A WASM extension written in AssemblyScript.",
+  "license": "MIT",
+  "engines": { "easyide": "{{engine}}" },
+  "categories": ["Other"],
+  "activationEvents": ["onCommand:{{name}}.wordCount"],
+  "contributes": {
+    "commands": [ { "command": "{{name}}.wordCount", "title": "Count Words", "category": "{{displayName}}" } ],
+    "menus": { "commandPalette": [ { "command": "{{name}}.wordCount", "when": "editorLangId" } ] }
+  },
+  "easyide": {
+    "capabilities": ["fs.project(read)"],
+    "wasm": { "module": "./wasm/main.wasm", "abi": 1, "memoryMb": 16 }
+  }
+}

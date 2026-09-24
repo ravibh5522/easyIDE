@@ -50,6 +50,7 @@ import dev.easyide.app.data.settings.SettingCategory
 import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.TrustRequest
 import dev.easyide.app.data.settings.TrustState
 import dev.easyide.app.ui.theme.Spacing
@@ -74,16 +75,20 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val system by viewModel.systemState.collectAsStateWithLifecycle()
+    val themeCards by viewModel.themeCards.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
     val errorDetail by viewModel.errorDetail.collectAsStateWithLifecycle()
     val importPreview by viewModel.importPreview.collectAsStateWithLifecycle()
     val jsonEditor by viewModel.jsonEditor.state.collectAsStateWithLifecycle()
+    val keyRows by viewModel.keyRows.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     var query by rememberSaveable { mutableStateOf("") }
     var showProfiles by rememberSaveable { mutableStateOf(false) }
     var showResetAll by rememberSaveable { mutableStateOf(false) }
     var showTrust by rememberSaveable { mutableStateOf(false) }
+    var showServers by rememberSaveable { mutableStateOf(false) }
+    var showKeys by rememberSaveable { mutableStateOf(false) }
     val activity = LocalActivity.current
     val resources = LocalContext.current.resources
 
@@ -126,6 +131,8 @@ fun SettingsScreen(
                     SettingsOverflowMenu(
                         onEditJson = viewModel::openJson,
                         onEditKeybindings = viewModel::openKeybindingsJson,
+                        onKeyboardShortcuts = { showKeys = true },
+                        onLanguageServers = { showServers = true },
                         onProfiles = { showProfiles = true },
                         onExport = { exportLauncher.launch(BUNDLE_NAME.format(LocalDate.now())) },
                         onImport = { importLauncher.launch(arrayOf(BUNDLE_MIME)) },
@@ -165,6 +172,15 @@ fun SettingsScreen(
                 item(key = "h:${section.id}") {
                     SectionHeader(section.category?.let { stringResource(it.title) } ?: stringResource(R.string.settings_contributed_section, section.title.orEmpty()))
                 }
+                if (section.category == SettingCategory.LANGUAGE_SERVERS) {
+                    item(key = MANAGE_SERVERS_KEY) {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.settings_language_servers)) },
+                            supportingContent = { Text(stringResource(R.string.settings_language_servers_desc)) },
+                            modifier = Modifier.contentWidth().clickable { showServers = true },
+                        )
+                    }
+                }
                 if (section.category == SettingCategory.EXTENSIONS) {
                     item(key = MANAGE_EXTENSIONS_KEY) {
                         ListItem(
@@ -178,7 +194,11 @@ fun SettingsScreen(
                     // The theme is chosen by looking, so on the user layer (its only
                     // writable one) it gets preview cards rather than a dropdown.
                     if (setting === SettingsSchema.themeMode && uiState.tab.layer == LayerId.USER) {
-                        ThemePickerRow(uiState.settings, viewModel, Modifier.contentWidth())
+                        ThemePickerRow(uiState.settings, themeCards, viewModel, Modifier.contentWidth())
+                    } else if (setting === SettingsSchema.keyRowsActive) {
+                        KeyRowPickerRow(keyRows, uiState.settings, uiState.tab.layer, filter.language, viewModel, Modifier.contentWidth())
+                    } else if (setting === ThemeSettingsSchema.iconTheme && uiState.tab.layer == LayerId.USER) {
+                        IconThemePickerRow(uiState.settings, viewModel, Modifier.contentWidth())
                     } else {
                         SettingRow(
                             setting = setting,
@@ -199,7 +219,15 @@ fun SettingsScreen(
     }
 
     jsonEditor?.let { state ->
-        SettingsJsonEditor(state, viewModel.jsonEditor::onTextChanged, viewModel.jsonEditor::save, viewModel.jsonEditor::close)
+        SettingsJsonEditor(state, viewModel.jsonEditor::onTextChanged, viewModel.jsonEditor::save, viewModel.jsonEditor::close, viewModel.jsonEditor::suggest)
+    }
+    if (showServers) {
+        val servers by viewModel.languageServers.state.collectAsStateWithLifecycle()
+        LanguageServersDialog(servers, layerName, viewModel.languageServers) { showServers = false }
+    }
+    if (showKeys) {
+        val keys by viewModel.keybindings.state.collectAsStateWithLifecycle()
+        KeybindingsDialog(keys, viewModel.keybindings, onEditJson = { showKeys = false; viewModel.openKeybindingsJson() }) { showKeys = false }
     }
     importPreview?.let { ImportPreviewDialog(it, viewModel::onImportConfirmed, viewModel::onImportCancelled) }
     if (showResetAll) ResetAllDialog(layerName, viewModel::resetAll) { showResetAll = false }
@@ -239,6 +267,8 @@ private fun TrustReview(request: TrustRequest, viewModel: SettingsViewModel, onD
 private fun SettingsOverflowMenu(
     onEditJson: () -> Unit,
     onEditKeybindings: () -> Unit,
+    onKeyboardShortcuts: () -> Unit,
+    onLanguageServers: () -> Unit,
     onProfiles: () -> Unit,
     onExport: () -> Unit,
     onImport: () -> Unit,
@@ -252,6 +282,8 @@ private fun SettingsOverflowMenu(
         listOf(
             R.string.settings_edit_json to onEditJson,
             R.string.settings_edit_keybindings to onEditKeybindings,
+            R.string.settings_keyboard_shortcuts to onKeyboardShortcuts,
+            R.string.settings_language_servers to onLanguageServers,
             R.string.settings_profiles_title to onProfiles,
             R.string.settings_export to onExport,
             R.string.settings_import to onImport,
@@ -347,5 +379,6 @@ private fun trustStateRes(s: TrustState): Int = when (s) {
 }
 
 private const val MANAGE_EXTENSIONS_KEY = "extensions.manage"
+private const val MANAGE_SERVERS_KEY = "lsp.manage"
 private const val BUNDLE_MIME = "application/zip"
 private const val BUNDLE_NAME = "easyide-settings-%s.zip"

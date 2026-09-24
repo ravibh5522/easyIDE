@@ -11,6 +11,7 @@ import dev.easyide.lsp.protocol.Range
 import dev.easyide.lsp.protocol.SignatureHelpContext
 import dev.easyide.lsp.session.FeatureFilter
 import dev.easyide.lsp.session.LspRequestException
+import dev.easyide.lsp.session.RefreshKind
 import dev.easyide.lsp.session.SessionState
 import dev.easyide.lsp.testing.FakeLanguageServer
 import dev.easyide.lsp.testing.LspTestHarness
@@ -329,6 +330,20 @@ class LspClientTest {
         assertEquals(3, delta[1].length)
         val server = h.launcher.latest(h.key("e", "p", "gopls"))
         assertEquals("1", server.requests("textDocument/semanticTokens/full/delta").single().params!!.jsonObject["previousResultId"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun serverRefreshRequestsReachTheProjectsPresenters() = runBlocking {
+        h.launcher.configure = { _, _ -> capabilities = caps("""{"textDocumentSync":2}""") }
+        h.setServers("e", "p", serverConfig("pyright"))
+        client.openDocument(doc, "x")
+        h.awaitState(pyright) { it == SessionState.Running }
+        val seen = CompletableDeferred<RefreshKind>()
+        val job = launch { client.refreshes("e", "p").collect { seen.complete(it) } }
+        delay(SETTLE_MS)
+        h.launcher.latest(pyright).requestClient("workspace/codeLens/refresh", null)
+        assertEquals(RefreshKind.CODE_LENS, withTimeout(WAIT_MS) { seen.await() })
+        job.cancelAndJoin()
     }
 
     @Test

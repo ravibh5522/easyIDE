@@ -2,7 +2,7 @@
 
 Low-level design of `:ext-wasm`, the L2 layer that runs extension logic compiled to core wasm inside the app process.
 
-Status: IMPLEMENTED in `services/mobile/ext-wasm` (2026-09-24; `:app` port bridges and `:extensions` `LogicHost` wiring pending). ART spike results: [0014](../../decision/0014-wasm-logic-layer-chicory.md#spike-results-2026-09-24). Design context: [arch.md](../arch.md) sec 6.2, 6.3 ("WASM action call"), 9, 10, 12 (M7).
+Status: IMPLEMENTED in `services/mobile/ext-wasm` and hosted by `:app` (`app/extensions/wasm/`, 2026-09-24: ports bridged, `LogicHost` + `Activator` wired; see Deviations for the app-side gaps). ART spike results: [0014](../../decision/0014-wasm-logic-layer-chicory.md#spike-results-2026-09-24). Design context: [arch.md](../arch.md) sec 6.2, 6.3 ("WASM action call"), 9, 10, 12 (M7).
 Contract (ABI, host functions, capabilities, settings keys): [sdk-reference.md#wasm-host-api](../sdk-reference.md#wasm-host-api).
 Feature area: arch.md sec 5.3 (Extension capabilities, `easyide.wasm` row). Needs ADR-F (0014) before M7.
 
@@ -508,3 +508,19 @@ contribution inspector.
     allows an `:extensions` edge; it is not needed yet.
   - Re-entrancy guard: a call from any WASM worker thread into a busy instance is refused
     (`E_UNAVAILABLE`), covering cycles through other extensions, not only an instance's own commands.
+- App integration notes (2026-09-24, `app/extensions/wasm/`):
+  - The module sha256 is recorded at first load in `<files>/extensions/wasm-modules.json` (keyed by
+    module path; `ModuleShas`), because `state.json` has no module hash yet; the installer can take
+    this over. Every later load is checked against it.
+  - Crash loops: `WasmHost`'s own crash window calls `CrashPolicy`, which logs the reason and
+    persists the disable through `ExtensionInventory.setCrashDisabled` (the runtime then marks the
+    extension CRASH_DISABLED); `ActivationManager.reportCrash` is not used for L2.
+  - Command failures carry the guest's error code: `CommandOutcome.Failed` gained an `error`
+    (default `E_INTERNAL`), so a denied host call shows as `E_CAPABILITY` in the Extension Log.
+  - `commands.execute` gates on the first (by id) capability of the target's declarative action
+    (the port contract carries one id); WASM targets act under their own grants.
+  - Not yet: contributed views are not rendered anywhere, so `ui.setViewData` is stored
+    (`WasmUiState.viewData`); `editor.decorate` and `lsp.notify` answer `E_UNAVAILABLE`;
+    `fs.watch` sees only saves made in the app; `secrets.get` returns null (no secrets UI);
+    `net.fetch` checks resolved addresses separately from the connection's own lookup (DNS
+    rebinding gap); outside-project paths map to the rootfs and absolute symlinks there are refused.

@@ -11,6 +11,22 @@ import dev.easyide.extensions.action.TaskOutcome
 import dev.easyide.extensions.action.TerminalRequest
 import dev.easyide.extensions.action.WorkspaceState
 import kotlinx.serialization.json.JsonElement
+import java.io.File
+
+/**
+ * The active editor as WASM `editor.*` sees it (lld/wasm-host.md sec 9.1): guest [path],
+ * a [version] that rises with every buffer change, the text and the selection as offsets
+ * into it.
+ */
+data class ActiveDocument(
+    val path: String,
+    val languageId: String?,
+    val version: Int,
+    val text: String,
+    val selectionStart: Int,
+    val selectionEnd: Int,
+    val editable: Boolean,
+)
 
 /**
  * What the open workspace offers the extension host: its terminals, editor buffers,
@@ -63,4 +79,15 @@ interface WorkspaceBridge {
      * [params] null = position params of the caret; [then] is applied here.
      */
     suspend fun lspRequest(language: String, method: String, params: JsonElement?, then: LspThen): LspOutcome
+
+    // ---- WASM host (additive; defaults keep other implementations compiling)
+
+    /** Host directory mounted at `/workspace`; null when unknown. WASM `fs.*` maps guest paths through it. */
+    val projectDirectory: File? get() = null
+
+    /** The active editor with its full text, for WASM `editor.active` / `editor.getText`. */
+    fun activeDocument(): ActiveDocument? = null
+
+    /** Moves the selection of the open tab at guest [path]; false when it is not open. */
+    suspend fun select(path: String, start: Int, end: Int): Boolean = false
 }

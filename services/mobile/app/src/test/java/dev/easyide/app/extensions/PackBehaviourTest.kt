@@ -54,6 +54,8 @@ class PackBehaviourTest {
             listOf(
                 CommandIds.SAVE, CommandIds.TOGGLE_LINE_COMMENT, CommandIds.FORMAT_DOCUMENT, CommandIds.QUICK_FIX, CommandIds.RENAME,
                 CommandIds.REVEAL_DEFINITION, CommandIds.GO_TO_REFERENCES, CommandIds.SHOW_HOVER, CommandIds.GOTO_SYMBOL, CommandIds.SHOW_COMMANDS,
+                // easyide.python's entry has no group, so it sorts after every grouped one.
+                PYTHON_RUN,
             ),
             toolbar(ctx).map { it.command.command },
         )
@@ -64,14 +66,14 @@ class PackBehaviourTest {
         assertTrue(CommandIds.FORMAT_SELECTION in selected && CommandIds.FORMAT_DOCUMENT !in selected)
         val readonly = toolbar(context(*pythonEditor, ContextKeys.editorReadonly.name to "true")).map { it.command.command }
         assertEquals(
-            listOf(CommandIds.REVEAL_DEFINITION, CommandIds.GO_TO_REFERENCES, CommandIds.SHOW_HOVER, CommandIds.GOTO_SYMBOL, CommandIds.SHOW_COMMANDS),
+            listOf(CommandIds.REVEAL_DEFINITION, CommandIds.GO_TO_REFERENCES, CommandIds.SHOW_HOVER, CommandIds.GOTO_SYMBOL, CommandIds.SHOW_COMMANDS, PYTHON_RUN),
             readonly,
         )
     }
 
     @Test fun `a built-in entry is greyed exactly while the app command is disabled`() {
         val lspDown = setOf(CommandIds.FORMAT_DOCUMENT, CommandIds.RENAME, CommandIds.QUICK_FIX)
-        val entries = toolbar(context(*pythonEditor)) { it !in lspDown }
+        val entries = toolbar(context(*pythonEditor)) { it !in lspDown }.filter { it.command.command in CommandIds.ALL }
         entries.forEach { assertEquals(it.command.command, it.command.command !in lspDown, it.enabled) }
     }
 
@@ -91,8 +93,8 @@ class PackBehaviourTest {
         assertEquals(listOf("project-tasks.makeTarget"), title("Makefile"))
         assertEquals(listOf("project-tasks.npmScript"), title("package.json", "json"))
         assertEquals(listOf("project-tasks.cargoBuild", "project-tasks.cargoRun"), title("Cargo.toml"))
-        assertEquals(listOf("project-tasks.pytestFile"), title("test_app.py", "python"))
-        assertEquals(emptyList<String>(), title("app.py", "python"))
+        assertEquals(listOf(PYTHON_RUN, "project-tasks.pytestFile"), title("test_app.py", "python"))
+        assertEquals(listOf(PYTHON_RUN), title("app.py", "python"))
     }
 
     @Test fun `key rows - explicit choice on both surfaces, shell row only in the terminal and only when turned on`() {
@@ -173,3 +175,5 @@ class PackBehaviourTest {
         const val SH_TIMEOUT_SEC = 10L
     }
 }
+
+private const val PYTHON_RUN = "python.runFile"

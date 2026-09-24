@@ -78,6 +78,27 @@ class ClientCapabilitiesTest {
     }
 
     @Test
+    fun codeLensNeedsBetweenLineBlocksOrGutterIcons() {
+        val gutterOnly = ClientUi(setOf(UiLayer.GUTTER_ICON), emptyList(), emptyList())
+        assertTrue(LspFeature.CODE_LENS in ClientCapabilitiesBuilder.advertisedFeatures(Milestone.M4, gutterOnly))
+        val blocksOnly = ClientUi(setOf(UiLayer.BETWEEN_LINE_BLOCK), emptyList(), emptyList())
+        assertTrue(LspFeature.CODE_LENS in ClientCapabilitiesBuilder.advertisedFeatures(Milestone.M4, blocksOnly))
+        val caps = ClientCapabilitiesBuilder.build(Milestone.M4, gutterOnly)
+        assertTrue(caps.at("workspace", "codeLens")!!["refreshSupport"]!!.jsonPrimitive.boolean)
+    }
+
+    @Test
+    fun semanticTokensNeedTheOverlayLayerAndATokenList() {
+        val overlay = ClientUi(setOf(UiLayer.TOKEN_OVERLAY), listOf("function"), listOf("readonly"))
+        assertTrue(LspFeature.SEMANTIC_TOKENS in ClientCapabilitiesBuilder.advertisedFeatures(Milestone.M4, overlay))
+        assertFalse(LspFeature.SEMANTIC_TOKENS in ClientCapabilitiesBuilder.advertisedFeatures(Milestone.M4, overlay.copy(semanticTokenTypes = emptyList())))
+        val st = ClientCapabilitiesBuilder.build(Milestone.M4, overlay).at("textDocument", "semanticTokens")!!
+        assertEquals(listOf("readonly"), st["tokenModifiers"]!!.jsonArray.map { it.jsonPrimitive.content })
+        assertTrue(st.at("requests", "full")!!["delta"]!!.jsonPrimitive.boolean)
+        assertTrue(st["augmentsSyntaxTokens"]!!.jsonPrimitive.boolean)
+    }
+
+    @Test
     fun withheldFeatureIsNeverAdvertised() {
         val ui = allLayers.copy(withheld = setOf(LspFeature.FOLDING_RANGE, LspFeature.SELECTION_RANGE, LspFeature.DOCUMENT_LINK))
         val features = ClientCapabilitiesBuilder.advertisedFeatures(Milestone.M4, ui)

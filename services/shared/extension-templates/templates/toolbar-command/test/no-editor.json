@@ -1,0 +1,4 @@
+{
+  "name": "without an open editor the button is hidden",
+  "expect": { "hidden": [ "menu:editor/touchToolbar:{{name}}.hello" ] }
+}

@@ -33,6 +33,7 @@ object ExtensionSettings {
     val WASM_CRASH_WINDOW_SEC = IntKey("extensions.wasm.crashWindowSec", 300)
 
     const val WORKBENCH_HIDDEN = "workbench.contributions.hidden"
+    const val WORKBENCH_ORDER = "workbench.contributions.order"
 
     const val MB = 1024L * 1024L
     const val KB = 1024

@@ -3,6 +3,7 @@ package dev.easyide.lsp.session
 import dev.easyide.lsp.LspPolicy
 import dev.easyide.lsp.docs.DocSnapshot
 import dev.easyide.lsp.json.putOpt
+import dev.easyide.lsp.protocol.LanguageIds
 import dev.easyide.lsp.protocol.SyncKind
 import dev.easyide.lsp.protocol.SyncOptions
 import dev.easyide.lsp.protocol.TextDocumentIdentifier
@@ -140,7 +141,7 @@ internal class DocumentSync(
         notify("textDocument/didOpen", buildJsonObject {
             put("textDocument", buildJsonObject {
                 put("uri", JsonPrimitive(snap.uri))
-                put("languageId", JsonPrimitive(snap.languageId))
+                put("languageId", JsonPrimitive(LanguageIds.wire(snap.languageId)))
                 put("version", JsonPrimitive(snap.version))
                 put("text", JsonPrimitive(snap.text))
             })

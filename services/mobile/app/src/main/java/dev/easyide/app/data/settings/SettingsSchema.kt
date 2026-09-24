@@ -28,6 +28,20 @@ object SettingsSchema {
         label = ::themeModeLabel,
     )
 
+    /**
+     * A contributed colour theme's label (or `<extensionId>/<themeId>`); empty, or a
+     * theme that is not installed and enabled, means the [themeMode] palette
+     * (customization.md sec 8.1). Chosen in the theme picker, so no generic row.
+     */
+    val colorTheme = Setting.Str(
+        key = "workbench.colorTheme",
+        category = SettingCategory.APPEARANCE,
+        title = R.string.setting_color_theme_title,
+        description = R.string.setting_color_theme_desc,
+        default = "",
+        scope = SettingScope.G,
+    )
+
     val editorFontSize = Setting.IntRange(
         key = "editor.fontSize",
         category = SettingCategory.EDITOR,
@@ -126,12 +140,12 @@ object SettingsSchema {
     const val KEY_ROWS_AUTO = "auto"
 
     val all: List<Setting<*>> = listOf(
-        themeMode, editorFontSize, editorLineHeight, terminalFontSize, safeMode, activeProfile,
+        themeMode, colorTheme, editorFontSize, editorLineHeight, terminalFontSize, safeMode, activeProfile,
         extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
-    ) + LspSettingsSchema.all
+    ) + WorkbenchSettingsSchema.all + LspSettingsSchema.all + ThemeSettingsSchema.all + RegistrySettingsSchema.all + AuthoringSettingsSchema.all
 
     /** Declared (validated, resolvable) but edited by a dedicated UI rather than a generic row. */
-    val managedElsewhere: Set<String> = setOf(activeProfile.key)
+    val managedElsewhere: Set<String> = setOf(activeProfile.key, colorTheme.key)
 
     private fun themeModeLabel(mode: ThemeMode): Int = when (mode) {
         ThemeMode.SYSTEM_DEFAULT -> R.string.theme_mode_system_default

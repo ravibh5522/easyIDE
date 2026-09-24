@@ -29,8 +29,16 @@ data class ServerOverride(
     val enabled: Boolean? = null,
 )
 
-/** The resolved list plus entries that could not become a server, for the log. */
-data class MergeResult(val servers: List<ResolvedServer>, val rejected: List<String>)
+/** Why an `lsp.servers` entry (or a declared server after its override) cannot start. */
+enum class RejectReason { NO_LANGUAGES, NO_COMMAND }
+
+/** One entry that could not become a server; the Language servers screen shows it. */
+data class ServerRejection(val key: String, val reasons: Set<RejectReason>)
+
+/** The resolved list plus entries that could not become a server, shown as diagnostics. */
+data class MergeResult(val servers: List<ResolvedServer>, val rejections: List<ServerRejection>) {
+    val rejected: List<String> get() = rejections.map { it.key }
+}
 
 /**
  * `lsp.servers` parsing and the layering of sdk-reference: user entries beat extension
@@ -80,19 +88,23 @@ object ServerConfigMerge {
         lspEnabled: Boolean,
     ): MergeResult {
         val servers = ArrayList<ResolvedServer>()
-        val rejected = ArrayList<String>()
+        val rejected = ArrayList<ServerRejection>()
         val seen = HashSet<String>()
         for (d in declared) {
             if (!seen.add(d.key)) continue
             val resolved = resolve(d, overrides[d.key], defaults, lspEnabled)
-            if (resolved == null) rejected += d.key else servers += resolved
+            if (resolved == null) rejected += ServerRejection(d.key, setOf(RejectReason.NO_COMMAND)) else servers += resolved
         }
         for ((key, o) in overrides) {
             if (key in seen) continue
             val languages = o.languages.orEmpty()
             val command = o.command.orEmpty()
             if (languages.isEmpty() || command.isEmpty()) {
-                rejected += key
+                val reasons = buildSet {
+                    if (languages.isEmpty()) add(RejectReason.NO_LANGUAGES)
+                    if (command.isEmpty()) add(RejectReason.NO_COMMAND)
+                }
+                rejected += ServerRejection(key, reasons)
                 continue
             }
             val base = ServerDeclaration(key = key, languages = languages, command = command)
@@ -121,6 +133,31 @@ object ServerConfigMerge {
         )
         return ResolvedServer(config, d.install, d.extensionId)
     }
+
+    /**
+     * Fields of one `lsp.servers` entry whose value has the wrong type and so is ignored by
+     * [parseOverrides] (the rest of the entry still applies); unknown fields are listed too.
+     */
+    fun fieldProblems(entry: JsonElement): List<String> {
+        val o = entry as? JsonObject ?: return listOf(ENTRY)
+        return o.entries.filter { (field, v) -> !fieldValid(field, v) }.map { it.key }
+    }
+
+    private fun fieldValid(field: String, v: JsonElement): Boolean = when (field) {
+        "languages", "command", "rootMarkers" -> v is JsonArray && v.all { it.stringOrNull() != null }
+        "env" -> v is JsonObject && v.values.all { it.stringOrNull() != null }
+        "initializationOptions" -> v is JsonObject
+        "settingsSection" -> v.stringOrNull() != null
+        "memoryBudgetMb", "idleShutdownSec", "startupTimeoutSec" ->
+            (v as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull?.let { it > 0 } == true
+        "features" -> v is JsonObject && v.keys.all { it == "only" || it == "exclude" }
+        "priority" -> (v as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull != null
+        "enabled" -> (v as? JsonPrimitive)?.takeIf { !it.isString }?.booleanOrNull != null
+        else -> false
+    }
+
+    /** What [fieldProblems] reports for an entry that is not an object at all. */
+    const val ENTRY = "(entry)"
 
     /** `{only?, exclude?}` by sdk-reference feature id; unknown ids are ignored. */
     fun features(o: JsonObject): FeatureFilter {

@@ -20,7 +20,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import dev.easyide.app.data.settings.JsonSuggestion
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -40,7 +50,19 @@ import dev.easyide.app.data.settings.SettingsDiagnostic
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsJsonEditor(state: JsonEditorState, onTextChanged: (String) -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
+fun SettingsJsonEditor(
+    state: JsonEditorState,
+    onTextChanged: (String) -> Unit,
+    onSave: () -> Unit,
+    onClose: () -> Unit,
+    suggest: (String, Int) -> List<JsonSuggestion> = { _, _ -> emptyList() },
+) {
+    // The caret is needed for completion, so the field keeps a TextFieldValue synced with state.text.
+    var field by remember(state.document) { mutableStateOf(TextFieldValue(state.text)) }
+    if (field.text != state.text) field = TextFieldValue(state.text, TextRange(field.selection.end.coerceAtMost(state.text.length)))
+    val suggestions = remember(field.text, field.selection) {
+        if (field.selection.collapsed) suggest(field.text, field.selection.end) else emptyList()
+    }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Scaffold(
             modifier = Modifier.fillMaxSize().imePadding(),
@@ -67,14 +89,40 @@ fun SettingsJsonEditor(state: JsonEditorState, onTextChanged: (String) -> Unit, 
                     )
                 }
                 OutlinedTextField(
-                    value = state.text,
-                    onValueChange = onTextChanged,
+                    value = field,
+                    onValueChange = { next ->
+                        field = next
+                        if (next.text != state.text) onTextChanged(next.text)
+                    },
                     textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
                     modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = Spacing.l),
                 )
+                if (suggestions.isNotEmpty()) {
+                    SuggestionRow(suggestions) { s ->
+                        val (text, caret) = s.applyTo(field.text)
+                        field = TextFieldValue(text, TextRange(caret))
+                        onTextChanged(text)
+                    }
+                }
                 HorizontalDivider(modifier = Modifier.padding(top = Spacing.s))
                 DiagnosticList(state.text, state.diagnostics)
             }
+        }
+    }
+}
+
+/** Key / value completions (LLD 16), tapped to insert at the caret. */
+@Composable
+private fun SuggestionRow(suggestions: List<JsonSuggestion>, onPick: (JsonSuggestion) -> Unit) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.l, vertical = Spacing.xs),
+    ) {
+        items(suggestions) { s ->
+            SuggestionChip(
+                onClick = { onPick(s) },
+                label = { Text(if (s.detail != null) "${s.label}  ${s.detail}" else s.label, fontFamily = FontFamily.Monospace) },
+            )
         }
     }
 }

@@ -31,22 +31,32 @@ fun themeTokensFor(mode: ThemeMode, systemInDark: Boolean, dynamicAccent: Accent
  * typography and shapes for native screens, and [LocalEditorColors] for the
  * workspace - all from one [ThemeTokens], so the two cannot disagree.
  * See docs/decision/0019-visual-identity.md.
+ *
+ * [contributed] is an extension colour theme already laid over its base palette
+ * (`workbench.colorTheme`, customization.md sec 8); when set it replaces the
+ * [themeMode] palette entirely, wallpaper accent included.
  */
 @Composable
 fun EasyIdeTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM_DEFAULT,
+    contributed: ThemeTokens? = null,
+    /** `workbench.colorCustomizations` and friends, laid over whichever palette is active. */
+    customizations: ColorCustomizations = ColorCustomizations.NONE,
+    /** The active theme's label, selecting `"[label]"` blocks of [customizations]. */
+    themeLabel: String? = null,
     content: @Composable () -> Unit,
 ) {
     val systemInDark = isSystemInDarkTheme()
     val context = LocalContext.current
-    val dynamicScheme = remember(themeMode, systemInDark, context) {
-        if (themeMode == ThemeMode.DYNAMIC) dynamicSchemeOrNull(context, systemInDark) else null
+    val dynamicScheme = remember(themeMode, systemInDark, context, contributed) {
+        if (themeMode == ThemeMode.DYNAMIC && contributed == null) dynamicSchemeOrNull(context, systemInDark) else null
     }
-    val tokens = remember(themeMode, systemInDark, dynamicScheme) {
-        themeTokensFor(themeMode, systemInDark, dynamicScheme?.let { Accent(it.primary, it.onPrimary) })
+    val tokens = remember(themeMode, systemInDark, dynamicScheme, contributed) {
+        contributed ?: themeTokensFor(themeMode, systemInDark, dynamicScheme?.let { Accent(it.primary, it.onPrimary) })
     }
-    val colorScheme = remember(tokens, dynamicScheme) { dynamicScheme ?: tokens.toColorScheme() }
-    val editorColors = remember(tokens) { tokens.toEditorColors() }
+    val customized = remember(tokens, customizations, themeLabel) { ThemeCustomizer.apply(tokens, customizations, themeLabel).tokens }
+    val colorScheme = remember(customized, dynamicScheme) { dynamicScheme ?: customized.toColorScheme() }
+    val editorColors = remember(customized) { customized.toEditorColors() }
 
     MaterialTheme(
         colorScheme = colorScheme,

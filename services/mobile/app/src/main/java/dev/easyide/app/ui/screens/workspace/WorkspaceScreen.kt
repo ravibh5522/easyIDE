@@ -179,6 +179,9 @@ fun WorkspaceScreen(
     val dispatcher = remember(keymap) { ChordDispatcher(keymap) }
     val keyContext = contributions.context
     val lspPanel by lsp.panel.collectAsState()
+    val semanticOverlays by lsp.semanticTokens.overlays.collectAsState()
+    val themeSemantic = colors.semantic.highlighting ?: false
+    LaunchedEffect(lsp, themeSemantic) { lsp.onThemeSemanticHighlighting(themeSemantic) }
     // An install recipe was started in a new terminal: show it, the user watches it run.
     LaunchedEffect(uiState.terminalRevealRequests) { if (uiState.terminalRevealRequests > 0) stages.showBottom() }
     SideEffect {
@@ -286,6 +289,7 @@ fun WorkspaceScreen(
                                     interaction = lsp,
                                     selections = selections,
                                     onSecondaryClick = { editorMenuOpen = true },
+                                    semanticTokens = activePath?.let(semanticOverlays::get),
                                 )
                                 ContributedMenu(
                                     expanded = editorMenuOpen,

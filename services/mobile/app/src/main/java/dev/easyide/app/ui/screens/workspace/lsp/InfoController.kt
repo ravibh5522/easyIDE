@@ -1,6 +1,8 @@
 package dev.easyide.app.ui.screens.workspace.lsp
 
 import dev.easyide.app.data.settings.LspSettingsSchema
+import dev.easyide.app.lsp.ExtensionProviders
+import dev.easyide.app.lsp.ProviderQuery
 import dev.easyide.lsp.protocol.LspFeature
 import dev.easyide.lsp.protocol.MarkupKind
 import dev.easyide.lsp.protocol.SignatureHelp
@@ -40,7 +42,11 @@ data class SignatureUi(val path: String, val text: String, val anchor: Int, val 
  * or by the mouse leaving. Signature help: on the servers' trigger characters, updated on their
  * retrigger characters and caret moves while shown, closed on Escape or an empty answer.
  */
-class InfoController(private val ws: LspWorkspace) {
+class InfoController(
+    private val ws: LspWorkspace,
+    /** WASM hover providers; their cards follow the servers' (wasm-host.md 11.3). */
+    private val providers: ExtensionProviders = ExtensionProviders.NONE,
+) {
 
     private val hoverState = MutableStateFlow<HoverUi?>(null)
     private val signatureState = MutableStateFlow<SignatureUi?>(null)
@@ -70,13 +76,15 @@ class InfoController(private val ws: LspWorkspace) {
         hoverJob = ws.scope.launch {
             ws.documents.ensureCurrent(path, tab.content)
             val lines = LineIndex(tab.content)
-            val answers = ws.client.hover(ctx, lines.position(offset))
+            val at = lines.position(offset)
+            val servers = ws.client.hover(ctx, at).map { it.value }
+            val answers = servers + providers.hover(ProviderQuery(ctx.uri, ctx.languageId, ws.documents.version(path), at))
             if (answers.isEmpty() || ws.tab(path)?.content != tab.content) return@launch
-            val range = answers.firstNotNullOfOrNull { it.value.range }
+            val range = answers.firstNotNullOfOrNull { it.range }
             val start = range?.let { lines.offset(it.start) } ?: CompletionModel.wordStart(tab.content, offset)
             val end = range?.let { lines.offset(it.end) } ?: wordEnd(tab.content, offset)
             val markdown = answers.joinToString(SEPARATOR) { a ->
-                if (a.value.contents.kind == MarkupKind.MARKDOWN) a.value.contents.value else "```\n${a.value.contents.value}\n```"
+                if (a.contents.kind == MarkupKind.MARKDOWN) a.contents.value else "```\n${a.contents.value}\n```"
             }
             hoverState.value = HoverUi(path, tab.content, start, end, markdown, doc.languageId, doc.fileName, origin)
         }

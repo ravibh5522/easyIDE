@@ -57,6 +57,11 @@ data class SyntaxColors(
     val heading: Color,
     val link: Color,
     val invalid: Color,
+    /**
+     * Font style per role (bold/italic/underline), from `editor.tokenColorCustomizations`;
+     * roles absent here paint in the regular face. Colours stay in the fields above.
+     */
+    val styles: Map<SyntaxRole, TokenStyle> = emptyMap(),
 ) {
     operator fun get(role: SyntaxRole): Color = when (role) {
         SyntaxRole.PLAIN -> plain

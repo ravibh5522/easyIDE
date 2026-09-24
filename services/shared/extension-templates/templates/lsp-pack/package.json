@@ -1,0 +1,32 @@
+{
+  "name": "{{name}}",
+  "publisher": "{{publisher}}",
+  "version": "0.1.0",
+  "displayName": "{{displayName}}",
+  "description": "Language server pack: diagnostics, completion and navigation from a language server installed into the environment.",
+  "license": "MIT",
+  "engines": { "easyide": "{{engine}}" },
+  "categories": ["Programming Languages", "Language Packs"],
+  "activationEvents": ["onLanguage:yaml"],
+  "contributes": {
+    "commands": [ { "command": "{{name}}.version", "title": "Show Server Version", "category": "{{displayName}}", "enablement": "envState == ready" } ],
+    "menus": { "commandPalette": [ { "command": "{{name}}.version", "when": "editorLangId == yaml" } ] }
+  },
+  "easyide": {
+    "capabilities": ["lsp.spawn", "sandbox.exec", "sandbox.install", "network(registry.npmjs.org,archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)"],
+    "actions": {
+      "{{name}}.version": { "type": "runInTerminal", "terminal": "{{displayName}}", "command": "yaml-language-server --version" }
+    },
+    "languageServers": [
+      { "id": "server", "languages": ["yaml"], "command": ["yaml-language-server", "--stdio"], "memoryBudgetMb": 200 }
+    ],
+    "sandbox": {
+      "install": [
+        { "id": "node", "title": "Install Node.js and npm", "run": "apt-get update && apt-get install -y nodejs npm", "when": "envDistro in 'debian,ubuntu'" },
+        { "id": "server", "title": "Install the language server", "run": "npm install -g yaml-language-server@1" }
+      ],
+      "verify": "command -v yaml-language-server",
+      "uninstall": ["npm uninstall -g yaml-language-server"]
+    }
+  }
+}

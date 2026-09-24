@@ -28,6 +28,7 @@ class ModuleLoaderTest {
         assertTrue(refused("wrong_signature"), refused("wrong_signature").contains("export ext_handle has type"))
         assertTrue(refused("imports_wasi"), refused("imports_wasi").contains("wasi_snapshot_preview1.fd_write is not allowed"))
         assertTrue(refused("start_fn"), refused("start_fn").contains("start function"))
+        assertTrue(refused("bad_initialize"), refused("bad_initialize").contains("_initialize"))
         assertTrue(refused("reserved_export"), refused("reserved_export").contains("reserved prefix"))
         assertTrue(refused("big_memory"), refused("big_memory").contains("initial pages"))
         assertTrue(refused("simd"), refused("simd").contains("SIMD"))

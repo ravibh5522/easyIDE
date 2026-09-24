@@ -23,6 +23,9 @@ object SettingsPolicy {
     /** Upper bound on the uncompressed size of an imported settings bundle (zip-bomb guard). */
     const val IMPORT_MAX_BYTES = 10L * 1024 * 1024
 
+    /** Decoded icon-theme images kept in memory (customization.md sec 9). */
+    const val ICON_CACHE_ENTRIES = 256
+
     /**
      * Keys no extension may write, even holding `ui.settings` (threat-model M-11):
      * they decide which code runs. A trailing `*` matches any key with that prefix.

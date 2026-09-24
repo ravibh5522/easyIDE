@@ -16,6 +16,8 @@ import dev.easyide.app.data.settings.ProfileManager
 import dev.easyide.app.data.settings.ProjectFileIo
 import dev.easyide.app.data.settings.ProjectTrust
 import dev.easyide.app.data.settings.SafeModeState
+import dev.easyide.app.data.settings.ThemeSettingsSchema
+import dev.easyide.app.extensions.ActiveIconTheme
 import dev.easyide.app.data.settings.SettingsDirWatcher
 import dev.easyide.app.data.settings.SettingsRegistry
 import dev.easyide.app.data.settings.SettingsSchema
@@ -190,13 +192,25 @@ class AppContainer(context: Context) {
         processFactory = ServerProcessFactory(linuxEnvironment, Dispatchers.IO),
         projectManager = projectManager,
         settingsStore = settingsStore,
+        safeMode = safeMode.active,
         scope = applicationScope,
+    )
+
+    /** `workbench.iconTheme`: the explorer's icon theme, loaded off the main thread. */
+    val iconTheme = ActiveIconTheme(
+        iconThemes = extensions.themes.iconThemes,
+        selection = settingsStore.observe(ThemeSettingsSchema.iconTheme),
+        io = Dispatchers.IO,
+        scope = applicationScope,
+        warn = { Log.w(LOG_TAG, it) },
     )
 
     init {
         // For the app's lifetime: a pack's servers come and go with its enablement through
         // the provider's flow, so the registration itself is never closed.
         lsp.servers.register(extensions.languageServers)
+        // WASM completion/hover providers join the LSP presenters' merge.
+        lsp.extensionProviders.register(extensions.wasm)
     }
 
     /**

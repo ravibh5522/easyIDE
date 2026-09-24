@@ -3,13 +3,12 @@
   "publisher": "easyide",
   "version": "1.0.0",
   "displayName": "Core Snippets",
-  "description": "Everyday snippets for Python, JavaScript/TypeScript, shell and Markdown, plus a coding key row for touch editing.",
+  "description": "Everyday snippets for JavaScript/TypeScript, shell and Markdown, plus a coding key row for touch editing.",
   "license": "Apache-2.0",
   "engines": { "easyide": "^0.3.0" },
   "categories": ["Snippets"],
   "contributes": {
     "snippets": [
-      { "language": "python", "path": "./snippets/python.code-snippets" },
       { "language": "javascript", "path": "./snippets/javascript.code-snippets" },
       { "language": "typescript", "path": "./snippets/javascript.code-snippets" },
       { "language": "shellscript", "path": "./snippets/shellscript.code-snippets" },

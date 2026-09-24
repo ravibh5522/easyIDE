@@ -51,7 +51,7 @@ class ExtensionsRuntimeTest {
     @After fun tearDown() = scope.cancel()
 
     private fun copyFixture(name: String): File {
-        val src = File(checkNotNull(javaClass.getResource("/fixtures/$name")).toURI())
+        val src = Fixtures.dir(name)
         return tmp.newFolder().also { src.copyRecursively(it, overwrite = true) }
     }
 

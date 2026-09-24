@@ -5,12 +5,10 @@ import java.io.File
 import java.io.PrintStream
 import kotlin.system.exitProcess
 
-val COMMANDS: List<Command> = listOf(InitCommand, ValidateCommand, PackageCommand, KeygenCommand, SignCommand, VerifyCommand)
+val COMMANDS: List<Command> = listOf(InitCommand, ValidateCommand, PackageCommand, KeygenCommand, SignCommand, VerifyCommand, PublishCommand, RegistryCommand, TestCommand, DevCommand)
 
 /** Not built yet; named so authors get a clear answer instead of "unknown command". */
-private val PLANNED = mapOf(
-    "publish" to "M6 registry", "registry" to "M6 registry", "test" to "M5 test harness", "dev" to "M5 dev loop",
-)
+private val PLANNED = emptyMap<String, String>()
 
 fun main(argv: Array<String>) {
     exitProcess(run(argv.toList(), System.out, System.err, File(System.getProperty("user.dir")), File(System.getProperty("user.home"))))
@@ -50,7 +48,7 @@ private fun help(out: PrintStream) {
     COMMANDS.forEach { out.println("  %-9s %s".format(it.name, it.summary)) }
     out.println()
     out.println("Every command takes --json (one JSON object on stdout). Exit codes: 0 ok, 1 validation/usage, 2 I/O.")
-    out.println("Not yet implemented: ${PLANNED.keys.joinToString(", ")}.")
+    if (PLANNED.isNotEmpty()) out.println("Not yet implemented: ${PLANNED.keys.joinToString(", ")}.")
 }
 
 object Main {

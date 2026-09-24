@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * The app's [ServerConfigSource]: servers declared by registered providers (the extension
  * runtime's contributed `languageServers`) layered under the user's `lsp.servers`, with the
- * `lsp.*` defaults and `lsp.enabled` applied (sdk-reference "Settings keys").
+ * `lsp.*` defaults, `lsp.enabled` per language and safe mode applied ([ServerGates]).
  *
  * Re-emits on any provider or settings change; the manager diffs the lists and restarts only
  * servers whose command, env or initialization options changed.
@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap
 class ServerRegistry(
     private val settings: (environmentId: String, projectId: String) -> Flow<SettingsSnapshot>,
     private val scope: CoroutineScope,
+    /** Safe mode on (any reason): settings-only servers do not start (customization.md sec 11). */
+    private val safeMode: Flow<Boolean> = flowOf(false),
     private val onRejected: (List<String>) -> Unit,
 ) : ServerConfigSource {
 
@@ -49,9 +51,11 @@ class ServerRegistry(
     /** Resolved servers with install recipes and origin, for notices and the status item. */
     fun resolved(environmentId: String, projectId: String): StateFlow<MergeResult> =
         resolved.getOrPut(environmentId to projectId) {
-            val inputs = settings(environmentId, projectId).map(::SettingsInputs).distinctUntilChanged()
+            val inputs = combine(settings(environmentId, projectId), safeMode.distinctUntilChanged()) { s, safe -> SettingsInputs(s, safe) }
+                .distinctUntilChanged()
             combine(declarations(environmentId), inputs) { declared, s ->
-                ServerConfigMerge.merge(declared, s.overrides, s.defaults, s.lspEnabled)
+                // lsp.enabled is applied per language by the gates, so the merge sees it on.
+                s.gates.apply(ServerConfigMerge.merge(declared, s.overrides, s.defaults, lspEnabled = true))
             }
                 .distinctUntilChanged()
                 .map { it.also { r -> if (r.rejected.isNotEmpty()) onRejected(r.rejected) } }
@@ -66,7 +70,7 @@ class ServerRegistry(
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun declarations(environmentId: String): Flow<List<ServerDeclaration>> = providers.flatMapLatest { list ->
+    fun declarations(environmentId: String): Flow<List<ServerDeclaration>> = providers.flatMapLatest { list ->
         if (list.isEmpty()) flowOf(emptyList())
         else combine(list.map { it.declarations(environmentId) }) { parts -> parts.flatMap { it } }
     }
@@ -75,16 +79,16 @@ class ServerRegistry(
     private data class SettingsInputs(
         val overrides: Map<String, ServerOverride>,
         val defaults: ServerDefaults,
-        val lspEnabled: Boolean,
+        val gates: ServerGates,
     ) {
-        constructor(s: SettingsSnapshot) : this(
+        constructor(s: SettingsSnapshot, safeMode: Boolean) : this(
             overrides = ServerConfigMerge.parseOverrides(s[LspSettingsSchema.servers]),
             defaults = ServerDefaults(
                 memoryBudgetMb = s[LspSettingsSchema.defaultMemoryBudgetMb],
                 idleShutdownSec = s[LspSettingsSchema.idleShutdownSec],
                 startupTimeoutSec = s[LspSettingsSchema.startupTimeoutSec],
             ),
-            lspEnabled = s[LspSettingsSchema.enabled],
+            gates = ServerGates.from(s, safeMode),
         )
     }
 }

@@ -1,0 +1,10 @@
+{
+  "name": "the toolbar button greets with the open file's name",
+  "editor": { "path": "/workspace/app.py", "text": "print(1)\n" },
+  "steps": [ { "execute": "{{name}}.hello" } ],
+  "expect": {
+    "visible": [ "menu:editor/touchToolbar:{{name}}.hello" ],
+    "messages": [ "Hello from {{displayName}} in app.py" ],
+    "errors": []
+  }
+}
