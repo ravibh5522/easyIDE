@@ -25,6 +25,8 @@ uiautomator = "2.4.0"
 chicory = "1.7.5"
 # Pure-Java ed25519 verify for registry signatures in :app only (decision 0016 amendment).
 tink = "1.23.0"
+# Compose semantics tests on the JVM (docs/ui-redesign/kit.md 7). Robolectric: MIT.
+robolectric = "4.17"
 
 [libraries]
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
@@ -63,6 +65,9 @@ chicory-wasm = { group = "com.dylibso.chicory", name = "wasm", version.ref = "ch
 # Build-time only: compiles .wat test fixtures; never on an app classpath.
 chicory-wabt = { group = "com.dylibso.chicory", name = "wabt", version.ref = "chicory" }
 tink-android = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tink" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 
 [plugins]

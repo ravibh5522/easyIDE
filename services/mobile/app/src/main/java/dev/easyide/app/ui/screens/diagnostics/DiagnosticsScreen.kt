@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
@@ -52,6 +53,8 @@ fun DiagnosticsScreen(
     viewModel: DiagnosticsViewModel,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Rows appended after the last section; only debug and canary builds pass any (ui.devtools). */
+    extraSections: LazyListScope.() -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
@@ -111,6 +114,7 @@ fun DiagnosticsScreen(
                 problemsSection(report.lastCrash, report.recentProblems)
                 logsSection(enabled = !state.busy, actions = actions)
             }
+            extraSections()
         }
     }
 

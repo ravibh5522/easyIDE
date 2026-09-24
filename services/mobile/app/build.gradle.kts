@@ -97,6 +97,22 @@ android {
         compose = true
     }
 
+    // Developer tools (the kit gallery) exist only in debug and canary: release compiles the
+    // no-op twin in src/release instead, so the route and its strings are absent from the R8 output.
+    sourceSets {
+        for (name in listOf("debug", "canary")) {
+            getByName(name) {
+                kotlin.directories.add("src/devtools/java")
+                res.directories.add("src/devtools/res")
+            }
+        }
+    }
+
+    // Robolectric needs merged resources and manifest to load R.font.* (Geist) and themes.
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     packaging {
         jniLibs {
             // proot is exec'd, not dlopen'd, so it must exist as a real file in
@@ -180,15 +196,21 @@ dependencies {
     // Registry signature verification (Ed25519Verify only); decision 0016 amendment.
     implementation(libs.tink.android)
     debugImplementation(libs.androidx.ui.tooling)
+    // Hosts the compose test rule's activity under Robolectric; test-only, debug variant only.
+    debugImplementation(libs.androidx.ui.test.manifest)
     testImplementation(libs.junit)
     testImplementation(libs.jgit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.ui.test.junit4)
     testImplementation(testFixtures(project(":ext-wasm")))
     testImplementation(testFixtures(project(":extension-schema")))
 }
 
 // WASM port tests drive the real host with :ext-wasm's compiled `.wat` fixtures (proxy.wasm).
 tasks.withType<Test>().configureEach {
+    // Robolectric's SDK 36+ shared-memory shadow reaches into JDK internals (FileDescriptor).
+    jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
     dependsOn(":ext-wasm:compileWatFixtures")
     systemProperty("easyide.wasmFixtures", rootProject.file("ext-wasm/build/generated/wasm-fixtures").absolutePath)
 }
