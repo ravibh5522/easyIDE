@@ -26,7 +26,8 @@ import dev.easyide.extensions.manifest.InstallScope
 import dev.easyide.sandbox.model.SandboxEnvironment
 
 /**
- * The capability sheet of a local install (ECO-03): source label "unsigned, local", every
+ * The capability sheet of an install (ECO-03): source label "unsigned, local" or "registry
+ * <id>, signed by <keyId>" (registry-and-install.md sec 8.2 step 5), every
  * declared capability with its sdk-reference prompt text, the scope, and for environment
  * packs the target environment. Declining installs nothing.
  */
@@ -51,7 +52,13 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
                 title = { Text(stringResource(R.string.ext_install_review_title, d.displayName, d.version.toString())) },
                 text = {
                     Column(modifier = Modifier.heightIn(max = SHEET_MAX_DP.dp).verticalScroll(rememberScrollState())) {
-                        Text(stringResource(R.string.ext_install_unsigned), color = MaterialTheme.colorScheme.error)
+                        val signed = install.registry
+                        if (signed == null) {
+                            Text(stringResource(R.string.ext_install_unsigned), color = MaterialTheme.colorScheme.error)
+                        } else {
+                            Text(stringResource(R.string.ext_install_signed, signed.registryId, signed.signedBy))
+                            if (signed.fromCache) Text(stringResource(R.string.ext_install_from_cache), style = MaterialTheme.typography.bodySmall)
+                        }
                         Text(d.id.value, style = MaterialTheme.typography.bodySmall)
                         d.description?.let { Text(it) }
                         if (install.pkg.alreadyInstalled) Text(stringResource(R.string.ext_install_already), color = MaterialTheme.colorScheme.error)
@@ -71,7 +78,7 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
                 },
                 confirmButton = {
                     TextButton(
-                        onClick = { viewModel.approve(install.pkg, envId) },
+                        onClick = { viewModel.approve(install, envId) },
                         enabled = !install.pkg.alreadyInstalled && (!needsEnv || envId != null),
                     ) { Text(stringResource(R.string.ext_install_approve)) }
                 },

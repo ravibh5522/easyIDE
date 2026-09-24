@@ -97,7 +97,8 @@ class DiskExtensionInventory(
                 source = entry?.source ?: Source.SIDELOAD,
                 installedAt = entry?.installedAt ?: active.versionDir.lastModified(),
                 approvedCapabilities = entry?.approvedCapabilities.orEmpty(),
-                revoked = false,
+                // Disabled, not removed (registry-and-install.md sec 6): uninstall stays the user's call.
+                revoked = s.revocationReason(id, active.versionDir.name) != null,
                 crashDisabled = id in s.crashDisabled,
             )
         }
@@ -122,7 +123,7 @@ internal fun retainedPrevious(idDir: File, current: String, entry: InstallEntry?
     fun retained(version: String) = version != current && ExtensionVersion.parseOrNull(version) != null &&
         File(idDir, version).let { it.isDirectory && !Files.isSymbolicLink(it.toPath()) }
     if (entry != null && entry.version != current && retained(entry.version)) {
-        return RetainedVersion(entry.version, entry.approvedCapabilities)
+        return RetainedVersion(entry.version, entry.approvedCapabilities, entry.source, entry.origin)
     }
     val recorded = entry?.takeIf { it.version == current }?.previous
     if (recorded != null) return recorded.takeIf { retained(it.version) }

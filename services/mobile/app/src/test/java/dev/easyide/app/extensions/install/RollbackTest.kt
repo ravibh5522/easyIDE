@@ -64,7 +64,7 @@ class RollbackTest {
         s.install("run", "1.0.0", exec, "env1", this@RollbackTest)
         s.install("run", "1.1.0", exec, "env1", this@RollbackTest)
         assertEquals(mapOf(s.active().directory.absolutePath to "1.0.0"), s.inventory.retained.value)
-        assertEquals(RetainedVersion("1.0.0", setOf("sandbox.exec")), s.state.read().installs.single().previous)
+        assertEquals(RetainedVersion("1.0.0", setOf("sandbox.exec"), Source.SIDELOAD), s.state.read().installs.single().previous)
 
         assertEquals(RollbackResult.Done("1.0.0"), s.installer.rollback("acme.run", InstallScope.ENVIRONMENT, "env1"))
         val back = s.active()
@@ -74,7 +74,7 @@ class RollbackTest {
         assertTrue(File(s.idDir("acme.run", "env1"), "1.1.0").isDirectory) // newer version retained
         val entry = s.state.read().installs.single()
         assertEquals("1.0.0", entry.version)
-        assertEquals(RetainedVersion("1.1.0", setOf("sandbox.exec")), entry.previous)
+        assertEquals(RetainedVersion("1.1.0", setOf("sandbox.exec"), Source.SIDELOAD), entry.previous)
         assertEquals(mapOf(back.directory.absolutePath to "1.1.0"), s.inventory.retained.value)
 
         assertEquals(RollbackResult.Done("1.1.0"), s.installer.rollback("acme.run", InstallScope.ENVIRONMENT, "env1"))
@@ -106,7 +106,9 @@ class RollbackTest {
     }
 
     @Test fun `an invalid, mislabelled or revoked previous version is refused without changes`() = runTest {
-        val s = Setup(tmp.newFolder("files"), revoked = { id, v -> id == "acme.rev" && v == "1.0.0" })
+        // Revoked only after it was installed: a revoked version cannot be staged at all.
+        var revokedNow = false
+        val s = Setup(tmp.newFolder("files"), revoked = { id, v -> revokedNow && id == "acme.rev" && v == "1.0.0" })
         s.install("snips", "1.0.0", test = this@RollbackTest)
         s.install("snips", "1.1.0", test = this@RollbackTest)
         val v1 = File(s.idDir("acme.snips"), "1.0.0/package.json")
@@ -123,6 +125,7 @@ class RollbackTest {
 
         s.install("rev", "1.0.0", test = this@RollbackTest)
         s.install("rev", "2.0.0", test = this@RollbackTest)
+        revokedNow = true
         val refused = s.installer.rollback("acme.rev", InstallScope.GLOBAL, null) as RollbackResult.Refused
         assertTrue(refused.problems.single().contains("revoked"))
         assertEquals("2.0.0", Files.readSymbolicLink(File(s.idDir("acme.rev"), "current").toPath()).toString())
@@ -154,7 +157,7 @@ class RollbackTest {
         assertEquals(setOf("sandbox.exec"), pkg.approvedCapabilities)
         assertEquals(7L, pkg.installedAt)
         // The new field round-trips through a fresh store.
-        assertEquals(RetainedVersion("1.1.0", setOf("sandbox.exec")), ExtensionStateStore(s.paths.extensionStateFile).read().installs.single().previous)
+        assertEquals(RetainedVersion("1.1.0", setOf("sandbox.exec"), Source.SIDELOAD), ExtensionStateStore(s.paths.extensionStateFile).read().installs.single().previous)
     }
 
     @Test fun `an interrupted flip leaves a safe state that rollback recovers from`() = runTest {

@@ -21,6 +21,8 @@ import java.io.File
  *     <root>/extensions/state.json             approvals, pins, system disables
  *     <root>/extensions/builtin/<id>/<stamp>   built-in extensions unpacked from the APK
  *     <root>/extensions/activation-journal.json crash journal of the extension runtime
+ *     <root>/extensions/registry/<registryId>  last verified registry index (+ sigs, publishers, meta)
+ *     <root>/extensions/cache/<sha256>.easyext content-addressed offline package cache
  *     <root>/environments/<envId>/extensions/<id>/<version>
  *                                              environment installs, deleted with the env
  *
@@ -86,6 +88,18 @@ class SandboxPaths(private val root: File) {
      */
     val builtInExtensionsDir: File get() = File(extensionsDir, BUILTIN_DIR)
 
+    /** Last verified copy of each configured registry (registry-and-install.md sec 3.2). */
+    val extensionRegistriesDir: File get() = File(extensionsDir, REGISTRY_DIR)
+
+    /**
+     * One registry's verified index, signatures, publisher files and `meta.json`. The caller
+     * validates [registryId] (a lowercase slug), so it cannot name a path outside this dir.
+     */
+    fun extensionRegistryDir(registryId: String): File = File(extensionRegistriesDir, registryId)
+
+    /** Offline package cache, content-addressed by the package's sha256 (sec 12). */
+    val extensionPackageCacheDir: File get() = File(extensionsDir, PACKAGE_CACHE_DIR)
+
     /** The runtime's crash journal (extension-runtime.md sec 5.3). */
     val extensionJournalFile: File get() = File(extensionsDir, JOURNAL_FILE)
 
@@ -138,6 +152,8 @@ class SandboxPaths(private val root: File) {
         const val STAGING_DIR = "staging"
         const val STATE_FILE = "state.json"
         const val BUILTIN_DIR = "builtin"
+        const val REGISTRY_DIR = "registry"
+        const val PACKAGE_CACHE_DIR = "cache"
         const val JOURNAL_FILE = "activation-journal.json"
         const val ENVIRONMENT_EXTENSIONS_DIR = "extensions"
         const val CURRENT_LINK = "current"

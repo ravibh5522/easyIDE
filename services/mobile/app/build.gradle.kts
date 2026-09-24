@@ -142,6 +142,8 @@ dependencies {
     // Tree API only (JsonElement), no serialization plugin - decision 0013.
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.documentfile)
+    // Registry signature verification (Ed25519Verify only); decision 0016 amendment.
+    implementation(libs.tink.android)
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

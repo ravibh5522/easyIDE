@@ -24,6 +24,7 @@ redistributing these.
 | [kotlin-textmate](https://github.com/ivan-magda/kotlin-textmate) 0.2.0 (TextMate tokenizer) | Gradle dependency | MIT | 2026-08-11, upstream `LICENSE` |
 | [joni](https://github.com/jruby/joni) + jcodings (Oniguruma regex, pulled in by the tokenizer) | Gradle dependency | MIT | 2026-08-11, upstream `LICENSE` |
 | Gson | Gradle dependency | Apache-2.0 | 2026-08-11 |
+| [Tink](https://github.com/tink-crypto/tink-java) 1.23.0 (`tink-android`; the app uses only `Ed25519Verify`, registry signature checks, [decision 0016](docs/decision/0016-extension-registry-static-index-ed25519.md) amendment) | Gradle dependency | Apache-2.0 | 2026-09-24, Maven Central POM |
 | kotlinx-serialization-json 1.11.0, kotlinx-coroutines | Gradle dependencies | Apache-2.0 | 2026-09-24, Maven Central POM |
 | VS Code `language-configuration.json` files (57 languages, tag 1.139.0) | `assets/grammars/config/*.json` | MIT | 2026-09-24, microsoft/vscode LICENSE.txt at tag |
 | easyIDE extension SDK core: manifest schema, built-in command list, manifest parser and validator, canonical JSON and signature code (first-party, [decision 0015](docs/decision/0015-extension-sdk-licensing-apache.md)) | `services/shared/extension-schema/` (the `:extension-schema` module, used by `:extensions`) and `tools/easyide-ext/` | **Apache-2.0** (unlike the rest of the app) | 2026-09-24 |

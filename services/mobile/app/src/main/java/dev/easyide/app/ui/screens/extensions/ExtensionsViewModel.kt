@@ -18,6 +18,10 @@ import dev.easyide.app.extensions.install.FolderNode
 import dev.easyide.app.extensions.install.RollbackResult
 import dev.easyide.app.extensions.install.StageResult
 import dev.easyide.app.extensions.install.StagedPackage
+import dev.easyide.app.extensions.registry.RegistryError
+import dev.easyide.app.extensions.registry.RegistryPrepare
+import dev.easyide.app.extensions.registry.RegistryStaged
+import dev.easyide.app.data.settings.RegistrySettingsSchema
 import dev.easyide.extensions.contrib.ContributionConflict
 import dev.easyide.extensions.contrib.ContributionSnapshot
 import dev.easyide.extensions.contrib.Owned
@@ -44,6 +48,7 @@ import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.time.Instant
 
 /**
  * One contribution as the inspector (ECO-32) lists it, with what the user may do to it:
@@ -96,7 +101,8 @@ data class ExtensionsUiState(
 sealed interface InstallState {
     data object Idle : InstallState
     data object Staging : InstallState
-    data class Review(val pkg: StagedPackage) : InstallState
+    /** [registry] is set for a signed registry package: the sheet shows its registry and signer. */
+    data class Review(val pkg: StagedPackage, val registry: RegistryStaged? = null) : InstallState
     data class Refused(val problems: List<String>) : InstallState
     data class Failed(val message: String) : InstallState
 }
@@ -129,6 +135,25 @@ class ExtensionsViewModel(
     val install: StateFlow<InstallState> = installState.asStateFlow()
     private val rollbackState = MutableStateFlow<RollbackState>(RollbackState.Idle)
     val rollback: StateFlow<RollbackState> = rollbackState.asStateFlow()
+
+    private val query = MutableStateFlow("")
+    private val detailState = MutableStateFlow<BrowseItem?>(null)
+
+    /** The item whose detail sheet is open in Browse. */
+    val detail: StateFlow<BrowseItem?> = detailState.asStateFlow()
+
+    /** The Browse tab (registry-and-install.md sec 7): registries with their index age, search results, update badges. */
+    val browse: StateFlow<BrowseUiState> = combine(
+        extensions.registry.view, extensions.registry.records, query, extensions.inventory.installed,
+    ) { view, records, q, installed -> BrowseState.build(view, records, q, installed, Instant.now()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), BrowseUiState())
+
+    init {
+        // Opening the screen is a check point for extensions.autoCheckUpdates (sec 3.3); it only notifies.
+        viewModelScope.launch {
+            extensions.registry.refreshIfDue(settingsStore.snapshot.first()[RegistrySettingsSchema.autoCheckUpdates])
+        }
+    }
 
     private val hosts = combine(runtime.extensions.loaded, runtime.extensions.problems, runtime.extensions.disabledReasons, runtime.activation.states) { l, p, r, a ->
         HostView(l, p, r, a)
@@ -279,10 +304,46 @@ class ExtensionsViewModel(
         extensions.installer.stageFolder(DocumentFolder(root, appContext))
     }
 
-    fun approve(pkg: StagedPackage, envId: String?) {
+    fun setQuery(text: String) { query.value = text }
+
+    fun refreshRegistries() {
+        viewModelScope.launch { extensions.registry.refreshAll() }
+    }
+
+    fun openDetail(item: BrowseItem) { detailState.value = item }
+
+    fun closeDetail() { detailState.value = null }
+
+    /**
+     * Install or update [item]'s newest compatible entry through the signed pipeline; the
+     * capability sheet follows. Never started by anything but this tap (updates only notify).
+     */
+    fun installFromRegistry(item: BrowseItem) {
+        val entry = item.entry ?: return
+        val registryId = item.registryId ?: return
+        detailState.value = null
+        installState.value = InstallState.Staging
+        viewModelScope.launch {
+            installState.value = when (val r = extensions.registry.prepare(registryId, entry)) {
+                is RegistryPrepare.Ready -> InstallState.Review(r.staged.pkg, r.staged)
+                is RegistryPrepare.Failed -> InstallState.Refused(listOf(registryErrorText(r.error)))
+            }
+        }
+    }
+
+    fun forgetPin(item: BrowseItem) {
+        val registryId = item.registryId ?: return
+        val publisher = item.id.substringBefore('.')
+        detailState.value = null
+        viewModelScope.launch { extensions.registry.forgetPin(registryId, publisher) }
+    }
+
+    fun approve(review: InstallState.Review, envId: String?) {
+        val pkg = review.pkg
         viewModelScope.launch {
             installState.value = try {
-                extensions.installer.commit(pkg, envId)
+                val signed = review.registry
+                if (signed != null) extensions.registry.commit(signed, envId) else extensions.installer.commit(pkg, envId)
                 InstallState.Idle
             } catch (e: IOException) {
                 extensions.installer.discard(pkg)
@@ -318,6 +379,13 @@ class ExtensionsViewModel(
     }
 
     private companion object { const val SUBSCRIPTION_TIMEOUT_MS = 5_000L }
+}
+
+/** One line with the failure's kind: network failures keep the last verified copy, rejections are hard stops. */
+internal fun registryErrorText(e: RegistryError): String = when (e) {
+    is RegistryError.Network -> "Network: ${e.reason}"
+    is RegistryError.Rejected -> "Refused: ${e.reason}"
+    is RegistryError.Storage -> "Storage: ${e.reason}"
 }
 
 /** SAF tree as a [FolderNode]; SAF has no symlinks, and names are validated by the unpacker. */
