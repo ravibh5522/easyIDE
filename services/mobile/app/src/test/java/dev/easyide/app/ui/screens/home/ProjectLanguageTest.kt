@@ -20,7 +20,11 @@ class ProjectLanguageTest {
     @Test fun `without a marker the most common extension wins`() {
         val root = listOf("a.py", "b.py", "c.js", "README.md")
         assertEquals(ProjectLanguage.PYTHON, ProjectLanguage.detect(root))
-        assertEquals(ProjectLanguage.GO, ProjectLanguage.detect(listOf("a.py"), listOf("x.go", "y.go")))
+        assertEquals(ProjectLanguage.GO, ProjectLanguage.detect(listOf("a.py"), listOf("x.go", "y.go", "z.go")))
+    }
+
+    @Test fun `a root file outweighs one under src`() {
+        assertEquals(ProjectLanguage.PYTHON, ProjectLanguage.detect(listOf("main.py", "README.md"), listOf("app.js")))
     }
 
     @Test fun `ties resolve in declaration order`() {

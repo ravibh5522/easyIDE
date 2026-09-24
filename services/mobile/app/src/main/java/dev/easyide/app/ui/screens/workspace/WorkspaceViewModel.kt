@@ -151,7 +151,7 @@ class WorkspaceViewModel(
         scope = viewModelScope,
         environmentId = environmentId,
         projectId = projectId,
-        projectRoot = projectFiles.projectRoot(projectId),
+        projectRoot = projectFiles.projectRoot(projectId).canonicalFile,
         rootfsDir = lspRuntime.rootfsDir(environmentId),
     )
 

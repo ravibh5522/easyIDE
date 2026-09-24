@@ -83,8 +83,10 @@ class LspRuntime(
 
     private val locator = object : ProjectLocator {
         override fun projectName(environmentId: String, projectId: String) = projectNames.value[projectId] ?: projectId
-        override fun projectDir(environmentId: String, projectId: String): File = paths.projectDir(projectId)
-        override fun rootfsDir(environmentId: String): File = paths.rootfsDir(environmentId)
+        // Canonical: the app's files dir is reachable as /data/data and /data/user/0, and the
+        // mapper compares paths lexically, so every root it sees must be spelled one way.
+        override fun projectDir(environmentId: String, projectId: String): File = paths.projectDir(projectId).canonicalFile
+        override fun rootfsDir(environmentId: String): File = paths.rootfsDir(environmentId).canonicalFile
         override val guestWorkspace: String get() = paths.guestProjectPath()
         override val passthroughMounts: List<String> get() = paths.guestPassthroughMounts
     }
@@ -115,7 +117,7 @@ class LspRuntime(
     val client = LspClient(manager)
 
     /** Host directory of an environment's rootfs, where env files a server points at live. */
-    fun rootfsDir(environmentId: String): File = paths.rootfsDir(environmentId)
+    fun rootfsDir(environmentId: String): File = paths.rootfsDir(environmentId).canonicalFile
 
     /** `ComponentCallbacks2.onTrimMemory`, forwarded by the application. */
     fun onTrimMemory(level: Int) {

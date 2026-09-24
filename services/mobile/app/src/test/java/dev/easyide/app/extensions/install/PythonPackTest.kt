@@ -105,7 +105,7 @@ class PythonPackTest {
         // Both carry the same setup recipe, run later in a visible terminal.
         val recipe = servers(ENV, bundled, builtIn).first().install!!
         assertEquals(recipe, servers(ENV, pkg, installed).first().install)
-        assertEquals(listOf("apt-get update && apt-get install -y pipx nodejs npm", "npm install -g pyright && pipx install ruff && pipx ensurepath"), recipe.steps.map { it.run })
+        assertEquals(listOf("apt-get update && apt-get install -y pipx nodejs npm", "npm install -g pyright && PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install ruff"), recipe.steps.map { it.run })
     }
 
     @Test fun `python files resolve to the pack, not to a bundled grammar`() {

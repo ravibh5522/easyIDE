@@ -41,11 +41,15 @@ enum class ProjectLanguage(
             val byMarker = entries.firstOrNull { language -> language.markers.any { it in rootNames } }
             if (byMarker != null) return byMarker
 
-            val counts = (rootNames + sourceNames)
-                .mapNotNull { name -> name.substringAfterLast('.', "").lowercase().takeIf { it.isNotEmpty() } }
-                .mapNotNull { ext -> entries.firstOrNull { ext in it.extensions } }
-                .groupingBy { it }
-                .eachCount()
+            // A root file counts double: `main.py` beside a starter `src/app.js` is a Python project.
+            val counts = HashMap<ProjectLanguage, Int>()
+            for ((names, weight) in listOf(rootNames to 2, sourceNames to 1)) {
+                for (name in names) {
+                    val ext = name.substringAfterLast('.', "").lowercase().takeIf { it.isNotEmpty() } ?: continue
+                    val language = entries.firstOrNull { ext in it.extensions } ?: continue
+                    counts.merge(language, weight, Int::plus)
+                }
+            }
             // Ties resolve to declaration order: maxByOrNull keeps the first maximum.
             return entries.filter { it in counts }.maxByOrNull { counts.getValue(it) }
         }

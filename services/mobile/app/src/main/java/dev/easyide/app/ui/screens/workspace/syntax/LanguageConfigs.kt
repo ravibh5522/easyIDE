@@ -51,15 +51,16 @@ object LanguageConfigs {
     }
 
     /**
-     * The language id of [fileName] (VS Code's ids): the grammar's name, with the few names
+     * The language id of [fileName] (VS Code's ids): an extension pack's language first (Python,
+     * Go, Rust... live only in packs), then the bundled grammar's name, with the few names
      * that differ from VS Code mapped, so `[lang]` settings blocks and LSP `languageId` agree.
-     * Null when no grammar claims the file; call off the main thread.
+     * Null when nothing claims the file; call off the main thread.
      */
     fun languageIdFor(fileName: String): String? {
-        TextMateHighlighter.ensureIndexLoaded()
         val ext = fileName.substringAfterLast('.', "").lowercase()
         EXTENSION_LANGUAGE_IDS[ext]?.let { return it }
-        val name = synchronized(this) { index?.languageIdFor(fileName) } ?: return null
+        // Outside this object's lock, like forFile: the highlighter takes its own lock first.
+        val name = TextMateHighlighter.languageIdFor(fileName, null) ?: return null
         return NAME_LANGUAGE_IDS[name] ?: name
     }
 
