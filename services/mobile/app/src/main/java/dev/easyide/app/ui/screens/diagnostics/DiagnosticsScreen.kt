@@ -70,7 +70,7 @@ fun DiagnosticsScreen(
     ) { inset ->
         Box(Modifier.fillMaxSize()) {
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = inset.calculateBottomPadding() + Kit.space.xxl)) {
-                if (state.loading) item(key = "loading") { KitProgress(null, Modifier.fillMaxWidth().padding(Kit.space.l)) }
+                if (state.loading) item(key = "loading") { KitProgress(null, Modifier.fillMaxWidth().padding(Kit.control.hPad)) }
                 state.report?.let { report ->
                     sandboxSection(report, state.checksums, state.busy, actions)
                     runtimeSection(report)

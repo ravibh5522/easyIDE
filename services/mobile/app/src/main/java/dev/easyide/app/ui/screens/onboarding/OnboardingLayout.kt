@@ -26,8 +26,8 @@ internal fun onboardingLayout(size: WindowSize): OnboardingLayout = when {
 
 /** Shares of the row: the rail is the identity and progress, the step gets the larger part. */
 internal object OnboardingWeights {
-    const val RAIL = 0.38f
-    const val STEP = 0.62f
+    const val RAIL = 0.32f
+    const val STEP = 0.68f
 }
 
 @get:StringRes

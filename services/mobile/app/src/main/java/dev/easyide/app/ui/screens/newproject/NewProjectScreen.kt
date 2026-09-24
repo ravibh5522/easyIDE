@@ -64,7 +64,7 @@ fun NewProjectScreen(
         KitField(
             value = uiState.projectName,
             onValueChange = onProjectNameChanged,
-            modifier = Modifier.fillMaxWidth().padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.l),
+            modifier = Modifier.fillMaxWidth().padding(start = Kit.control.hPad, end = Kit.control.hPad, top = Kit.space.m),
             label = stringResource(R.string.new_project_name_label),
             error = error?.takeIf { it.isAboutName() }?.text(),
         )
@@ -75,7 +75,7 @@ fun NewProjectScreen(
             EnvironmentChoice.CREATE_NEW ->
                 NewEnvironmentForm(uiState, onNewEnvironmentLabelChanged, onBackendSelected, onImageSelected)
         }
-        Spacer(Modifier.height(Kit.space.l))
+        Spacer(Modifier.height(Kit.space.m))
     }
 }
 
