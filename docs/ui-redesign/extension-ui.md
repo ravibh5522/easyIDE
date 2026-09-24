@@ -244,6 +244,8 @@ Split view and diff are built-in behaviours of the stage, available to extension
   same word-level highlighting, scroll sync and hunk navigation.
 - Layout presets can pre-arrange the split (chat left, diff right).
 
+Host side (R6): `DiffProvider` and `DiffProviders` in `ui/shell/diff` are the seam. A provider names its scheme, describes a URI (`subject`: the file and the two sides), loads it into hunks and may offer hunk actions; the document draws whatever comes back. The runtime does not feed packs' providers in yet, so a pack's `compare` contribution still needs its schema and an adapter that calls `DiffProviders.register`.
+
 ## 8. Compatibility and hand-off
 
 The extension track owns the SDK. This feature requires these changes there:

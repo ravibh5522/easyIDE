@@ -79,7 +79,7 @@ the stage shows. Specifically these are documents, not screens or dialogs:
 | Keyboard shortcuts | `easyide://keybindings` | |
 | Language servers | `easyide://language-servers` | |
 | Diagnostics | `easyide://diagnostics` | |
-| Git diff | `git-diff:///workspace/a.kt?base=HEAD&target=working` | side by side at wide sizes |
+| Git diff | `git-diff:///src/a.kt?base=HEAD&head=worktree` | repository-relative path; `base` and `head` are a revision, `index`, `worktree` (head only) or `empty` (base only); side by side when the document is wide |
 | Commit details | `git-commit://<sha>` | |
 | Markdown / image preview | `preview:///workspace/README.md` | |
 | Terminal (editor-area) | `terminal://<id>` | a terminal may also live in the bottom panel |

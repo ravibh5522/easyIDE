@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,20 +62,14 @@ fun GitDiffDocument(uri: DocumentUri, modifier: Modifier = Modifier) {
     val actions = remember(uri.key, provider) { provider.actions(uri) }
     val busy by remember(actions) { actions?.busy ?: flowOf(false) }.collectAsState(false)
     val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
     val ready = (outcome as? DiffOutcome.Ready)?.diff as? FileDiff.Text
 
     BoxWithConstraints(modifier.fillMaxSize().background(Kit.colors.background)) {
         val mode = DiffMode.of(maxWidth.value)
         val model = remember(ready, mode) { ready?.let { DiffModel.of(it, mode) } }
-        val at = listState.firstVisibleItemIndex
-        val nav = model?.takeIf { it.headers.isNotEmpty() }?.let { m ->
-            fun step(to: Int?): (() -> Unit)? = to?.let { { scope.launch { listState.animateScrollToItem(it) } } }
-            HunkNav(m.hunkAt(at), m.headers.size, step(m.previousHunk(at)), step(m.nextHunk(at)))
-        }
         val open = env.gitCallbacks.onOpenFile.takeIf { subject.right is SideLabel.Index || subject.right is SideLabel.Worktree }
         Column(Modifier.fillMaxSize()) {
-            DiffHeader(subject, ready?.let { it.added to it.removed }, nav, open?.let { openFile -> { openFile(subject.path) } })
+            Header(subject, ready, model, listState, open?.let { openFile -> { openFile(subject.path) } })
             DiffBody(outcome, model, subject, actions, busy, listState)
         }
         // A discard is confirmed here, not in the source-control pane, which is not composed while its sheet is closed.
@@ -82,6 +77,19 @@ fun GitDiffDocument(uri: DocumentUri, modifier: Modifier = Modifier) {
             GitConfirmDialog(it, env.gitCallbacks.git.commit::answerConfirm)
         }
     }
+}
+
+/** The header reads the scroll position itself, so scrolling recomposes it and not the whole document. */
+@Composable
+private fun Header(subject: DiffSubject, ready: FileDiff.Text?, model: DiffModel?, listState: LazyListState, onOpenFile: (() -> Unit)?) {
+    val scope = rememberCoroutineScope()
+    val at by remember(listState) { derivedStateOf { listState.firstVisibleItemIndex } }
+    val stats = remember(ready) { ready?.let { it.added to it.removed } }
+    val nav = model?.takeIf { it.headers.isNotEmpty() }?.let { m ->
+        fun step(to: Int?): (() -> Unit)? = to?.let { { scope.launch { listState.animateScrollToItem(it) } } }
+        HunkNav(m.hunkAt(at), m.headers.size, step(m.previousHunk(at)), step(m.nextHunk(at)))
+    }
+    DiffHeader(subject, stats, nav, onOpenFile)
 }
 
 @Composable
@@ -103,7 +111,8 @@ private fun DiffBody(
             is FileDiff.Text -> if (model == null || model.items.isEmpty()) {
                 Notice(stringResource(R.string.git_diff_empty))
             } else {
-                DiffList(DiffListSpec(model, rememberDiffPaint(subject.path, model.rows), actions, busy), listState)
+                val paint = rememberDiffPaint(subject.path, model.rows)
+                DiffList(remember(model, paint, actions, busy) { DiffListSpec(model, paint, actions, busy) }, listState)
             }
         }
     }
