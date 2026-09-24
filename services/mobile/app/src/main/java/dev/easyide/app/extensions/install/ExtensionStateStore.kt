@@ -20,7 +20,8 @@ import java.nio.file.StandardCopyOption
 /**
  * One installed version as the installer recorded it. [approvedCapabilities] is the exact
  * set the user approved on the capability sheet (ECO-03); a later version needing more is
- * disabled until re-approved (enablement rule 5).
+ * disabled until re-approved (enablement rule 5). [previous] is the retained version a
+ * rollback flips back to (registry-and-install.md sec 10, sec 11.4).
  */
 data class InstallEntry(
     val id: String,
@@ -30,7 +31,11 @@ data class InstallEntry(
     val version: String,
     val installedAt: Long,
     val approvedCapabilities: Set<String>,
+    val previous: RetainedVersion? = null,
 )
+
+/** The version kept beside `current` for rollback, with what the user approved for it. */
+data class RetainedVersion(val version: String, val approvedCapabilities: Set<String>)
 
 /** `state.json` contents (registry-and-install.md sec 11.4), the subset local installs need. */
 data class ExtensionState(val installs: List<InstallEntry>, val crashDisabled: Set<String>) {
@@ -82,9 +87,18 @@ class ExtensionStateStore(private val file: File) {
             source = source,
             version = version,
             installedAt = (o[KEY_INSTALLED_AT] as? JsonPrimitive)?.longOrNull ?: 0L,
-            approvedCapabilities = (o[KEY_APPROVED] as? JsonArray).orEmpty().mapNotNullTo(HashSet()) { it.stringOrNull },
+            approvedCapabilities = approvals(o),
+            // Absent in files written before rollback existed: the entry then has no record.
+            previous = (o[KEY_PREVIOUS] as? JsonObject)?.let { p ->
+                p[KEY_VERSION]?.stringOrNull?.let { RetainedVersion(it, approvals(p)) }
+            },
         )
     }
+
+    private fun approvals(o: JsonObject): Set<String> =
+        (o[KEY_APPROVED] as? JsonArray).orEmpty().mapNotNullTo(HashSet()) { it.stringOrNull }
+
+    private fun encodeApprovals(approved: Set<String>) = JsonArray(approved.sorted().map(::JsonPrimitive))
 
     private fun encode(state: ExtensionState): JsonObject = JsonObject(mapOf(
         KEY_SCHEMA_VERSION to JsonPrimitive(SCHEMA_VERSION),
@@ -96,7 +110,10 @@ class ExtensionStateStore(private val file: File) {
                 KEY_SOURCE to JsonPrimitive(e.source.name),
                 KEY_VERSION to JsonPrimitive(e.version),
                 KEY_INSTALLED_AT to JsonPrimitive(e.installedAt),
-                KEY_APPROVED to JsonArray(e.approvedCapabilities.sorted().map(::JsonPrimitive)),
+                KEY_APPROVED to encodeApprovals(e.approvedCapabilities),
+                KEY_PREVIOUS to (e.previous?.let { p ->
+                    JsonObject(mapOf(KEY_VERSION to JsonPrimitive(p.version), KEY_APPROVED to encodeApprovals(p.approvedCapabilities)))
+                } ?: JsonNull),
             ))
         }),
         KEY_CRASH_DISABLED to JsonArray(state.crashDisabled.sorted().map(::JsonPrimitive)),
@@ -129,6 +146,7 @@ class ExtensionStateStore(private val file: File) {
         const val KEY_VERSION = "version"
         const val KEY_INSTALLED_AT = "installedAt"
         const val KEY_APPROVED = "approvedCapabilities"
+        const val KEY_PREVIOUS = "previous"
         const val TMP_SUFFIX = ".tmp"
     }
 }

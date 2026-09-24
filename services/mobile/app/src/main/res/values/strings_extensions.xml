@@ -73,6 +73,14 @@
     <string name="ext_contributions_none">None registered (the extension is off or contributes nothing)</string>
     <string name="ext_hidden_by">Hidden by %1$s</string>
     <string name="ext_uninstall">Uninstall</string>
+    <string name="ext_rollback">Roll back to %1$s</string>
+    <string name="ext_rollback_confirm_title">Roll back %1$s to %2$s?</string>
+    <string name="ext_rollback_confirm_body">Version %1$s stays installed, so you can roll forward to it again. Changes the newer version made inside an environment are not undone.</string>
+    <string name="ext_rollback_action">Roll back</string>
+    <string name="ext_rollback_approve_title">Approve %1$s %2$s?</string>
+    <string name="ext_rollback_approve_body">This version asks for capabilities that were never approved for it:</string>
+    <string name="ext_rollback_approve">Approve and roll back</string>
+    <string name="ext_rollback_refused">Rollback refused</string>
     <string name="ext_log_title">Extension log</string>
     <string name="ext_log_clear">Clear</string>
     <string name="ext_log_empty">Nothing logged yet.</string>

@@ -2,7 +2,7 @@
 
 Low-level design of registry index fetch and verification, signing trust, install/update/rollback/uninstall, the Open VSX adapter and the offline cache.
 
-Status: PROPOSED (2026-09-23). Implemented so far (2026-09-24): sec 4.1 `Jcs` and sec 4.2 `KeyIds`/`SignatureVerifier`/`Ed25519` port, in `services/shared/extension-schema` package `dev.easyide.extensions.registry` (the shared library of sec 4.1, not `:extensions`). Design context: [arch.md](../arch.md) sec 5.4, 6.2, 6.3 ("Install"), 9, 11, 12 (M3, M6).
+Status: PROPOSED (2026-09-23). Implemented so far (2026-09-24): sec 4.1 `Jcs` and sec 4.2 `KeyIds`/`SignatureVerifier`/`Ed25519` port, in `services/shared/extension-schema` package `dev.easyide.extensions.registry` (the shared library of sec 4.1, not `:extensions`). Sec 10 rollback for local (sideloaded) installs, in the app's `LocalInstaller.rollback` (not yet `InstallPipeline`): flips `current` to the retained previous version after re-validating it, re-asks for capabilities never approved for it, keeps the newer version as the new previous; `state.json` entries carry `previous{version, approvedCapabilities}` (optional, older files load); the revocation check is an injected predicate until sec 6 lands. Design context: [arch.md](../arch.md) sec 5.4, 6.2, 6.3 ("Install"), 9, 11, 12 (M3, M6).
 Contract (package layout, index format, signatures, settings keys): [sdk-reference.md](../sdk-reference.md#registry-index-format).
 Feature area: arch.md sec 5.4 (Ecosystem). Needs ADR-H (0016) before M6; install-from-file lands in M3.
 

@@ -82,7 +82,7 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
 }
 
 @Composable
-private fun ProblemDialog(title: String, problems: List<String>, onDismiss: () -> Unit) {
+internal fun ProblemDialog(title: String, problems: List<String>, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -138,4 +138,4 @@ fun capabilityPrompt(c: Capability, envId: String?): String {
     }
 }
 
-private const val SHEET_MAX_DP = 420
+internal const val SHEET_MAX_DP = 420
