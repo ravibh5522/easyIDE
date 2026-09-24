@@ -47,7 +47,7 @@ class KitGalleryGoldenTest {
         compose.setContent {
             EasyIdeTheme(themeMode = ThemeMode.DARK) {
                 Column(Modifier.fillMaxWidth().background(Kit.colors.background).padding(Kit.space.m)) {
-                    Text("Settings", style = Kit.type.titleLarge, color = Kit.colors.plainText)
+                    Text("Settings", style = Kit.text.display, color = Kit.colors.plainText)
                     Text("Sans 0123456789 Ag", fontFamily = EasyIdeFonts.sans, color = Kit.colors.plainText)
                     Text("Mono 0123456789 Ag", fontFamily = EasyIdeFonts.mono, color = Kit.colors.plainText)
                 }

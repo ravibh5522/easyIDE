@@ -18,6 +18,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.Dp
@@ -36,19 +37,26 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * The accessibility contract of every interactive kit primitive (kit.md 3.1): a role, a name (its
- * text or content description), its enabled / selected / toggle state, and a hit box of at least
- * the 44dp touch floor. Runs on the JVM under Robolectric with the same three settings as the
- * screenshot spike (`app/build.gradle.kts`); debug only, because the compose test manifest is.
+ * text or content description), its enabled / selected / toggle state, and a hit box that follows
+ * the width class (density.md 2). On a phone (COMPACT, Comfortable) an isolated control's layout
+ * box is at least the 44dp touch floor; on a wide window (Dense) it is the 32dp hit box and the
+ * touch region, which Compose pads without changing layout, is at least 40dp. Rows, fields, tabs
+ * and menu items are the control tokens tall. Runs on the JVM under Robolectric with the same
+ * three settings as the screenshot spike (`app/build.gradle.kts`); debug only, because the compose
+ * test manifest is.
  */
-@RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
-// SDK 35, not compileSdk 37: Espresso, pulled in by the compose test rule, calls InputManager.getInstance().
-@Config(sdk = [35], qualifiers = "w411dp-h891dp-xxhdpi")
-class KitSemanticsTest {
+abstract class KitSemanticsSpec(
+    /** Layout box of a small control, and the touch region the theme's floor gives it. */
+    private val hitBox: Dp,
+    private val touchFloor: Dp,
+    private val rowHeight: Dp,
+    private val fieldHeight: Dp,
+    private val tabHeight: Dp,
+) {
+    abstract val indentStep: Dp
+
 
     @get:Rule val compose = createComposeRule()
-
-    private val floor = 44.dp
 
     private fun show(content: @Composable () -> Unit) = compose.setContent { EasyIdeTheme(themeMode = ThemeMode.DARK) { content() } }
 
@@ -56,7 +64,10 @@ class KitSemanticsTest {
 
     private fun SemanticsNodeInteraction.assertTouchFloor(): SemanticsNodeInteraction {
         val box = getBoundsInRoot()
-        assertTrue("hit box ${box.width} x ${box.height} is under $floor", box.width >= floor && box.height >= floor)
+        assertTrue("hit box ${box.width} x ${box.height} is under $hitBox", box.width >= hitBox && box.height >= hitBox)
+        val touch = fetchSemanticsNode().touchBoundsInRoot
+        val density = compose.density.density
+        assertTrue("touch region ${touch.width / density} x ${touch.height / density} is under $touchFloor", touch.width / density >= touchFloor.value - 0.5f && touch.height / density >= touchFloor.value - 0.5f)
         return this
     }
 
@@ -117,15 +128,16 @@ class KitSemanticsTest {
         }
         // An unselected row says nothing about selection, so a screen reader does not announce "not selected".
         compose.onNodeWithText("Plain").hasRole(Role.Button).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected)).assertHasClickAction()
-        assertMinHeight(compose.onNodeWithText("Plain"), floor)
+        assertMinHeight(compose.onNodeWithText("Plain"), rowHeight)
         compose.onNodeWithText("Chosen").assertIsSelected()
         compose.onNodeWithText("Locked").assertIsNotEnabled()
     }
 
     @Test fun `tabs are tab-role nodes with one selected`() {
         show { KitTabs(listOf("Files", "Search", "Git"), selected = 1, onSelect = {}) }
-        compose.onNodeWithText("Files").hasRole(Role.Tab).assertIsNotSelected().assertTouchFloor()
-        compose.onNodeWithText("Search").hasRole(Role.Tab).assertIsSelected().assertTouchFloor()
+        compose.onNodeWithText("Files").hasRole(Role.Tab).assertIsNotSelected()
+        assertMinHeight(compose.onNodeWithText("Files"), tabHeight)
+        compose.onNodeWithText("Search").hasRole(Role.Tab).assertIsSelected()
         compose.onNodeWithText("Git").hasRole(Role.Tab).assertIsNotSelected()
     }
 
@@ -134,9 +146,11 @@ class KitSemanticsTest {
             KitChoice(listOf(0, 1), 0, { if (it == 0) "A" else "B" }, {})
             KitChoice(listOf(0, 1, 2), 2, { "A rather long option label number $it" }, {})
         }
-        compose.onNodeWithText("A").hasRole(Role.Tab).assertIsSelected().assertTouchFloor()
+        compose.onNodeWithText("A").hasRole(Role.Tab).assertIsSelected()
+        assertMinHeight(compose.onNodeWithText("A"), fieldHeight)
         compose.onNodeWithText("B").assertIsNotSelected()
-        compose.onNodeWithText("A rather long option label number 2").hasRole(Role.RadioButton).assertIsSelected().assertTouchFloor()
+        compose.onNodeWithText("A rather long option label number 2").hasRole(Role.RadioButton).assertIsSelected()
+        assertMinHeight(compose.onNodeWithText("A rather long option label number 2"), rowHeight)
         compose.onNodeWithText("A rather long option label number 0").assertIsNotSelected()
     }
 
@@ -144,7 +158,7 @@ class KitSemanticsTest {
         show { KitField("value", {}, label = "Name", error = "Taken") }
         val field = compose.onNodeWithContentDescription("Name")
         field.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
-        assertMinHeight(field, floor)
+        assertMinHeight(field, fieldHeight)
     }
 
     @Test fun `banner dismiss and action are named buttons with the touch floor`() {
@@ -182,8 +196,54 @@ class KitSemanticsTest {
             )
         }
         compose.onNodeWithText("Open").hasRole(Role.Button).assertIsEnabled()
-        assertMinHeight(compose.onNodeWithText("Open"), floor)
+        assertMinHeight(compose.onNodeWithText("Open"), rowHeight)
         compose.onNodeWithText("Word wrap").assertIsOn()
         compose.onNodeWithText("Locked").assertIsNotEnabled()
     }
+
+    @Test fun `row is one line tall at the row token and a two column row keeps it`() {
+        show {
+            KitRow("Title", subtitle = "A description that sits inline after the title", trailing = { KitTag("v1") })
+            KitTwoColumnRow("Setting", description = "About it", id = "two-column") { KitToggle(true, {}) }
+        }
+        val row = compose.onNodeWithText("Title").getBoundsInRoot()
+        assertTrue("row ${row.height} is not the row token $rowHeight", row.height >= rowHeight && row.height < rowHeight + 8.dp)
+        assertMinHeight(compose.onNodeWithTag("kit:two-column"), rowHeight)
+    }
+
+    @Test fun `row leading columns are fixed so titles align`() {
+        show {
+            KitRow("Alpha", leading = { KitTag("a") }, twistie = Twistie.Leaf)
+            KitRow("Beta", leading = { KitTag("b") }, twistie = Twistie.Expanded)
+            KitRow("Gamma", leading = { KitTag("c") }, twistie = Twistie.Collapsed)
+        }
+        val lefts = listOf("Alpha", "Beta", "Gamma").map { compose.onNodeWithText(it, useUnmergedTree = true).getBoundsInRoot().left }
+        assertTrue("title edges $lefts differ", lefts.all { (it - lefts.first()).value in -0.5f..0.5f })
+    }
+
+    @Test fun `a nested row is indented by exactly one indent step`() {
+        show {
+            KitRow("Parent", twistie = Twistie.Expanded)
+            KitRow("Child", twistie = Twistie.Leaf, level = 1)
+        }
+        val step = compose.onNodeWithText("Child", useUnmergedTree = true).getBoundsInRoot().left - compose.onNodeWithText("Parent", useUnmergedTree = true).getBoundsInRoot().left
+        assertTrue("indent $step", (step.value - indentStep.value) in -0.5f..0.5f)
+    }
+}
+
+/** A phone: COMPACT width, so auto density is Comfortable and the 44dp floor applies. */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+// SDK 35, not compileSdk 37: Espresso, pulled in by the compose test rule, calls InputManager.getInstance().
+@Config(sdk = [35], qualifiers = "w411dp-h891dp-xxhdpi")
+class KitSemanticsCompactTest : KitSemanticsSpec(44.dp, 44.dp, 36.dp, 40.dp, 40.dp) {
+    override val indentStep = 14.dp
+}
+
+/** A tablet in landscape: EXPANDED width, so auto density is Dense and the touch floor is 40dp. */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [35], qualifiers = "w1152dp-h720dp-xxhdpi")
+class KitSemanticsWideTest : KitSemanticsSpec(32.dp, 40.dp, 28.dp, 30.dp, 34.dp) {
+    override val indentStep = 12.dp
 }

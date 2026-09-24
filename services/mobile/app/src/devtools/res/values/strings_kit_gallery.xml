@@ -14,7 +14,8 @@
     <string name="gallery_controls_title">Live properties</string>
     <string name="gallery_controls_note">Each change re-themes everything below at once. Font scale stands in for the system font size.</string>
     <string name="gallery_density">Density</string>
-    <string name="gallery_density_compact">Compact</string>
+    <string name="gallery_density_auto">Auto</string>
+    <string name="gallery_density_dense">Dense</string>
     <string name="gallery_density_comfortable">Comfortable</string>
     <string name="gallery_density_spacious">Spacious</string>
     <string name="gallery_corners">Corners</string>
@@ -64,6 +65,50 @@
     <string name="gallery_icon_delete">Delete</string>
     <string name="gallery_sample_path" translatable="false">/home/user/projects/app/src/main/kotlin/Main.kt</string>
     <string name="gallery_sample_version" translatable="false">0.1.0-debug</string>
+
+    <!-- Row anatomy and type (density.md) -->
+    <string name="gallery_anatomy_title">Row anatomy</string>
+    <string name="gallery_anatomy_note">The same rows at Dense (left) and Comfortable (right): one line, fixed columns, description inline, no cards.</string>
+    <string name="gallery_anatomy_dense">Dense</string>
+    <string name="gallery_anatomy_comfortable">Comfortable</string>
+    <string name="gallery_tree_title">Explorer</string>
+    <string name="gallery_tree_root" translatable="false">easyide</string>
+    <string name="gallery_tree_src" translatable="false">src</string>
+    <string name="gallery_tree_main" translatable="false">main</string>
+    <string name="gallery_tree_kit" translatable="false">Kit.kt</string>
+    <string name="gallery_tree_row" translatable="false">KitRow.kt</string>
+    <string name="gallery_tree_test" translatable="false">test</string>
+    <string name="gallery_tree_readme" translatable="false">README.md</string>
+    <string name="gallery_badge_modified" translatable="false">M</string>
+    <string name="gallery_badge_new" translatable="false">A</string>
+    <string name="gallery_changes_title">Changes</string>
+    <string name="gallery_staged_title">Staged</string>
+    <string name="gallery_list_desc_path" translatable="false">ui/kit</string>
+    <string name="gallery_list_desc_long" translatable="false">services/mobile/app/src/main/java/dev/easyide/app/ui/kit</string>
+    <string name="gallery_list_title_long" translatable="false">KitTwoColumnRow.kt</string>
+    <string name="gallery_ext_name">Docker</string>
+    <string name="gallery_ext_desc">Containers, images and compose files in the sidebar</string>
+    <string name="gallery_ext_version" translatable="false">1.4.2</string>
+    <string name="gallery_ext_agents">Agents</string>
+    <string name="gallery_ext_agents_desc">Run a coding agent against the open project</string>
+    <string name="gallery_setting_wrap">Word wrap</string>
+    <string name="gallery_setting_wrap_desc">Wrap long lines in the editor instead of scrolling sideways</string>
+    <string name="gallery_setting_font">Editor font size</string>
+    <string name="gallery_setting_font_desc">In points; independent of the interface density</string>
+    <string name="gallery_setting_home">Home folder</string>
+    <string name="gallery_setting_home_desc">Where new projects are created</string>
+    <string name="gallery_type_title">Type</string>
+    <string name="gallery_type_note">Every role of Kit.text at Dense and Comfortable. The editor and terminal font sizes are user settings and are not in this set.</string>
+    <string name="gallery_type_sample">Sphinx of black quartz 0123</string>
+    <string name="gallery_type_role" translatable="false">%1$s %2$s sp</string>
+    <string name="gallery_role_display">display</string>
+    <string name="gallery_role_heading">heading</string>
+    <string name="gallery_role_title">title</string>
+    <string name="gallery_role_body">body</string>
+    <string name="gallery_role_caption">caption</string>
+    <string name="gallery_role_label">label</string>
+    <string name="gallery_role_mono">mono</string>
+    <string name="gallery_role_mono_small">monoSmall</string>
 
     <!-- Rows and groups -->
     <string name="gallery_rows_title">KitRow</string>
