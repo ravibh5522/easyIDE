@@ -2,7 +2,7 @@
 
 Low-level design of `tools/easyide-ext`, the author-side tool that scaffolds, validates, packages, signs, publishes, tests and live-deploys extensions.
 
-Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign` and `verify` in `tools/easyide-ext`; see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
+Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish` and `registry build` in `tools/easyide-ext`; see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
 Contract (commands, flags, exit codes, index format): [sdk-reference.md#cli](../sdk-reference.md#cli), [#registry-index-format](../sdk-reference.md#registry-index-format).
 Feature area: arch.md sec 5.4 (Ecosystem: Publish, Dev loop, In-app authoring). License Apache-2.0 per ADR-G (0015).
 
@@ -336,3 +336,8 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
     public keys are re-derived from the PKCS#8 seed.
   - `package` also excludes `dist/`, `*.key`, `*.easyext`, `*.easyext.sig`, `.gitignore`,
     `.easyextignore` and `.easyide-ext.json`.
+  - `publish` needs `--url` or `--package-base` (the https raw base of the index repo, to commit the package
+    under `packages/`): the entry's `url` must be https and the CLI cannot guess a host's raw URL. Entry
+    files are pretty-printed for review; signatures cover the canonical form, so formatting never matters.
+  - `registry build` creates an empty `revocations.json` when the repo has none and requires every entry
+    file at `entries/<publisher>/<name>/<version>.json`.

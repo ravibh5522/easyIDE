@@ -39,7 +39,7 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | In-app dev loop (create, install from folder, live reload, log) | not-started | |
 | Samples + author docs | not-started | |
 | **M6 registry** | | |
-| Static signed index repo + browse/install UI | in-progress | building blocks only: RFC 8785 `Jcs` (strict parse: duplicate keys and non-integers refused), `Sig`, `KeyIds`, `SignedBytes`, `SignatureVerifier` behind an `Ed25519` port (`JdkEd25519` for JVM/CLI; Android provider still to verify, registry-and-install.md sec 4.2) in `dev.easyide.extensions.registry`; no index fetch, trust store or UI yet |
+| Static signed index repo + browse/install UI | in-progress | shared core done (`dev.easyide.extensions.registry`, Apache-2.0): strict `IndexEntry`/`PublisherKeys`/`Revocations` parsing, `RegistryVerifier` (root-signed index + revocations with anti-rollback, publisher file, entry signature with active unrevoked key, TOFU pin with rotation chain, revoked versions, size+sha256), `Catalog` (latest compatible unrevoked, search ranking, filters), `RegistrySigning`; CLI `publish` (signed entry to a branch of the index repo via system git, `--register-publisher`, `--url`/`--package-base`) and `registry build` (verifies every entry, root-signs index, publishers, revocations), round-trip tested against a local bare repo. App fetch/cache/trust store/install pipeline/browse UI not yet |
 | Open VSX secondary source | not-started | |
 | **M7 WASM layer** | | |
 | Runtime embed, ABI v1, host API, capability enforcement | in-progress | `:ext-wasm` host on Chicory landed in b322368 after the on-device spike passed (ABI v1, capability-gated host functions, metering and limits); this row was not updated then |

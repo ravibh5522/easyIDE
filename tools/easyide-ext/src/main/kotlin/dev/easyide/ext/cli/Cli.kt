@@ -23,6 +23,7 @@ object CliCode {
     const val SIGNATURE = "E_SIGNATURE"
     const val WASM_MODULE = "E_WASM_MODULE"
     const val STRICT = "E_STRICT"
+    const val REGISTRY = "E_REGISTRY"
     const val README_MISSING = "W_README_MISSING"
     const val LICENSE_MISSING = "W_LICENSE_MISSING"
     const val LICENSE_FIELD = "W_LICENSE_FIELD"
