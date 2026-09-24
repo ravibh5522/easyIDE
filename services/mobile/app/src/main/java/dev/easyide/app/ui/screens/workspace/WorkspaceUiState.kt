@@ -47,6 +47,8 @@ data class WorkspaceUiState(
     val linuxReady: Boolean = false,
     val isInstalling: Boolean = false,
     val clipboard: FileClipboard? = null,
+    /** Bumped when something asks for the terminal stage to show (an install run). */
+    val terminalRevealRequests: Int = 0,
 ) {
     val activeTab: EditorTab? get() = openTabs.find { it.relativePath == activeTabPath }
     val activeTerminal: PtyTerminalTab? get() = terminals.find { it.id == activeTerminalId }

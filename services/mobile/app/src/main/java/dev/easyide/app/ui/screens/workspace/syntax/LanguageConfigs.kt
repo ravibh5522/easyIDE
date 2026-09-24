@@ -43,11 +43,24 @@ object LanguageConfigs {
         return lookup(fileName)
     }
 
-    /** Language id of [fileName] for per-language settings, or null when no grammar claims it; off the main thread. */
+    /**
+     * The language id of [fileName] (VS Code's ids): the grammar's name, with the few names
+     * that differ from VS Code mapped, so `[lang]` settings blocks and LSP `languageId` agree.
+     * Null when no grammar claims the file; call off the main thread.
+     */
     fun languageIdFor(fileName: String): String? {
         TextMateHighlighter.ensureIndexLoaded()
-        return synchronized(this) { index?.languageIdFor(fileName) }
+        val ext = fileName.substringAfterLast('.', "").lowercase()
+        EXTENSION_LANGUAGE_IDS[ext]?.let { return it }
+        val name = synchronized(this) { index?.languageIdFor(fileName) } ?: return null
+        return NAME_LANGUAGE_IDS[name] ?: name
     }
+
+    /** Grammar names that are not VS Code language ids. */
+    private val NAME_LANGUAGE_IDS = mapOf("tsx" to "typescriptreact")
+
+    /** Extensions whose grammar is shared with another language id (`.jsx` uses the JS grammar). */
+    private val EXTENSION_LANGUAGE_IDS = mapOf("jsx" to "javascriptreact")
 
     @Synchronized
     private fun lookup(fileName: String): LanguageConfig {

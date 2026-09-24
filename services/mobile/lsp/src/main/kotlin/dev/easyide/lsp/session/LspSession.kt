@@ -202,6 +202,10 @@ class LspSession internal constructor(
             return
         }
         if (transition.to != from) {
+            // Observers treat Running as "requests may be sent now" and route by capability,
+            // so capabilities must be visible before the state flips or an immediate request
+            // finds no capable server.
+            if (Effect.Activate in transition.effects) instance?.capabilities?.let { capabilitiesFlow.value = it }
             stateFlow.value = transition.to
             logLine("state $from -> ${transition.to} ($event)")
             armTimer(transition.to)

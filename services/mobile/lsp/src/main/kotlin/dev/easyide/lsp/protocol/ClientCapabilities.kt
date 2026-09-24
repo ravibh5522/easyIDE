@@ -19,11 +19,15 @@ enum class UiLayer { UNDERLINE, BACKGROUND_RANGE, INLINE_TEXT, GUTTER_ICON, BETW
  *
  * @property semanticTokenTypes / [semanticTokenModifiers] the names `SemanticRules` maps to
  *   roles; advertised verbatim so servers only send types the renderer can colour.
+ * @property withheld features whose presenter this app build does not ship even though their
+ *   milestone is reached and no layer is missing (a panel- or command-only feature such as
+ *   folding or selection ranges). Never advertised, so a server does no work nobody shows.
  */
 data class ClientUi(
     val layers: Set<UiLayer>,
     val semanticTokenTypes: List<String>,
     val semanticTokenModifiers: List<String>,
+    val withheld: Set<LspFeature> = emptySet(),
 )
 
 /**
@@ -85,7 +89,8 @@ object ClientCapabilitiesBuilder {
         val base = if (milestone == Milestone.M4) M2_FEATURES + M4_FEATURES else M2_FEATURES
         return base.filterTo(mutableSetOf()) { f ->
             val layer = REQUIRED_LAYER[f]
-            (layer == null || layer in ui.layers) &&
+            f !in ui.withheld &&
+                (layer == null || layer in ui.layers) &&
                 (f != LspFeature.SEMANTIC_TOKENS || ui.semanticTokenTypes.isNotEmpty())
         }
     }

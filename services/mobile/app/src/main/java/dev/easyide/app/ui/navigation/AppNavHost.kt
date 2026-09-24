@@ -105,6 +105,7 @@ fun AppNavHost(
                 uiState = uiState,
                 gitState = gitState,
                 decorations = workspaceViewModel.decorations,
+                lsp = workspaceViewModel.lsp,
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
                     onCommit = workspaceViewModel::commitGit,

@@ -45,6 +45,16 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalView
 import com.termux.view.TerminalView
 import dev.easyide.app.ui.commands.CommandPalette
+import dev.easyide.app.ui.commands.ChordDispatcher
+import dev.easyide.app.ui.screens.workspace.lsp.LspDialogs
+import dev.easyide.app.ui.screens.workspace.lsp.LspEditorOverlay
+import dev.easyide.app.ui.screens.workspace.lsp.LspInstallNotice
+import dev.easyide.app.ui.screens.workspace.lsp.LspSidePanel
+import dev.easyide.app.ui.screens.workspace.lsp.LspStatusItems
+import dev.easyide.app.ui.screens.workspace.lsp.SymbolScope
+import dev.easyide.app.ui.screens.workspace.lsp.WorkspaceLspController
+import dev.easyide.app.ui.screens.workspace.lsp.lspCommands
+import androidx.compose.runtime.collectAsState
 import dev.easyide.app.ui.foundation.LocalKeymap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
@@ -83,6 +93,7 @@ fun WorkspaceScreen(
     gitState: GitPanelState,
     gitCallbacks: SourceControlCallbacks,
     decorations: DecorationRegistry,
+    lsp: WorkspaceLspController,
     modifier: Modifier = Modifier,
 ) {
     val onRefreshGit = gitCallbacks.onRefresh
@@ -137,8 +148,14 @@ fun WorkspaceScreen(
             showCommands = { paletteOpen = true },
             closeTab = requestCloseTab,
         ),
+        extra = lspCommands(lsp),
     )
     val keymap = LocalKeymap.current
+    // Per screen: the pending half of a two-step chord (Ctrl+K ...) is UI state.
+    val dispatcher = remember(keymap) { ChordDispatcher(keymap) }
+    val lspPanel by lsp.panel.collectAsState()
+    // An install recipe was started in a new terminal: show it, the user watches it run.
+    LaunchedEffect(uiState.terminalRevealRequests) { if (uiState.terminalRevealRequests > 0) stages.showBottom() }
     val hostView = LocalView.current
     val rootFocus = remember { FocusRequester() }
 
@@ -158,7 +175,7 @@ fun WorkspaceScreen(
                 // EasyTerminalViewClient.onHardwareKey); handling them here as
                 // well would run a command twice or steal a shell chord.
                 if (hostView.rootView.findFocus() is TerminalView) return@onPreviewKeyEvent false
-                keymap.dispatch(event.nativeKeyEvent, terminalFocused = false, commands)
+                dispatcher.dispatch(event.nativeKeyEvent, terminalFocused = false, commands)
             }
             .focusRequester(rootFocus)
             .focusable(),
@@ -209,13 +226,16 @@ fun WorkspaceScreen(
                             )
                             HorizontalDividerLine()
 
+                            LspInstallNotice(lsp)
                             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                                val activePath = uiState.activeTabPath
                                 EditorPane(
                                     tab = uiState.activeTab,
-                                    onContentChanged = { content ->
-                                        uiState.activeTabPath?.let { callbacks.onContentChanged(it, content) }
-                                    },
-                                    decorations = uiState.activeTabPath?.let(decorations::model),
+                                    onContentChanged = { content -> activePath?.let { callbacks.onContentChanged(it, content) } },
+                                    decorations = activePath?.let(decorations::model),
+                                    onGutterTap = { line -> activePath?.let { lsp.onGutterTap(it, line) } },
+                                    overlay = { geometry -> activePath?.let { LspEditorOverlay(lsp, it, geometry) } },
+                                    interaction = lsp,
                                 )
                             }
 
@@ -232,13 +252,18 @@ fun WorkspaceScreen(
                                         onCloseTab = callbacks.onCloseTerminal,
                                         onRenameTab = { id, title -> prompt = PendingPrompt.RenameTerminal(id, title) },
                                         onInstallLinux = callbacks.onInstallLinux,
-                                        onHardwareKey = { e -> keymap.dispatch(e, terminalFocused = true, commands) },
+                                        onHardwareKey = { e -> dispatcher.dispatch(e, terminalFocused = true, commands) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(windowSize.height.terminalHeight()),
                                     )
                                 }
                             }
+                        }
+
+                        lspPanel?.let { panel ->
+                            VerticalDivider()
+                            LspSidePanel(lsp, panel, Modifier.width(windowSize.width.explorerWidth()))
                         }
                     }
 
@@ -264,6 +289,7 @@ fun WorkspaceScreen(
                 branch = gitState.status?.branch,
                 activeTab = uiState.activeTab,
                 onSave = callbacks.onSave,
+                extra = { LspStatusItems(lsp) },
             )
         }
 
@@ -290,9 +316,22 @@ fun WorkspaceScreen(
         )
 
         PromptDialogs(prompt, callbacks) { prompt = null }
+        LspDialogs(lsp)
 
         if (paletteOpen) {
-            CommandPalette(registry = commands, keymap = keymap, onDismiss = { paletteOpen = false })
+            CommandPalette(
+                registry = commands,
+                keymap = keymap,
+                onDismiss = { paletteOpen = false },
+                onPrefix = { prefix, query ->
+                    val scope = when (prefix) {
+                        SYMBOL_PREFIX_DOCUMENT -> SymbolScope.DOCUMENT
+                        SYMBOL_PREFIX_WORKSPACE -> SymbolScope.WORKSPACE
+                        else -> null
+                    }
+                    scope?.let { lsp.navigation.openPicker(it, query) } != null
+                },
+            )
         }
 
         SnackbarHost(
@@ -530,3 +569,7 @@ private const val MEDIUM_EXPLORER_DP = 240
 private const val EXPANDED_EXPLORER_DP = 280
 private const val COMPACT_TERMINAL_DP = 160
 private const val REGULAR_TERMINAL_DP = 260
+
+/** Command-palette quick-open prefixes (VS Code's): document symbols, workspace symbols. */
+private const val SYMBOL_PREFIX_DOCUMENT = '@'
+private const val SYMBOL_PREFIX_WORKSPACE = '#'

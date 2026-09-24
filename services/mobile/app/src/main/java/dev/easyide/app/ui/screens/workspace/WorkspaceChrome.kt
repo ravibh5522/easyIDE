@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -122,6 +123,8 @@ fun StatusBar(
     activeTab: EditorTab?,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Items of other features (language server status, diagnostic counts), right-aligned. */
+    extra: @Composable RowScope.() -> Unit = {},
 ) {
     val colors = editorColors
 
@@ -169,6 +172,7 @@ fun StatusBar(
         }
 
         Box(modifier = Modifier.weight(1f))
+        extra()
 
         if (activeTab?.isDirty == true) {
             Row(

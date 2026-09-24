@@ -24,6 +24,8 @@ fun workspaceCommands(
     uiState: WorkspaceUiState,
     callbacks: WorkspaceCallbacks,
     shell: WorkspaceShellActions,
+    /** Commands of other features (language servers), appended after the workspace's own. */
+    extra: List<Command> = emptyList(),
 ): CommandRegistry {
     val active = uiState.activeTab
     val tabs = uiState.openTabs
@@ -62,6 +64,6 @@ fun workspaceCommands(
             Command(CommandIds.REFRESH_EXPLORER, R.string.command_refresh_explorer, run = callbacks.onRefreshTree),
             Command(CommandIds.TOGGLE_TERMINAL, R.string.command_toggle_terminal, run = shell.toggleTerminal),
             Command(CommandIds.NEW_TERMINAL, R.string.command_new_terminal, run = callbacks.onNewTerminal),
-        )
+        ) + extra,
     )
 }

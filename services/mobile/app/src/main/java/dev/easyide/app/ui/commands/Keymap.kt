@@ -51,7 +51,11 @@ enum class KeyFocus(val whenText: String?) {
     }
 }
 
-data class KeyBinding(val chord: KeyChord, val command: String, val focus: KeyFocus)
+/**
+ * [prefix] makes a two-step chord (VS Code's `ctrl+k ctrl+i`): [chord] only counts right after
+ * [prefix] was pressed; see [ChordDispatcher].
+ */
+data class KeyBinding(val chord: KeyChord, val command: String, val focus: KeyFocus, val prefix: KeyChord? = null)
 
 class Keymap(val bindings: List<KeyBinding>) {
 
@@ -60,11 +64,20 @@ class Keymap(val bindings: List<KeyBinding>) {
      * key through. Scanned last to first so a later entry (a keybindings.json
      * override) wins over the default table.
      */
-    fun commandFor(chord: KeyChord, terminalFocused: Boolean): String? =
-        bindings.lastOrNull { it.chord == chord && it.focus.matches(terminalFocused) }?.command
+    fun commandFor(chord: KeyChord, terminalFocused: Boolean, prefix: KeyChord? = null): String? =
+        bindings.lastOrNull { it.chord == chord && it.prefix == prefix && it.focus.matches(terminalFocused) }?.command
+
+    /** Whether [chord] starts a two-step chord in this focus context. */
+    fun isPrefix(chord: KeyChord, terminalFocused: Boolean): Boolean =
+        bindings.any { it.prefix == chord && it.focus.matches(terminalFocused) }
 
     /** The chord shown next to [command] in the palette: the one that would win dispatch. */
     fun chordFor(command: String): KeyChord? = bindings.lastOrNull { it.command == command }?.chord
+
+    /** The palette label of [command]'s winning binding, both steps of a two-step chord included. */
+    fun labelFor(command: String): String? = bindings.lastOrNull { it.command == command }?.let { b ->
+        listOfNotNull(b.prefix, b.chord).joinToString(" ") { label(it) }
+    }
 
     /** Down events only: acting on the matching key-up too would run every command twice. */
     fun dispatch(event: KeyEvent, terminalFocused: Boolean, registry: CommandRegistry): Boolean {
@@ -85,11 +98,28 @@ class Keymap(val bindings: List<KeyBinding>) {
                 KeyBinding(ctrl(KeyEvent.KEYCODE_B), CommandIds.TOGGLE_EXPLORER, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrl(KeyEvent.KEYCODE_GRAVE), CommandIds.TOGGLE_TERMINAL, KeyFocus.ANYWHERE),
                 KeyBinding(ctrlShift(KeyEvent.KEYCODE_G), CommandIds.TOGGLE_SOURCE_CONTROL, KeyFocus.ANYWHERE),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_SPACE), CommandIds.TRIGGER_SUGGEST, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_SPACE), CommandIds.TRIGGER_PARAMETER_HINTS, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_I), CommandIds.SHOW_HOVER, KeyFocus.OUTSIDE_TERMINAL, prefix = ctrl(KeyEvent.KEYCODE_K)),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F12), CommandIds.REVEAL_DEFINITION, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_F12), CommandIds.GO_TO_IMPLEMENTATION, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F12, shift = true), CommandIds.GO_TO_REFERENCES, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F2), CommandIds.RENAME, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_PERIOD), CommandIds.QUICK_FIX, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F, shift = true, alt = true), CommandIds.FORMAT_DOCUMENT, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_O), CommandIds.GOTO_SYMBOL, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_T), CommandIds.SHOW_ALL_SYMBOLS, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_M), CommandIds.SHOW_PROBLEMS, KeyFocus.ANYWHERE),
             )
         )
 
         /** Keys whose `KEYCODE_*` name is not what the keycap shows. */
-        private val KEY_LABELS = mapOf(KeyEvent.KEYCODE_GRAVE to "`", KeyEvent.KEYCODE_TAB to "Tab")
+        private val KEY_LABELS = mapOf(
+            KeyEvent.KEYCODE_GRAVE to "`",
+            KeyEvent.KEYCODE_TAB to "Tab",
+            KeyEvent.KEYCODE_SPACE to "Space",
+            KeyEvent.KEYCODE_PERIOD to ".",
+        )
 
         fun label(chord: KeyChord): String = buildList {
             if (chord.ctrl) add("Ctrl")
@@ -101,5 +131,32 @@ class Keymap(val bindings: List<KeyBinding>) {
 
         private fun ctrl(keyCode: Int) = KeyChord(keyCode, ctrl = true)
         private fun ctrlShift(keyCode: Int) = KeyChord(keyCode, ctrl = true, shift = true)
+    }
+}
+
+/**
+ * Key dispatch with two-step chords: after a prefix chord (Ctrl+K) the next non-modifier key
+ * completes or cancels it, and is consumed either way, as in VS Code. One per screen; the
+ * pending prefix is UI state, kept out of the immutable [Keymap].
+ */
+class ChordDispatcher(private val keymap: Keymap) {
+    private var pending: KeyChord? = null
+
+    /** Down events only: acting on the matching key-up too would run every command twice. */
+    fun dispatch(event: KeyEvent, terminalFocused: Boolean, registry: CommandRegistry): Boolean {
+        if (event.action != KeyEvent.ACTION_DOWN || KeyEvent.isModifierKey(event.keyCode)) return false
+        val chord = KeyChord.of(event)
+        val prefix = pending
+        if (prefix != null) {
+            pending = null
+            keymap.commandFor(chord, terminalFocused, prefix)?.let(registry::execute)
+            return true
+        }
+        if (keymap.isPrefix(chord, terminalFocused)) {
+            pending = chord
+            return true
+        }
+        val id = keymap.commandFor(chord, terminalFocused) ?: return false
+        return registry.execute(id)
     }
 }

@@ -61,4 +61,23 @@ class KeymapTest {
         assertFalse(registry.execute("missing"))
         assertEquals(1, ran)
     }
+
+    @Test
+    fun twoStepChordsMatchOnlyAfterTheirPrefix() {
+        val k = ctrl(KeyEvent.KEYCODE_K)
+        val i = ctrl(KeyEvent.KEYCODE_I)
+        assertTrue(keymap.isPrefix(k, terminalFocused = false))
+        assertFalse(keymap.isPrefix(k, terminalFocused = true))
+        assertEquals(CommandIds.SHOW_HOVER, keymap.commandFor(i, terminalFocused = false, prefix = k))
+        assertNull(keymap.commandFor(i, terminalFocused = false))
+    }
+
+    @Test
+    fun languageFeatureChordsStayOutOfTheTerminal() {
+        assertEquals(CommandIds.TRIGGER_SUGGEST, keymap.commandFor(ctrl(KeyEvent.KEYCODE_SPACE), terminalFocused = false))
+        assertNull(keymap.commandFor(ctrl(KeyEvent.KEYCODE_SPACE), terminalFocused = true))
+        assertEquals(CommandIds.REVEAL_DEFINITION, keymap.commandFor(KeyChord(KeyEvent.KEYCODE_F12), terminalFocused = false))
+        assertEquals(CommandIds.GO_TO_REFERENCES, keymap.commandFor(KeyChord(KeyEvent.KEYCODE_F12, shift = true), terminalFocused = false))
+        assertTrue(CommandIds.ALL.containsAll(Keymap.DEFAULT.bindings.map { it.command }))
+    }
 }

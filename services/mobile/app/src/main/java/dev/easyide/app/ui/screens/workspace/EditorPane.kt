@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -72,6 +70,10 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import kotlinx.coroutines.flow.first
+import kotlin.math.roundToInt
 import dev.easyide.app.ui.screens.workspace.decor.DecorationInputs
 import dev.easyide.app.ui.screens.workspace.decor.DecorationMetrics
 import dev.easyide.app.ui.screens.workspace.decor.DecorationModel
@@ -108,6 +110,8 @@ fun EditorPane(
     onGutterTap: ((line: Int) -> Unit)? = null,
     /** Content laid over the editable text viewport, typically [EditorPopup]s. */
     overlay: @Composable (EditorGeometry) -> Unit = {},
+    /** Language features' view of input and caret; null for a plain editor. */
+    interaction: EditorInteraction? = null,
 ) {
     val colors = editorColors
 
@@ -121,8 +125,8 @@ fun EditorPane(
 
         when {
             tab.isMarkdown && tab.showPreview -> MarkdownPreview(tab.content)
-            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay)
-            else -> ReadOnlySurface(tab)
+            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction)
+            else -> ReadOnlySurface(tab, interaction)
         }
     }
 }
@@ -134,6 +138,7 @@ private fun EditableSurface(
     decorations: DecorationModel?,
     onGutterTap: ((line: Int) -> Unit)?,
     overlay: @Composable (EditorGeometry) -> Unit,
+    interaction: EditorInteraction?,
 ) {
     val colors = editorColors
     val verticalScroll = rememberScrollState()
@@ -181,7 +186,12 @@ private fun EditableSurface(
     // line or below the last line used to hit nothing and the caret never
     // moved. Giving it a minimum size of the viewport makes the whole editor
     // area a tap target, while it still grows for long lines and long files.
-    BoxWithConstraints(modifier = Modifier.fillMaxSize().dismissPopupsOnEscape(popupHost)) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .onPreviewKeyEvent { event -> interaction?.onPreviewKey(tab.relativePath, event) == true }
+            .dismissPopupsOnEscape(popupHost),
+    ) {
         val viewportHeight = maxHeight
         val textMinWidth = maxWidth - gutterWidth
         val density = LocalDensity.current
@@ -209,6 +219,23 @@ private fun EditableSurface(
             EditorGeometry({ layout }, { selection }, verticalScroll, horizontalScroll, origin)
         }
 
+        if (interaction != null) {
+            val path = tab.relativePath
+            LaunchedEffect(interaction, path, tab.content, selection) { interaction.onCaretChanged(path, tab.content, selection) }
+            LaunchedEffect(interaction, path, liveWindow) {
+                snapshotFlow { liveWindow.value }.collect { interaction.onVisibleLinesChanged(path, it.first, it.last) }
+            }
+            val request by interaction.selectionRequests.collectAsState()
+            val pending = request?.takeIf { it.path == path && it.text == tab.content }
+            LaunchedEffect(pending?.id) {
+                val r = pending ?: return@LaunchedEffect
+                selection = TextRange(r.start, r.end)
+                composition = null
+                interaction.onSelectionRequestApplied(r)
+                if (r.reveal) revealOffset(r.start, tab.content.length, { layout }, verticalScroll, horizontalScroll, viewportPx)
+            }
+        }
+
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
             Text(
                 text = numbered,
@@ -229,7 +256,8 @@ private fun EditableSurface(
                         onValueChange = { next ->
                             val old = TextState(field.text, field.selection.start, field.selection.end)
                             val typed = TextState(next.text, next.selection.start, next.selection.end)
-                            val result = TypingRules.onChange(old, typed, config, TYPING_OPTIONS)
+                            val ruled = TypingRules.onChange(old, typed, config, TYPING_OPTIONS)
+                            val result = interaction?.transformEdit(tab.relativePath, old, ruled) ?: ruled
                             if (result === typed) {
                                 selection = next.selection
                                 composition = next.composition
@@ -248,6 +276,7 @@ private fun EditableSurface(
                             .defaultMinSize(minWidth = textMinWidth, minHeight = viewportHeight)
                             .drawCurrentLine({ layout }, { selection.start }, colors.currentLine, TEXT_PADDING_V_DP.dp)
                             .padding(horizontal = TEXT_PADDING_H_DP.dp, vertical = TEXT_PADDING_V_DP.dp)
+                            .editorPointer(tab.relativePath, interaction) { layout }
                             .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
                             .textDecorations(paint, colors.decorations, measurer, codeTextStyle(languageId))
                             // Own layer for the text itself: a decoration redraw then replays
@@ -261,6 +290,26 @@ private fun EditableSurface(
         CompositionLocalProvider(LocalEditorPopupHost provides popupHost) {
             overlay(geometry)
         }
+    }
+}
+
+/**
+ * Scrolls so [offset] sits a third of the way down the viewport (the reading position
+ * navigation lands on), waiting for the layout of the text the offset refers to.
+ */
+private suspend fun revealOffset(
+    offset: Int,
+    textLength: Int,
+    layout: () -> TextLayoutResult?,
+    vertical: ScrollState,
+    horizontal: ScrollState,
+    viewportPx: Float,
+) {
+    val result = snapshotFlow { layout() }.first { it != null && it.layoutInput.text.length == textLength } ?: return
+    val caret = result.getCursorRect(offset.coerceIn(0, textLength))
+    vertical.animateScrollTo((caret.top - viewportPx * REVEAL_VIEWPORT_FRACTION).roundToInt().coerceAtLeast(0))
+    if (caret.left < horizontal.value || caret.left > horizontal.value + horizontal.viewportSize) {
+        horizontal.animateScrollTo((caret.left - horizontal.viewportSize * REVEAL_VIEWPORT_FRACTION).roundToInt().coerceAtLeast(0))
     }
 }
 
@@ -280,50 +329,6 @@ private fun Modifier.drawBracketMatch(
         if (offset >= length) continue
         val box = result.getBoundingBox(offset)
         drawRect(color, topLeft = box.topLeft, size = box.size)
-    }
-}
-
-/** Virtualised viewer: only the visible lines are ever measured. */
-@Composable
-private fun ReadOnlySurface(tab: EditorTab) {
-    val colors = editorColors
-    val languageId = rememberLanguageId(tab.name)
-    val horizontalScroll = rememberScrollState()
-    // Read-only tabs are the multi-megabyte ones; splitting them on the main
-    // thread was a visible stall on open. The result is tagged with its source
-    // so a tab switch never shows the previous file's lines for a frame.
-    val split by produceState<Pair<String, List<String>>?>(null, tab.content) {
-        value = tab.content to withContext(Dispatchers.Default) { tab.content.lines() }
-    }
-    val lines = split?.takeIf { it.first === tab.content }?.second ?: return
-    val gutterWidth = remember(lines.size) {
-        // Widen the gutter for files with many lines so numbers never clip.
-        (GUTTER_WIDTH_DP + (lines.size.toString().length - 2).coerceAtLeast(0) * GUTTER_DIGIT_DP).dp
-    }
-
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        itemsIndexed(lines) { index, line ->
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "${index + 1}",
-                    style = codeTextStyle(languageId).copy(color = colors.gutterText),
-                    textAlign = TextAlign.End,
-                    modifier = Modifier
-                        .width(gutterWidth)
-                        .background(colors.gutter)
-                        .padding(end = 8.dp),
-                )
-                Text(
-                    text = line,
-                    style = codeTextStyle(languageId).copy(color = colors.plainText),
-                    maxLines = 1,
-                    modifier = Modifier
-                        .weight(1f)
-                        .horizontalScroll(horizontalScroll)
-                        .padding(start = 8.dp),
-                )
-            }
-        }
     }
 }
 
@@ -530,14 +535,17 @@ fun codeTextStyle(languageId: String? = null): TextStyle {
 
 /** The document's language id, looked up off the main thread (the grammar index may still be loading). */
 @Composable
-private fun rememberLanguageId(fileName: String): String? {
+internal fun rememberLanguageId(fileName: String): String? {
     val id by produceState<String?>(null, fileName) {
         value = withContext(Dispatchers.IO) { LanguageConfigs.languageIdFor(fileName) }
     }
     return id
 }
 
-private const val GUTTER_WIDTH_DP = 52
+internal const val GUTTER_WIDTH_DP = 52
+
+/** Revealed lines land this far down the viewport, so the context above stays visible. */
+private const val REVEAL_VIEWPORT_FRACTION = 1f / 3
 
 /**
  * Inset of the text inside the editable surface. Named because three things must agree on
@@ -546,7 +554,6 @@ private const val GUTTER_WIDTH_DP = 52
  */
 private const val TEXT_PADDING_H_DP = 8
 private const val TEXT_PADDING_V_DP = 4
-private const val GUTTER_DIGIT_DP = 8
 
 
 

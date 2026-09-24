@@ -8,7 +8,7 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 |---|---|---|
 | **Decisions** | | |
 | ADR-E SDK shape, manifest, `.easyext` | in-progress | drafted as [0013](../decision/0013-extension-sdk-shape-manifest-easyext.md), Proposed |
-| ADR-F WASM logic layer + runtime | done | [0014](../decision/0014-wasm-logic-layer-chicory.md) Accepted; ART spike passed 2026-09-24 (results in the ADR) |
+| ADR-F WASM logic layer + runtime | in-progress | drafted as [0014](../decision/0014-wasm-logic-layer-chicory.md); ART spike pending |
 | ADR-G SDK licensing (Apache-2.0 proposal) | in-progress | drafted as [0015](../decision/0015-extension-sdk-licensing-apache.md); app stays under 0008 |
 | ADR-H Registry + signing model | in-progress | drafted as [0016](../decision/0016-extension-registry-static-index-ed25519.md) |
 | ADR-I LSP client + server lifecycle | in-progress | drafted as [0017](../decision/0017-lsp-client-hand-rolled-server-lifecycle.md) |
@@ -23,9 +23,9 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | Brackets, auto-close, surround, comment toggle, indent/onEnter rules | done | basic: auto-close, overtype, surround, enter/indent rules, comment toggle fn, matching bracket; pair colourization not done |
 | Snippets + word completion | not-started | |
 | **M2 LSP core** | | |
-| JSON-RPC transport + path mapping + doc sync | in-progress | `:lsp` core, typed features and `ServerProcessFactory` done with JVM tests; app ports/bridge and on-device proot pipe test not yet |
-| Server lifecycle, memory budget, crash backoff | in-progress | `LanguageServerManager` + state machine done with JVM tests; RSS probe (needs server pid discovery on Android) and `onTrimMemory` wiring are app work |
-| Python end to end (diagnostics, completion, hover, definition) | not-started | |
+| JSON-RPC transport + path mapping + doc sync | in-progress | `:lsp` core done; app wiring done (`app/lsp/`: every port, `ServerRegistry` for `lsp.servers` + pluggable extension providers; `workspace/lsp/`: tab lifecycle, per-language settings). On-device proot pipe test with a real server not run yet |
+| Server lifecycle, memory budget, crash backoff | in-progress | done in code: `ProcMemoryProbe` finds the proot child of the app in `/proc` by argv + project bind and sums the tree's VmRSS; `onTrimMemory` mapped to `MemoryPressure`; status item with restart/stop/start/log; install notice runs the pack recipe in a terminal. Not yet measured on a device |
+| Python end to end (diagnostics, completion, hover, definition) | in-progress | M2/M4 presenters built on decision 0018 layers: diagnostics + Problems, completion (snippets, resolve, commit chars), hover, signature help, definition family, references, rename preview, code actions + lightbulb, formatting (document/selection/on-type/on-save + codeActionsOnSave), highlights, inlay hints, `@`/`#` symbols, Outline. Needs a device run with a server installed |
 | **M3 declarative extensions** | | |
 | Manifest loader + contribution registry | in-progress | :extensions core done (schema+validator, parser, semver, 23 contribution stores, when-clauses, context keys, activation, crash journal/safe mode, enablement; 123 tests). App adapters + descriptor cache next |
 | Action vocabulary | in-progress | ActionRunner with full vocabulary over HostPort, variables, SHELL/ARGV/PLAIN quoting, capability checks; app HostPort next |
@@ -41,6 +41,6 @@ Design: [arch.md](arch.md). API reference: [sdk-reference.md](sdk-reference.md).
 | Static signed index repo + browse/install UI | not-started | no backend |
 | Open VSX secondary source | not-started | |
 | **M7 WASM layer** | | |
-| Runtime embed, ABI v1, host API, capability enforcement | in-progress | EXT-50/51/52 and EXT-53 provider/command/view-data messages done in `:ext-wasm` (JVM + ART tests); `:app` port bridges, `:extensions` `LogicHost` wiring and guest SDKs/templates (EXT-54) not started |
+| Runtime embed, ABI v1, host API, capability enforcement | not-started | |
 | **M8 Node host (conditional)** | | |
 | vscode API subset in sandbox | not-started | only if M3+M7 insufficient |

@@ -1,5 +1,6 @@
 package dev.easyide.sandbox.backend
 
+import dev.easyide.sandbox.SandboxPaths
 import java.io.File
 
 /**
@@ -63,7 +64,7 @@ class ProotLauncher(
         const val ENV_PROOT_LOADER = "PROOT_LOADER"
         const val ENV_PROOT_TMP = "PROOT_TMP_DIR"
 
-        val PASSTHROUGH_MOUNTS = listOf("/dev", "/proc", "/sys")
+        val PASSTHROUGH_MOUNTS = SandboxPaths.PASSTHROUGH_MOUNTS
 
         /**
          * Android denies `link(2)` in app-private storage, and dpkg hard-links

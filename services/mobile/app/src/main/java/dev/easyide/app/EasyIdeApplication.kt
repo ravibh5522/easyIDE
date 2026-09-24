@@ -14,4 +14,10 @@ class EasyIdeApplication : Application() {
         TextMateHighlighter.init(this)
         SafeModeShortcut.publish(this)
     }
+
+    /** Language servers shed memory before Android kills the app (lsp-lifecycle.md 3.2). */
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        container.lsp.onTrimMemory(level)
+    }
 }

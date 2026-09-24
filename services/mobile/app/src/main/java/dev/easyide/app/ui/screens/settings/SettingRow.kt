@@ -159,6 +159,8 @@ private fun CompactControl(
                 else -> Unit
             }
         }
+        // Objects (lsp.servers, codeActionsOnSave) are edited in settings.json, like JsonOnly.
+        is Setting.Json -> TextButton(onClick = onEditJson, enabled = enabled) { Text(stringResource(R.string.setting_edit_in_json)) }
         is Setting.Str, is Setting.StrList -> Unit
     }
 }

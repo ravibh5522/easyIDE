@@ -75,7 +75,8 @@ class WorkspaceViewModelFactory(
             projectManager = container.projectManager,
             appContext = container.appContext,
             gitService = container.gitService,
-                    imageProvider = container::imageFor,
+            imageProvider = container::imageFor,
+            lspRuntime = container.lsp,
         ) as T
     }
 }

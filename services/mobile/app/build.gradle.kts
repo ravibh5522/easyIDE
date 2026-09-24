@@ -116,6 +116,7 @@ baselineProfile {
 dependencies {
     implementation(project(":sandbox-runtime"))
     implementation(project(":terminal-view"))
+    implementation(project(":lsp"))
     baselineProfile(project(":baselineprofile"))
 
     implementation(libs.androidx.core.ktx)

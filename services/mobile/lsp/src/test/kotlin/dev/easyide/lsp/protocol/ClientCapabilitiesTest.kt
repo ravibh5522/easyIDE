@@ -76,4 +76,18 @@ class ClientCapabilitiesTest {
         assertFalse(td.containsKey("semanticTokens"))
         assertTrue(td.containsKey("publishDiagnostics"))
     }
+
+    @Test
+    fun withheldFeatureIsNeverAdvertised() {
+        val ui = allLayers.copy(withheld = setOf(LspFeature.FOLDING_RANGE, LspFeature.SELECTION_RANGE, LspFeature.DOCUMENT_LINK))
+        val features = ClientCapabilitiesBuilder.advertisedFeatures(Milestone.M4, ui)
+        assertFalse(LspFeature.FOLDING_RANGE in features)
+        assertFalse(LspFeature.DOCUMENT_LINK in features)
+        assertTrue(LspFeature.INLAY_HINTS in features)
+        val td = ClientCapabilitiesBuilder.build(Milestone.M4, ui).at("textDocument")!!
+        assertFalse(td.containsKey("foldingRange"))
+        assertFalse(td.containsKey("selectionRange"))
+        assertFalse(td.containsKey("documentLink"))
+        assertTrue(td.containsKey("inlayHint"))
+    }
 }

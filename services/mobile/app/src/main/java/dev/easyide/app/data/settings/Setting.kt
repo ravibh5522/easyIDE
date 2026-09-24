@@ -43,6 +43,7 @@ enum class SettingCategory(@StringRes val title: Int) {
     APPEARANCE(R.string.settings_theme_section),
     EDITOR(R.string.settings_category_editor),
     TERMINAL(R.string.settings_category_terminal),
+    LANGUAGE_SERVERS(R.string.settings_category_language_servers),
     EXTENSIONS(R.string.settings_category_extensions),
 }
 
@@ -156,6 +157,23 @@ sealed class Setting<T>(
         keywords = listOf(owner), deprecation = deprecation,
     ) {
         override fun decode(value: JsonElement): JsonElement? = value.takeIf { SchemaValidator.isValid(schema, it) }
+        override fun encode(value: JsonElement): JsonElement = value
+    }
+
+    /**
+     * A structured built-in value (`lsp.servers`, `editor.codeActionsOnSave`, the object form
+     * of `editor.quickSuggestions`). [accepts] is the shape check, so a value of the wrong
+     * shape falls through to the next layer like any invalid value. Edited in settings.json.
+     */
+    class Json(
+        key: String, category: SettingCategory, @StringRes title: Int, @StringRes description: Int,
+        default: JsonElement, scope: SettingScope, val accepts: (JsonElement) -> Boolean,
+        merge: Merge = Merge.REPLACE, execBearing: Boolean = false,
+    ) : Setting<JsonElement>(
+        key, SettingGroup.BuiltIn(category), Text.Res(title), Text.Res(description), default, scope,
+        merge = merge, execBearing = execBearing,
+    ) {
+        override fun decode(value: JsonElement): JsonElement? = value.takeIf(accepts)
         override fun encode(value: JsonElement): JsonElement = value
     }
 }

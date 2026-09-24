@@ -53,6 +53,11 @@ fun CommandPalette(
     keymap: Keymap,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    /**
+     * Quick-open prefixes (`@` document symbols, `#` workspace symbols): called with the
+     * prefix and the rest of the query; true hands the query over and closes the palette.
+     */
+    onPrefix: (prefix: Char, query: String) -> Boolean = { _, _ -> false },
 ) {
     val colors = editorColors
     var query by remember { mutableStateOf("") }
@@ -63,7 +68,7 @@ fun CommandPalette(
     val entries = registry.commands
         .filter { it.id != CommandIds.SHOW_COMMANDS }
         .map { command ->
-            PaletteEntry(command, stringResource(command.title), keymap.chordFor(command.id)?.let(Keymap::label))
+            PaletteEntry(command, stringResource(command.title), keymap.labelFor(command.id))
         }
     val matches = fuzzyFilter(query, entries) { it.title }
     val current = selected.coerceIn(0, (matches.size - 1).coerceAtLeast(0))
@@ -106,7 +111,10 @@ fun CommandPalette(
                 }
                 BasicTextField(
                     value = query,
-                    onValueChange = { query = it; selected = 0 },
+                    onValueChange = { next ->
+                        if (next.isNotEmpty() && onPrefix(next[0], next.substring(1))) onDismiss()
+                        else { query = next; selected = 0 }
+                    },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(color = colors.plainText),
                     cursorBrush = SolidColor(colors.plainText),

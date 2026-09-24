@@ -36,7 +36,9 @@ import dev.easyide.sandbox.bootstrap.TarGzExtractor
 import dev.easyide.sandbox.external.ExternalFolderSync
 import dev.easyide.sandbox.files.ProjectFiles
 import dev.easyide.sandbox.model.SandboxImage
+import dev.easyide.sandbox.shell.ServerProcessFactory
 import dev.easyide.sandbox.shell.ShellRunner
+import dev.easyide.app.lsp.LspRuntime
 import dev.easyide.sandbox.store.SandboxStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -165,6 +167,16 @@ class AppContainer(context: Context) {
         provisioner = RootfsProvisioner(Dispatchers.IO),
         fallbackShell = shellRunner,
         ioDispatcher = Dispatchers.IO,
+    )
+
+    /** Language servers: one manager for the process, shared by every workspace. */
+    val lsp: LspRuntime = LspRuntime(
+        context = appContext,
+        paths = paths,
+        processFactory = ServerProcessFactory(linuxEnvironment, Dispatchers.IO),
+        projectManager = projectManager,
+        settingsStore = settingsStore,
+        scope = applicationScope,
     )
 
     /**

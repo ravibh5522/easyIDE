@@ -47,6 +47,10 @@ class WorkspaceStageState(
         if (rightVisible && exclusive) leftVisible = false
     }
 
+    fun showBottom() {
+        bottomVisible = true
+    }
+
     fun toggleBottom() {
         bottomVisible = !bottomVisible
     }

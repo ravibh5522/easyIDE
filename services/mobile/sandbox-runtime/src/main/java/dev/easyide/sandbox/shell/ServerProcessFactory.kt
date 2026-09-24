@@ -77,7 +77,7 @@ class ServerProcessFactory(
         // `exec "$0" "$@"`: argv reaches the guest as positional parameters, so nothing is
         // re-quoted or word-split, `argv[0]` is found on the guest PATH, and `exec` makes
         // the server replace the shell - one guest process, whose exit is proot's exit.
-        val command = listOf(GUEST_SHELL, GUEST_SHELL_FLAG, EXEC_ARGV) + launch.argv
+        val command = guestArgv(launch.argv)
         val process = linuxEnvironment.startPiped(
             environmentId = launch.environmentId,
             hostProjectDir = launch.hostProjectDir,
@@ -110,15 +110,22 @@ class ServerProcessFactory(
         }
     }
 
-    private companion object {
-        const val GUEST_SHELL = "/bin/sh"
-        const val GUEST_SHELL_FLAG = "-c"
-        const val EXEC_ARGV = "exec \"\$0\" \"\$@\""
+    companion object {
+        /**
+         * The guest command a server's [argv] becomes, verbatim as it ends the launcher's
+         * argv - so the app can recognise the server's host process in `/proc` (Android's
+         * `Process` has no pid) by the same list rather than a re-derived copy.
+         */
+        fun guestArgv(argv: List<String>): List<String> = listOf(GUEST_SHELL, GUEST_SHELL_FLAG, EXEC_ARGV) + argv
+
+        private const val GUEST_SHELL = "/bin/sh"
+        private const val GUEST_SHELL_FLAG = "-c"
+        private const val EXEC_ARGV = "exec \"\$0\" \"\$@\""
 
         /** Output goes to /dev/null in the guest, so the unread pipes can never fill up. */
-        const val PROBE_COMMAND = "command -v \"\$0\" >/dev/null 2>&1"
+        private const val PROBE_COMMAND = "command -v \"\$0\" >/dev/null 2>&1"
 
         /** Servers are not terminals; `dumb` stops tools from emitting colour escapes. */
-        const val SERVER_TERM = "dumb"
+        private const val SERVER_TERM = "dumb"
     }
 }

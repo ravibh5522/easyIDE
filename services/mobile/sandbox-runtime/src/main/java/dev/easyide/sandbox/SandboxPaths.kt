@@ -57,6 +57,12 @@ class SandboxPaths(private val root: File) {
     /** Where a project appears from inside the sandbox, once bind-mounted. */
     fun guestProjectPath(): String = GUEST_WORKSPACE
 
+    /**
+     * Android's own `/dev`, `/proc`, `/sys`, bound into every guest as they are. A guest path
+     * under one of them has no file in the rootfs, so path mapping (LSP) must not look there.
+     */
+    val guestPassthroughMounts: List<String> get() = PASSTHROUGH_MOUNTS
+
     val extensionsDir: File get() = File(root, EXTENSIONS_DIR)
 
     /** Scope dir for GLOBAL installs: themes, snippets, grammars, WASM-only packs. */
@@ -108,7 +114,8 @@ class SandboxPaths(private val root: File) {
         }
     }
 
-    private companion object {
+    internal companion object {
+        val PASSTHROUGH_MOUNTS = listOf("/dev", "/proc", "/sys")
         const val ENVIRONMENTS_DIR = "environments"
         const val PROJECTS_DIR = "projects"
         const val RUNTIME_DIR = "run"

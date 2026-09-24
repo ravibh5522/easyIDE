@@ -33,7 +33,7 @@ import dev.easyide.app.ui.theme.EditorColors
 import dev.easyide.app.ui.theme.editorColors
 
 /** One rendered markdown block. */
-private sealed interface MarkdownBlock {
+internal sealed interface MarkdownBlock {
     data class Heading(val level: Int, val text: AnnotatedString) : MarkdownBlock
     data class Paragraph(val text: AnnotatedString) : MarkdownBlock
     data class Bullet(val text: AnnotatedString) : MarkdownBlock
@@ -69,7 +69,7 @@ fun MarkdownPreview(source: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun MarkdownBlockView(block: MarkdownBlock) {
+internal fun MarkdownBlockView(block: MarkdownBlock) {
     val colors = editorColors
 
     when (block) {
@@ -180,7 +180,7 @@ private fun headingStyle(level: Int) = when (level) {
     else -> MaterialTheme.typography.titleSmall
 }
 
-private fun parseMarkdown(source: String, colors: EditorColors): List<MarkdownBlock> {
+internal fun parseMarkdown(source: String, colors: EditorColors): List<MarkdownBlock> {
     val blocks = mutableListOf<MarkdownBlock>()
     val paragraph = mutableListOf<String>()
     var codeLines: MutableList<String>? = null
