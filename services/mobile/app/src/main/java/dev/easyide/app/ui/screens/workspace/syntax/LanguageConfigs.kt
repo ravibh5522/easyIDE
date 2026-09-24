@@ -8,12 +8,15 @@ import dev.easyide.app.ui.screens.workspace.edit.IndentAction
 import dev.easyide.app.ui.screens.workspace.edit.LanguageConfig
 import dev.easyide.app.ui.screens.workspace.edit.compileJsRegex
 import org.json.JSONArray
+import java.io.File
 import org.json.JSONObject
 
 /**
  * Per-language editing rules (brackets, comments, indentation) read from the
  * `language-configuration` assets that `tools/build-grammars.py` bundles next
- * to the grammars. Languages without one get [LanguageConfig.GENERIC].
+ * to the grammars, or from the `language-configuration.json` an enabled
+ * extension contributes for the file's language (which wins, EXT-20).
+ * Languages without one get [LanguageConfig.GENERIC].
  *
  * Parsed on first use per language and kept; each file is a few KB.
  */
@@ -24,6 +27,9 @@ object LanguageConfigs {
     private var assets: AssetManager? = null
     private var index: GrammarIndex? = null
     private val cache = HashMap<String, LanguageConfig>()
+
+    /** Extension configs by host path; paths are per installed version, so they never go stale. */
+    private val extensionCache = HashMap<String, LanguageConfig>()
 
     /** Shares the highlighter's index so the 44 KB file is parsed once. */
     @Synchronized
@@ -40,7 +46,8 @@ object LanguageConfigs {
      */
     fun forFile(fileName: String): LanguageConfig {
         TextMateHighlighter.ensureIndexLoaded()
-        return lookup(fileName)
+        val extensionFile = TextMateHighlighter.extensionConfigFile(fileName)
+        return lookup(fileName, extensionFile)
     }
 
     /**
@@ -63,10 +70,16 @@ object LanguageConfigs {
     private val EXTENSION_LANGUAGE_IDS = mapOf("jsx" to "javascriptreact")
 
     @Synchronized
-    private fun lookup(fileName: String): LanguageConfig {
+    private fun lookup(fileName: String, extensionFile: String?): LanguageConfig {
+        if (extensionFile != null) return extensionCache.getOrPut(extensionFile) { loadFile(extensionFile) }
         val scope = index?.scopeFor(fileName) ?: return LanguageConfig.GENERIC
         return cache.getOrPut(scope) { load(scope) }
     }
+
+    /** Extension content is untrusted input: an unreadable or malformed file means generic rules. */
+    private fun loadFile(path: String): LanguageConfig = runCatching { parse(JSONObject(File(path).readText())) }
+        .onFailure { Log.w(TAG, "extension language config $path unreadable", it) }
+        .getOrDefault(LanguageConfig.GENERIC)
 
     private fun load(scope: String): LanguageConfig {
         val asset = index?.configFor(scope) ?: return LanguageConfig.GENERIC

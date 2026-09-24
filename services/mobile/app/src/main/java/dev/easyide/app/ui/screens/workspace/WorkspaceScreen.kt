@@ -69,17 +69,26 @@ import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
-
-/** Which naming dialog is open, if any. */
-private sealed interface PendingPrompt {
-    data class NewFile(val parentDir: String) : PendingPrompt
-    data class NewFolder(val parentDir: String) : PendingPrompt
-    data class Rename(val node: FileNode) : PendingPrompt
-    data class Delete(val node: FileNode) : PendingPrompt
-    data class RenameTerminal(val tabId: String, val currentTitle: String) : PendingPrompt
-    data class CloseDirtyTab(val tab: EditorTab) : PendingPrompt
-    data class LeaveWithUnsaved(val dirtyTabs: List<EditorTab>) : PendingPrompt
-}
+import dev.easyide.app.R
+import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.extensions.adapters.KeySurface
+import dev.easyide.app.ui.screens.workspace.ext.ContributedMenu
+import dev.easyide.app.ui.screens.workspace.ext.EditorTitleActions
+import dev.easyide.app.ui.screens.workspace.ext.ExtensionEffects
+import dev.easyide.app.ui.screens.workspace.ext.InputModeState
+import dev.easyide.app.ui.screens.workspace.ext.PickerLabels
+import dev.easyide.app.ui.screens.workspace.ext.StatusItemsRow
+import dev.easyide.app.ui.screens.workspace.ext.TouchToolbar
+import dev.easyide.app.ui.screens.workspace.ext.WorkspaceExtensionHost
+import dev.easyide.app.ui.screens.workspace.ext.rememberInputMode
+import dev.easyide.app.ui.screens.workspace.ext.rememberWorkspaceContributions
+import dev.easyide.app.ui.screens.workspace.ext.sections
+import dev.easyide.app.ui.screens.workspace.ext.trackInputMode
+import dev.easyide.extensions.contrib.KeyAction
+import dev.easyide.extensions.contrib.MenuIds
+import dev.easyide.extensions.contrib.StatusBarAlignment
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.res.stringResource
 
 /**
  * The IDE screen: activity rail, explorer, tabbed editor, terminals, status bar,
@@ -94,6 +103,10 @@ fun WorkspaceScreen(
     gitCallbacks: SourceControlCallbacks,
     decorations: DecorationRegistry,
     lsp: WorkspaceLspController,
+    extensionHost: WorkspaceExtensionHost,
+    extensions: ExtensionsContainer,
+    selections: EditorSelections,
+    onOpenExtensions: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val onRefreshGit = gitCallbacks.onRefresh
@@ -138,6 +151,12 @@ fun WorkspaceScreen(
         if (sidePanel == SidePanel.SOURCE_CONTROL) stages.toggleLeft(exclusive = false)
         else { sidePanel = SidePanel.SOURCE_CONTROL; stages.showLeft(); onRefreshGit() }
     }
+    val contributions = rememberWorkspaceContributions(extensionHost, extensions)
+    val snippetLabels = PickerLabels(
+        stringResource(R.string.command_insert_snippet), stringResource(R.string.ext_snippet_pick_hint), stringResource(R.string.ext_snippet_none),
+    )
+    val taskLabels = PickerLabels(stringResource(R.string.command_run_task), stringResource(R.string.ext_task_pick_hint), stringResource(R.string.ext_task_none))
+    val taskExited = stringResource(R.string.ext_task_exited)
     val commands = workspaceCommands(
         uiState = uiState,
         callbacks = callbacks,
@@ -147,15 +166,31 @@ fun WorkspaceScreen(
             toggleTerminal = stages::toggleBottom,
             showCommands = { paletteOpen = true },
             closeTab = requestCloseTab,
+            insertSnippet = { extensionHost.pickSnippet(snippetLabels) },
+            runTask = { extensionHost.pickTask(taskLabels) { label, code -> taskExited.format(label, code) } },
+            showExtensions = onOpenExtensions,
         ),
         extra = lspCommands(lsp),
-    )
+    ) + contributions.commands()
+    // Built-in < extension layer < keybindings.json, resolved once in AppContainer.
     val keymap = LocalKeymap.current
     // Per screen: the pending half of a two-step chord (Ctrl+K ...) is UI state.
     val dispatcher = remember(keymap) { ChordDispatcher(keymap) }
+    val keyContext = contributions.context
     val lspPanel by lsp.panel.collectAsState()
     // An install recipe was started in a new terminal: show it, the user watches it run.
     LaunchedEffect(uiState.terminalRevealRequests) { if (uiState.terminalRevealRequests > 0) stages.showBottom() }
+    SideEffect {
+        extensionHost.commands = commands
+        extensionHost.projectName = projectName
+    }
+    val inputMode = rememberInputMode()
+    var terminalFocus by remember { mutableStateOf(false) }
+    var editorFocus by remember { mutableStateOf(false) }
+    var editorMenuOpen by remember { mutableStateOf(false) }
+    val runShortcut: (dev.easyide.app.ui.commands.KeyChord) -> Unit = { chord ->
+        keymap.bindingFor(chord, terminalFocused = false, context = keyContext)?.let { commands.execute(it.command, it.args) }
+    }
     val hostView = LocalView.current
     val rootFocus = remember { FocusRequester() }
 
@@ -174,9 +209,11 @@ fun WorkspaceScreen(
                 // A focused terminal dispatches its own keys (see
                 // EasyTerminalViewClient.onHardwareKey); handling them here as
                 // well would run a command twice or steal a shell chord.
+                inputMode.onKey()
                 if (hostView.rootView.findFocus() is TerminalView) return@onPreviewKeyEvent false
-                dispatcher.dispatch(event.nativeKeyEvent, terminalFocused = false, commands)
+                dispatcher.dispatch(event.nativeKeyEvent, terminalFocused = false, commands, keyContext)
             }
+            .trackInputMode(inputMode)
             .focusRequester(rootFocus)
             .focusable(),
     ) {
@@ -195,6 +232,7 @@ fun WorkspaceScreen(
                     onToggleSourceControl = toggleSourceControl,
                     onToggleTerminal = stages::toggleBottom,
                     onShowCommands = { paletteOpen = true },
+                    onShowExtensions = onOpenExtensions,
                     onBack = requestLeave,
                 )
                 VerticalDivider()
@@ -223,11 +261,20 @@ fun WorkspaceScreen(
                                 onTabSelected = callbacks.onTabSelected,
                                 onTabClosed = requestCloseTab,
                                 onTogglePreview = callbacks.onTogglePreview,
+                                actions = {
+                                    if (uiState.activeTab != null) {
+                                        EditorTitleActions(
+                                            title = contributions.menu(MenuIds.EDITOR_TITLE),
+                                            context = contributions.menu(MenuIds.EDITOR_CONTEXT),
+                                            onRun = { contributions.run(it) },
+                                        )
+                                    }
+                                },
                             )
                             HorizontalDividerLine()
 
                             LspInstallNotice(lsp)
-                            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                            Box(modifier = Modifier.fillMaxWidth().weight(1f).onFocusChanged { editorFocus = it.hasFocus }) {
                                 val activePath = uiState.activeTabPath
                                 EditorPane(
                                     tab = uiState.activeTab,
@@ -236,10 +283,26 @@ fun WorkspaceScreen(
                                     onGutterTap = { line -> activePath?.let { lsp.onGutterTap(it, line) } },
                                     overlay = { geometry -> activePath?.let { LspEditorOverlay(lsp, it, geometry) } },
                                     interaction = lsp,
+                                    selections = selections,
+                                    onSecondaryClick = { editorMenuOpen = true },
+                                )
+                                ContributedMenu(
+                                    expanded = editorMenuOpen,
+                                    sections = contributions.menu(MenuIds.EDITOR_CONTEXT).sections(),
+                                    onRun = { contributions.run(it) },
+                                    onDismiss = { editorMenuOpen = false },
                                 )
                             }
+                            if (uiState.activeTab?.editable == true) {
+                                if (inputMode.mode == InputModeState.TOUCH) {
+                                    TouchToolbar(contributions.menu(MenuIds.EDITOR_TOUCH_TOOLBAR)) { contributions.run(it) }
+                                }
+                                contributions.keyRow(KeySurface.EDITOR)?.let { row ->
+                                    KeyRowBar(keys = row.keys, onKey = { extensionHost.editorKey(it, runShortcut) })
+                                }
+                            }
 
-                            TerminalDock(visible = stages.bottomVisible) {
+                            TerminalDock(visible = stages.bottomVisible, onFocusChanged = { terminalFocus = it }) {
                                 Column {
                                     HorizontalDividerLine()
                                     TerminalPane(
@@ -252,7 +315,12 @@ fun WorkspaceScreen(
                                         onCloseTab = callbacks.onCloseTerminal,
                                         onRenameTab = { id, title -> prompt = PendingPrompt.RenameTerminal(id, title) },
                                         onInstallLinux = callbacks.onInstallLinux,
-                                        onHardwareKey = { e -> dispatcher.dispatch(e, terminalFocused = true, commands) },
+                                        onHardwareKey = { e -> dispatcher.dispatch(e, terminalFocused = true, commands, keyContext) },
+                                        rowKeys = contributions.keyRow(KeySurface.TERMINAL)?.keys.orEmpty(),
+                                        onRowKey = { action, session ->
+                                            if (action is KeyAction.Command) extensionHost.run(action.id)
+                                            else TerminalKeyInput.bytesFor(action, session)?.let(session::write)
+                                        },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(windowSize.height.terminalHeight()),
@@ -289,6 +357,8 @@ fun WorkspaceScreen(
                 branch = gitState.status?.branch,
                 activeTab = uiState.activeTab,
                 onSave = callbacks.onSave,
+                leading = { StatusItemsRow(contributions.statusItems(), StatusBarAlignment.LEFT) { extensionHost.run(it) } },
+                trailing = { StatusItemsRow(contributions.statusItems(), StatusBarAlignment.RIGHT) { extensionHost.run(it) } },
                 extra = { LspStatusItems(lsp) },
             )
         }
@@ -313,7 +383,11 @@ fun WorkspaceScreen(
                         clipboard.setText(AnnotatedString(node.relativePath))
                 }
             },
+            extensionEntries = contributions::explorerMenu,
+            onExtensionEntry = { entry, node -> menuNode = null; contributions.runOnNode(entry, node) },
         )
+
+        ExtensionEffects(extensionHost, extensions, stages, windowSize, inputMode, terminalFocus, editorFocus, snackbarHostState)
 
         PromptDialogs(prompt, callbacks) { prompt = null }
         LspDialogs(lsp)
@@ -355,7 +429,7 @@ fun WorkspaceScreen(
  * zero height and is not placed, so it neither draws nor takes touches.
  */
 @Composable
-private fun TerminalDock(visible: Boolean, content: @Composable () -> Unit) {
+private fun TerminalDock(visible: Boolean, onFocusChanged: (Boolean) -> Unit, content: @Composable () -> Unit) {
     val alpha by animateFloatAsState(if (visible) 1f else 0f, motionSpec(), label = "terminalDock")
     val focusManager = LocalFocusManager.current
     var hasFocus by remember { mutableStateOf(false) }
@@ -364,7 +438,7 @@ private fun TerminalDock(visible: Boolean, content: @Composable () -> Unit) {
 
     Box(
         modifier = Modifier
-            .onFocusChanged { hasFocus = it.hasFocus }
+            .onFocusChanged { hasFocus = it.hasFocus; onFocusChanged(it.hasFocus) }
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
                 if (visible) layout(placeable.width, placeable.height) { placeable.place(0, 0) }
@@ -375,200 +449,6 @@ private fun TerminalDock(visible: Boolean, content: @Composable () -> Unit) {
         content()
     }
 }
-
-@Composable
-private fun PromptDialogs(
-    prompt: PendingPrompt?,
-    callbacks: WorkspaceCallbacks,
-    onDismiss: () -> Unit,
-) {
-    when (prompt) {
-        null -> Unit
-
-        is PendingPrompt.NewFile -> NameInputDialog(
-            title = "New file",
-            initialValue = "",
-            confirmLabel = "Create",
-            onConfirm = { name -> callbacks.onCreateFile(prompt.parentDir, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.NewFolder -> NameInputDialog(
-            title = "New folder",
-            initialValue = "",
-            confirmLabel = "Create",
-            onConfirm = { name -> callbacks.onCreateFolder(prompt.parentDir, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.Rename -> NameInputDialog(
-            title = "Rename",
-            initialValue = prompt.node.name,
-            confirmLabel = "Rename",
-            onConfirm = { name -> callbacks.onRename(prompt.node, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.Delete -> ConfirmDeleteDialog(
-            node = prompt.node,
-            onConfirm = { callbacks.onDelete(prompt.node); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.RenameTerminal -> NameInputDialog(
-            title = "Rename terminal",
-            initialValue = prompt.currentTitle,
-            confirmLabel = "Rename",
-            onConfirm = { name -> callbacks.onRenameTerminal(prompt.tabId, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.CloseDirtyTab -> {
-            val path = prompt.tab.relativePath
-            UnsavedChangesDialog(
-                fileName = prompt.tab.name,
-                fileCount = 1,
-                onSave = { onDismiss(); callbacks.onSaveTabs(listOf(path)) { callbacks.onTabClosed(path) } },
-                onDiscard = { onDismiss(); callbacks.onTabClosed(path) },
-                onDismiss = onDismiss,
-            )
-        }
-
-        is PendingPrompt.LeaveWithUnsaved -> UnsavedChangesDialog(
-            fileName = prompt.dirtyTabs.singleOrNull()?.name,
-            fileCount = prompt.dirtyTabs.size,
-            onSave = { onDismiss(); callbacks.onSaveTabs(prompt.dirtyTabs.map { it.relativePath }, callbacks.onBack) },
-            onDiscard = { onDismiss(); callbacks.onBack() },
-            onDismiss = onDismiss,
-        )
-    }
-}
-
-@Composable
-private fun RowScope.ExplorerColumn(
-    visible: Boolean,
-    width: Dp,
-    uiState: WorkspaceUiState,
-    callbacks: WorkspaceCallbacks,
-    sidePanel: SidePanel,
-    gitState: GitPanelState,
-    gitCallbacks: SourceControlCallbacks,
-    onNodeMenu: (FileNode) -> Unit,
-    onNewFile: () -> Unit,
-    onNewFolder: () -> Unit,
-) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = slideInHorizontally(
-            animationSpec = motionSpec(easing = MotionTokens.EnterEasing),
-            initialOffsetX = { -it },
-        ) + fadeIn(motionSpec()),
-        exit = slideOutHorizontally(animationSpec = motionSpec(), targetOffsetX = { -it }) +
-            fadeOut(motionSpec()),
-    ) {
-        Row {
-            when (sidePanel) {
-                SidePanel.EXPLORER -> FileTreePane(
-                    state = uiState,
-                    onFileOpened = callbacks.onFileOpened,
-                    onDirectoryToggled = callbacks.onDirectoryToggled,
-                    onNodeMenu = onNodeMenu,
-                    onNewFile = onNewFile,
-                    onNewFolder = onNewFolder,
-                    onRefresh = callbacks.onRefreshTree,
-                    modifier = Modifier.width(width).fillMaxHeight(),
-                )
-                SidePanel.SOURCE_CONTROL -> SourceControlPane(
-                    state = gitState,
-                    callbacks = gitCallbacks,
-                    modifier = Modifier.width(width).fillMaxHeight(),
-                )
-            }
-            VerticalDivider()
-        }
-    }
-}
-
-/** Compact-width explorer, drawn over the editor. */
-@Composable
-private fun ExplorerOverlay(
-    visible: Boolean,
-    width: Dp,
-    uiState: WorkspaceUiState,
-    callbacks: WorkspaceCallbacks,
-    sidePanel: SidePanel,
-    gitState: GitPanelState,
-    gitCallbacks: SourceControlCallbacks,
-    onNodeMenu: (FileNode) -> Unit,
-    onNewFile: () -> Unit,
-    onNewFolder: () -> Unit,
-) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = slideInHorizontally(
-            animationSpec = motionSpec(easing = MotionTokens.EnterEasing),
-            initialOffsetX = { -it },
-        ) + fadeIn(motionSpec()),
-        exit = slideOutHorizontally(animationSpec = motionSpec(), targetOffsetX = { -it }) +
-            fadeOut(motionSpec()),
-    ) {
-        Row {
-            when (sidePanel) {
-                SidePanel.EXPLORER -> FileTreePane(
-                    state = uiState,
-                    onFileOpened = callbacks.onFileOpened,
-                    onDirectoryToggled = callbacks.onDirectoryToggled,
-                    onNodeMenu = onNodeMenu,
-                    onNewFile = onNewFile,
-                    onNewFolder = onNewFolder,
-                    onRefresh = callbacks.onRefreshTree,
-                    modifier = Modifier.width(width).fillMaxHeight(),
-                )
-                SidePanel.SOURCE_CONTROL -> SourceControlPane(
-                    state = gitState,
-                    callbacks = gitCallbacks,
-                    modifier = Modifier.width(width).fillMaxHeight(),
-                )
-            }
-            VerticalDivider()
-        }
-    }
-}
-
-@Composable
-private fun VerticalDivider() {
-    Box(
-        modifier = Modifier
-            .width(Stroke.hairline)
-            .fillMaxHeight()
-            .background(editorColors.panelBorder),
-    )
-}
-
-@Composable
-private fun HorizontalDividerLine() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(Stroke.hairline)
-            .background(editorColors.panelBorder),
-    )
-}
-
-private fun WidthClass.explorerWidth(): Dp = when (this) {
-    WidthClass.COMPACT -> COMPACT_EXPLORER_DP.dp
-    WidthClass.MEDIUM -> MEDIUM_EXPLORER_DP.dp
-    WidthClass.EXPANDED -> EXPANDED_EXPLORER_DP.dp
-}
-
-private fun HeightClass.terminalHeight(): Dp =
-    if (this == HeightClass.COMPACT) COMPACT_TERMINAL_DP.dp else REGULAR_TERMINAL_DP.dp
-
-private const val COMPACT_EXPLORER_DP = 240
-private const val MEDIUM_EXPLORER_DP = 240
-private const val EXPANDED_EXPLORER_DP = 280
-private const val COMPACT_TERMINAL_DP = 160
-private const val REGULAR_TERMINAL_DP = 260
 
 /** Command-palette quick-open prefixes (VS Code's): document symbols, workspace symbols. */
 private const val SYMBOL_PREFIX_DOCUMENT = '@'

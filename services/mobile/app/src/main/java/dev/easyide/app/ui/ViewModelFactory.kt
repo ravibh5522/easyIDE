@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.easyide.app.AppContainer
+import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
@@ -46,6 +47,14 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 projectManager = container.projectManager,
             )
 
+            ExtensionsViewModel::class.java -> ExtensionsViewModel(
+                appContext = container.appContext,
+                extensions = container.extensions,
+                settingsStore = container.settingsStore,
+                safeMode = container.safeMode,
+                environmentManager = container.environmentManager,
+            )
+
             else -> error("Unknown ViewModel: ${modelClass.name}")
         } as T
 }
@@ -77,6 +86,7 @@ class WorkspaceViewModelFactory(
             gitService = container.gitService,
             imageProvider = container::imageFor,
             lspRuntime = container.lsp,
+            extensions = container.extensions,
         ) as T
     }
 }

@@ -4,10 +4,14 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.util.Log
 import androidx.compose.ui.text.AnnotatedString
+import dev.easyide.app.extensions.adapters.ExtensionLanguages
 import dev.easyide.app.ui.theme.SyntaxColors
+import dev.easyide.extensions.ExtensionPolicy
 import dev.textmate.grammar.Grammar
 import dev.textmate.grammar.raw.GrammarReader
 import dev.textmate.registry.Registry
+import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * Syntax colouring driven by real TextMate grammars - the same
@@ -43,6 +47,12 @@ object TextMateHighlighter {
     private var indexLoadAttempted = false
     private var index: GrammarIndex? = null
     private var registry: Registry? = null
+
+    /** Grammars and languages from enabled extensions; they win over bundled ones (EXT-20). */
+    private var extensions = ExtensionLanguages.EMPTY
+
+    /** Told when an extension grammar blew its per-line budget (for the Extension Log). */
+    @Volatile var onSlowGrammar: (scope: String) -> Unit = {}
 
     /** Grammars that failed to load, so a broken asset is not retried per keystroke. */
     private val unavailable = HashSet<String>()
@@ -80,16 +90,56 @@ object TextMateHighlighter {
             .getOrNull()
         val loaded = index ?: return null
         LanguageConfigs.init(manager, loaded)
-        registry = Registry(
-            grammarSource = { scope ->
-                val asset = loaded.assetFor(scope) ?: return@Registry null
-                runCatching {
-                    manager.open("${GrammarIndex.DIRECTORY}/$asset").use(GrammarReader::readGrammar)
-                }.onFailure { Log.w(TAG, "grammar $scope unreadable", it) }.getOrNull()
-            },
-        )
+        registry = newRegistry(manager, loaded)
         return loaded
     }
+
+    /**
+     * One registry resolving a scope to an extension grammar file first, then the bundled
+     * asset. Asset and file I/O plus a third-party parser: a real boundary, and one bad
+     * grammar must not take the editor down, so failures are logged and the scope is
+     * treated as unavailable. Plist `.tmLanguage` files are not readable by the vendored
+     * parser (JSON only) and fail the same way.
+     */
+    private fun newRegistry(manager: AssetManager, loaded: GrammarIndex) = Registry(
+        grammarSource = { scope ->
+            val extFile = extensions.grammarFile(scope)
+            runCatching {
+                if (extFile != null) File(extFile).inputStream().use(GrammarReader::readGrammar)
+                else loaded.assetFor(scope)?.let { asset -> manager.open("${GrammarIndex.DIRECTORY}/$asset").use(GrammarReader::readGrammar) }
+            }.onFailure { Log.w(TAG, "grammar $scope unreadable", it) }.getOrNull()
+        },
+    )
+
+    /**
+     * Swaps in the enabled extensions' languages and grammars. Every cached grammar and
+     * document state is dropped (a pack can replace a scope an open tab uses), so open tabs
+     * re-highlight on their next pass; enabling or disabling a pack is rare enough that a
+     * full re-tokenize is the simple correct choice.
+     */
+    @Synchronized
+    fun setExtensionLanguages(languages: ExtensionLanguages) {
+        extensions = languages
+        grammars.clear()
+        unavailable.clear()
+        documents.clear()
+        val loaded = index ?: return
+        registry = newRegistry(assets, loaded)
+    }
+
+    /**
+     * The language id of a file (`editorLangId`): an extension language first, then the
+     * bundled grammar's name; null when nothing recognises it.
+     */
+    @Synchronized
+    fun languageIdFor(fileName: String, firstLine: String?): String? =
+        extensions.languageFor(fileName, firstLine)
+            ?: loadedIndex()?.let { idx -> idx.scopeFor(fileName)?.let(idx::languageFor) }
+
+    /** Host path of an extension `language-configuration.json` for this file, if a pack contributes one. */
+    @Synchronized
+    internal fun extensionConfigFile(fileName: String): String? =
+        extensions.languageFor(fileName, null)?.let(extensions::configurationFile)
 
     /**
      * Loads the index if nothing has yet, so [LanguageConfigs] works for a tab
@@ -120,11 +170,13 @@ object TextMateHighlighter {
         checkCancelled: () -> Unit = {},
     ): AnnotatedString {
         if (source.isEmpty()) return AnnotatedString(source)
-        val grammar = grammarFor(fileName) ?: return AnnotatedString(source)
+        val head = source.substringBefore('\n').take(ExtensionPolicy.FIRST_LINE_MAX_CHARS)
+        val scope = scopeFor(fileName, head) ?: return AnnotatedString(source)
+        val grammar = grammarForScope(scope) ?: return AnnotatedString(source)
 
         // A rename to a different extension keeps the key but changes grammar.
         val doc = documents[key]?.takeIf { it.grammar === grammar }
-            ?: DocumentHighlighter(grammar).also { documents[key] = it }
+            ?: newDocument(grammar, scope).also { documents[key] = it }
         doc.setContent(source)
         return doc.annotate(source, colors, firstLine, lastLine, checkCancelled)
     }
@@ -141,7 +193,7 @@ object TextMateHighlighter {
      */
     fun prewarm(fileNames: Collection<String>) {
         val scopes = synchronized(this) {
-            fileNames.mapNotNull { loadedIndex()?.scopeFor(it) }.distinct().take(MAX_PREWARM_GRAMMARS)
+            fileNames.mapNotNull { scopeFor(it, null) }.distinct().take(MAX_PREWARM_GRAMMARS)
         }
         for (scope in scopes) {
             synchronized(this) {
@@ -151,8 +203,15 @@ object TextMateHighlighter {
         }
     }
 
-    private fun grammarFor(fileName: String): Grammar? =
-        loadedIndex()?.scopeFor(fileName)?.let(::grammarForScope)
+    private fun scopeFor(fileName: String, firstLine: String?): String? =
+        extensions.scopeFor(fileName, firstLine) ?: loadedIndex()?.scopeFor(fileName)
+
+    private fun newDocument(grammar: Grammar, scope: String): DocumentHighlighter =
+        if (scope in extensions.scopes) {
+            DocumentHighlighter(grammar, TimeUnit.MILLISECONDS.toNanos(ExtensionPolicy.GRAMMAR_LINE_TIME_LIMIT_MS)) { onSlowGrammar(scope) }
+        } else {
+            DocumentHighlighter(grammar)
+        }
 
     private fun grammarForScope(scope: String): Grammar? {
         if (scope in unavailable) return null

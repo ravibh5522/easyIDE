@@ -93,6 +93,9 @@ class WorkspaceLspController(
     val actions = EditActionsController(ws, diagnostics)
     private val caretDecorations = CaretDecorations(ws)
 
+    /** Extension `lspRequest`s against this workspace's servers. */
+    val extensionRequests = LspRequestGateway(ws, navigation) { showPanel(LspPanel.REFERENCES) }
+
     private val panelState = MutableStateFlow<LspPanel?>(null)
     private val dismissedInstall = MutableStateFlow<Set<ServerKey>>(emptySet())
     private val editPortRegistration = runtime.editPorts.register(environmentId, projectId, ws.port(DiskEditPort(Dispatchers.IO)))
@@ -120,6 +123,15 @@ class WorkspaceLspController(
             statuses[key]?.let { statusUi(it, r.config.command.first(), r.install) }
         }
     }.stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    /** Per language of this project's servers: the facts behind the `lsp*` context keys. */
+    val languageFacts: StateFlow<Map<String, LspLanguageFacts>> = runtime.manager.statuses
+        .map { m ->
+            val mine = m.values.filter { it.key.environmentId == environmentId && it.key.projectId == projectId }
+            LspLanguageFacts.of(mine) { key, feature -> runtime.manager.session(key)?.supports(feature) == true }
+        }
+        .distinctUntilChanged()
+        .stateIn(scope, SharingStarted.Eagerly, emptyMap())
 
     /** The first not-installed server of the active language the user has not dismissed. */
     val installNotice: StateFlow<ServerStatusUi?> = combine(statuses, dismissedInstall) { list, dismissed ->

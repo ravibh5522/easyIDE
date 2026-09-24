@@ -58,6 +58,10 @@ fun interface GuestBindSource {
  *
  * [extraBinds] are applied after the project bind, in order; today they carry
  * installed environment extensions to `/opt/easyide/extensions/<id>`.
+ *
+ * [guestCwd] is where [command] starts inside the guest; null keeps the
+ * default (the project mount when there is one, else the guest home).
+ * Extension actions set it from their `cwd` parameter.
  */
 data class LaunchRequest(
     val rootfs: File,
@@ -66,7 +70,12 @@ data class LaunchRequest(
     val command: List<String>,
     val extraEnvironment: Map<String, String> = emptyMap(),
     val extraBinds: List<GuestBind> = emptyList(),
-)
+    val guestCwd: String? = null,
+) {
+    init {
+        require(guestCwd == null || guestCwd.startsWith("/")) { "Guest cwd must be an absolute guest path: $guestCwd" }
+    }
+}
 
 /** Builds the argv for one sandbox backend. */
 interface SandboxLauncher {

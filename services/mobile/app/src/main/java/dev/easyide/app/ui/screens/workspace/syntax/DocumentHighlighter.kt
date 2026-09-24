@@ -31,7 +31,19 @@ internal class StyledSpan(val start: Int, val end: Int, val role: SyntaxRole)
  * This is the same shape VS Code uses, and it is what makes file size stop
  * mattering for the cost of an edit.
  */
-internal class DocumentHighlighter(val grammar: Grammar) {
+internal class DocumentHighlighter(
+    val grammar: Grammar,
+    /**
+     * Per-line tokenize budget, 0 for none. Extension grammars get one (threat-model
+     * M-22): a line over budget stops colouring for the rest of this document, since the
+     * tokenizer cannot be interrupted mid-line and a pathological grammar would otherwise
+     * stall every pass.
+     */
+    private val lineBudgetNanos: Long = 0,
+    private val onOverBudget: () -> Unit = {},
+) {
+    /** Set once a line blew [lineBudgetNanos]; the rest of the document stays plain. */
+    private var overBudget = false
 
     private var lines: List<String> = emptyList()
     private var lineStarts = IntArray(0)
@@ -87,7 +99,10 @@ internal class DocumentHighlighter(val grammar: Grammar) {
         while (index <= target) {
             checkCancelled()
             val line = lines[index]
-            if (line.length > MAX_LINE_LENGTH) {
+            val started = if (lineBudgetNanos > 0) System.nanoTime() else 0L
+            if (overBudget) {
+                lineSpans.add(emptyList())
+            } else if (line.length > MAX_LINE_LENGTH) {
                 // Advance the machine on a truncated copy so later lines stay
                 // correct, but do not try to colour a minified monster.
                 state = grammar.tokenizeLine(line.take(MAX_LINE_LENGTH), state).ruleStack
@@ -103,6 +118,10 @@ internal class DocumentHighlighter(val grammar: Grammar) {
                         if (end <= token.startIndex) null else StyledSpan(token.startIndex, end, role)
                     },
                 )
+            }
+            if (lineBudgetNanos > 0 && !overBudget && System.nanoTime() - started > lineBudgetNanos) {
+                overBudget = true
+                onOverBudget()
             }
             endStates.add(state)
             index++

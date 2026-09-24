@@ -112,6 +112,10 @@ fun EditorPane(
     overlay: @Composable (EditorGeometry) -> Unit = {},
     /** Language features' view of input and caret; null for a plain editor. */
     interaction: EditorInteraction? = null,
+    /** Carets of every tab, hoisted so extension actions can read and move them. */
+    selections: EditorSelections = remember { EditorSelections() },
+    /** A secondary click (mouse right button, stylus button) on the text: the `editor/context` menu. */
+    onSecondaryClick: (() -> Unit)? = null,
 ) {
     val colors = editorColors
 
@@ -125,7 +129,7 @@ fun EditorPane(
 
         when {
             tab.isMarkdown && tab.showPreview -> MarkdownPreview(tab.content)
-            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction)
+            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction, selections, onSecondaryClick)
             else -> ReadOnlySurface(tab, interaction)
         }
     }
@@ -139,6 +143,8 @@ private fun EditableSurface(
     onGutterTap: ((line: Int) -> Unit)?,
     overlay: @Composable (EditorGeometry) -> Unit,
     interaction: EditorInteraction?,
+    selections: EditorSelections,
+    onSecondaryClick: (() -> Unit)?,
 ) {
     val colors = editorColors
     val verticalScroll = rememberScrollState()
@@ -151,10 +157,12 @@ private fun EditableSurface(
     }
     val languageId = rememberLanguageId(tab.name)
 
-    // Text comes from the tab; selection and IME composition are local, the
+    // Text comes from the tab, the selection from the hoisted EditorSelections
+    // (so actions can read and move it), IME composition is local - the
     // same split BasicTextField's String overload makes internally. Owning the
     // selection is what lets typing rules see and move the caret.
-    var selection by remember(tab.relativePath) { mutableStateOf(TextRange.Zero) }
+    val path = tab.relativePath
+    val selection = selections[path].let { TextRange(it.start.coerceIn(0, tab.content.length), it.end.coerceIn(0, tab.content.length)) }
     var composition by remember(tab.relativePath) { mutableStateOf<TextRange?>(null) }
     val field = TextFieldValue(tab.content, selection, composition)
     val bracketPair = remember(tab.content, field.selection, config) {
@@ -163,8 +171,10 @@ private fun EditableSurface(
     }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     // Derived, so the gutter recomposes when the caret changes line, not on every caret move.
+    // Reads the hoisted state inside the derivation: the local `selection` is a per-composition
+    // value, and capturing it here would freeze the gutter on the first caret position.
     val caretLine by remember(tab.relativePath) {
-        derivedStateOf { layout?.let { it.getLineForOffset(selection.start.coerceIn(0, it.layoutInput.text.length)) } ?: 0 }
+        derivedStateOf { layout?.let { it.getLineForOffset(selections[path].start.coerceIn(0, it.layoutInput.text.length)) } ?: 0 }
     }
     val numbered = remember(lineNumbers, caretLine, colors.gutterActiveText) {
         gutterNumbers(lineNumbers, caretLine, colors.gutterActiveText)
@@ -211,16 +221,15 @@ private fun EditableSurface(
                 visibleLines = { liveWindow.value.let { it.first..it.last } },
             )
         }
-        // Keyed by path too: `selection` is a new state per tab and the lambda captures it.
+        // Keyed by path too: the caret lambda reads this tab's entry of the hoisted selections.
         val geometry = remember(tab.relativePath, verticalScroll, horizontalScroll, density, gutterWidth) {
             val origin = with(density) {
                 Offset((gutterWidth + TEXT_PADDING_H_DP.dp).toPx(), TEXT_PADDING_V_DP.dp.toPx())
             }
-            EditorGeometry({ layout }, { selection }, verticalScroll, horizontalScroll, origin)
+            EditorGeometry({ layout }, { selections[path] }, verticalScroll, horizontalScroll, origin)
         }
 
         if (interaction != null) {
-            val path = tab.relativePath
             LaunchedEffect(interaction, path, tab.content, selection) { interaction.onCaretChanged(path, tab.content, selection) }
             LaunchedEffect(interaction, path, liveWindow) {
                 snapshotFlow { liveWindow.value }.collect { interaction.onVisibleLinesChanged(path, it.first, it.last) }
@@ -229,7 +238,7 @@ private fun EditableSurface(
             val pending = request?.takeIf { it.path == path && it.text == tab.content }
             LaunchedEffect(pending?.id) {
                 val r = pending ?: return@LaunchedEffect
-                selection = TextRange(r.start, r.end)
+                selections[path] = TextRange(r.start, r.end)
                 composition = null
                 interaction.onSelectionRequestApplied(r)
                 if (r.reveal) revealOffset(r.start, tab.content.length, { layout }, verticalScroll, horizontalScroll, viewportPx)
@@ -259,11 +268,11 @@ private fun EditableSurface(
                             val ruled = TypingRules.onChange(old, typed, config, TYPING_OPTIONS)
                             val result = interaction?.transformEdit(tab.relativePath, old, ruled) ?: ruled
                             if (result === typed) {
-                                selection = next.selection
+                                selections[path] = next.selection
                                 composition = next.composition
                             } else {
                                 // A rewritten edit no longer lines up with the IME's composing region.
-                                selection = TextRange(result.selectionStart, result.selectionEnd)
+                                selections[path] = TextRange(result.selectionStart, result.selectionEnd)
                                 composition = null
                             }
                             if (result.text != field.text) onContentChanged(result.text)
@@ -279,6 +288,7 @@ private fun EditableSurface(
                             .editorPointer(tab.relativePath, interaction) { layout }
                             .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
                             .textDecorations(paint, colors.decorations, measurer, codeTextStyle(languageId))
+                            .secondaryClicks(onSecondaryClick)
                             // Own layer for the text itself: a decoration redraw then replays
                             // the recorded paragraph instead of drawing it again.
                             .graphicsLayer(),

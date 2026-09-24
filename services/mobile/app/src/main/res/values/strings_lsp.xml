@@ -79,6 +79,8 @@
     <string name="lsp_env_file_unreadable">Cannot open %1$s from the environment</string>
     <string name="lsp_env_file_notice">Environment file %1$s - read-only</string>
     <string name="lsp_document_changed">Document changed, try again</string>
+    <string name="lsp_ext_no_locations">No locations from %1$s</string>
+    <string name="lsp_ext_edit_label">Extension: %1$s</string>
     <string name="lsp_edit_failed">Edit not applied: %1$s</string>
     <string name="lsp_edit_overlap">Overlapping edits for %1$s</string>
     <string name="lsp_no_references">No references to %1$s</string>

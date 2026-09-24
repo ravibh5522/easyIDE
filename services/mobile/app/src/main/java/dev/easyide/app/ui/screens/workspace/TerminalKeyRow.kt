@@ -1,8 +1,9 @@
 package dev.easyide.app.ui.screens.workspace
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.horizontalScroll
@@ -28,17 +29,22 @@ import dev.easyide.app.ui.theme.ControlSize
 import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.extensions.contrib.KeyAction
+import dev.easyide.extensions.contrib.RowKey
 
 /**
- * The accessory key row that sits between the scrollback and the keyboard.
+ * An accessory key row: the terminal's (between the scrollback and the keyboard)
+ * or a contributed editor row. [keys] come from the active key row (built-in or
+ * contributed, see `KeyRows`); a tap runs a key's action, a long press its
+ * `longPress` action when it has one.
  *
  * Scrolls horizontally rather than wrapping: a second row would eat screen the
- * terminal needs, and the ordering in [TerminalKeyboard] puts the keys worth
- * reaching first on the left.
+ * terminal needs, and rows put the keys worth reaching first on the left.
  */
 @Composable
-fun TerminalKeyRow(
-    onKey: (TerminalKey) -> Unit,
+fun KeyRowBar(
+    keys: List<RowKey>,
+    onKey: (KeyAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = editorColors
@@ -52,19 +58,20 @@ fun TerminalKeyRow(
         horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TerminalKeyboard.KEYS.forEach { key ->
-            KeyCap(key = key, onClick = { onKey(key) })
+        keys.forEach { key ->
+            KeyCap(key = key, onClick = { onKey(key.action) }, onLongClick = key.longPress?.let { lp -> { onKey(lp) } })
         }
     }
 }
 
 /**
- * A raised, rounded key. Pressing shifts it to the overlay tone and ticks the
+ * A raised, rounded key; a long press runs the key's `longPress` action. Pressing shifts it to the overlay tone and ticks the
  * keyboard haptic, so a tap registers the way a soft-keyboard key does even
  * when the shell prints nothing back.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun KeyCap(key: TerminalKey, onClick: () -> Unit) {
+private fun KeyCap(key: RowKey, onClick: () -> Unit, onLongClick: (() -> Unit)?) {
     val colors = editorColors
     val haptics = LocalHapticFeedback.current
     val interaction = remember { MutableInteractionSource() }
@@ -76,7 +83,11 @@ private fun KeyCap(key: TerminalKey, onClick: () -> Unit) {
             .clip(MaterialTheme.shapes.small)
             .background(if (pressed) colors.overlay else colors.raised)
             .border(Stroke.hairline, colors.panelBorder, MaterialTheme.shapes.small)
-            .clickable(interactionSource = interaction, indication = ripple()) {
+            .combinedClickable(
+                interactionSource = interaction,
+                indication = ripple(),
+                onLongClick = onLongClick?.let { lp -> { haptics.performHapticFeedback(HapticFeedbackType.LongPress); lp() } },
+            ) {
                 haptics.performHapticFeedback(HapticFeedbackType.KeyboardTap)
                 onClick()
             }

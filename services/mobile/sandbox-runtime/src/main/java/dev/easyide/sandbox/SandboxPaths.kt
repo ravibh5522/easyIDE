@@ -19,6 +19,8 @@ import java.io.File
  *     <root>/extensions/global/<id>/<version>  global extension installs
  *     <root>/extensions/staging                downloads and unpacks awaiting verification
  *     <root>/extensions/state.json             approvals, pins, system disables
+ *     <root>/extensions/builtin/<id>/<stamp>   built-in extensions unpacked from the APK
+ *     <root>/extensions/activation-journal.json crash journal of the extension runtime
  *     <root>/environments/<envId>/extensions/<id>/<version>
  *                                              environment installs, deleted with the env
  *
@@ -79,6 +81,15 @@ class SandboxPaths(private val root: File) {
     val extensionStateFile: File get() = File(extensionsDir, STATE_FILE)
 
     /**
+     * Built-in extensions shipped in the APK, unpacked once per APK build so
+     * the runtime reads them through the same directory reader as any install.
+     */
+    val builtInExtensionsDir: File get() = File(extensionsDir, BUILTIN_DIR)
+
+    /** The runtime's crash journal (extension-runtime.md sec 5.3). */
+    val extensionJournalFile: File get() = File(extensionsDir, JOURNAL_FILE)
+
+    /**
      * Scope dir for ENVIRONMENT installs (packs with sandbox steps or language
      * servers). Inside [environmentDir], so deleting the environment deletes them.
      */
@@ -126,6 +137,8 @@ class SandboxPaths(private val root: File) {
         const val GLOBAL_EXTENSIONS_DIR = "global"
         const val STAGING_DIR = "staging"
         const val STATE_FILE = "state.json"
+        const val BUILTIN_DIR = "builtin"
+        const val JOURNAL_FILE = "activation-journal.json"
         const val ENVIRONMENT_EXTENSIONS_DIR = "extensions"
         const val CURRENT_LINK = "current"
         const val GUEST_EXTENSIONS = "/opt/easyide/extensions"

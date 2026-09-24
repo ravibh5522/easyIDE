@@ -115,6 +115,7 @@ baselineProfile {
 
 dependencies {
     implementation(project(":sandbox-runtime"))
+    implementation(project(":extensions"))
     implementation(project(":terminal-view"))
     implementation(project(":lsp"))
     baselineProfile(project(":baselineprofile"))
@@ -140,6 +141,7 @@ dependencies {
     implementation(libs.kotlin.textmate.core)
     // Tree API only (JsonElement), no serialization plugin - decision 0013.
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.documentfile)
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

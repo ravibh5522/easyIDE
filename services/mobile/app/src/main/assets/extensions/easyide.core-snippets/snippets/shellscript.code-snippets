@@ -1,0 +1,8 @@
+{
+  "shebang": { "prefix": "bash", "body": ["#!/usr/bin/env bash", "set -euo pipefail", "", "$0"], "description": "Strict bash script header" },
+  "if file exists": { "prefix": "iff", "body": ["if [ -f \"${1:file}\" ]; then", "\t$0", "fi"], "description": "Test for a file" },
+  "for in": { "prefix": "for", "body": ["for ${1:f} in ${2:*}; do", "\t$0", "done"], "description": "Loop over words" },
+  "while read": { "prefix": "whileread", "body": ["while IFS= read -r ${1:line}; do", "\t$0", "done < \"${2:file}\""], "description": "Read a file line by line" },
+  "function": { "prefix": "fn", "body": ["${1:name}() {", "\t$0", "}"], "description": "Shell function" },
+  "usage": { "prefix": "usage", "body": ["usage() {", "\techo \"usage: \\$0 ${1:args}\" >&2", "\texit 1", "}", "[ \\$# -ge ${2:1} ] || usage$0"], "description": "Usage message and argument check" }
+}

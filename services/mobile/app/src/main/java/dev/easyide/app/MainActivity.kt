@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -70,6 +71,8 @@ class MainActivity : ComponentActivity() {
             SideEffect {
                 preferencesLoaded = storedSettings != null && onboardingComplete != null
             }
+            // First frame: onStartupFinished activations follow after the idle delay.
+            LaunchedEffect(Unit) { container.extensions.onFirstFrame() }
 
             // Read once per composition rather than observed: the system
             // animation setting change restarts the activity anyway.

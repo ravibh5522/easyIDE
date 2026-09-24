@@ -1,11 +1,13 @@
 package dev.easyide.app.ui.screens.workspace
 
 import android.content.Context
-import com.termux.terminal.TerminalSession
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.lsp.LspRuntime
 import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
+import dev.easyide.app.ui.screens.workspace.ext.EditorBuffers
+import dev.easyide.app.ui.screens.workspace.ext.WorkspaceExtensionHost
 import dev.easyide.app.ui.screens.workspace.lsp.LspWorkspaceHost
 import dev.easyide.app.ui.screens.workspace.lsp.WorkspaceLspController
 import dev.easyide.sandbox.EnvironmentManager
@@ -26,7 +28,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.UUID
 
 /**
  * Drives the workspace: the file tree, open editor buffers, and the terminals.
@@ -44,7 +45,8 @@ class WorkspaceViewModel(
     private val imageProvider: suspend (String) -> SandboxImage,
     private val gitService: GitService,
     lspRuntime: LspRuntime,
-) : ViewModel() {
+    extensions: ExtensionsContainer,
+) : ViewModel(), EditorBuffers {
 
     private val _uiState = MutableStateFlow(WorkspaceUiState())
     val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
@@ -54,7 +56,13 @@ class WorkspaceViewModel(
 
     /** Per-document editor decorations; producers (LSP, find) write, `EditorPane` paints. */
     val decorations = DecorationRegistry()
-    private val installLog = InstallLogPump { _uiState.value.terminals }
+
+    /** Caret/selection per open tab, shared by the editor and extension actions. */
+    val selections = EditorSelections()
+
+    val terminals = WorkspaceTerminals(
+        _uiState, viewModelScope, appContext, linuxEnvironment, environmentId, projectFiles.projectRoot(projectId), ::setStatus,
+    )
 
     /** Language servers for this workspace's tabs: documents, decorations, popups, panels. */
     val lsp = WorkspaceLspController(
@@ -65,7 +73,7 @@ class WorkspaceViewModel(
             override fun openProjectFile(path: String) = openFileByPath(path)
             override fun openTab(tab: EditorTab) = openVirtualTab(tab)
             override fun showStatus(message: String) = setStatus(message)
-            override fun runInTerminal(command: String) = createTerminalTab(initialCommand = command)
+            override fun runInTerminal(command: String) = terminals.newShell(initialCommand = command)
             override fun string(id: Int, vararg args: Any): String = appContext.getString(id, *args)
         },
         decorations = decorations,
@@ -74,6 +82,24 @@ class WorkspaceViewModel(
         projectId = projectId,
         projectRoot = projectFiles.projectRoot(projectId),
         rootfsDir = lspRuntime.rootfsDir(environmentId),
+    )
+
+    /** This workspace as the extension host sees it; attached while the workspace lives. */
+    val extensionHost = WorkspaceExtensionHost(
+        projectId = projectId,
+        environmentId = environmentId,
+        projectRoot = projectFiles.projectRoot(projectId),
+        state = uiState,
+        git = git.state,
+        selections = selections,
+        terminals = terminals,
+        editor = this,
+        extensions = extensions,
+        lsp = lsp.extensionRequests,
+        lspFacts = lsp.languageFacts,
+        environmentManager = environmentManager,
+        linuxEnvironment = linuxEnvironment,
+        scope = viewModelScope,
     )
 
     // The terminal writes straight to the bind-mounted project directory,
@@ -93,17 +119,15 @@ class WorkspaceViewModel(
             val ready = linuxEnvironment.isReady(environmentId)
             _uiState.update { it.copy(linuxReady = ready) }
         }
-        createTerminalTab()
+        terminals.newShell()
         fileWatcher.watch(projectFiles.projectRoot(projectId), emptySet())
+        extensionHost.attach()
     }
 
     override fun onCleared() {
-        // A pty subprocess is a real Linux process, not something garbage
-        // collection reclaims - it needs an explicit SIGKILL or it keeps
-        // running (and holding the pty) after the workspace is gone.
-        _uiState.value.terminals.forEach { it.session.finishIfRunning() }
+        extensionHost.detach()
+        terminals.release()
         fileWatcher.stop()
-        installLog.stop()
         lsp.release()
         git.release()
         super.onCleared()
@@ -216,11 +240,32 @@ class WorkspaceViewModel(
         }
     }
 
-    private fun openContent(node: FileNode, content: FileContent) {
+    override suspend fun openAndAwait(relativePath: String): Boolean {
+        if (_uiState.value.openTabs.any { it.relativePath == relativePath }) {
+            _uiState.update { it.copy(activeTabPath = relativePath) }
+            return true
+        }
+        val node = FileNode(relativePath.substringAfterLast('/'), relativePath, isDirectory = false, sizeBytes = 0)
+        return projectFiles.open(projectId, relativePath).map { openContent(node, it) }.getOrDefault(false)
+    }
+
+    override fun replaceContent(path: String, content: String): Boolean {
+        val tab = _uiState.value.openTabs.find { it.relativePath == path }?.takeIf { it.editable } ?: return false
+        if (tab.content != content) updateTab(path) { it.copy(content = content) }
+        return true
+    }
+
+    override suspend fun writeClosedFile(path: String, content: String): Boolean =
+        projectFiles.writeText(projectId, path, content).onSuccess { externalMirror.write(path, content.toByteArray()) }.isSuccess
+
+    override suspend fun readClosedFile(path: String): String? =
+        (projectFiles.open(projectId, path).getOrNull() as? FileContent.Text)?.takeIf { it.editable && !it.truncated }?.text
+
+    private fun openContent(node: FileNode, content: FileContent): Boolean {
         val tab = when (content) {
             is FileContent.Rejected -> {
                 setStatus(content.reason)
-                return
+                return false
             }
 
             is FileContent.BinaryPreview -> EditorTab(
@@ -246,6 +291,7 @@ class WorkspaceViewModel(
             )
         }
         _uiState.update { it.copy(openTabs = it.openTabs + tab, activeTabPath = tab.relativePath) }
+        return true
     }
 
     private fun textNotice(content: FileContent.Text): String? = when {
@@ -261,6 +307,7 @@ class WorkspaceViewModel(
 
     fun onTabClosed(path: String) {
         decorations.remove(path)
+        selections.remove(path)
         _uiState.update { state ->
             val remaining = state.openTabs.filterNot { it.relativePath == path }
             state.copy(
@@ -358,6 +405,7 @@ class WorkspaceViewModel(
                     // saving does not recreate the file under its old name.
                     updateTab(node.relativePath) { it.copy(relativePath = newPath, name = newName) }
                     decorations.rename(node.relativePath, newPath)
+                    selections.rename(node.relativePath, newPath)
                     _uiState.update { state ->
                         state.copy(
                             activeTabPath = if (state.activeTabPath == node.relativePath) newPath else state.activeTabPath,
@@ -434,61 +482,14 @@ class WorkspaceViewModel(
         if (parentDir.isEmpty()) name else "$parentDir/$name"
 
     // ----------------------------------------------------------- terminals
-    //
-    // There is no input-mediation left here (no prompt buffer, no history, no
-    // per-tab "is a command running" flag) - a real TerminalSession/TerminalView
-    // owns typing, scrollback and process state entirely (see TerminalPane).
-    // The ViewModel's job is just the tab list: create one on request, retire
-    // its process when a tab closes or the workspace does, and keep the tab
-    // title in step with what the shell itself reports.
 
-    /**
-     * Resolves proot-or-fallback shell params off the main thread, then
-     * constructs the real `TerminalSession` and adds it as a new tab. Async
-     * because [LinuxEnvironment.interactiveShellParams] may need to install
-     * proot on first use - the same reason [onInstallLinux] is a coroutine.
-     */
-    /** [initialCommand] is typed into the new shell (an install recipe the user asked to run). */
-    private fun createTerminalTab(initialCommand: String? = null) {
-        viewModelScope.launch {
-            val params = runCatching {
-                linuxEnvironment.interactiveShellParams(environmentId, projectFiles.projectRoot(projectId))
-            }.getOrElse { cause ->
-                setStatus(cause.message ?: "Could not start a terminal")
-                return@launch
-            }
+    fun onNewTerminal() = terminals.newShell()
 
-            val id = UUID.randomUUID().toString()
-            val client = EasyTerminalSessionClient(
-                context = appContext,
-                onTitleChanged = { changed -> retitleTerminal(id, changed.title) },
-                onSessionFinished = { /* frozen scrollback with the exit message is the desired end state */ },
-            )
-            val session = TerminalSession(
-                params.shellPath,
-                params.cwd,
-                params.args.toTypedArray(),
-                params.env.map { (key, value) -> "$key=$value" }.toTypedArray(),
-                null,
-                client,
-            )
-            val tab = PtyTerminalTab(
-                id = id,
-                title = "sh ${_uiState.value.terminals.size + 1}",
-                session = session,
-                client = client,
-            )
-            initialCommand?.let { session.write(it + "\n") }
-            _uiState.update {
-                it.copy(
-                    terminals = it.terminals + tab,
-                    activeTerminalId = tab.id,
-                    terminalRevealRequests = it.terminalRevealRequests + if (initialCommand != null) 1 else 0,
-                )
-            }
-        }
-    }
+    fun onRenameTerminal(id: String, title: String) = terminals.rename(id, title)
 
+    fun onSelectTerminal(id: String) = terminals.select(id)
+
+    fun onCloseTerminal(id: String) = terminals.close(id)
 
     // ---- source control ----------------------------------------------------
 
@@ -506,32 +507,6 @@ class WorkspaceViewModel(
 
     fun commitGit() = git.commit()
 
-    private fun retitleTerminal(id: String, title: String?) {
-        if (title.isNullOrBlank()) return
-        _uiState.update { state ->
-            state.copy(terminals = state.terminals.map { if (it.id == id) it.copy(title = title) else it })
-        }
-    }
-
-    fun onNewTerminal() = createTerminalTab()
-
-    /** User-driven rename, distinct from [retitleTerminal] which tracks the shell's own OSC title. */
-    fun onRenameTerminal(id: String, title: String) = retitleTerminal(id, title)
-
-    fun onSelectTerminal(id: String) = _uiState.update { it.copy(activeTerminalId = id) }
-
-    /** The last tab is never closed, so the panel always has something to show. */
-    fun onCloseTerminal(id: String) {
-        val state = _uiState.value
-        if (state.terminals.size <= 1) return
-        state.terminals.find { it.id == id }?.session?.finishIfRunning()
-        _uiState.update { current ->
-            val remaining = current.terminals.filterNot { it.id == id }
-            val active = if (current.activeTerminalId == id) remaining.lastOrNull()?.id else current.activeTerminalId
-            current.copy(terminals = remaining, activeTerminalId = active)
-        }
-    }
-
     // ------------------------------------------------------------- linux
 
     fun onInstallLinux() {
@@ -546,9 +521,9 @@ class WorkspaceViewModel(
             // apt/dpkg line) and not a single truncated status line either.
             // `write()` is stdin and would be typed *at* the shell; this goes
             // through the emulator's own output path instead, exactly the way
-            // real process output reaches the screen - see InstallLogPump.
+            // real process output reaches the screen - see WorkspaceTerminals.appendInstallLog.
             linuxEnvironment.install(environmentId, imageProvider(environmentId)) { line ->
-                installLog.append(targetTabId, line)
+                terminals.appendInstallLog(targetTabId, line)
             }
                 .onSuccess {
                     environmentManager.markProvisioned(environmentId)

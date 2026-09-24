@@ -12,6 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import dev.easyide.app.extensions.adapters.MenuEntry
+import dev.easyide.app.ui.screens.workspace.ext.sections
 import dev.easyide.sandbox.files.FileNode
 
 /** What the explorer's long-press menu can do to a node. */
@@ -40,6 +42,9 @@ fun FileContextMenu(
     canPaste: Boolean,
     onAction: (FileAction, FileNode) -> Unit,
     onDismiss: () -> Unit,
+    /** Contributed `explorer/context` entries for [node] (already filtered by their `when`). */
+    extensionEntries: (FileNode) -> List<MenuEntry> = { emptyList() },
+    onExtensionEntry: (MenuEntry, FileNode) -> Unit = { _, _ -> },
 ) {
     if (node == null) return
 
@@ -63,6 +68,17 @@ fun FileContextMenu(
 
         MenuItem("Copy path") { onAction(FileAction.COPY_PATH, node) }
         MenuItem("Copy relative path") { onAction(FileAction.COPY_RELATIVE_PATH, node) }
+
+        extensionEntries(node).sections().forEach { section ->
+            HorizontalDivider()
+            section.forEach { entry ->
+                DropdownMenuItem(
+                    text = { Text(entry.command.title) },
+                    enabled = entry.enabled,
+                    onClick = { onDismiss(); onExtensionEntry(entry, node) },
+                )
+            }
+        }
     }
 }
 

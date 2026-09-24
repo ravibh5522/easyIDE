@@ -1,6 +1,8 @@
 package dev.easyide.app.ui.screens.workspace.lsp
 
+import dev.easyide.lsp.manager.LspStateValue
 import dev.easyide.lsp.manager.ServerStatus
+import dev.easyide.lsp.protocol.LspFeature
 import dev.easyide.lsp.session.AfterStop
 import dev.easyide.lsp.session.FailReason
 import dev.easyide.lsp.session.ServerKey
@@ -48,5 +50,21 @@ class LspStatusTest {
         val failed = ServerStatus(key, setOf("python"), SessionState.Failed(FailReason.SpawnFailed("no proot"), listOf("a", "b")), false, null)
         assertEquals("no proot", failed.failureDetail())
         assertEquals(listOf("a", "b"), failed.stderrTail())
+    }
+
+    @Test
+    fun languageFactsCombineTheServersOfEachLanguage() {
+        val pyright = ServerStatus(ServerKey("e", "p", "pyright"), setOf("python"), SessionState.Running, false, null)
+        val ruff = ServerStatus(ServerKey("e", "p", "ruff"), setOf("python", "toml"), SessionState.Failed(FailReason.CrashLoop, emptyList()), false, null)
+        val offers = mapOf(pyright.key to setOf(LspFeature.HOVER, LspFeature.COMPLETION), ruff.key to setOf(LspFeature.FORMATTING))
+        val facts = LspLanguageFacts.of(listOf(pyright, ruff)) { k, f -> f in offers.getValue(k) }
+        val python = facts.getValue("python")
+        assertEquals(LspStateValue.READY, python.state)
+        assertTrue(python.ready)
+        assertEquals(setOf(LspFeature.HOVER, LspFeature.COMPLETION, LspFeature.FORMATTING), python.features)
+        val toml = facts.getValue("toml")
+        assertEquals(LspStateValue.CRASHED, toml.state)
+        assertFalse(toml.ready)
+        assertTrue(LspLanguageFacts.of(emptyList()) { _, _ -> true }.isEmpty())
     }
 }

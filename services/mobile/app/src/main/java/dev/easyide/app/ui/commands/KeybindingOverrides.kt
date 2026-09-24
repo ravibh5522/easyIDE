@@ -63,17 +63,20 @@ object KeymapResolver {
         val diagnostics = user.diagnostics.toMutableList()
         val offsets = HashMap<KeyBinding, Int>()
         for (e in user.entries) {
-            val chord = e.key?.let { k -> KeyNames.parse(k) ?: run { diagnostics += diag(DiagnosticCode.BAD_CHORD, e, k); null } }
-            if (e.key != null && chord == null) continue
+            val keys = e.key?.let { k -> KeyNames.parseSequence(k) ?: run { diagnostics += diag(DiagnosticCode.BAD_CHORD, e, k); null } }
+            if (e.key != null && keys == null) continue
             val focus = if (e.whenText == null) null else KeyFocus.parse(e.whenText)
             if (e.whenText != null && focus == null) { diagnostics += diag(DiagnosticCode.UNSUPPORTED_WHEN, e, e.whenText); continue }
             val removal = e.command.startsWith(KeybindingsFile.REMOVE)
             val command = if (removal) e.command.drop(KeybindingsFile.REMOVE.length) else e.command
             if (command !in knownCommands) diagnostics += diag(DiagnosticCode.UNKNOWN_COMMAND, e, command)
             if (removal) {
-                effective.removeAll { b -> b.command == command && (chord == null || b.chord == chord) && (focus == null || b.focus == focus) }
+                effective.removeAll { b ->
+                    b.command == command && (keys == null || (b.chord == keys.chord && b.prefix == keys.prefix)) && (focus == null || b.focus == focus)
+                }
             } else {
-                val binding = KeyBinding(requireNotNull(chord), command, focus ?: KeyFocus.ANYWHERE)
+                val seq = requireNotNull(keys)
+                val binding = KeyBinding(seq.chord, command, focus ?: KeyFocus.ANYWHERE, prefix = seq.prefix)
                 effective += binding
                 offsets[binding] = e.offset
             }
@@ -81,19 +84,25 @@ object KeymapResolver {
         val conflicts = conflictsOf(effective)
         conflicts.forEach { c ->
             diagnostics += SettingsDiagnostic(
-                DiagnosticCode.CHORD_CONFLICT, key = KeyNames.format(c.chord), detail = c.shadowed.command,
+                DiagnosticCode.CHORD_CONFLICT, key = KeyNames.format(KeySequence(c.winner.prefix, c.chord)), detail = c.shadowed.command,
                 offset = offsets[c.winner] ?: offsets[c.shadowed],
             )
         }
         return Result(Keymap(effective), diagnostics, conflicts)
     }
 
-    /** Same chord, different commands, focus conditions that can hold at once (LLD 7.3 "same chord"). */
+    /**
+     * Same chord (both steps), different commands, focus conditions that can hold at once
+     * (LLD 7.3 "same chord"). A later binding with a `when` expression shadows nothing for
+     * certain - packs sharing a key under disjoint `when`s is normal - so it is not reported.
+     */
     fun conflictsOf(bindings: List<KeyBinding>): List<KeyConflict> = buildList {
         bindings.forEachIndexed { i, earlier ->
             for (j in i + 1 until bindings.size) {
                 val later = bindings[j]
-                if (later.chord == earlier.chord && later.command != earlier.command && later.focus.overlaps(earlier.focus)) {
+                if (later.chord == earlier.chord && later.prefix == earlier.prefix && later.command != earlier.command &&
+                    later.whenExpr == null && later.focus.overlaps(earlier.focus)
+                ) {
                     add(KeyConflict(later.chord, later, earlier))
                 }
             }

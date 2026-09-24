@@ -25,6 +25,12 @@ internal class GrammarIndex private constructor(
     fun configFor(scopeName: String): String? = scopeToConfig[scopeName]
 
     /**
+     * The grammar's `tm-grammars` name, which is the VS Code language id for the
+     * languages both know (`python`, `javascript`, `shellscript`): `editorLangId`.
+     */
+    fun languageFor(scopeName: String): String? = scopeToName[scopeName]
+
+    /**
      * The grammar's name (`python`, `typescript`), which matches VS Code's
      * language id for the common languages: the id `[lang]` settings blocks use.
      */

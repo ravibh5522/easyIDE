@@ -68,7 +68,8 @@ fun CommandPalette(
     val entries = registry.commands
         .filter { it.id != CommandIds.SHOW_COMMANDS }
         .map { command ->
-            PaletteEntry(command, stringResource(command.title), keymap.labelFor(command.id))
+            val title = command.title.text()
+            PaletteEntry(command, command.category?.let { "$it: $title" } ?: title, keymap.labelFor(command.id))
         }
     val matches = fuzzyFilter(query, entries) { it.title }
     val current = selected.coerceIn(0, (matches.size - 1).coerceAtLeast(0))

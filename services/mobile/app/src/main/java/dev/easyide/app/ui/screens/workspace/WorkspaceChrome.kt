@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Difference
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.FolderCopy
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Save
@@ -49,6 +50,7 @@ fun ActivityBar(
     onToggleSourceControl: () -> Unit,
     onToggleTerminal: () -> Unit,
     onShowCommands: () -> Unit,
+    onShowExtensions: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -72,6 +74,7 @@ fun ActivityBar(
             false,
             onShowCommands,
         )
+        ActivityBarButton(Icons.Filled.Extension, stringResource(R.string.command_show_extensions), false, onShowExtensions)
     }
 }
 
@@ -123,7 +126,10 @@ fun StatusBar(
     activeTab: EditorTab?,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
-    /** Items of other features (language server status, diagnostic counts), right-aligned. */
+    /** Contributed items: [leading] after the built-in left items, [trailing] before Save. */
+    leading: @Composable () -> Unit = {},
+    trailing: @Composable () -> Unit = {},
+    /** Items of other features (language server status, diagnostic counts), right-aligned before [trailing]. */
     extra: @Composable RowScope.() -> Unit = {},
 ) {
     val colors = editorColors
@@ -171,8 +177,12 @@ fun StatusBar(
             )
         }
 
+        leading()
+
         Box(modifier = Modifier.weight(1f))
         extra()
+
+        trailing()
 
         if (activeTab?.isDirty == true) {
             Row(

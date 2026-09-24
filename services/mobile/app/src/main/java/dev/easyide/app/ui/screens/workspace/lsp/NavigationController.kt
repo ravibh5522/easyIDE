@@ -108,6 +108,11 @@ class NavigationController(private val ws: LspWorkspace) {
         }
     }
 
+    /** A location list from outside the built-in commands (an extension's `lspRequest`), under [title]. */
+    suspend fun showLocations(title: String, locs: List<NavLocation>) {
+        locationsState.value = LocationsUi(NavKind.REFERENCES, title, group(locs))
+    }
+
     // ---- symbols ------------------------------------------------------------------------
 
     fun openPicker(scope: SymbolScope, query: String = "") {

@@ -49,6 +49,8 @@ fun EditorTabBar(
     onTabClosed: (String) -> Unit,
     onTogglePreview: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Contributed `editor/title` actions, drawn after the built-in ones. */
+    actions: @Composable () -> Unit = {},
 ) {
     val colors = editorColors
     val activeTab = tabs.find { it.relativePath == activeTabPath }
@@ -82,6 +84,7 @@ fun EditorTabBar(
                     .clickable(onClick = onTogglePreview),
             )
         }
+        actions()
     }
 }
 

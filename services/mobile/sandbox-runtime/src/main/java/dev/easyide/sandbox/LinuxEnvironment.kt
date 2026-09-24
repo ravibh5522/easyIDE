@@ -2,6 +2,7 @@ package dev.easyide.sandbox
 
 import android.os.Build
 import dev.easyide.sandbox.backend.GuestBind
+import dev.easyide.sandbox.backend.GuestEnvironment
 import dev.easyide.sandbox.backend.GuestBindSource
 import dev.easyide.sandbox.bootstrap.ProgressReporter
 import dev.easyide.sandbox.bootstrap.ProotInstaller
@@ -195,7 +196,8 @@ class LinuxEnvironment(
      * [SandboxShell.startPiped] - for [dev.easyide.sandbox.shell.ServerProcessFactory].
      * Same proot preparation and extension binds as [start], but no fallback
      * to Android's shell: language servers live in the guest, so an
-     * environment that is not ready is an error, not a degraded mode.
+     * environment that is not ready is an error, not a degraded mode. Extension
+     * `sandboxExec` capture uses it too, with [guestCwd] from the action.
      *
      * @throws SandboxError.EnvironmentNotReady if the rootfs has no shell yet.
      */
@@ -204,6 +206,7 @@ class LinuxEnvironment(
         hostProjectDir: File,
         command: List<String>,
         extraEnvironment: Map<String, String>,
+        guestCwd: String? = null,
     ): Process {
         if (!isReady(environmentId)) {
             throw SandboxError.EnvironmentNotReady(environmentId, "rootfs has no $GUEST_SHELL_RELATIVE")
@@ -219,8 +222,42 @@ class LinuxEnvironment(
                 guestProjectPath = paths.guestProjectPath(),
                 extraEnvironment = extraEnvironment,
                 extraBinds = binds,
+                guestCwd = guestCwd,
             )
         }
+    }
+
+    /**
+     * Pty params running [argv] as a command terminal (see
+     * [SandboxShell.commandParams]); null when the environment is not ready,
+     * for the same reason as [startPiped].
+     */
+    suspend fun commandPtyParams(
+        environmentId: String,
+        hostProjectDir: File,
+        argv: List<String>,
+        guestCwd: String?,
+        extraEnvironment: Map<String, String>,
+    ): PtyShellParams? {
+        val shell = readyShell(environmentId) ?: return null
+        return shell.commandParams(
+            argv, rootfsFor(environmentId), hostProjectDir, paths.guestProjectPath(), guestCwd, extraEnvironment,
+            bindsFor(environmentId),
+        )
+    }
+
+    /**
+     * The variables every guest process starts with (before any per-launch
+     * additions): what `${env:NAME}` in an extension action reads, never the
+     * Android process environment.
+     */
+    fun guestShellEnvironment(): Map<String, String> = GuestEnvironment.defaults(GuestEnvironment.GUEST_HOME)
+
+    private suspend fun readyShell(environmentId: String): SandboxShell? {
+        if (!isReady(environmentId)) return null
+        val installation = prootInstaller.ensureInstalled(paths.runtimeDir).getOrThrow()
+        provisioner.ensureGuestDefaults(rootfsFor(environmentId))
+        return SandboxShell(installation, ioDispatcher)
     }
 
     /** Resolved per launch (filesystem reads), so it runs on the I/O dispatcher. */

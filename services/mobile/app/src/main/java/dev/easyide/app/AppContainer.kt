@@ -20,12 +20,14 @@ import dev.easyide.app.data.settings.SettingsDirWatcher
 import dev.easyide.app.data.settings.SettingsRegistry
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.data.settings.SettingsTransfer
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeybindingsFile
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.commands.KeymapResolver
 import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.extensions.EnvironmentExtensionBinds
 import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.RootDetector
 import dev.easyide.sandbox.SandboxPaths
@@ -44,6 +46,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import android.util.Log
@@ -116,11 +119,6 @@ class AppContainer(context: Context) {
         log = InvalidValueSink { layer, key, _ -> Log.w(LOG_TAG, "ignoring invalid value for $key in $layer") },
     )
 
-    /** The keymap with the active profile's keybindings.json applied, plus its diagnostics. */
-    val keymap: Flow<KeymapResolver.Result> = profileManager.keybindings.text.map { text ->
-        KeymapResolver.resolve(Keymap.DEFAULT, KeybindingsFile.parse(text), CommandIds.ALL)
-    }
-
     val settingsTransfer = SettingsTransfer(
         resolver = appContext.contentResolver,
         defaultUser = defaultUserLayer,
@@ -128,8 +126,8 @@ class AppContainer(context: Context) {
         profiles = profileManager,
         registry = settingsRegistry,
         appVersion = appVersionName(),
-        // No extension runtime is wired into :app yet, so nothing is installed to list.
-        installedExtensions = { emptyList() },
+        // Read at export time, after `extensions` below is constructed.
+        installedExtensions = { extensions.installedSummary() },
         io = Dispatchers.IO,
     )
 
@@ -167,6 +165,22 @@ class AppContainer(context: Context) {
         provisioner = RootfsProvisioner(Dispatchers.IO),
         fallbackShell = shellRunner,
         ioDispatcher = Dispatchers.IO,
+        // Only enabled environment packs appear in the guest; read at each launch, after
+        // `extensions` below is constructed.
+        guestBinds = EnvironmentExtensionBinds(paths) { envId, id -> extensions.isEnabledIn(envId, id.value) },
+    )
+
+    /** The extension platform; started by [EasyIdeApplication] before any screen exists. */
+    val extensions: ExtensionsContainer = ExtensionsContainer(
+        context = appContext,
+        paths = paths,
+        settingsStore = settingsStore,
+        profiles = profileManager,
+        settingsRegistry = settingsRegistry,
+        appSafeMode = safeMode,
+        shellEnvironment = linuxEnvironment::guestShellEnvironment,
+        scope = applicationScope,
+        io = Dispatchers.IO,
     )
 
     /** Language servers: one manager for the process, shared by every workspace. */
@@ -178,6 +192,25 @@ class AppContainer(context: Context) {
         settingsStore = settingsStore,
         scope = applicationScope,
     )
+
+    init {
+        // For the app's lifetime: a pack's servers come and go with its enablement through
+        // the provider's flow, so the registration itself is never closed.
+        lsp.servers.register(extensions.languageServers)
+    }
+
+    /**
+     * The keymap: built-ins, then the enabled extensions' keybindings, then the active
+     * profile's keybindings.json (whose `-command` entries can remove either), plus its
+     * diagnostics. Extension command ids count as known.
+     */
+    val keymap: Flow<KeymapResolver.Result> = combine(
+        profileManager.keybindings.text,
+        extensions.keybindings,
+        extensions.runtime.contributions.commands.entries,
+    ) { text, layer, commands ->
+        KeymapResolver.resolve(Keymap.DEFAULT + layer, KeybindingsFile.parse(text), CommandIds.ALL + commands.map { it.value.command })
+    }
 
     /**
      * The preset an environment was created from. Resolved here rather than

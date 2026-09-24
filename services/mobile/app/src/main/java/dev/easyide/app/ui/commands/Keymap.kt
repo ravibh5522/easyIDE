@@ -1,6 +1,10 @@
 package dev.easyide.app.ui.commands
 
 import android.view.KeyEvent
+import dev.easyide.extensions.whenclause.ContextLookup
+import dev.easyide.extensions.whenclause.WhenEvaluator
+import dev.easyide.extensions.whenclause.WhenExpr
+import kotlinx.serialization.json.JsonElement
 
 /** A single key press with its modifiers, compared exactly (Ctrl+S never matches Ctrl+Shift+S). */
 data class KeyChord(
@@ -53,23 +57,44 @@ enum class KeyFocus(val whenText: String?) {
 
 /**
  * [prefix] makes a two-step chord (VS Code's `ctrl+k ctrl+i`): [chord] only counts right after
- * [prefix] was pressed; see [ChordDispatcher].
+ * [prefix] was pressed; see [ChordDispatcher]. [whenExpr] is a binding's full `when`
+ * (extension layer), evaluated at dispatch against the context-key snapshot on top of
+ * [focus]; [args] go to the command.
  */
-data class KeyBinding(val chord: KeyChord, val command: String, val focus: KeyFocus, val prefix: KeyChord? = null)
+data class KeyBinding(
+    val chord: KeyChord,
+    val command: String,
+    val focus: KeyFocus,
+    val prefix: KeyChord? = null,
+    val whenExpr: WhenExpr? = null,
+    val args: JsonElement? = null,
+) {
+    /** Whether this binding may fire in the given focus and context. A `when` with no context never holds. */
+    fun applies(terminalFocused: Boolean, context: ContextLookup?): Boolean =
+        focus.matches(terminalFocused) && (whenExpr == null || (context != null && WhenEvaluator.evaluate(whenExpr, context)))
+}
 
+/**
+ * Layers, low to high (customization.md sec 7.1): the built-in table, contributed
+ * keybindings in enabled-set order, then keybindings.json (see [KeymapResolver]).
+ * Dispatch scans last to first, so a later layer wins, and the first candidate whose
+ * focus and `when` hold fires.
+ */
 class Keymap(val bindings: List<KeyBinding>) {
 
     /**
-     * The command bound to [chord] in this focus context, or null to let the
-     * key through. Scanned last to first so a later entry (a keybindings.json
-     * override) wins over the default table.
+     * The binding that fires for [chord] (completing [prefix] when one is pending) in this
+     * focus [context], or null to let the key through.
      */
-    fun commandFor(chord: KeyChord, terminalFocused: Boolean, prefix: KeyChord? = null): String? =
-        bindings.lastOrNull { it.chord == chord && it.prefix == prefix && it.focus.matches(terminalFocused) }?.command
+    fun bindingFor(chord: KeyChord, terminalFocused: Boolean, context: ContextLookup? = null, prefix: KeyChord? = null): KeyBinding? =
+        bindings.lastOrNull { it.chord == chord && it.prefix == prefix && it.applies(terminalFocused, context) }
 
-    /** Whether [chord] starts a two-step chord in this focus context. */
-    fun isPrefix(chord: KeyChord, terminalFocused: Boolean): Boolean =
-        bindings.any { it.prefix == chord && it.focus.matches(terminalFocused) }
+    fun commandFor(chord: KeyChord, terminalFocused: Boolean, context: ContextLookup? = null, prefix: KeyChord? = null): String? =
+        bindingFor(chord, terminalFocused, context, prefix)?.command
+
+    /** Whether [chord] starts a two-step chord whose binding could fire in this focus [context]. */
+    fun isPrefix(chord: KeyChord, terminalFocused: Boolean, context: ContextLookup? = null): Boolean =
+        bindings.any { it.prefix == chord && it.applies(terminalFocused, context) }
 
     /** The chord shown next to [command] in the palette: the one that would win dispatch. */
     fun chordFor(command: String): KeyChord? = bindings.lastOrNull { it.command == command }?.chord
@@ -79,12 +104,8 @@ class Keymap(val bindings: List<KeyBinding>) {
         listOfNotNull(b.prefix, b.chord).joinToString(" ") { label(it) }
     }
 
-    /** Down events only: acting on the matching key-up too would run every command twice. */
-    fun dispatch(event: KeyEvent, terminalFocused: Boolean, registry: CommandRegistry): Boolean {
-        if (event.action != KeyEvent.ACTION_DOWN) return false
-        val id = commandFor(KeyChord.of(event), terminalFocused) ?: return false
-        return registry.execute(id)
-    }
+    /** [layer] on top of this map: its bindings win ties. */
+    operator fun plus(layer: List<KeyBinding>): Keymap = Keymap(bindings + layer)
 
     companion object {
         /** The built-in keymap: the single source for workspace shortcuts. */
@@ -137,26 +158,27 @@ class Keymap(val bindings: List<KeyBinding>) {
 /**
  * Key dispatch with two-step chords: after a prefix chord (Ctrl+K) the next non-modifier key
  * completes or cancels it, and is consumed either way, as in VS Code. One per screen; the
- * pending prefix is UI state, kept out of the immutable [Keymap].
+ * pending prefix is UI state, kept out of the immutable [Keymap]. `when` clauses are checked
+ * against the context at each step, so a prefix only arms when some completion could fire.
  */
 class ChordDispatcher(private val keymap: Keymap) {
     private var pending: KeyChord? = null
 
     /** Down events only: acting on the matching key-up too would run every command twice. */
-    fun dispatch(event: KeyEvent, terminalFocused: Boolean, registry: CommandRegistry): Boolean {
+    fun dispatch(event: KeyEvent, terminalFocused: Boolean, registry: CommandRegistry, context: ContextLookup? = null): Boolean {
         if (event.action != KeyEvent.ACTION_DOWN || KeyEvent.isModifierKey(event.keyCode)) return false
         val chord = KeyChord.of(event)
         val prefix = pending
         if (prefix != null) {
             pending = null
-            keymap.commandFor(chord, terminalFocused, prefix)?.let(registry::execute)
+            keymap.bindingFor(chord, terminalFocused, context, prefix)?.let { registry.execute(it.command, it.args) }
             return true
         }
-        if (keymap.isPrefix(chord, terminalFocused)) {
+        if (keymap.isPrefix(chord, terminalFocused, context)) {
             pending = chord
             return true
         }
-        val id = keymap.commandFor(chord, terminalFocused) ?: return false
-        return registry.execute(id)
+        val binding = keymap.bindingFor(chord, terminalFocused, context) ?: return false
+        return registry.execute(binding.command, binding.args)
     }
 }

@@ -3,6 +3,7 @@ package dev.easyide.app.ui.commands
 import android.view.KeyEvent
 import dev.easyide.app.data.settings.DiagnosticCode
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -10,7 +11,8 @@ import org.junit.Test
 class KeybindingOverridesTest {
 
     private fun resolve(text: String) = KeymapResolver.resolve(Keymap.DEFAULT, KeybindingsFile.parse(text), CommandIds.ALL)
-    private val ctrlS = KeyChord(KeyEvent.KEYCODE_S, ctrl = true)
+    private fun ctrl(keyCode: Int) = KeyChord(keyCode, ctrl = true)
+    private val ctrlS = ctrl(KeyEvent.KEYCODE_S)
 
     @Test
     fun parsesAndNormalisesChords() {
@@ -19,6 +21,11 @@ class KeybindingOverridesTest {
         assertEquals(KeyChord(KeyEvent.KEYCODE_F5, meta = true), KeyNames.parse("cmd+f5"))
         assertEquals("ctrl+shift+alt+meta+tab", KeyNames.format(KeyNames.parse("meta+alt+shift+ctrl+tab")!!))
         assertNull(KeyNames.parse("ctrl+k ctrl+s"))
+        assertEquals(KeySequence(ctrl(KeyEvent.KEYCODE_K), ctrl(KeyEvent.KEYCODE_S)), KeyNames.parseSequence(" Ctrl+K  ctrl+s "))
+        assertEquals(KeySequence(null, ctrlS), KeyNames.parseSequence("ctrl+s"))
+        assertEquals("ctrl+k ctrl+s", KeyNames.format(KeyNames.parseSequence("ctrl+k ctrl+s")!!))
+        assertNull(KeyNames.parseSequence("ctrl+k ctrl+s ctrl+x"))
+        assertNull(KeyNames.parseSequence("ctrl+k hyper+s"))
         assertNull(KeyNames.parse("ctrl+ctrl+s"))
         assertNull(KeyNames.parse("hyper+s"))
         assertNull(KeyNames.parse("ctrl+"))
@@ -56,7 +63,7 @@ class KeybindingOverridesTest {
     @Test
     fun badEntriesAreReportedNotApplied() {
         val r = resolve(
-            """[{"key": "ctrl+k ctrl+s", "command": "a"}, {"key": "ctrl+q", "command": "x", "when": "editorFocus"},
+            """[{"key": "ctrl+k ctrl+s ctrl+x", "command": "a"}, {"key": "ctrl+q", "command": "x", "when": "editorFocus"},
                 {"command": "x"}, 5, {"key": "ctrl+j", "command": "ext.unknown"}]""",
         )
         val codes = r.diagnostics.map { it.code }.toSet()
@@ -69,6 +76,22 @@ class KeybindingOverridesTest {
         assertEquals(Keymap.DEFAULT.bindings.size + 1, r.keymap.bindings.size)
         assertEquals(DiagnosticCode.NOT_AN_ARRAY, resolve("{}").diagnostics.single().code)
         assertEquals(DiagnosticCode.PARSE_ERROR, resolve("[").diagnostics.single().code)
+    }
+
+    @Test
+    fun twoPressChordsBindAndRemoveByBothSteps() {
+        val k = ctrl(KeyEvent.KEYCODE_K)
+        val bound = resolve("[{\"key\": \"ctrl+k ctrl+s\", \"command\": \"workbench.action.files.saveAll\"}]")
+        assertTrue(bound.diagnostics.isEmpty())
+        assertEquals(CommandIds.SAVE_ALL, bound.keymap.commandFor(ctrlS, terminalFocused = false, prefix = k))
+        // The single press keeps its own binding: the two steps are one key.
+        assertEquals(CommandIds.SAVE, bound.keymap.commandFor(ctrlS, terminalFocused = false))
+        val removed = resolve("[{\"key\": \"ctrl+k ctrl+i\", \"command\": \"-editor.action.showHover\"}]")
+        assertNull(removed.keymap.commandFor(ctrl(KeyEvent.KEYCODE_I), terminalFocused = false, prefix = k))
+        assertFalse(removed.keymap.isPrefix(k, terminalFocused = false))
+        // Removing by the single press alone does not touch the two-press binding.
+        val kept = resolve("[{\"key\": \"ctrl+i\", \"command\": \"-editor.action.showHover\"}]")
+        assertEquals(CommandIds.SHOW_HOVER, kept.keymap.commandFor(ctrl(KeyEvent.KEYCODE_I), terminalFocused = false, prefix = k))
     }
 
     @Test

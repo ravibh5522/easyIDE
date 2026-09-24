@@ -14,6 +14,8 @@ import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.WorkspaceViewModelFactory
 import dev.easyide.app.ui.appViewModel
 import dev.easyide.app.ui.foundation.NavTransitions
+import dev.easyide.app.ui.screens.extensions.ExtensionsScreen
+import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeScreen
 import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectScreen
@@ -106,6 +108,10 @@ fun AppNavHost(
                 gitState = gitState,
                 decorations = workspaceViewModel.decorations,
                 lsp = workspaceViewModel.lsp,
+                extensionHost = workspaceViewModel.extensionHost,
+                extensions = container.extensions,
+                selections = workspaceViewModel.selections,
+                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
                     onCommit = workspaceViewModel::commitGit,
@@ -151,8 +157,14 @@ fun AppNavHost(
             SettingsScreen(
                 viewModel = viewModel,
                 externalFolderSync = container.externalFolderSync,
+                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 onBack = { navController.popBackStack() },
             )
+        }
+
+        composable(Destination.Extensions.route) {
+            val viewModel: ExtensionsViewModel = appViewModel(viewModelFactory)
+            ExtensionsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
 
         composable(Destination.NewProject.route) {

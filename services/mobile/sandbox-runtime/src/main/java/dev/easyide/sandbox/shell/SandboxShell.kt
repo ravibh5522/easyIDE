@@ -49,26 +49,28 @@ class SandboxShell(
         val builder = ProcessBuilder(spec.argv)
             .directory(spec.workingDir)
             .redirectErrorStream(true)
-
-        builder.environment().apply {
-            // ProcessBuilder inherits the whole Android app process's
-            // environment by default - including TMPDIR, which Android points
-            // at this app's own cache dir. That path means nothing inside the
-            // guest rootfs, and a postinst script that calls mktemp() with it
-            // (ca-certificates does) fails outright: "mkstemp: ... No such
-            // file or directory". Clearing first means the guest sees exactly
-            // the variables named below, nothing leaked from the host.
-            clear()
-            putAll(spec.environment)
-            put(ENV_PROOT_LOADER, installation.loader.absolutePath)
-            put(ENV_PROOT_LOADER_32, installation.loader32.absolutePath)
-            // proot links against libtalloc, which lives beside it in app
-            // storage rather than on the system library path.
-            put(ENV_LD_LIBRARY_PATH, installation.libraryDir.absolutePath)
-        }
+        applyEnvironment(builder, spec.environment)
 
         return TerminalProcess(builder.start(), ioDispatcher)
     }
+
+    /**
+     * Pty params that run [argv] instead of an interactive shell (a "command
+     * terminal"): the tab shows the command's output and ends when it exits,
+     * which is how `sandboxExec` with `output: terminal` and tasks report an
+     * exit code.
+     */
+    fun commandParams(
+        argv: List<String>,
+        rootfs: File,
+        hostProjectDir: File?,
+        guestProjectPath: String,
+        guestCwd: String?,
+        extraEnvironment: Map<String, String>,
+        extraBinds: List<GuestBind>,
+    ): PtyShellParams = ptyParams(
+        LaunchRequest(rootfs, hostProjectDir, guestProjectPath, argv, extraEnvironment, extraBinds, guestCwd),
+    )
 
     /**
      * Params for a real interactive shell, with no `-c` and no command
@@ -100,25 +102,22 @@ class SandboxShell(
         hostProjectDir: File?,
         guestProjectPath: String,
         extraBinds: List<GuestBind> = emptyList(),
-    ): PtyShellParams {
-        val spec = launcher.buildLaunchSpec(
-            LaunchRequest(
-                rootfs = rootfs,
-                hostProjectDir = hostProjectDir,
-                guestProjectPath = guestProjectPath,
-                extraBinds = extraBinds,
-                command = listOf(GUEST_SHELL),
-            )
+    ): PtyShellParams = ptyParams(
+        LaunchRequest(
+            rootfs = rootfs,
+            hostProjectDir = hostProjectDir,
+            guestProjectPath = guestProjectPath,
+            extraBinds = extraBinds,
+            command = listOf(GUEST_SHELL),
         )
-        val env = spec.environment + mapOf(
-            ENV_PROOT_LOADER to installation.loader.absolutePath,
-            ENV_PROOT_LOADER_32 to installation.loader32.absolutePath,
-            ENV_LD_LIBRARY_PATH to installation.libraryDir.absolutePath,
-        )
+    )
+
+    private fun ptyParams(request: LaunchRequest): PtyShellParams {
+        val spec = launcher.buildLaunchSpec(request)
         return PtyShellParams(
             shellPath = spec.argv.first(),
             args = spec.argv.drop(1),
-            env = env,
+            env = spec.environment + loaderEnvironment(),
             cwd = spec.workingDir.absolutePath,
         )
     }
@@ -128,7 +127,10 @@ class SandboxShell(
      * plain pipes: no pty, stderr NOT merged into stdout. A language server
      * speaks byte-exact `Content-Length` framing on stdout, which a pty's
      * `\n` -> `\r\n` translation or interleaved log text would corrupt - see
-     * docs/extension-sdk/lld/lsp-client.md sec 3.1.
+     * docs/extension-sdk/lld/lsp-client.md sec 3.1. Extension `sandboxExec`
+     * capture uses the same path: its result contract is `{exitCode, stdout,
+     * stderr}`, which [start]'s merged stream cannot satisfy. [guestCwd] is the
+     * guest start directory (default: the project mount).
      *
      * The environment is cleared exactly as in [start]: the process sees the
      * launcher's guest defaults, [extraEnvironment], and the proot loader
@@ -142,30 +144,38 @@ class SandboxShell(
         guestProjectPath: String,
         extraEnvironment: Map<String, String>,
         extraBinds: List<GuestBind>,
+        guestCwd: String? = null,
     ): Process {
         val spec = launcher.buildLaunchSpec(
-            LaunchRequest(
-                rootfs = rootfs,
-                hostProjectDir = hostProjectDir,
-                guestProjectPath = guestProjectPath,
-                command = command,
-                extraEnvironment = extraEnvironment,
-                extraBinds = extraBinds,
-            )
+            LaunchRequest(rootfs, hostProjectDir, guestProjectPath, command, extraEnvironment, extraBinds, guestCwd),
         )
         val builder = ProcessBuilder(spec.argv)
             .directory(spec.workingDir)
             .redirectErrorStream(false)
-        builder.environment().apply {
-            clear()
-            putAll(spec.environment)
-            putAll(prootHostEnvironment())
-        }
+        applyEnvironment(builder, spec.environment)
         return builder.start()
     }
 
-    /** What proot itself needs from the host: its loaders and the libtalloc beside it. */
-    private fun prootHostEnvironment(): Map<String, String> = mapOf(
+    private fun applyEnvironment(builder: ProcessBuilder, environment: Map<String, String>) {
+        builder.environment().apply {
+            // ProcessBuilder inherits the whole Android app process's
+            // environment by default - including TMPDIR, which Android points
+            // at this app's own cache dir. That path means nothing inside the
+            // guest rootfs, and a postinst script that calls mktemp() with it
+            // (ca-certificates does) fails outright: "mkstemp: ... No such
+            // file or directory". Clearing first means the guest sees exactly
+            // the variables named below, nothing leaked from the host.
+            clear()
+            putAll(environment)
+            putAll(loaderEnvironment())
+        }
+    }
+
+    /**
+     * proot's loaders, and libtalloc, which lives beside proot in app storage
+     * rather than on the system library path.
+     */
+    private fun loaderEnvironment(): Map<String, String> = mapOf(
         ENV_PROOT_LOADER to installation.loader.absolutePath,
         ENV_PROOT_LOADER_32 to installation.loader32.absolutePath,
         ENV_LD_LIBRARY_PATH to installation.libraryDir.absolutePath,

@@ -1,8 +1,11 @@
 package dev.easyide.app.ui.screens.workspace.lsp
 
+import dev.easyide.lsp.manager.LspStateValue
 import dev.easyide.lsp.manager.ServerStatus
+import dev.easyide.lsp.protocol.LspFeature
 import dev.easyide.lsp.session.AfterStop
 import dev.easyide.lsp.session.FailReason
+import dev.easyide.lsp.session.ServerKey
 import dev.easyide.lsp.session.SessionState
 import dev.easyide.lsp.session.StopReason
 
@@ -63,4 +66,28 @@ fun ServerStatus.failureDetail(): String? = when (val s = state) {
         else -> null
     }
     else -> null
+}
+
+/**
+ * What the `lspReady:<lang>`, `lspState:<lang>` and `lspSupports:<lang>:<feature>` context keys
+ * say about one language (sdk-reference when-clause context), so `when`/`enablement` clauses
+ * of extensions can follow the servers.
+ */
+data class LspLanguageFacts(val state: LspStateValue, val ready: Boolean, val features: Set<LspFeature>) {
+    companion object {
+        /**
+         * Per language of [statuses]: the best state of its servers, whether any finished
+         * `initialize`, and the union of the features they offer ([supports] per server).
+         */
+        fun of(statuses: Collection<ServerStatus>, supports: (ServerKey, LspFeature) -> Boolean): Map<String, LspLanguageFacts> =
+            statuses.flatMap { s -> s.languages.map { it to s } }
+                .groupBy({ it.first }, { it.second })
+                .mapValues { (_, servers) ->
+                    LspLanguageFacts(
+                        state = LspStateValue.best(servers.map { LspStateValue.of(it.state) }),
+                        ready = servers.any { it.state.isReady },
+                        features = LspFeature.entries.filterTo(HashSet()) { f -> servers.any { supports(it.key, f) } },
+                    )
+                }
+    }
 }

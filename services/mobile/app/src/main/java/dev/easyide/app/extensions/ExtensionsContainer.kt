@@ -1,0 +1,272 @@
+package dev.easyide.app.extensions
+
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import dev.easyide.app.R
+import dev.easyide.app.data.settings.ProfileManager
+import dev.easyide.app.data.settings.SettingsRegistry
+import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.data.settings.SafeModeReason as AppSafeModeReason
+import dev.easyide.app.data.settings.SafeModeState as AppSafeModeState
+import dev.easyide.extensions.manifest.ExtensionId
+import dev.easyide.extensions.settings.RuntimeScope
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import dev.easyide.app.extensions.adapters.ContributedKeybindings
+import dev.easyide.app.extensions.adapters.ContributedServers
+import dev.easyide.app.extensions.adapters.ExtensionLanguages
+import dev.easyide.app.extensions.adapters.SnippetCatalog
+import dev.easyide.app.extensions.host.AppHostPort
+import dev.easyide.app.extensions.host.ExtensionUiHost
+import dev.easyide.app.extensions.host.UrlOpener
+import dev.easyide.app.extensions.install.AssetTree
+import dev.easyide.app.extensions.install.BuiltInExtensions
+import dev.easyide.app.extensions.install.DiskExtensionInventory
+import dev.easyide.app.extensions.install.ExtensionStateStore
+import dev.easyide.app.extensions.install.LocalInstaller
+import dev.easyide.app.ui.commands.CommandIds
+import dev.easyide.app.ui.commands.KeyBinding
+import dev.easyide.app.ui.screens.workspace.TerminalKeyboard
+import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
+import dev.easyide.extensions.ExtensionPolicy
+import dev.easyide.extensions.ExtensionsRuntime
+import dev.easyide.extensions.RuntimePorts
+import dev.easyide.extensions.action.LogEntry
+import dev.easyide.extensions.action.LogLevel
+import dev.easyide.extensions.contrib.CommandContribution
+import dev.easyide.extensions.contrib.Contributions
+import dev.easyide.extensions.manifest.ManifestParser
+import dev.easyide.extensions.manifest.PackageLimits
+import dev.easyide.extensions.manifest.ParseOptions
+import dev.easyide.extensions.schema.ManifestSchema
+import dev.easyide.sandbox.SandboxPaths
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
+import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
+
+/**
+ * Everything the extension platform needs in the app, wired once (lld/extension-runtime.md
+ * "Ports into the app"): the [ExtensionsRuntime] over real ports, the inventory over
+ * [SandboxPaths] plus the APK's built-in packs, the local installer, and the adapters
+ * that are not tied to one screen: grammars/languages into the highlighter, snippets,
+ * keybindings (into the keymap's extension layer), `configuration` into the
+ * [SettingsRegistry], and the theme seam. Screen-bound adapters (menus, palette,
+ * status bar, key rows) read [runtime]'s registry directly.
+ */
+class ExtensionsContainer(
+    private val context: Context,
+    private val paths: SandboxPaths,
+    settingsStore: SettingsStore,
+    profiles: ProfileManager,
+    private val settingsRegistry: SettingsRegistry,
+    private val appSafeMode: AppSafeModeState,
+    shellEnvironment: () -> Map<String, String>,
+    private val scope: CoroutineScope,
+    private val io: CoroutineDispatcher,
+) {
+    val log = ExtensionLogRing()
+    val ui = ExtensionUiHost()
+    val themes = ContributedThemeCatalog()
+    val settings = AppSettingsPort(settingsStore, profiles, log, scope)
+    val host = AppHostPort(ui, UrlOpener(::openExternal), shellEnvironment, log, io)
+
+    private val state = ExtensionStateStore(paths.extensionStateFile)
+    private val builtIns = BuiltInExtensions(AssetTree.of(context.assets), paths.builtInExtensionsDir, apkStamp())
+    val inventory = DiskExtensionInventory(paths, builtIns::directories, state, io)
+
+    private val builtInContributions = Contributions(
+        commands = builtInCommands(),
+        keyRows = listOf(TerminalKeyboard.row(context.getString(R.string.key_row_terminal_title))),
+    )
+
+    val runtime = ExtensionsRuntime(
+        ports = RuntimePorts(settings, inventory, host, log, paths.extensionJournalFile),
+        scope = scope,
+        builtIn = builtInContributions,
+        builtInCommands = CommandIds.ALL,
+        io = io,
+    )
+
+    val installer = LocalInstaller(
+        paths, state, inventory,
+        ManifestParser(ManifestSchema.validator, ParseOptions(locale = Locale.getDefault(), builtInCommands = CommandIds.ALL)),
+        { PackageLimits.from(settings) }, io,
+    )
+
+    /** Contributed `languageServers` for the LSP registry (registered once by the composition root). */
+    val languageServers = ContributedServers.Provider(runtime, settings, log)
+
+    private val snippetState = MutableStateFlow(SnippetCatalog.EMPTY)
+    val snippets: StateFlow<SnippetCatalog> = snippetState.asStateFlow()
+
+    private val keybindingState = MutableStateFlow<List<KeyBinding>>(emptyList())
+
+    /** The keymap's extension layer, rebuilt when contributed keybindings change. */
+    val keybindings: StateFlow<List<KeyBinding>> = keybindingState.asStateFlow()
+
+    private val started = AtomicBoolean(false)
+    private val startupFinished = AtomicBoolean(false)
+
+    /**
+     * Starts the runtime and the global adapters. Call once, at process start, before any
+     * screen observes contributions (the crash-journal verdict must hold first).
+     */
+    fun start() {
+        if (!started.compareAndSet(false, true)) return
+        runtime.start()
+        TextMateHighlighter.onSlowGrammar = { scopeName ->
+            log.append(LogEntry(null, LogLevel.WARN, "grammar $scopeName exceeded ${ExtensionPolicy.GRAMMAR_LINE_TIME_LIMIT_MS} ms on a line; the rest of that file stays plain"))
+        }
+        val c = runtime.contributions
+        scope.launch {
+            combine(c.languages.entries, c.grammars.entries, c.languageConfigurations.entries) { l, g, lc -> ExtensionLanguages(l, g, lc) }
+                .collect { withContext(io) { TextMateHighlighter.setExtensionLanguages(it) } }
+        }
+        scope.launch {
+            c.snippets.entries.collect { entries ->
+                snippetState.value = withContext(io) {
+                    SnippetCatalog.load(entries, ::readSnippetFile) { owned, message -> log.append(LogEntry(ownerId(owned.owner), LogLevel.WARN, message)) }
+                }
+            }
+        }
+        scope.launch {
+            c.keybindings.entries.collect { entries ->
+                keybindingState.value = ContributedKeybindings.bindings(entries) { owned, message ->
+                    log.append(LogEntry(ownerId(owned.owner), LogLevel.WARN, message))
+                }
+            }
+        }
+        // configuration + configurationDefaults -> the settings schema and its extension layer.
+        scope.launch {
+            runtime.extensions.enabled.collect { set ->
+                settingsRegistry.setContributions(set.extensions.map { ConfigurationContributions.of(it.descriptor) })
+            }
+        }
+        scope.launch {
+            settingsRegistry.state.map { it.diagnostics }.distinctUntilChanged().collect { diagnostics ->
+                diagnostics.forEach { d ->
+                    log.append(LogEntry(ExtensionId.parse(d.owner), LogLevel.WARN, "configuration: ${d.diagnostic.code} ${d.diagnostic.key.orEmpty()}"))
+                }
+            }
+        }
+        bridgeSafeMode()
+        scope.launch { combine(c.themes.entries, c.iconThemes.entries) { t, i -> t to i }.collect { (t, i) -> themes.update(t, i) } }
+        scope.launch {
+            installer.clearStaging()
+            inventory.rescan()
+        }
+    }
+
+    /**
+     * First frame plus [ExtensionPolicy.STARTUP_IDLE_DELAY_MS]: `onStartupFinished`
+     * activations, and a clean run resets the crash journal. Once per process.
+     */
+    fun onFirstFrame() {
+        if (!startupFinished.compareAndSet(false, true)) return
+        scope.launch {
+            delay(ExtensionPolicy.STARTUP_IDLE_DELAY_MS)
+            runtime.onStartupFinished()
+        }
+    }
+
+    /**
+     * The app's safe mode (setting, launcher shortcut) and the runtime's (setting, crash
+     * verdict) are one state to the user: a session reason on either side enters the
+     * other, and [exitSafeMode] leaves both.
+     */
+    private fun bridgeSafeMode() {
+        if (runtime.startupVerdict.enterSafeMode) appSafeMode.enterForSession(AppSafeModeReason.AUTO_CRASH)
+        scope.launch {
+            appSafeMode.active.collect { reason ->
+                if (reason == AppSafeModeReason.LAUNCHER_SHORTCUT && !runtime.safeMode.isActive) runtime.safeMode.enterAuto(emptyList())
+            }
+        }
+    }
+
+    /** "Exit safe mode": clears the session reasons and, when it is set, the persisted setting. */
+    suspend fun exitSafeMode(): Result<Unit> {
+        runtime.safeMode.exitSession()
+        return appSafeMode.exit()
+    }
+
+    /** What the settings export lists as installed (`{id, version, source, scope}`). */
+    fun installedSummary(): List<JsonObject> = runtime.extensions.loaded.value.map { l ->
+        JsonObject(mapOf(
+            "id" to JsonPrimitive(l.descriptor.id.value),
+            "version" to JsonPrimitive(l.descriptor.version.toString()),
+            "source" to JsonPrimitive(l.pkg.source.name.lowercase()),
+            "scope" to JsonPrimitive(l.pkg.scope.wire),
+        ))
+    }
+
+    /** Environment or project switched: the runtime and the settings port follow together. */
+    fun setRuntimeScope(scope: RuntimeScope) {
+        settings.setScope(scope)
+        runtime.setRuntimeScope(scope)
+    }
+
+    /** For the environment binds: only enabled environment packs appear in the guest. */
+    fun isEnabledIn(envId: String, id: String): Boolean =
+        runtime.extensions.enabled.value.extensions.any { it.id.value == id && it.pkg.envId == envId }
+
+    private fun readSnippetFile(hostPath: String): String? {
+        val file = File(hostPath)
+        return try {
+            if (file.length() > ExtensionUiPolicy.SNIPPET_FILE_MAX_BYTES) null else file.readText()
+        } catch (e: IOException) {
+            null
+        }
+    }
+
+    private fun ownerId(owner: dev.easyide.extensions.contrib.Owner) = (owner as? dev.easyide.extensions.contrib.Owner.Ext)?.id
+
+    /** The app's own commands as built-in contributions: menus and keybindings of packs can then name them. */
+    private fun builtInCommands(): List<CommandContribution> = BUILT_IN_TITLES.map { (id, title) ->
+        CommandContribution(id, context.getString(title), null, null, null, null)
+    }
+
+    private fun openExternal(url: String): Boolean = try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        true
+    } catch (e: ActivityNotFoundException) {
+        false
+    }
+
+    /** Changes with every install or update of the APK, so built-ins are re-unpacked exactly then. */
+    private fun apkStamp(): String =
+        context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime.toString()
+
+    private companion object {
+        val BUILT_IN_TITLES: List<Pair<String, Int>> = listOf(
+            CommandIds.SHOW_COMMANDS to R.string.command_show_commands,
+            CommandIds.SAVE to R.string.command_save,
+            CommandIds.SAVE_ALL to R.string.command_save_all,
+            CommandIds.CLOSE_EDITOR to R.string.command_close_editor,
+            CommandIds.NEXT_EDITOR to R.string.command_next_editor,
+            CommandIds.PREVIOUS_EDITOR to R.string.command_previous_editor,
+            CommandIds.TOGGLE_MARKDOWN_PREVIEW to R.string.command_toggle_markdown_preview,
+            CommandIds.TOGGLE_EXPLORER to R.string.command_toggle_explorer,
+            CommandIds.TOGGLE_SOURCE_CONTROL to R.string.command_toggle_source_control,
+            CommandIds.REFRESH_EXPLORER to R.string.command_refresh_explorer,
+            CommandIds.TOGGLE_TERMINAL to R.string.command_toggle_terminal,
+            CommandIds.NEW_TERMINAL to R.string.command_new_terminal,
+            CommandIds.INSERT_SNIPPET to R.string.command_insert_snippet,
+            CommandIds.RUN_TASK to R.string.command_run_task,
+            CommandIds.SHOW_EXTENSIONS to R.string.command_show_extensions,
+        )
+    }
+}

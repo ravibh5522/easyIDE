@@ -38,6 +38,8 @@ import dev.easyide.app.ui.theme.ControlSize
 import dev.easyide.app.ui.theme.IconSize
 import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.extensions.contrib.KeyAction
+import dev.easyide.extensions.contrib.RowKey
 
 /**
  * Terminal panel: tabs across the top, a real pty-backed terminal below, and
@@ -63,6 +65,9 @@ fun TerminalPane(
     onInstallLinux: () -> Unit,
     onHardwareKey: (android.view.KeyEvent) -> Boolean,
     modifier: Modifier = Modifier,
+    /** The active key row's keys (built-in `builtin.terminal` unless a pack's row applies). */
+    rowKeys: List<RowKey> = emptyList(),
+    onRowKey: (KeyAction, com.termux.terminal.TerminalSession) -> Unit = { _, _ -> },
 ) {
     val colors = editorColors
     val tab = tabs.find { it.id == activeTabId } ?: tabs.firstOrNull()
@@ -91,7 +96,7 @@ fun TerminalPane(
         // Writing to a TerminalSession is a plain, synchronous, non-suspending
         // queue push - no ViewModel round trip needed, the same way a tap
         // inside MermaidView's WebView does not need one either.
-        TerminalKeyRow(onKey = { key -> tab.session.write(key.bytes) })
+        if (rowKeys.isNotEmpty()) KeyRowBar(keys = rowKeys, onKey = { action -> onRowKey(action, tab.session) })
     }
 }
 

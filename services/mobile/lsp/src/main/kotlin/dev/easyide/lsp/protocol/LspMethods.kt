@@ -53,6 +53,15 @@ object LspMethods {
 
     /** Result is server-defined; returned raw. */
     val EXECUTE_COMMAND = LspMethod("workspace/executeCommand", null) { it }
+
+    /** Every method above, for callers that start from a wire name (extension `lspRequest`). */
+    val ALL: List<LspMethod<*>> = listOf(
+        COMPLETION, COMPLETION_RESOLVE, HOVER, SIGNATURE_HELP, DEFINITION, DECLARATION, TYPE_DEFINITION, IMPLEMENTATION,
+        REFERENCES, DOCUMENT_HIGHLIGHT, DOCUMENT_SYMBOL, WORKSPACE_SYMBOL, PREPARE_RENAME, RENAME, CODE_ACTION,
+        CODE_ACTION_RESOLVE, FORMATTING, RANGE_FORMATTING, ON_TYPE_FORMATTING, WILL_SAVE_WAIT_UNTIL, INLAY_HINT,
+        INLAY_HINT_RESOLVE, SEMANTIC_TOKENS_FULL, SEMANTIC_TOKENS_DELTA, SEMANTIC_TOKENS_RANGE, FOLDING_RANGE,
+        SELECTION_RANGE, CODE_LENS, CODE_LENS_RESOLVE, DOCUMENT_LINK, DOCUMENT_LINK_RESOLVE, PULL_DIAGNOSTICS, EXECUTE_COMMAND,
+    )
 }
 
 /** `FormattingOptions` from the editor keys of the language (lsp-features.md 4.11). */

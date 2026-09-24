@@ -12,6 +12,8 @@ class EasyIdeApplication : Application() {
         super.onCreate()
         container = AppContainer(this)
         TextMateHighlighter.init(this)
+        // Before any activity: the crash-journal verdict must hold before contributions register.
+        container.extensions.start()
         SafeModeShortcut.publish(this)
     }
 

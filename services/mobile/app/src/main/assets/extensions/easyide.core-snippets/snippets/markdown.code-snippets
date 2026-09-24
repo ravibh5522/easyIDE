@@ -1,0 +1,8 @@
+{
+  "code block": { "prefix": "code", "body": ["```${1:lang}", "$TM_SELECTED_TEXT$0", "```"], "description": "Fenced code block" },
+  "table": { "prefix": "table", "body": ["| ${1:Column} | ${2:Column} |", "|---|---|", "| $3 | $4 |$0"], "description": "Two-column table" },
+  "link": { "prefix": "link", "body": "[${1:text}](${2:https://})$0", "description": "Link" },
+  "image": { "prefix": "img", "body": "![${1:alt}](${2:path})$0", "description": "Image" },
+  "task list": { "prefix": "todo", "body": ["- [ ] ${1:first}", "- [ ] ${2:second}$0"], "description": "Task list" },
+  "mermaid": { "prefix": "mermaid", "body": ["```mermaid", "flowchart LR", "\t${1:A} --> ${2:B}$0", "```"], "description": "Mermaid diagram" }
+}

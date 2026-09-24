@@ -2,6 +2,7 @@ package dev.easyide.app.data.settings
 
 import dev.easyide.app.R
 import dev.easyide.app.ui.theme.ThemeMode
+import dev.easyide.extensions.settings.ExtensionSettings
 
 /**
  * Every built-in setting, declared once. Storage, validation, the Settings
@@ -81,8 +82,52 @@ object SettingsSchema {
         pattern = SettingsPolicy.PROFILE_NAME,
     )
 
+    // Extension keys: names and defaults come from :extensions (the runtime reads them
+    // through its SettingsPort), so the two sides cannot disagree.
+
+    val extensionsEnabled = Setting.Bool(
+        key = ExtensionSettings.ENABLED.key,
+        category = SettingCategory.EXTENSIONS,
+        title = R.string.setting_extensions_enabled_title,
+        description = R.string.setting_extensions_enabled_desc,
+        default = ExtensionSettings.ENABLED.default,
+        scope = SettingScope.G,
+    )
+
+    /** Written by the Extensions screen's enable toggle; the whole list per layer (arrays replace). */
+    val extensionsDisabled = Setting.StrList(
+        key = ExtensionSettings.DISABLED,
+        category = SettingCategory.EXTENSIONS,
+        title = R.string.setting_extensions_disabled_title,
+        description = R.string.setting_extensions_disabled_desc,
+        default = emptyList(),
+        scope = SettingScope.P,
+    )
+
+    val contributionsHidden = Setting.StrList(
+        key = ExtensionSettings.WORKBENCH_HIDDEN,
+        category = SettingCategory.EXTENSIONS,
+        title = R.string.setting_contributions_hidden_title,
+        description = R.string.setting_contributions_hidden_desc,
+        default = emptyList(),
+        scope = SettingScope.P,
+    )
+
+    /** A key row id, or [KEY_ROWS_AUTO] for the first contributed row whose `when` holds. */
+    val keyRowsActive = Setting.Str(
+        key = "keyRows.active",
+        category = SettingCategory.EXTENSIONS,
+        title = R.string.setting_key_rows_active_title,
+        description = R.string.setting_key_rows_active_desc,
+        default = KEY_ROWS_AUTO,
+        scope = SettingScope.L,
+    )
+
+    const val KEY_ROWS_AUTO = "auto"
+
     val all: List<Setting<*>> = listOf(
         themeMode, editorFontSize, editorLineHeight, terminalFontSize, safeMode, activeProfile,
+        extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
     ) + LspSettingsSchema.all
 
     /** Declared (validated, resolvable) but edited by a dedicated UI rather than a generic row. */

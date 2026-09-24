@@ -9,6 +9,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -110,3 +111,17 @@ internal fun Modifier.editorPointer(
         }
     }
 }
+
+/**
+ * Reports a secondary-button press (mouse right click, stylus side button) without
+ * consuming it, so selection and the text toolbar keep working for primary input.
+ */
+internal fun Modifier.secondaryClicks(onSecondaryClick: (() -> Unit)?): Modifier =
+    if (onSecondaryClick == null) this else pointerInput(onSecondaryClick) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) onSecondaryClick()
+            }
+        }
+    }

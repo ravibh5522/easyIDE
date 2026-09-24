@@ -40,7 +40,10 @@ class ProotLauncher(
                 addAll(listOf(ARG_BIND, "${bind.host.absolutePath}:${bind.guestPath}"))
             }
 
-            addAll(listOf(ARG_CWD, request.hostProjectDir?.let { request.guestProjectPath } ?: GuestEnvironment.GUEST_HOME))
+            val cwd = request.guestCwd
+                ?: request.hostProjectDir?.let { request.guestProjectPath }
+                ?: GuestEnvironment.GUEST_HOME
+            addAll(listOf(ARG_CWD, cwd))
             addAll(request.command)
         }
 

@@ -51,9 +51,28 @@ object KeyNames {
     private const val CMD = "cmd"
 
     /**
+     * A binding's key text: one press (`ctrl+shift+p`) or a two-press chord (`ctrl+k ctrl+i`,
+     * see [ChordDispatcher]). Null when either press is invalid or there are more than two -
+     * VS Code allows longer sequences, but nothing here dispatches them, so the JSON editor
+     * reports them instead of dropping them silently.
+     */
+    fun parseSequence(text: String): KeySequence? {
+        val presses = text.trim().split(WHITESPACE)
+        if (presses.size > 2) return null
+        val chords = presses.map { parse(it) ?: return null }
+        return KeySequence(prefix = chords.getOrNull(1)?.let { chords[0] }, chord = chords.last())
+    }
+
+    /** VS Code spelling of a sequence; the inverse of [parseSequence]. */
+    fun format(sequence: KeySequence): String =
+        listOfNotNull(sequence.prefix, sequence.chord).joinToString(" ") { format(it) }
+
+    private val WHITESPACE = Regex("\\s+")
+
+    /**
      * One key press, e.g. `ctrl+shift+p`. Null for unknown names, repeated or
-     * missing keys, and two-press chords (`ctrl+k ctrl+s`), which the dispatcher
-     * does not support yet - the JSON editor reports those instead of dropping them silently.
+     * missing keys, and anything containing whitespace (a two-press chord is
+     * [parseSequence]'s job; a terminal key or `sendKeys` press is always one).
      */
     fun parse(text: String): KeyChord? {
         val s = text.trim().lowercase()
@@ -82,3 +101,6 @@ object KeyNames {
         add(NAMES[chord.keyCode] ?: chord.keyCode.toString())
     }.joinToString("+")
 }
+
+/** What a binding's `key` names: [chord], optionally only right after [prefix]. */
+data class KeySequence(val prefix: KeyChord?, val chord: KeyChord)

@@ -3,6 +3,7 @@ package dev.easyide.app.ui.screens.settings
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.easyide.app.R
+import dev.easyide.app.data.settings.SettingCategory
 import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
@@ -65,6 +68,7 @@ import java.time.LocalDate
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     externalFolderSync: ExternalFolderSync,
+    onOpenExtensions: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -160,6 +164,15 @@ fun SettingsScreen(
             sections.forEach { section ->
                 item(key = "h:${section.id}") {
                     SectionHeader(section.category?.let { stringResource(it.title) } ?: stringResource(R.string.settings_contributed_section, section.title.orEmpty()))
+                }
+                if (section.category == SettingCategory.EXTENSIONS) {
+                    item(key = MANAGE_EXTENSIONS_KEY) {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.ext_manage_title)) },
+                            supportingContent = { Text(stringResource(R.string.ext_manage_desc)) },
+                            modifier = Modifier.contentWidth().clickable(onClick = onOpenExtensions),
+                        )
+                    }
                 }
                 items(section.rows, key = { it.key }) { setting ->
                     // The theme is chosen by looking, so on the user layer (its only
@@ -333,5 +346,6 @@ private fun trustStateRes(s: TrustState): Int = when (s) {
     TrustState.PENDING, TrustState.NOT_REQUIRED -> R.string.trust_state_pending
 }
 
+private const val MANAGE_EXTENSIONS_KEY = "extensions.manage"
 private const val BUNDLE_MIME = "application/zip"
 private const val BUNDLE_NAME = "easyide-settings-%s.zip"

@@ -1,0 +1,9 @@
+{
+  "arrow function": { "prefix": "af", "body": "const ${1:name} = (${2:args}) => {\n\t$0\n};", "description": "Arrow function" },
+  "async function": { "prefix": "afn", "body": ["async function ${1:name}(${2:args}) {", "\t$0", "}"], "description": "Async function" },
+  "import": { "prefix": "imp", "body": "import { $2 } from \"${1:module}\";$0", "description": "Named import" },
+  "try/catch": { "prefix": "try", "body": ["try {", "\t$1", "} catch (${2:err}) {", "\t${0:console.error($2);}", "}"], "description": "Try/catch block" },
+  "for of": { "prefix": "forof", "body": ["for (const ${1:item} of ${2:items}) {", "\t$0", "}"], "description": "for...of loop" },
+  "console.log": { "prefix": "log", "body": "console.log(${1:$TM_SELECTED_TEXT});$0", "description": "Log a value" },
+  "fetch json": { "prefix": "fetchj", "body": ["const ${1:res} = await fetch(${2:url});", "if (!$1.ok) throw new Error(`HTTP \\${$1.status}`);", "const ${3:data} = await $1.json();$0"], "description": "Fetch and parse JSON" }
+}

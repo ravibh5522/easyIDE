@@ -1,6 +1,9 @@
 package dev.easyide.app.ui.commands
 
 import android.view.KeyEvent
+import dev.easyide.app.extensions.ExtFixtures
+import dev.easyide.extensions.whenclause.WhenParseResult
+import dev.easyide.extensions.whenclause.WhenParser
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -70,6 +73,18 @@ class KeymapTest {
         assertFalse(keymap.isPrefix(k, terminalFocused = true))
         assertEquals(CommandIds.SHOW_HOVER, keymap.commandFor(i, terminalFocused = false, prefix = k))
         assertNull(keymap.commandFor(i, terminalFocused = false))
+    }
+
+    @Test
+    fun prefixArmsOnlyWhereACompletionsWhenHolds() {
+        val k = ctrl(KeyEvent.KEYCODE_K)
+        val j = ctrl(KeyEvent.KEYCODE_J)
+        val py = (WhenParser.parse("editorLangId == python") as WhenParseResult.Ok).expr
+        val gated = Keymap(listOf(KeyBinding(j, "py.run", KeyFocus.ANYWHERE, prefix = k, whenExpr = py)))
+        assertTrue(gated.isPrefix(k, terminalFocused = false, context = ExtFixtures.context("editorLangId" to "\"python\"")))
+        assertFalse(gated.isPrefix(k, terminalFocused = false, context = ExtFixtures.context("editorLangId" to "\"go\"")))
+        // No context at all: a `when` never holds, so the prefix must not swallow Ctrl+K.
+        assertFalse(gated.isPrefix(k, terminalFocused = false))
     }
 
     @Test
