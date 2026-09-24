@@ -78,7 +78,10 @@ private val JS_PROPERTY_NAMES = mapOf(
     "Letter" to "L",
 )
 
-private val QUANTIFIER = Regex("""\{\d+(,\d*)?}""")
+// The closing brace is escaped on purpose: java.util.regex tolerates a bare `}`, but Android's
+// regex engine rejects it, and this is a top-level constant, so a failure here disables every
+// language configuration at class initialisation instead of dropping one rule.
+private val QUANTIFIER = Regex("""\{\d+(,\d*)?\}""")
 
 internal fun translateJsRegex(pattern: String): String {
     val out = StringBuilder(pattern.length + 8)
