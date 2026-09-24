@@ -9,7 +9,6 @@
 
     <string name="settings_category_extensions">Extensions</string>
     <string name="settings_contributed_section">Extensions: %1$s</string>
-    <string name="settings_more_actions">More settings actions</string>
     <string name="settings_edit_json">Edit as JSON</string>
     <string name="settings_edit_keybindings">Keyboard shortcuts (JSON)</string>
     <string name="settings_export">Export settings</string>
@@ -22,8 +21,6 @@
     <string name="settings_layer_project">Project</string>
     <string name="settings_layer_named">%1$s: %2$s</string>
 
-    <string name="setting_modified_here">Set in this layer</string>
-    <string name="setting_overridden_by">Overridden by %1$s (%2$s)</string>
     <string name="setting_invalid_here">The value in this layer is invalid and is ignored.</string>
     <string name="setting_not_in_layer">Cannot be set in this layer.</string>
     <string name="setting_edit_in_json">Edit in settings.json</string>
@@ -87,7 +84,6 @@
     <string name="settings_msg_environment_failed">Could not delete the environment</string>
     <string name="settings_msg_safe_mode_failed">Could not leave safe mode</string>
 
-    <string name="safe_mode_banner_title">Safe mode is on</string>
     <string name="safe_mode_reason_setting">Turned on in Settings.</string>
     <string name="safe_mode_reason_shortcut">Started from the launcher shortcut.</string>
     <string name="safe_mode_reason_crash">Started after repeated extension crashes.</string>

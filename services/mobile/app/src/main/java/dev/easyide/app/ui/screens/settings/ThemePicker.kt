@@ -15,17 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -38,19 +35,18 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitIconButton
+import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.kit.cropCorners
 import dev.easyide.app.ui.theme.Accent
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.EditorColors
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.SyntaxRole
 import dev.easyide.app.ui.theme.ThemeMode
-import dev.easyide.app.ui.theme.TypeScale
 import dev.easyide.app.ui.theme.themeTokensFor
 import dev.easyide.app.ui.theme.toEditorColors
 
@@ -65,65 +61,41 @@ interface ThemeActions {
 }
 
 /**
- * The theme setting as a grid of live mini-editor cards instead of a dropdown
- * of names: each card is painted from the tokens that mode would apply, so the
- * choice is made by looking, and nothing is applied until a card is tapped.
- * Themes from extensions follow the built-in modes; one selected there wins over
- * the built-in mode until a built-in card is tapped.
+ * The theme setting as a grid of live mini-editor cards instead of a list of names: each card is
+ * painted from the tokens that mode would apply, so the choice is made by looking, and nothing is
+ * applied until a card is tapped. Themes from extensions follow the built-in modes; one selected
+ * there wins over the built-in mode until a built-in card is tapped.
  */
 @Composable
-fun ThemePickerRow(
-    snapshot: SettingsSnapshot,
-    contributed: List<ContributedThemeCard>,
-    actions: ThemeActions,
-    modifier: Modifier = Modifier,
-) {
+fun ThemePickerRow(snapshot: SettingsSnapshot, contributed: List<ContributedThemeCard>, actions: ThemeActions) {
     val setting = SettingsSchema.themeMode
     val selection = snapshot[SettingsSchema.colorTheme]
     val activeCard = contributed.firstOrNull { it.label == selection }
         ?: contributed.firstOrNull { it.ref != null && it.ref == selection }
+    val modified = snapshot.isSetIn(setting, LayerId.USER) || snapshot.isSetIn(SettingsSchema.colorTheme, LayerId.USER)
 
-    Column(modifier = modifier.padding(horizontal = Spacing.l, vertical = Spacing.s)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(setting.title.resolve(), style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = setting.description.resolve(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (snapshot.isSetIn(setting, LayerId.USER) || snapshot.isSetIn(SettingsSchema.colorTheme, LayerId.USER)) {
-                IconButton(onClick = actions::resetTheme) {
-                    Icon(Icons.Filled.Restore, contentDescription = stringResource(R.string.setting_reset))
-                }
-            }
-        }
-        ThemeCardGrid(
-            selected = snapshot[setting].takeIf { activeCard == null },
-            onSelect = actions::selectBuiltInTheme,
-            label = { stringResource(setting.label(it)) },
-            modifier = Modifier.padding(top = Spacing.m),
-        )
+    KitRow(
+        title = setting.title.resolve(),
+        subtitle = setting.description.resolve(),
+        leading = { ModifiedDot(modified) },
+        trailing = { if (modified) KitIconButton(Icons.Filled.Restore, stringResource(R.string.setting_reset), actions::resetTheme) },
+        id = "setting:${setting.key}",
+    )
+    Column(Modifier.padding(start = Kit.space.l, end = Kit.space.l, bottom = Kit.space.m)) {
+        ThemeCardGrid(snapshot[setting].takeIf { activeCard == null }, actions::selectBuiltInTheme) { stringResource(setting.label(it)) }
         if (contributed.isNotEmpty()) {
-            Text(
-                text = stringResource(R.string.theme_picker_extension_themes),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = Spacing.l),
+            BasicText(
+                stringResource(R.string.theme_picker_extension_themes),
+                Modifier.padding(top = Kit.space.l),
+                style = Kit.type.labelMedium.copy(color = Kit.colors.textMuted),
             )
             FlowRow(
-                modifier = Modifier.padding(top = Spacing.s).fillMaxWidth().selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.m),
-                verticalArrangement = Arrangement.spacedBy(Spacing.m),
+                Modifier.padding(top = Kit.space.s).fillMaxWidth().selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(Kit.space.m),
+                verticalArrangement = Arrangement.spacedBy(Kit.space.m),
             ) {
                 contributed.forEach { card ->
-                    ThemeCard(
-                        colors = card.colors,
-                        label = card.label,
-                        selected = card == activeCard,
-                        onClick = { actions.selectContributedTheme(card.label) },
-                    )
+                    ThemeCard(card.colors, card.label, card == activeCard) { actions.selectContributedTheme(card.label) }
                 }
             }
         }
@@ -131,16 +103,10 @@ fun ThemePickerRow(
 }
 
 @Composable
-private fun ThemeCardGrid(
-    selected: ThemeMode?,
-    onSelect: (ThemeMode) -> Unit,
-    label: @Composable (ThemeMode) -> String,
-    modifier: Modifier = Modifier,
-) {
+private fun ThemeCardGrid(selected: ThemeMode?, onSelect: (ThemeMode) -> Unit, label: @Composable (ThemeMode) -> String) {
     val systemInDark = isSystemInDarkTheme()
     val context = LocalContext.current
-    // Preview the wallpaper accent too, where the platform has one, so the
-    // Dynamic card shows what Dynamic will actually do.
+    // Preview the wallpaper accent too, where the platform has one, so the Dynamic card shows what Dynamic will do.
     val dynamicAccent = remember(systemInDark, context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return@remember null
         val scheme = if (systemInDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
@@ -149,42 +115,32 @@ private fun ThemeCardGrid(
     val previews = remember(systemInDark, dynamicAccent) {
         ThemeMode.entries.associateWith { themeTokensFor(it, systemInDark, dynamicAccent).toEditorColors() }
     }
-
     FlowRow(
-        modifier = modifier.fillMaxWidth().selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.m),
-        verticalArrangement = Arrangement.spacedBy(Spacing.m),
+        Modifier.fillMaxWidth().selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(Kit.space.m),
+        verticalArrangement = Arrangement.spacedBy(Kit.space.m),
     ) {
-        ThemeMode.entries.forEach { mode ->
-            ThemeCard(
-                colors = previews.getValue(mode),
-                label = label(mode),
-                selected = mode == selected,
-                onClick = { onSelect(mode) },
-            )
-        }
+        ThemeMode.entries.forEach { mode -> ThemeCard(previews.getValue(mode), label(mode), mode == selected) { onSelect(mode) } }
     }
 }
 
 @Composable
 private fun ThemeCard(colors: EditorColors, label: String, selected: Boolean, onClick: () -> Unit) {
-    val shape = MaterialTheme.shapes.medium
-    val ring = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-    val ringWidth = if (selected) Stroke.accentBar else Stroke.hairline
-
+    val chrome = Kit.colors
+    val shape = RoundedCornerShape(Kit.radius.m)
     Column(
-        modifier = Modifier
-            .width(CARD_WIDTH)
+        Modifier
+            .width(SettingsMetrics.themeCard)
             .clip(shape)
-            .border(ringWidth, ring, shape)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
+            .border(if (selected) Kit.marker else Kit.hairline, if (selected) chrome.accent else chrome.panelBorder, shape)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .cropCorners(enabled = selected),
     ) {
         MiniEditor(colors)
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = Spacing.s, vertical = Spacing.s),
+        BasicText(
+            label,
+            Modifier.padding(horizontal = Kit.space.s, vertical = Kit.space.s),
+            style = Kit.type.labelMedium.copy(color = if (selected) chrome.accent else chrome.plainText),
         )
     }
 }
@@ -192,40 +148,36 @@ private fun ThemeCard(colors: EditorColors, label: String, selected: Boolean, on
 /** A tab strip with the active tab's accent bar over three lines of highlighted code. */
 @Composable
 private fun MiniEditor(colors: EditorColors) {
-    Column(modifier = Modifier.fillMaxWidth().background(colors.background)) {
-        Row(modifier = Modifier.fillMaxWidth().height(Spacing.l).background(colors.tabInactive)) {
+    val bar = Kit.marker
+    val code = remember(colors) { sampleCode(colors) }
+    Column(Modifier.fillMaxWidth().background(colors.background)) {
+        Row(Modifier.fillMaxWidth().height(Kit.space.l).background(colors.tabInactive)) {
             Box(
-                modifier = Modifier
-                    .width(TAB_WIDTH)
-                    .height(Spacing.l)
+                Modifier
+                    .width(Kit.control.panelWidth / TAB_WIDTH_DIVISOR)
+                    .height(Kit.space.l)
                     .background(colors.tabActive)
-                    .drawBehind { drawRect(colors.tabActiveBorder, size = Size(size.width, Stroke.accentBar.toPx())) },
+                    .drawBehind { drawRect(colors.tabActiveBorder, size = Size(size.width, bar.toPx())) },
             )
         }
-        val code = remember(colors) { sampleCode(colors) }
         code.forEachIndexed { index, line ->
             val current = index == CURRENT_LINE
-            Text(
-                text = line,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontFamily = EasyIdeFonts.mono,
-                    fontSize = TypeScale.label,
-                    color = colors.plainText,
-                ),
-                maxLines = 1,
-                modifier = Modifier
+            BasicText(
+                line,
+                Modifier
                     .fillMaxWidth()
                     .background(if (current) colors.currentLine else colors.background)
                     .drawBehind {
                         if (!current) return@drawBehind
-                        // The caret, after the text on the current line.
                         val x = size.width * CARET_POSITION
-                        drawLine(colors.cursor, Offset(x, 0f), Offset(x, size.height), Stroke.accentBar.toPx())
+                        drawLine(colors.cursor, Offset(x, 0f), Offset(x, size.height), bar.toPx())
                     }
-                    .padding(horizontal = Spacing.s),
+                    .padding(horizontal = Kit.space.s),
+                style = monoStyle(Kit.type.labelSmall).copy(color = colors.plainText),
+                maxLines = 1,
             )
         }
-        Box(Modifier.height(Spacing.xs))
+        Box(Modifier.height(Kit.space.xs))
     }
 }
 
@@ -243,7 +195,8 @@ private fun sampleCode(colors: EditorColors): List<AnnotatedString> = SAMPLE.map
     }
 }
 
-private val CARD_WIDTH = 152.dp
-private val TAB_WIDTH = 56.dp
 private const val CURRENT_LINE = 1
 private const val CARET_POSITION = 0.72f
+
+/** The card's tab is a fifth of a panel wide, close to how the real tab strip reads. */
+private const val TAB_WIDTH_DIVISOR = 5
