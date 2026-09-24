@@ -13,6 +13,7 @@ import dev.easyide.extensions.action.LogLevel
 import dev.easyide.extensions.action.LspOutcome
 import dev.easyide.extensions.action.LspThen
 import dev.easyide.extensions.action.MessageRequest
+import dev.easyide.extensions.action.OpenGroup
 import dev.easyide.extensions.action.QuickPickRequest
 import dev.easyide.extensions.action.ResolvedTask
 import dev.easyide.extensions.action.ResolvedTextEdit
@@ -30,6 +31,11 @@ fun interface UrlOpener {
     fun open(url: String): Boolean
 }
 
+/** Shows an extension document in the shell; false when nothing can (no shell attached, or no type opens [uri]). */
+fun interface DocumentOpener {
+    fun open(uri: String, group: OpenGroup, preview: Boolean): Boolean
+}
+
 /**
  * The runtime's [HostPort]: prompts go to [ui], workspace-bound actions (terminals,
  * editor, stages, built-in commands, processes) go to the attached [WorkspaceBridge].
@@ -45,6 +51,9 @@ class AppHostPort(
 ) : HostPort {
 
     @Volatile private var bridge: WorkspaceBridge? = null
+
+    /** The shell that shows `openDocument` results; the app scope's, or the open workspace's while one is attached. */
+    @Volatile var documents: DocumentOpener? = null
 
     fun attach(workspace: WorkspaceBridge) { bridge = workspace }
 
@@ -139,6 +148,12 @@ class AppHostPort(
     override suspend fun revealStage(stage: String, view: String?, focus: Boolean) {
         val shown = bridge?.revealStage(stage, focus) ?: false
         if (!shown) log.append(LogEntry(null, LogLevel.WARN, "revealStage: '$stage' is not available in this workspace"))
+    }
+
+    override suspend fun openDocument(uri: String, group: OpenGroup, preview: Boolean): Boolean {
+        val shown = documents?.open(uri, group, preview) ?: false
+        if (!shown) log.append(LogEntry(null, LogLevel.WARN, "openDocument: '$uri' cannot be shown (no shell attached or no type opens it)"))
+        return shown
     }
 
     // ---- LspPort, CommandPort

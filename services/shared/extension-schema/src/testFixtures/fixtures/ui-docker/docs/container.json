@@ -1,0 +1,17 @@
+{
+  "viewSchema": 1,
+  "state": { "name": "", "state": "", "logs": [], "env": [] },
+  "root": {
+    "type": "column",
+    "children": [
+      { "type": "row", "gap": "s", "align": "center", "children": [
+        { "type": "text", "value": "{name}", "role": "title", "weight": 1 },
+        { "type": "tag", "value": "{state}", "tone": "accent" }
+      ] },
+      { "type": "tabs", "children": [
+        { "type": "tab", "title": "Logs", "children": [{ "type": "logStream", "bind": "logs", "follow": true }] },
+        { "type": "tab", "title": "Env", "children": [{ "type": "table", "bind": "env", "columns": [{ "title": "Name", "field": "name", "mono": true }, { "title": "Value", "field": "value" }] }] }
+      ] }
+    ]
+  }
+}

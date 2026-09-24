@@ -2,6 +2,7 @@ package dev.easyide.extensions.contrib
 
 import dev.easyide.extensions.action.Action
 import dev.easyide.extensions.action.Template
+import dev.easyide.extensions.view.ViewDocument
 import dev.easyide.extensions.whenclause.WhenExpr
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -38,7 +39,21 @@ data class Contributions(
     val languageServers: List<LanguageServerContribution> = emptyList(),
     val sandbox: SandboxContribution? = null,
     val viewData: List<ViewDataContribution> = emptyList(),
+    val navigation: List<NavigationContribution> = emptyList(),
+    val viewBadges: List<ViewBadgeContribution> = emptyList(),
+    val documents: List<DocumentContribution> = emptyList(),
+    val documentOpeners: List<DocumentOpenerContribution> = emptyList(),
+    val layoutPresets: List<LayoutPresetContribution> = emptyList(),
 ) {
+    /**
+     * These contributions minus the shell points `ui.contribute` grants: what an extension without the grant may still
+     * contribute. A bare `activitybar`/`panel` container and a view without a schema are older shapes and stay.
+     */
+    fun withoutShellPoints(): Contributions = copy(
+        navigation = emptyList(), viewBadges = emptyList(), documents = emptyList(), documentOpeners = emptyList(),
+        layoutPresets = emptyList(), viewContainers = viewContainers.filterNot { it.extended }, views = views.filter { it.schema == null },
+    )
+
     companion object { val EMPTY = Contributions() }
 }
 
@@ -110,11 +125,32 @@ data class ThemeContribution(val id: String?, val label: String, val uiTheme: Ui
 
 data class IconThemeContribution(val id: String, val label: String, val file: PackageFile)
 
-enum class ViewContainerLocation(val wire: String) { ACTIVITY_BAR("activitybar"), PANEL("panel") }
+/**
+ * Where a `viewsContainers` entry is declared. `activitybar` and `panel` are the VS Code keys older packs use;
+ * `sidebar` and `secondarySidebar` are the shell's (extension-ui.md section 2.2). [placement] is the panel the
+ * container fills by default; `activitybar` is the primary sidebar.
+ */
+enum class ViewContainerLocation(val wire: String, val placement: ContainerPlacement) {
+    ACTIVITY_BAR("activitybar", ContainerPlacement.SIDEBAR),
+    PANEL("panel", ContainerPlacement.PANEL),
+    SIDEBAR("sidebar", ContainerPlacement.SIDEBAR),
+    SECONDARY_SIDEBAR("secondarySidebar", ContainerPlacement.SECONDARY_SIDEBAR),
+}
 
-data class ViewContainerContribution(val location: ViewContainerLocation, val id: String, val title: String, val icon: CommandIcon)
+/**
+ * [extended] is set when the entry uses anything the shell added (a `sidebar`/`secondarySidebar` key, `scope` or
+ * `locations`): those need `ui.contribute`, while a bare `activitybar`/`panel` entry keeps working as it always did.
+ * [locations] empty means every placement is allowed.
+ */
+data class ViewContainerContribution(
+    val location: ViewContainerLocation, val id: String, val title: String, val icon: CommandIcon,
+    val scope: UiScope = UiScope.WORKSPACE, val locations: List<ContainerPlacement> = emptyList(), val extended: Boolean = false,
+)
 
-data class ViewContribution(val containerId: String, val id: String, val name: String, val `when`: WhenExpr?)
+/** [schema] is the parsed view file of a schema view; null for a view whose content the host builds (a tree filled by `viewData`). */
+data class ViewContribution(
+    val containerId: String, val id: String, val name: String, val `when`: WhenExpr?, val schema: ViewDocument? = null,
+)
 
 data class ViewWelcomeContribution(val view: String, val contents: String, val `when`: WhenExpr?)
 
@@ -177,6 +213,12 @@ data class SandboxContribution(
     val requires: List<String>, val install: List<InstallStep>, val verify: Template?, val uninstall: List<Template>,
 )
 
-enum class ViewDataKind(val wire: String) { LIST("list"), TREE("tree") }
+enum class ViewDataKind(val wire: String) { LIST("list"), TREE("tree"), OBJECT("object") }
 
-data class ViewDataContribution(val viewId: String, val kind: ViewDataKind, val from: Action, val refreshOn: List<String>)
+/**
+ * [intervalSec] re-runs [from] while the view is visible (at least `ViewLimits.MIN_INTERVAL_SEC`); [into] says how the
+ * result becomes data: `list` and `tree` as before, `object` merges the JSON result into a schema view's data.
+ */
+data class ViewDataContribution(
+    val viewId: String, val kind: ViewDataKind, val from: Action, val refreshOn: List<String>, val intervalSec: Int? = null,
+)

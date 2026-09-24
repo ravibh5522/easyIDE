@@ -113,6 +113,9 @@ interface PromptPort {
 interface UiPort {
     suspend fun openUrl(url: String)
     suspend fun revealStage(stage: String, view: String?, focus: Boolean)
+
+    /** Opens the extension document [uri] (already checked to be the owner's); false when no shell can show it. */
+    suspend fun openDocument(uri: String, group: OpenGroup, preview: Boolean): Boolean
 }
 
 sealed interface LspOutcome {

@@ -1,0 +1,42 @@
+{
+  "name": "docker", "publisher": "acme", "version": "1.0.0", "displayName": "Docker", "license": "MIT",
+  "engines": { "easyide": "^0.3.0" },
+  "contributes": {
+    "commands": [
+      { "command": "acme.docker.start", "title": "Start container" },
+      { "command": "acme.docker.stop", "title": "Stop container" },
+      { "command": "acme.docker.containerState", "title": "Container state" },
+      { "command": "acme.docker.refresh", "title": "Refresh containers" }
+    ],
+    "viewsContainers": {
+      "sidebar": [{ "id": "acme.docker.main", "title": "Docker", "icon": "./icons/docker.svg", "scope": "workspace", "locations": ["sidebar", "secondarySidebar"] }]
+    },
+    "views": {
+      "acme.docker.main": [{ "id": "acme.docker.containers", "name": "Containers", "schema": "./views/containers.json" }]
+    }
+  },
+  "easyide": {
+    "capabilities": ["ui.contribute", "ui.stage", "sandbox.exec"],
+    "actions": {
+      "acme.docker.start": { "type": "sandboxExec", "command": ["docker", "start", "${arg:id}"], "output": "capture" },
+      "acme.docker.stop": { "type": "sandboxExec", "command": ["docker", "stop", "${arg:id}"], "output": "capture" },
+      "acme.docker.containerState": { "type": "sandboxExec", "command": ["docker", "inspect", "${arg:key}"], "output": "capture" },
+      "acme.docker.refresh": { "type": "sandboxExec", "command": ["docker", "ps", "-a"], "output": "capture" }
+    },
+    "navigation": [{
+      "id": "acme.docker.nav", "title": "Docker", "icon": "./icons/docker.svg", "target": { "container": "acme.docker.main" },
+      "scope": "workspace", "order": 300, "badge": { "view": "acme.docker.containers", "path": "runningCount" }
+    }],
+    "documents": [{
+      "type": "acme.docker/container", "title": "{name}", "icon": "./icons/container.svg", "schema": "./docs/container.json",
+      "state": { "provider": "acme.docker.containerState", "intervalSec": 5 }
+    }],
+    "documentOpeners": [{ "glob": "**/docker-compose*.yml", "type": "acme.docker/container", "priority": "option" }],
+    "layoutPresets": [{
+      "id": "acme.docker.ops", "title": "Docker ops", "sizeClass": ["expanded"],
+      "containers": { "sidebar": "acme.docker.main", "panel": "terminal" }, "panels": { "sidebar": true, "panel": true },
+      "stage": { "split": "row", "groups": 2 }
+    }],
+    "viewData": { "acme.docker.containers": { "kind": "object", "from": { "type": "sandboxExec", "command": ["docker", "ps", "-a"], "output": "capture" }, "intervalSec": 5 } }
+  }
+}

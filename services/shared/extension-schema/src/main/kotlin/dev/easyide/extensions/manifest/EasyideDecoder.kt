@@ -103,7 +103,8 @@ internal class EasyideDecoder(private val ctx: DecodeContext, private val action
         val o = v as JsonObject
         val p = JsonPointer.child("$base/viewData", viewId)
         val from = actions.action(o.obj("from")!!, JsonPointer.child(p, "from")) ?: return@mapNotNull null
-        ViewDataContribution(viewId, if (o.str("kind") == ViewDataKind.TREE.wire) ViewDataKind.TREE else ViewDataKind.LIST, from, o.strs("refreshOn"))
+        val kind = ViewDataKind.entries.firstOrNull { it.wire == o.str("kind") } ?: ViewDataKind.LIST
+        ViewDataContribution(viewId, kind, from, o.strs("refreshOn"), o.int("intervalSec"))
     }
 
     private companion object {

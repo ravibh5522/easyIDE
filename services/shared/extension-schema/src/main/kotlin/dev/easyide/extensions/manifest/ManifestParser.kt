@@ -82,6 +82,7 @@ class ManifestParser(private val schema: SchemaValidator, private val options: P
         val ctx = DecodeContext(files, VALUE_SCHEMA, name, id)
         val decoded = decode(ctx, root)
         ManifestChecks.crossReferences(ctx, decoded.contributions, decoded.actions, decoded.inputs, options.builtInCommands)
+        ManifestChecks.uiReferences(ctx, decoded.contributions)
         ManifestChecks.variableReferences(ctx, decoded.actions, decoded.inputs)
         val wasm = decoded.wasm
         if (wasm != null && files.size(wasm.module.path) > options.limits.wasmModuleBytes) {
@@ -119,19 +120,24 @@ class ManifestParser(private val schema: SchemaValidator, private val options: P
     private fun decode(ctx: DecodeContext, root: JsonObject): Decoded {
         val c = root.obj("contributes") ?: JsonObject(emptyMap())
         val e = root.obj("easyide") ?: JsonObject(emptyMap())
-        val cd = ContributesDecoder(ctx)
+        val vd = ViewSchemaDecoder(ctx)
+        val cd = ContributesDecoder(ctx, vd)
         val ad = ActionDecoder(ctx)
         val ed = EasyideDecoder(ctx, ad)
+        val ud = UiDecoder(ctx, vd)
         val (languages, languageConfigs) = cd.languages(c)
+        val containers = cd.viewContainers(c)
         val contributions = Contributions(
             commands = cd.commands(c), menus = cd.menus(c), keybindings = cd.keybindings(c),
             configuration = cd.configuration(c), configurationDefaults = cd.configurationDefaults(c),
             languages = languages, grammars = cd.grammars(c), languageConfigurations = languageConfigs,
             snippets = cd.snippets(c), themes = cd.themes(c), iconThemes = cd.iconThemes(c),
-            viewContainers = cd.viewContainers(c), views = cd.views(c), viewsWelcome = cd.viewsWelcome(c),
+            viewContainers = containers, views = cd.views(c), viewsWelcome = cd.viewsWelcome(c),
             taskDefinitions = cd.taskDefinitions(c), problemMatchers = cd.problemMatchers(c), walkthroughs = cd.walkthroughs(c),
             stages = ed.stages(e), statusBarItems = ed.statusBarItems(e), keyRows = ed.keyRows(e),
             languageServers = ed.languageServers(e), sandbox = ed.sandbox(e), viewData = ed.viewData(e),
+            navigation = ud.navigation(e, containers), viewBadges = ud.viewBadges(e), documents = ud.documents(e),
+            documentOpeners = ud.documentOpeners(e), layoutPresets = ud.layoutPresets(e),
         )
         val actions = LinkedHashMap<String, Action>()
         e.obj("actions")?.forEach { (cmd, v) -> ad.action(v as JsonObject, JsonPointer.child("/easyide/actions", cmd))?.let { actions[cmd] = it } }
@@ -165,7 +171,7 @@ class ManifestParser(private val schema: SchemaValidator, private val options: P
     private fun isConventional(path: String): Boolean {
         val lower = path.lowercase()
         return lower == MANIFEST_FILE || lower.startsWith("l10n/") || lower.startsWith("test/") ||
-            lower.startsWith("media/") || CONVENTIONAL.any { lower == it || lower.startsWith("$it.") } ||
+            lower.startsWith("media/") || lower.startsWith("bin/") || CONVENTIONAL.any { lower == it || lower.startsWith("$it.") } ||
             lower.startsWith("package.nls")
     }
 

@@ -20,6 +20,9 @@ sealed interface Capability {
     data object Clipboard : Capability { override val id = "clipboard" }
     data object UiStage : Capability { override val id = "ui.stage" }
     data object UiSettings : Capability { override val id = "ui.settings" }
+
+    /** Navigation items, containers, schema views, documents and layout presets (extension-ui.md section 3). */
+    data object UiContribute : Capability { override val id = "ui.contribute" }
     data object SecretsRead : Capability { override val id = "secrets.read" }
 
     /** `fs.project(read)` or `fs.project(write)`; write implies read. */
@@ -39,7 +42,7 @@ sealed interface Capability {
 
     companion object {
         private val SIMPLE: Map<String, Capability> = listOf(
-            SandboxExec, SandboxInstall, FsOutsideProject, LspSpawn, LspRequest, Clipboard, UiStage, UiSettings, SecretsRead,
+            SandboxExec, SandboxInstall, FsOutsideProject, LspSpawn, LspRequest, Clipboard, UiStage, UiSettings, UiContribute, SecretsRead,
         ).associateBy { it.id }
         private val HOST = Regex("""(\*\.)?[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*""")
 

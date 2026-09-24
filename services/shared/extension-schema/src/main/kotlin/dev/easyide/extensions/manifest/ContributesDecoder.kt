@@ -16,6 +16,8 @@ import dev.easyide.extensions.contrib.SnippetContribution
 import dev.easyide.extensions.contrib.TaskDefinitionContribution
 import dev.easyide.extensions.contrib.ThemeContribution
 import dev.easyide.extensions.contrib.UiTheme
+import dev.easyide.extensions.contrib.ContainerPlacement
+import dev.easyide.extensions.contrib.UiScope
 import dev.easyide.extensions.contrib.ViewContainerContribution
 import dev.easyide.extensions.contrib.ViewContainerLocation
 import dev.easyide.extensions.contrib.ViewContribution
@@ -25,12 +27,13 @@ import dev.easyide.extensions.contrib.WalkthroughStep
 import dev.easyide.extensions.json.JsonPointer
 import dev.easyide.extensions.json.stringOrNull
 import dev.easyide.extensions.schema.SchemaValidator
+import dev.easyide.extensions.view.ViewLimits
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 /** Decodes the VS Code-shaped `contributes` block (sdk-reference "Contribution points"). */
-internal class ContributesDecoder(private val ctx: DecodeContext) {
+internal class ContributesDecoder(private val ctx: DecodeContext, private val views: ViewSchemaDecoder) {
     private val base = "/contributes"
 
     fun commands(c: JsonObject): List<CommandContribution> {
@@ -164,12 +167,38 @@ internal class ContributesDecoder(private val ctx: DecodeContext) {
         for (location in ViewContainerLocation.entries) {
             vc.objs(location.wire).forEachIndexed { i, o ->
                 val p = JsonPointer.index(JsonPointer.child("$base/viewsContainers", location.wire), i)
-                val icon = ctx.icon(o.reqStr("icon"), JsonPointer.child(p, "icon")) ?: return@forEachIndexed
-                out += ViewContainerContribution(location, o.reqStr("id"), o.reqStr("title"), icon)
+                container(location, o, p)?.let { out += it }
             }
         }
         ctx.unique(out.map { "$base/viewsContainers" to it.id }, "view container")
+        val extended = out.count { it.extended }
+        if (extended > ViewLimits.MAX_CONTAINERS_PER_PACK) {
+            ctx.error(DiagnosticCode.UI_LIMIT, "$base/viewsContainers", "$extended containers; at most ${ViewLimits.MAX_CONTAINERS_PER_PACK} per pack")
+        }
         return out
+    }
+
+    /**
+     * A bare `activitybar` or `panel` entry is the VS Code shape and keeps its old rules. `sidebar`,
+     * `secondarySidebar`, `scope` and `locations` are the shell's: they need `ui.contribute`, a `<publisher>.<name>.`
+     * id, a short title and a tintable icon.
+     */
+    private fun container(location: ViewContainerLocation, o: JsonObject, p: String): ViewContainerContribution? {
+        val extended = location == ViewContainerLocation.SIDEBAR || location == ViewContainerLocation.SECONDARY_SIDEBAR ||
+            "scope" in o || "locations" in o
+        val id = o.reqStr("id")
+        val title = o.reqStr("title")
+        val iconPointer = JsonPointer.child(p, "icon")
+        if (!extended) return ctx.icon(o.reqStr("icon"), iconPointer)?.let { ViewContainerContribution(location, id, title, it) }
+        var ok = ctx.uiPrefix(id, JsonPointer.child(p, "id"), "view container")
+        if (title.length > ViewLimits.TITLE_MAX) {
+            ctx.error(DiagnosticCode.UI_TITLE, JsonPointer.child(p, "title"), "longer than ${ViewLimits.TITLE_MAX} characters")
+            ok = false
+        }
+        val icon = ctx.uiIcon(o.reqStr("icon"), iconPointer)
+        val scope = o.str("scope")?.let(UiScope::parse) ?: UiScope.WORKSPACE
+        val locations = o.strs("locations").mapNotNull(ContainerPlacement::parse)
+        return if (icon != null && ok) ViewContainerContribution(location, id, title, icon, scope, locations, extended = true) else null
     }
 
     fun views(c: JsonObject): List<ViewContribution> {
@@ -180,10 +209,15 @@ internal class ContributesDecoder(private val ctx: DecodeContext) {
                 val o = e as JsonObject
                 val p = JsonPointer.index(JsonPointer.child("$base/views", container), i)
                 ctx.checkPrefix(o.reqStr("id"), JsonPointer.child(p, "id"), "view")
-                out += p to ViewContribution(container, o.reqStr("id"), o.reqStr("name"), ctx.whenAt(o, "when", p))
+                val schema = ctx.fileAt(o, "schema", p)?.let { this.views.decode(it) }
+                out += p to ViewContribution(container, o.reqStr("id"), o.reqStr("name"), ctx.whenAt(o, "when", p), schema)
             }
         }
         ctx.unique(out.map { (p, v) -> p to v.id }, "view")
+        val schemaViews = out.count { it.second.schema != null }
+        if (schemaViews > ViewLimits.MAX_VIEWS_PER_PACK) {
+            ctx.error(DiagnosticCode.UI_LIMIT, "$base/views", "$schemaViews schema views; at most ${ViewLimits.MAX_VIEWS_PER_PACK} per pack")
+        }
         return out.map { it.second }
     }
 

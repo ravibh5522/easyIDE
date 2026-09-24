@@ -79,6 +79,11 @@ sealed interface Action {
         override val type get() = ActionType.SHOW_MESSAGE
     }
 
+    /** [uri] must be `ext://<owner id>/...`: a pack opens its own documents, files go through [OpenFile]. */
+    data class OpenDocument(val uri: Template, val group: OpenGroup, val preview: Boolean, override val bindAs: String?) : Action {
+        override val type get() = ActionType.OPEN_DOCUMENT
+    }
+
     data class RevealStage(val stage: String, val view: String?, val focus: Boolean, override val bindAs: String?) : Action {
         override val type get() = ActionType.REVEAL_STAGE
     }
@@ -93,10 +98,19 @@ enum class ActionType(val wire: String) {
     OPEN_URL("openUrl"), APPLY_EDIT("applyEdit"), INSERT_SNIPPET("insertSnippet"), SET_CONFIG("setConfig"),
     TOGGLE_CONFIG("toggleConfig"), LSP_REQUEST("lspRequest"), EXECUTE_COMMAND("executeCommand"),
     SHOW_QUICK_PICK("showQuickPick"), SHOW_INPUT_BOX("showInputBox"), SHOW_MESSAGE("showMessage"),
-    REVEAL_STAGE("revealStage"), SEQUENCE("sequence");
+    REVEAL_STAGE("revealStage"), OPEN_DOCUMENT("openDocument"), SEQUENCE("sequence");
 
     companion object {
         fun parse(wire: String): ActionType? = entries.firstOrNull { it.wire == wire }
+    }
+}
+
+/** Where `openDocument` shows the document: the focused group, the one beside it (created on demand), or a new one. */
+enum class OpenGroup(val wire: String) {
+    ACTIVE("active"), BESIDE("beside"), NEW("new");
+
+    companion object {
+        fun parse(wire: String): OpenGroup? = entries.firstOrNull { it.wire == wire }
     }
 }
 

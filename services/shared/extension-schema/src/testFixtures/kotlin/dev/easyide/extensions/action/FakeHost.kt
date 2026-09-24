@@ -33,6 +33,8 @@ class FakeHost : HostPort {
     var confirmUrlAnswer = true
     val urls = ArrayList<String>()
     val stages = ArrayList<String>()
+    val documents = ArrayList<Pair<String, OpenGroup>>()
+    var documentsOpen = true
     val lsp = ArrayList<Triple<String, String, JsonElement?>>()
     var lspOutcome: LspOutcome = LspOutcome.Result(JsonNull)
     val builtIns = ArrayList<Pair<String, JsonElement?>>()
@@ -58,6 +60,7 @@ class FakeHost : HostPort {
     override suspend fun confirmUrl(url: String): Boolean = confirmUrlAnswer
     override suspend fun openUrl(url: String) { urls += url }
     override suspend fun revealStage(stage: String, view: String?, focus: Boolean) { stages += stage }
+    override suspend fun openDocument(uri: String, group: OpenGroup, preview: Boolean): Boolean { documents += uri to group; return documentsOpen }
     override suspend fun lspRequest(owner: ExtensionId, language: String, method: String, params: JsonElement?, then: LspThen): LspOutcome {
         lsp += Triple(language, method, params)
         return lspOutcome
