@@ -1,6 +1,5 @@
 package dev.easyide.app.ui.screens.workspace
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -54,6 +53,8 @@ import dev.easyide.app.ui.screens.workspace.lsp.LspStatusItems
 import dev.easyide.app.ui.screens.workspace.lsp.SymbolScope
 import dev.easyide.app.ui.screens.workspace.lsp.WorkspaceLspController
 import dev.easyide.app.ui.screens.workspace.lsp.lspCommands
+import dev.easyide.app.ui.screens.workspace.session.ExternalChangeDialog
+import dev.easyide.app.ui.screens.workspace.session.WorkspaceSessionUi
 import androidx.compose.runtime.collectAsState
 import dev.easyide.app.ui.foundation.LocalKeymap
 import androidx.compose.ui.text.AnnotatedString
@@ -106,14 +107,17 @@ fun WorkspaceScreen(
     extensionHost: WorkspaceExtensionHost,
     extensions: ExtensionsContainer,
     selections: EditorSelections,
+    session: WorkspaceSessionUi,
     onOpenExtensions: () -> Unit,
     onOpenSettings: () -> Unit,
+    /** Ends the project (shells and buffers), as opposed to [WorkspaceCallbacks.onBack], which only leaves it running. */
+    onCloseProject: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val onRefreshGit = gitCallbacks.onRefresh
     val windowSize = LocalWindowSize.current
     val colors = editorColors
-    val stages = rememberWorkspaceStageState(windowSize)
+    val stages = rememberWorkspaceStageState(windowSize, session.layout)
     val snackbarHostState = remember { SnackbarHostState() }
     val clipboard = LocalClipboardManager.current
 
@@ -126,17 +130,16 @@ fun WorkspaceScreen(
         callbacks.onStatusShown()
     }
 
-    var sidePanel by rememberSaveable { mutableStateOf(SidePanel.EXPLORER) }
+    val sidePanel = stages.sidePanel
     var paletteOpen by rememberSaveable { mutableStateOf(false) }
 
-    // Leaving clears the ViewModel and with it every buffer, so dirty tabs
-    // must be saved or explicitly discarded first. System back and the rail's
-    // Back arrow both route through here.
+    // Leaving (system back, the rail's Back arrow) parks the workspace: shells keep
+    // running and buffers stay in memory, so there is nothing to lose and nothing to ask.
+    // Closing it is the explicit act that drops them, and that one asks about unsaved edits.
     val dirtyTabs = uiState.openTabs.filter { it.isDirty }
-    val requestLeave: () -> Unit = {
-        if (dirtyTabs.isEmpty()) callbacks.onBack() else prompt = PendingPrompt.LeaveWithUnsaved(dirtyTabs)
+    val requestClose: () -> Unit = {
+        if (dirtyTabs.isEmpty()) onCloseProject() else prompt = PendingPrompt.CloseWithUnsaved(dirtyTabs)
     }
-    BackHandler(enabled = dirtyTabs.isNotEmpty(), onBack = requestLeave)
     val requestCloseTab: (String) -> Unit = { path ->
         val tab = uiState.openTabs.find { it.relativePath == path }
         if (tab?.isDirty == true) prompt = PendingPrompt.CloseDirtyTab(tab) else callbacks.onTabClosed(path)
@@ -146,11 +149,11 @@ fun WorkspaceScreen(
     // one switches to it, which is how every rail of this shape behaves.
     val toggleExplorer = {
         if (sidePanel == SidePanel.EXPLORER) stages.toggleLeft(exclusive = false)
-        else { sidePanel = SidePanel.EXPLORER; stages.showLeft() }
+        else { stages.sidePanel = SidePanel.EXPLORER; stages.showLeft() }
     }
     val toggleSourceControl = {
         if (sidePanel == SidePanel.SOURCE_CONTROL) stages.toggleLeft(exclusive = false)
-        else { sidePanel = SidePanel.SOURCE_CONTROL; stages.showLeft(); onRefreshGit() }
+        else { stages.sidePanel = SidePanel.SOURCE_CONTROL; stages.showLeft(); onRefreshGit() }
     }
     val contributions = rememberWorkspaceContributions(extensionHost, extensions)
     val snippetLabels = PickerLabels(
@@ -239,7 +242,8 @@ fun WorkspaceScreen(
                     onShowCommands = { paletteOpen = true },
                     onShowExtensions = onOpenExtensions,
                     onOpenSettings = onOpenSettings,
-                    onBack = requestLeave,
+                    onBack = callbacks.onBack,
+                    onCloseProject = requestClose,
                 )
                 VerticalDivider()
 
@@ -290,6 +294,7 @@ fun WorkspaceScreen(
                                     overlay = { geometry -> activePath?.let { LspEditorOverlay(lsp, it, geometry) } },
                                     interaction = lsp,
                                     selections = selections,
+                                    scrolls = session.scrolls,
                                     onSecondaryClick = { editorMenuOpen = true },
                                     semanticTokens = activePath?.let(semanticOverlays::get),
                                 )
@@ -396,7 +401,8 @@ fun WorkspaceScreen(
 
         ExtensionEffects(extensionHost, extensions, stages, windowSize, inputMode, terminalFocus, editorFocus, snackbarHostState)
 
-        PromptDialogs(prompt, callbacks) { prompt = null }
+        PromptDialogs(prompt, callbacks, onCloseProject) { prompt = null }
+        ExternalChangeDialog(uiState.openTabs, session.onResolveConflict)
         LspDialogs(lsp)
 
         if (paletteOpen) {

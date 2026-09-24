@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sandbox_fgs_channel_name">Running projects</string>
+    <plurals name="sandbox_fgs_text">
+        <item quantity="one">%d project keeps its terminals running</item>
+        <item quantity="other">%d projects keep their terminals running</item>
+    </plurals>
+    <string name="sandbox_fgs_title">easyIDE is running</string>
+    <string name="sandbox_fgs_stop">Stop all</string>
+</resources>

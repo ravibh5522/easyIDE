@@ -11,13 +11,14 @@ internal sealed interface PendingPrompt {
     data class Delete(val node: FileNode) : PendingPrompt
     data class RenameTerminal(val tabId: String, val currentTitle: String) : PendingPrompt
     data class CloseDirtyTab(val tab: EditorTab) : PendingPrompt
-    data class LeaveWithUnsaved(val dirtyTabs: List<EditorTab>) : PendingPrompt
+    data class CloseWithUnsaved(val dirtyTabs: List<EditorTab>) : PendingPrompt
 }
 
 @Composable
 internal fun PromptDialogs(
     prompt: PendingPrompt?,
     callbacks: WorkspaceCallbacks,
+    onCloseProject: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     when (prompt) {
@@ -72,11 +73,11 @@ internal fun PromptDialogs(
             )
         }
 
-        is PendingPrompt.LeaveWithUnsaved -> UnsavedChangesDialog(
+        is PendingPrompt.CloseWithUnsaved -> UnsavedChangesDialog(
             fileName = prompt.dirtyTabs.singleOrNull()?.name,
             fileCount = prompt.dirtyTabs.size,
-            onSave = { onDismiss(); callbacks.onSaveTabs(prompt.dirtyTabs.map { it.relativePath }, callbacks.onBack) },
-            onDiscard = { onDismiss(); callbacks.onBack() },
+            onSave = { onDismiss(); callbacks.onSaveTabs(prompt.dirtyTabs.map { it.relativePath }, onCloseProject) },
+            onDiscard = { onDismiss(); onCloseProject() },
             onDismiss = onDismiss,
         )
     }

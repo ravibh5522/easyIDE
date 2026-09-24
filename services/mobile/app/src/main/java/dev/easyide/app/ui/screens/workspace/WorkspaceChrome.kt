@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Difference
 import androidx.compose.material.icons.filled.Extension
@@ -54,6 +56,7 @@ fun ActivityBar(
     onShowExtensions: () -> Unit,
     onOpenSettings: () -> Unit,
     onBack: () -> Unit,
+    onCloseProject: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = editorColors
@@ -78,6 +81,8 @@ fun ActivityBar(
         )
         ActivityBarButton(Icons.Filled.Extension, stringResource(R.string.command_show_extensions), false, onShowExtensions)
         ActivityBarButton(Icons.Filled.Settings, stringResource(R.string.nav_settings), false, onOpenSettings)
+        Spacer(Modifier.weight(1f))
+        ActivityBarButton(Icons.Filled.Close, stringResource(R.string.session_close_project), false, onCloseProject)
     }
 }
 

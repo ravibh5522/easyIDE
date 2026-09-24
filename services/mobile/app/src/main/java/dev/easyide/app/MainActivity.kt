@@ -19,6 +19,7 @@ import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
+import dev.easyide.app.session.SessionPolicy
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.foundation.LocalKeymap
@@ -33,6 +34,8 @@ import dev.easyide.app.ui.theme.FileIcons
 import dev.easyide.app.ui.theme.LocalFileIcons
 import dev.easyide.app.ui.theme.LocalIconThemeChoices
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Single-activity host. Provides the two ambient values every screen depends on
@@ -119,6 +122,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Hot-exit: after this returns Android may kill the process at any time, so every
+     * workspace's session and unsaved buffers are written now, not on their timer. Blocks
+     * the main thread for the few small writes, bounded by [SessionPolicy.FLUSH_BUDGET_MS].
+     */
+    override fun onStop() {
+        super.onStop()
+        val container = (application as EasyIdeApplication).container
+        runBlocking { withTimeoutOrNull(SessionPolicy.FLUSH_BUDGET_MS) { container.workspaces.flushAll() } }
     }
 
     companion object {

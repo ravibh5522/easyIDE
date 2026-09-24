@@ -3,10 +3,9 @@ package dev.easyide.app.ui.screens.workspace
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.LaunchedEffect
+import dev.easyide.app.session.LayoutSnapshot
 import dev.easyide.app.ui.foundation.WidthClass
 import dev.easyide.app.ui.foundation.WindowSize
 
@@ -20,7 +19,11 @@ class WorkspaceStageState(
     leftVisible: Boolean,
     rightVisible: Boolean,
     bottomVisible: Boolean,
+    sidePanel: SidePanel = SidePanel.EXPLORER,
 ) {
+    /** What the left stage shows. Lives here, with the stages, so a parked workspace keeps it. */
+    var sidePanel by mutableStateOf(sidePanel)
+
     var leftVisible by mutableStateOf(leftVisible)
         private set
 
@@ -55,6 +58,13 @@ class WorkspaceStageState(
         bottomVisible = !bottomVisible
     }
 
+    fun setLayout(left: Boolean, right: Boolean, bottom: Boolean, panel: SidePanel) {
+        leftVisible = left
+        rightVisible = right
+        bottomVisible = bottom
+        sidePanel = panel
+    }
+
     fun applyWidthConstraints(width: WidthClass) {
         if (width == WidthClass.COMPACT && leftVisible && rightVisible) {
             rightVisible = false
@@ -63,18 +73,47 @@ class WorkspaceStageState(
 }
 
 /**
- * Defaults chosen per width class: an expanded tablet shows the full IDE
- * layout, a compact one starts with just the editor.
+ * The workspace's [WorkspaceStageState], owned by the session rather than by composition so
+ * that leaving the screen (parking) and session restore both keep it. The state is created
+ * on first composition, because its defaults depend on the window; a restored layout that
+ * arrives before that replaces the defaults, one that arrives after is applied in place.
+ */
+class WorkspaceLayoutHolder {
+    private var current by mutableStateOf<WorkspaceStageState?>(null)
+    private var restored: LayoutSnapshot? = null
+
+    fun stateFor(windowSize: WindowSize): WorkspaceStageState = current ?: run {
+        val snapshot = restored
+        val created = if (snapshot != null) {
+            WorkspaceStageState(snapshot.left, snapshot.right, snapshot.bottom, sidePanelOf(snapshot.sidePanel))
+        } else {
+            WorkspaceStageState(
+                leftVisible = windowSize.width.isExpanded,
+                rightVisible = false,
+                bottomVisible = windowSize.width.atLeastMedium && !windowSize.height.isCompact,
+            )
+        }
+        created.also { current = it }
+    }
+
+    fun restore(snapshot: LayoutSnapshot) {
+        restored = snapshot
+        current?.setLayout(snapshot.left, snapshot.right, snapshot.bottom, sidePanelOf(snapshot.sidePanel))
+    }
+
+    /** Null until the screen has composed once: there is no layout to save before then. */
+    fun snapshot(): LayoutSnapshot? = current?.let { LayoutSnapshot(it.leftVisible, it.rightVisible, it.bottomVisible, it.sidePanel.name) }
+
+    private fun sidePanelOf(name: String): SidePanel = SidePanel.entries.firstOrNull { it.name == name } ?: SidePanel.EXPLORER
+}
+
+/**
+ * The layout for [windowSize], kept by [holder]. Defaults chosen per width class: an expanded
+ * tablet shows the full IDE layout, a compact one starts with just the editor.
  */
 @Composable
-fun rememberWorkspaceStageState(windowSize: WindowSize): WorkspaceStageState {
-    val state = rememberSaveable(saver = WorkspaceStageStateSaver) {
-        WorkspaceStageState(
-            leftVisible = windowSize.width.isExpanded,
-            rightVisible = false,
-            bottomVisible = windowSize.width.atLeastMedium && !windowSize.height.isCompact,
-        )
-    }
+fun rememberWorkspaceStageState(windowSize: WindowSize, holder: WorkspaceLayoutHolder): WorkspaceStageState {
+    val state = holder.stateFor(windowSize)
 
     // Re-run when the window changes (rotation, split-screen resize) so a
     // layout that no longer fits collapses instead of overflowing.
@@ -84,11 +123,6 @@ fun rememberWorkspaceStageState(windowSize: WindowSize): WorkspaceStageState {
 
     return state
 }
-
-private val WorkspaceStageStateSaver = androidx.compose.runtime.saveable.listSaver<WorkspaceStageState, Boolean>(
-    save = { listOf(it.leftVisible, it.rightVisible, it.bottomVisible) },
-    restore = { WorkspaceStageState(it[0], it[1], it[2]) },
-)
 
 /** What the left stage is showing. The rail switches between these. */
 enum class SidePanel { EXPLORER, SOURCE_CONTROL }
