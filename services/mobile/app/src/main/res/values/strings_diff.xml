@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Split view and the git documents: a tab's menu, opening beside, the diff and commit documents.
+     Kept apart so the stage and diff copy is reviewed as one unit. -->
+<resources>
+    <!-- A tab's menu and the file menu's entry -->
+    <string name="wstage_open_beside">Open to the Side</string>
+    <string name="wstage_move_next">Move Editor Into Next Group</string>
+    <string name="wstage_keep_open">Keep Open</string>
+    <string name="wstage_pin">Pin</string>
+    <string name="wstage_unpin">Unpin</string>
+    <string name="wstage_close">Close</string>
+    <string name="wstage_close_others">Close Others</string>
+    <string name="wstage_close_right">Close to the Right</string>
+    <string name="wstage_close_all">Close All</string>
+    <string name="wstage_one_group">Split view needs a wider window, so it opened here.</string>
+
+    <!-- Palette commands the stage adds -->
+    <string name="wshell_command_open_side">Open to the Side</string>
+    <string name="wshell_command_move_next">Move Editor Into Next Group</string>
+
+    <!-- The git-diff document -->
+    <string name="shell_diff_title">%1$s (%2$s)</string>
+    <string name="shell_diff_sides">%1$s to %2$s</string>
+    <string name="shell_diff_side_index">Index</string>
+    <string name="shell_diff_side_worktree">Working tree</string>
+    <string name="shell_diff_side_nothing">Nothing</string>
+    <string name="shell_diff_previous_hunk">Previous change</string>
+    <string name="shell_diff_next_hunk">Next change</string>
+    <string name="shell_diff_hunk_position">%1$d of %2$d</string>
+    <string name="shell_diff_unavailable">This comparison cannot be shown.</string>
+    <string name="shell_diff_gone">This project is no longer a git repository.</string>
+
+    <!-- The git-commit document -->
+    <string name="shell_commit_unavailable">This commit cannot be shown.</string>
+    <string name="shell_commit_files">Files changed</string>
+    <string name="shell_commit_author">Author</string>
+    <string name="shell_commit_date">Date</string>
+    <string name="shell_commit_id">Commit</string>
+    <string name="shell_commit_parent">Parent commit</string>
+
+    <!-- A change row's menu -->
+    <string name="shell_change_open_changes">Open Changes</string>
+    <string name="shell_change_open_file">Open File</string>
+</resources>

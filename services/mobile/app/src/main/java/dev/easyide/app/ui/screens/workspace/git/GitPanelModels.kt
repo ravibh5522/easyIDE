@@ -1,8 +1,6 @@
 package dev.easyide.app.ui.screens.workspace.git
 
 import dev.easyide.sandbox.git.DiffHunk
-import dev.easyide.sandbox.git.DiffSource
-import dev.easyide.sandbox.git.FileDiff
 import dev.easyide.sandbox.git.GitFailureKind
 
 /** The list sheets the source-control pane can open over itself. */
@@ -47,18 +45,6 @@ data class GitOperation(
     val output: List<String> = emptyList(),
     val failure: GitFailureKind? = null,
     val authHost: String? = null,
-)
-
-/**
- * The diff screen. [diff] is null while it loads; [source] is which side of the
- * index is being compared, switchable when a file has both staged and unstaged
- * changes.
- */
-data class GitDiffState(
-    val path: String,
-    val source: DiffSource,
-    val diff: FileDiff? = null,
-    val error: String? = null,
 )
 
 /** Upper bound on retained progress lines: a clone-sized fetch prints thousands, the panel shows the tail. */

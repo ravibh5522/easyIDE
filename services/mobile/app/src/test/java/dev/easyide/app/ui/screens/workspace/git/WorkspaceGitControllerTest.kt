@@ -2,7 +2,10 @@ package dev.easyide.app.ui.screens.workspace.git
 
 import dev.easyide.app.ui.screens.workspace.GitPanelState
 import dev.easyide.app.ui.screens.workspace.WorkspaceGitController
-import dev.easyide.sandbox.git.DiffSource
+import dev.easyide.app.ui.shell.diff.Comparison
+import dev.easyide.app.ui.shell.diff.DiffOutcome
+import dev.easyide.app.ui.shell.diff.HunkAction
+import dev.easyide.sandbox.git.DiffEnd
 import dev.easyide.sandbox.git.FileDiff
 import dev.easyide.sandbox.git.GitFailureKind
 import dev.easyide.sandbox.git.GitIdentity
@@ -325,25 +328,41 @@ class WorkspaceGitControllerTest {
         assertEquals("one\n", File(work, "a.txt").readText())
     }
 
-    @Test fun `hunk staging through the diff screen updates the diff and the status`() = runTest(UnconfinedTestDispatcher()) {
+    @Test fun `hunk staging through a diff document updates the diff and the status`() = runTest(UnconfinedTestDispatcher()) {
         val numbered = (1..12).joinToString("\n", postfix = "\n") { "l$it" }
         write("f.txt", numbered); repo.stage(listOf("f.txt")); repo.commit("base", "Ada", "ada@example.com")
         write("f.txt", numbered.replace("l2\n", "L2\n").replace("l11\n", "l11\nadded\n"))
         val ctl = controller(FakeSettings(ada))
         advanceUntilIdle()
 
-        ctl.controllers.diff.open("f.txt", DiffSource.UNSTAGED); advanceUntilIdle()
-        val diff = ctl.now().diff!!.diff as FileDiff.Text
-        assertEquals(2, diff.hunks.size)
+        val host = ctl.controllers.diff.host
+        val uri = Comparison.unstaged("f.txt").uri!!
+        val provider = host.providers.forUri(uri)!!
+        suspend fun hunks() = ((provider.load(uri) as DiffOutcome.Ready).diff as FileDiff.Text).hunks
+        assertEquals(2, hunks().size)
+        assertEquals(listOf(HunkAction.STAGE, HunkAction.DISCARD), provider.actions(uri)!!.available)
 
-        ctl.controllers.diff.stageHunk(diff.hunks[0]); advanceUntilIdle()
-        assertEquals(1, (ctl.now().diff!!.diff as FileDiff.Text).hunks.size)
+        val revision = host.revision.value
+        provider.actions(uri)!!.perform(HunkAction.STAGE, hunks()[0]); advanceUntilIdle()
+        assertEquals(1, hunks().size)
         assertEquals(listOf("f.txt"), ctl.now().status!!.staged.map { it.path })
+        assertTrue("a published status makes open diffs re-read", host.revision.value > revision)
 
-        ctl.controllers.diff.requestDiscardHunk((ctl.now().diff!!.diff as FileDiff.Text).hunks[0])
+        provider.actions(uri)!!.perform(HunkAction.DISCARD, hunks()[0])
         assertNotNull(ctl.now().confirm)
         ctl.answerConfirm(true); advanceUntilIdle()
-        assertEquals(0, (ctl.now().diff!!.diff as FileDiff.Text).hunks.size)
+        assertEquals(0, hunks().size)
         assertEquals(numbered.replace("l2\n", "L2\n"), File(work, "f.txt").readText())
+    }
+
+    @Test fun `the staged comparison offers unstaging and an arbitrary pair is read only`() = runTest(UnconfinedTestDispatcher()) {
+        baseCommit()
+        val ctl = controller(FakeSettings(ada))
+        advanceUntilIdle()
+        val provider = ctl.controllers.diff.host.providers.forUri(Comparison.staged("a.txt").uri!!)!!
+
+        assertEquals(listOf(HunkAction.UNSTAGE), provider.actions(Comparison.staged("a.txt").uri!!)!!.available)
+        val pair = Comparison("a.txt", DiffEnd.Rev("HEAD"), DiffEnd.Worktree).uri!!
+        assertNull(provider.actions(pair))
     }
 }

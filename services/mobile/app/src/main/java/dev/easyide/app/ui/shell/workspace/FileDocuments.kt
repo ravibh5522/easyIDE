@@ -8,6 +8,7 @@ import dev.easyide.app.ui.shell.OpenOptions
 import dev.easyide.app.ui.shell.Origin
 import dev.easyide.app.ui.shell.ShellAction
 import dev.easyide.app.ui.shell.UriPattern
+import dev.easyide.app.ui.shell.diff.GitDocuments
 import dev.easyide.app.ui.shell.host.AppRegistries
 
 /**
@@ -64,6 +65,8 @@ object FileTabSync {
     }
 }
 
-/** The app-scope registries plus the workspace's own document type. */
-fun AppRegistries.forWorkspace(): AppRegistries =
-    AppRegistries(documents.register(FileDocuments.type, Origin.Core).registry, containers, navigation)
+/** The app-scope registries plus the workspace's own document types: files and the two git documents. */
+fun AppRegistries.forWorkspace(): AppRegistries {
+    val types = listOf(FileDocuments.type, GitDocuments.diffType, GitDocuments.commitType)
+    return AppRegistries(types.fold(documents) { r, t -> r.register(t, Origin.Core).registry }, containers, navigation)
+}

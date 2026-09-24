@@ -11,6 +11,9 @@ import dev.easyide.app.ui.screens.workspace.TerminalPane
 import dev.easyide.app.ui.screens.workspace.lsp.LspPanel
 import dev.easyide.app.ui.screens.workspace.lsp.LspSidePanel
 import dev.easyide.app.ui.shell.CoreShell
+import dev.easyide.app.ui.shell.diff.GitDocuments
+import dev.easyide.app.ui.shell.diff.gitCommitDocument
+import dev.easyide.app.ui.shell.diff.gitDiffDocument
 import dev.easyide.app.ui.shell.host.DocumentRendererRegistry
 import dev.easyide.app.ui.shell.host.PanelBinding
 import dev.easyide.app.ui.shell.host.PanelRendererRegistry
@@ -38,7 +41,13 @@ object WorkspacePanels {
 
     fun panels(): PanelRendererRegistry = PanelRendererRegistry(bindings)
 
-    fun documents(): DocumentRendererRegistry = DocumentRendererRegistry(mapOf(FileDocuments.TYPE_ID to fileDocument()))
+    fun documents(): DocumentRendererRegistry = DocumentRendererRegistry(
+        mapOf(
+            FileDocuments.TYPE_ID to fileDocument(),
+            GitDocuments.DIFF_TYPE to gitDiffDocument(),
+            GitDocuments.COMMIT_TYPE to gitCommitDocument(),
+        ),
+    )
 
     private fun explorer() = panelRenderer { modifier ->
         val env = LocalWorkspaceEnv.current
@@ -56,7 +65,7 @@ object WorkspacePanels {
 
     private fun sourceControl() = panelRenderer { modifier ->
         val env = LocalWorkspaceEnv.current
-        SourceControlPane(env.git, env.gitCallbacks, modifier.fillMaxSize())
+        SourceControlPane(env.git, env.gitCallbacks, env.actions.documents, modifier.fillMaxSize())
     }
 
     /** The language panel shows whichever tab the controller has open; [default] is the one this container is for. */

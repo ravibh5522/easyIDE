@@ -2,7 +2,6 @@ package dev.easyide.app.ui.screens.workspace
 
 import dev.easyide.app.ui.screens.workspace.git.GitConfirm
 import dev.easyide.app.ui.screens.workspace.git.GitControllers
-import dev.easyide.app.ui.screens.workspace.git.GitDiffState
 import dev.easyide.app.ui.screens.workspace.git.GitOperation
 import dev.easyide.app.ui.screens.workspace.git.GitSheet
 import dev.easyide.sandbox.git.GitBranch
@@ -41,7 +40,6 @@ data class GitPanelState(
     val sheet: GitSheet? = null,
     val confirm: GitConfirm? = null,
     val operation: GitOperation? = null,
-    val diff: GitDiffState? = null,
 ) {
     /** Commits this branch has that its upstream lacks; 0 when there is no upstream. */
     val ahead: Int get() = status?.ahead ?: 0

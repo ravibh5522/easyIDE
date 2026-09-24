@@ -34,8 +34,14 @@ import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.Tone
 import dev.easyide.app.ui.screens.workspace.git.BranchSheet
+import dev.easyide.app.ui.screens.workspace.git.ChangeRow
 import dev.easyide.app.ui.screens.workspace.git.CommitGraph
-import dev.easyide.app.ui.screens.workspace.git.DiffScreen
+import dev.easyide.app.ui.screens.workspace.git.GitConfirm
+import dev.easyide.app.ui.screens.workspace.git.letter
+import dev.easyide.app.ui.screens.workspace.git.tint
+import dev.easyide.app.ui.shell.DocumentOpener
+import dev.easyide.app.ui.shell.diff.Comparison
+import dev.easyide.app.ui.shell.diff.GitDocuments
 import dev.easyide.app.ui.screens.workspace.git.GitConfirmDialog
 import dev.easyide.app.ui.screens.workspace.git.GitCredentialDialog
 import dev.easyide.app.ui.screens.workspace.git.GitSheet
@@ -59,13 +65,16 @@ import dev.easyide.sandbox.git.GitStatus
  *
  * Deliberately shaped like VS Code's - staged above, unstaged below, a status
  * letter per row, per-row stage/unstage/discard - because that layout is what
- * users already read fluently. Tapping a row opens its diff; merge-conflict
- * rows open the file itself, where the conflict markers are.
+ * users already read fluently. A tap opens the row's diff as a stage document
+ * (a preview; a double tap keeps it, the row's menu sends it to the side);
+ * merge-conflict rows open the file itself, where the conflict markers are.
+ * A commit in the graph opens as a document the same way.
  */
 @Composable
 fun SourceControlPane(
     state: GitPanelState,
     callbacks: SourceControlCallbacks,
+    opener: DocumentOpener,
     modifier: Modifier = Modifier,
 ) {
     // Lane assignment is pure and depends only on the commit list, so it is
@@ -89,7 +98,7 @@ fun SourceControlPane(
                 action = KitAction(stringResource(R.string.git_init), callbacks.onInitRepository),
             )
             state.status == null -> SkeletonRows()
-            else -> RepositoryBody(state, state.status, graph, callbacks)
+            else -> RepositoryBody(state, state.status, graph, callbacks, opener)
         }
     }
 
@@ -99,7 +108,8 @@ fun SourceControlPane(
         GitSheet.STASHES -> StashSheet(state.status, state.stashes, git.branches)
         null -> Unit
     }
-    state.confirm?.let { GitConfirmDialog(it, git.commit::answerConfirm) }
+    // A discarded hunk is confirmed by the diff document that asked, which is on screen when this pane may not be.
+    state.confirm?.takeIf { it !is GitConfirm.DiscardHunk }?.let { GitConfirmDialog(it, git.commit::answerConfirm) }
     tokenHost?.let { host ->
         GitCredentialDialog(
             initialHost = host,
@@ -107,7 +117,6 @@ fun SourceControlPane(
             onDismiss = { tokenHost = null },
         )
     }
-    if (state.diff != null) DiffScreen(state, callbacks)
 }
 
 @Composable
@@ -116,6 +125,7 @@ private fun RepositoryBody(
     status: GitStatus,
     graph: List<GraphRow>,
     callbacks: SourceControlCallbacks,
+    opener: DocumentOpener,
 ) {
     val busy = state.busy
 
@@ -127,7 +137,7 @@ private fun RepositoryBody(
         }
         if (status.conflicting.isNotEmpty()) {
             item { PanelGroupHeader(stringResource(R.string.git_section_conflicts), status.conflicting.size) }
-            items(status.conflicting, key = { "c:${it.path}" }) { change -> ChangeRow(change, busy, callbacks) }
+            items(status.conflicting, key = { "c:${it.path}" }) { change -> ChangeRow(change, busy, callbacks, opener) }
         }
         if (status.staged.isNotEmpty()) {
             item {
@@ -136,7 +146,7 @@ private fun RepositoryBody(
                     bulk = KitAction(stringResource(R.string.git_unstage_all)) { callbacks.onUnstage(status.staged.map { it.path }) },
                 )
             }
-            items(status.staged, key = { "s:${it.path}" }) { change -> ChangeRow(change, busy, callbacks) }
+            items(status.staged, key = { "s:${it.path}" }) { change -> ChangeRow(change, busy, callbacks, opener) }
         }
         if (status.unstaged.isNotEmpty()) {
             item {
@@ -145,47 +155,13 @@ private fun RepositoryBody(
                     bulk = KitAction(stringResource(R.string.git_stage_all)) { callbacks.onStage(status.unstaged.map { it.path }) },
                 )
             }
-            items(status.unstaged, key = { "u:${it.path}" }) { change -> ChangeRow(change, busy, callbacks) }
+            items(status.unstaged, key = { "u:${it.path}" }) { change -> ChangeRow(change, busy, callbacks, opener) }
         }
 
         if (graph.isNotEmpty()) {
             item { PanelGroupHeader(stringResource(R.string.git_section_graph), graph.size) }
-            commitGraph(graph) { }
+            commitGraph(graph) { sha -> GitDocuments.commitUri(sha)?.let(opener::preview) }
         }
-    }
-}
-
-/** One change: the row opens its diff; at most two trailing actions (discard and stage, or unstage) and the status letter. */
-@Composable
-private fun ChangeRow(change: GitChange, busy: Boolean, callbacks: SourceControlCallbacks) {
-    val colors = Kit.colors
-    KitRow(
-        title = change.name,
-        subtitle = change.directory.ifEmpty { null },
-        mono = true,
-        onClick = { openChange(change, callbacks) },
-        trailing = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (!change.staged) {
-                    KitIconButton(Icons.Filled.Undo, stringResource(R.string.git_discard), { callbacks.onDiscard(listOf(change.path)) }, enabled = !busy)
-                    KitIconButton(Icons.Filled.Add, stringResource(R.string.git_stage), { callbacks.onStage(listOf(change.path)) }, enabled = !busy)
-                } else {
-                    KitIconButton(Icons.Filled.Remove, stringResource(R.string.git_unstage), { callbacks.onUnstage(listOf(change.path)) }, enabled = !busy)
-                }
-                BasicText(
-                    text = change.type.letter,
-                    style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = change.type.tint(colors.git)),
-                )
-            }
-        },
-    )
-}
-
-private fun openChange(change: GitChange, callbacks: SourceControlCallbacks) {
-    when {
-        change.type == GitChangeType.CONFLICTED -> callbacks.onOpenFile(change.path)
-        change.staged -> callbacks.git.diff.open(change.path, DiffSource.STAGED)
-        else -> callbacks.git.diff.open(change.path, DiffSource.UNSTAGED)
     }
 }
 
@@ -212,20 +188,3 @@ private fun SkeletonRows() {
 
 /** Varied widths read as a list of names; equal bars read as a broken layout. */
 private val SKELETON_ROW_WIDTHS = listOf(0.7f, 0.5f, 0.85f, 0.6f, 0.4f)
-
-private val GitChangeType.letter: String
-    get() = when (this) {
-        GitChangeType.ADDED -> "A"
-        GitChangeType.MODIFIED -> "M"
-        GitChangeType.DELETED -> "D"
-        GitChangeType.UNTRACKED -> "U"
-        GitChangeType.CONFLICTED -> "C"
-    }
-
-private fun GitChangeType.tint(git: GitColors): Color = when (this) {
-    GitChangeType.ADDED -> git.added
-    GitChangeType.MODIFIED -> git.modified
-    GitChangeType.DELETED -> git.deleted
-    GitChangeType.CONFLICTED -> git.conflict
-    GitChangeType.UNTRACKED -> git.untracked
-}

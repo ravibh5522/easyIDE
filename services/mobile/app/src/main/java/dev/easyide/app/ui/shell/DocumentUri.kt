@@ -158,8 +158,8 @@ class DocumentUri private constructor(
 
         fun preview(path: String): DocumentUri? = absolute(path)?.let { of("preview", segments = it) }
 
-        fun gitDiff(path: String, base: String, target: String): DocumentUri? =
-            absolute(path)?.let { of("git-diff", segments = it, query = mapOf("base" to base, "target" to target)) }
+        fun gitDiff(path: String, base: String, head: String): DocumentUri? =
+            absolute(path)?.let { of("git-diff", segments = it, query = mapOf("base" to base, "head" to head)) }
 
         fun gitCommit(sha: String): DocumentUri? = of("git-commit", sha)
 

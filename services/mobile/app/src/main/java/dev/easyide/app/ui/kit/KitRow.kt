@@ -36,7 +36,7 @@ internal fun rowMinHeight(control: ControlScale, width: WidthClass, floor: Dp): 
  * The one list row (kit.md 3.1): leading slot, title, support text, trailing slot. Tappable when
  * [onClick] is set; [selected] draws the block marker at the start edge. Inside a [KitGroup] it
  * draws its own separator, inset to the text edge. [mono] sets the title in the monospace face
- * for paths and ids; [id] becomes the test tag.
+ * for paths and ids; [id] becomes the test tag. [onLongClick] and [onDoubleClick] add a menu and a "keep" beside the tap.
  */
 @Composable
 fun KitRow(
@@ -50,13 +50,15 @@ fun KitRow(
     enabled: Boolean = true,
     mono: Boolean = false,
     id: String? = null,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
 ) {
     val colors = Kit.colors
     val space = Kit.space
     val minHeight = rowMinHeight(Kit.control, currentWindowSize().width, Kit.metrics.touchFloor)
     val textEdge = space.l + if (leading != null) LEADING_SLOT + space.m else 0.dp
     val titleStyle = Kit.type.titleSmall.let { if (mono) it.copy(fontFamily = EasyIdeFonts.mono, fontWeight = FontWeight.Normal) else it }
-    val tappable = if (onClick != null) Modifier.kitPressable(onClick, enabled, Role.Button) else Modifier
+    val tappable = if (onClick != null) Modifier.kitPressable(onClick, enabled, Role.Button, onLongClick = onLongClick, onDoubleClick = onDoubleClick) else Modifier
 
     Row(
         modifier
