@@ -1,5 +1,6 @@
 package dev.easyide.sandbox.backend
 
+import dev.easyide.sandbox.SandboxPaths
 import java.io.File
 
 /**
@@ -34,7 +35,15 @@ class ProotLauncher(
                 addAll(listOf(ARG_BIND, "${host.absolutePath}:${request.guestProjectPath}"))
             }
 
-            addAll(listOf(ARG_CWD, request.hostProjectDir?.let { request.guestProjectPath } ?: GuestEnvironment.GUEST_HOME))
+            // proot creates a missing guest target itself, so no mkdir here.
+            request.extraBinds.forEach { bind ->
+                addAll(listOf(ARG_BIND, "${bind.host.absolutePath}:${bind.guestPath}"))
+            }
+
+            val cwd = request.guestCwd
+                ?: request.hostProjectDir?.let { request.guestProjectPath }
+                ?: GuestEnvironment.GUEST_HOME
+            addAll(listOf(ARG_CWD, cwd))
             addAll(request.command)
         }
 
@@ -58,7 +67,7 @@ class ProotLauncher(
         const val ENV_PROOT_LOADER = "PROOT_LOADER"
         const val ENV_PROOT_TMP = "PROOT_TMP_DIR"
 
-        val PASSTHROUGH_MOUNTS = listOf("/dev", "/proc", "/sys")
+        val PASSTHROUGH_MOUNTS = SandboxPaths.PASSTHROUGH_MOUNTS
 
         /**
          * Android denies `link(2)` in app-private storage, and dpkg hard-links

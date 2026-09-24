@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -20,26 +20,31 @@ import androidx.compose.material.icons.filled.Difference
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Undo
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.components.EmptyState
+import dev.easyide.app.ui.components.SkeletonBar
 import dev.easyide.app.ui.screens.workspace.git.CommitGraph
 import dev.easyide.app.ui.screens.workspace.git.GraphRow
 import dev.easyide.app.ui.screens.workspace.git.commitGraph
+import dev.easyide.app.ui.theme.ControlSize
+import dev.easyide.app.ui.theme.EasyIdeFonts
+import dev.easyide.app.ui.theme.GitColors
+import dev.easyide.app.ui.theme.IconSize
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.Stroke
 import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.app.ui.theme.sectionHeader
+import dev.easyide.app.ui.theme.tabular
 import dev.easyide.sandbox.git.GitChange
 import dev.easyide.sandbox.git.GitChangeType
 import dev.easyide.sandbox.git.GitStatus
@@ -70,11 +75,22 @@ fun SourceControlPane(
             onRefresh = callbacks.onRefresh,
         )
 
+        // Reserved height either way, so the list does not jump when a refresh starts.
+        Box(Modifier.fillMaxWidth().height(Stroke.accentBar)) {
+            if (state.busy) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxSize(),
+                    color = colors.accent,
+                    trackColor = colors.panel,
+                )
+            }
+        }
+
         state.error?.let { ErrorRow(it) }
 
         when {
             !state.isRepository -> NotARepository(callbacks.onInitRepository)
-            state.status == null -> Box(Modifier.fillMaxSize())
+            state.status == null -> SkeletonRows()
             else -> RepositoryBody(state.status, state.commitMessage, state.busy, graph, callbacks)
         }
     }
@@ -86,13 +102,13 @@ private fun PaneHeader(branch: String?, busy: Boolean, onRefresh: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 12.dp, end = 4.dp, top = 10.dp, bottom = 6.dp),
+            .padding(start = Spacing.m, end = Spacing.xs, top = Spacing.s, bottom = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = "SOURCE CONTROL",
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.gutterText,
+            style = MaterialTheme.typography.sectionHeader,
+            color = colors.textMuted,
             modifier = Modifier.weight(1f),
         )
         branch?.let {
@@ -102,18 +118,21 @@ private fun PaneHeader(branch: String?, busy: Boolean, onRefresh: () -> Unit) {
                 color = colors.plainText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(end = 8.dp),
+                modifier = Modifier.padding(end = Spacing.s),
             )
         }
-        Icon(
-            imageVector = Icons.Filled.Refresh,
-            contentDescription = "Refresh",
-            tint = if (busy) colors.gutterText else colors.plainText,
-            modifier = Modifier
-                .size(32.dp)
-                .clickable(enabled = !busy, onClick = onRefresh)
-                .padding(6.dp),
-        )
+        IconButton(
+            onClick = onRefresh,
+            enabled = !busy,
+            modifier = Modifier.size(ControlSize.headerAction),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Refresh,
+                contentDescription = "Refresh",
+                tint = if (busy) colors.textDisabled else colors.textMuted,
+                modifier = Modifier.size(IconSize.s),
+            )
+        }
     }
 }
 
@@ -123,17 +142,17 @@ private fun ErrorRow(message: String) {
     Text(
         text = message,
         style = MaterialTheme.typography.labelSmall,
-        color = colors.syntax.invalid,
+        color = colors.error,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = Spacing.m, vertical = Spacing.s),
     )
 }
 
 @Composable
 private fun NotARepository(onInit: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(Spacing.l),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -142,9 +161,12 @@ private fun NotARepository(onInit: () -> Unit) {
             title = "Not a repository",
             body = "Initialise git here to start tracking changes.",
         )
-        Button(onClick = onInit, modifier = Modifier.padding(top = 16.dp)) {
-            Text("Initialise repository")
-        }
+        ChromeButton(
+            text = "Initialise repository",
+            onClick = onInit,
+            style = ChromeButtonStyle.PRIMARY,
+            modifier = Modifier.padding(top = Spacing.l),
+        )
     }
 }
 
@@ -159,34 +181,26 @@ private fun RepositoryBody(
     val colors = editorColors
     val canCommit = message.isNotBlank() && status.staged.isNotEmpty() && !busy
 
-    OutlinedTextField(
+    DenseTextField(
         value = message,
         onValueChange = callbacks.onMessageChanged,
-        placeholder = { Text("Message", style = MaterialTheme.typography.bodySmall) },
-        textStyle = MaterialTheme.typography.bodySmall,
-        singleLine = false,
-        maxLines = 3,
+        placeholder = "Message",
+        maxLines = COMMIT_MESSAGE_MAX_LINES,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = Spacing.m, vertical = Spacing.xs),
     )
 
-    Button(
+    ChromeButton(
+        text = commitLabel(status),
         onClick = callbacks.onCommit,
         enabled = canCommit,
-        shape = RoundedCornerShape(4.dp),
-        colors = ButtonDefaults.buttonColors(),
+        style = ChromeButtonStyle.PRIMARY,
+        icon = Icons.Filled.Check,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-    ) {
-        Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp))
-        Text(
-            text = commitLabel(status),
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(start = 8.dp),
-        )
-    }
+            .padding(horizontal = Spacing.m, vertical = Spacing.xs),
+    )
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         if (status.isClean) {
@@ -194,8 +208,8 @@ private fun RepositoryBody(
                 Text(
                     text = "No changes",
                     style = MaterialTheme.typography.bodySmall,
-                    color = colors.gutterText,
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    color = colors.textMuted,
+                    modifier = Modifier.fillMaxWidth().padding(Spacing.m),
                 )
             }
         }
@@ -245,25 +259,25 @@ private fun SectionHeader(title: String, count: Int, onBulkAction: (() -> Unit)?
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 12.dp, end = 8.dp, top = 12.dp, bottom = 4.dp),
+            .padding(start = Spacing.m, end = Spacing.xs, top = Spacing.m, bottom = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = title.uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.gutterText,
+            style = MaterialTheme.typography.sectionHeader,
+            color = colors.textMuted,
             modifier = Modifier.weight(1f),
         )
         Text(
             text = "$count",
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.gutterText,
+            style = MaterialTheme.typography.labelSmall.tabular(),
+            color = colors.textMuted,
         )
         onBulkAction?.let {
-            TextButton(onClick = it, contentPadding = androidx.compose.foundation.layout.PaddingValues(4.dp)) {
-                Text(if (title.startsWith("Staged")) "Unstage all" else "Stage all",
-                    style = MaterialTheme.typography.labelSmall)
-            }
+            ChromeButton(
+                text = if (title.startsWith("Staged")) "Unstage all" else "Stage all",
+                onClick = it,
+            )
         }
     }
 }
@@ -275,7 +289,7 @@ private fun ChangeRow(change: GitChange, busy: Boolean, callbacks: SourceControl
         modifier = Modifier
             .fillMaxWidth()
             .clickable { callbacks.onOpenFile(change.path) }
-            .padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+            .padding(start = Spacing.m, end = Spacing.xs, top = Spacing.xs, bottom = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -290,7 +304,7 @@ private fun ChangeRow(change: GitChange, busy: Boolean, callbacks: SourceControl
                 Text(
                     text = change.directory,
                     style = MaterialTheme.typography.labelSmall,
-                    color = colors.gutterText,
+                    color = colors.textMuted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -307,9 +321,9 @@ private fun ChangeRow(change: GitChange, busy: Boolean, callbacks: SourceControl
         Text(
             text = change.type.letter,
             style = MaterialTheme.typography.labelMedium,
-            fontFamily = FontFamily.Monospace,
-            color = change.type.tint(colors.syntax.string, colors.syntax.keyword, colors.syntax.invalid, colors.gutterText),
-            modifier = Modifier.padding(horizontal = 6.dp),
+            fontFamily = EasyIdeFonts.mono,
+            color = change.type.tint(colors.git),
+            modifier = Modifier.padding(horizontal = Spacing.s),
         )
     }
 }
@@ -322,16 +336,40 @@ private fun RowAction(
     onClick: () -> Unit,
 ) {
     val colors = editorColors
-    Icon(
-        imageVector = icon,
-        contentDescription = description,
-        tint = colors.gutterText,
-        modifier = Modifier
-            .size(28.dp)
-            .clickable(enabled = !busy, onClick = onClick)
-            .padding(5.dp),
-    )
+    IconButton(onClick = onClick, enabled = !busy, modifier = Modifier.size(ControlSize.row)) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint = if (busy) colors.textDisabled else colors.textMuted,
+            modifier = Modifier.size(IconSize.s),
+        )
+    }
 }
+
+/**
+ * Stand-in rows while the first status read is in flight, shaped like change
+ * rows (name over directory) so the real list replaces them without a jump.
+ */
+@Composable
+private fun SkeletonRows() {
+    val colors = editorColors
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.m, vertical = Spacing.s),
+        verticalArrangement = Arrangement.spacedBy(Spacing.m),
+    ) {
+        SKELETON_ROW_WIDTHS.forEach { fraction ->
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                SkeletonBar(colors.raised, Spacing.m, Modifier.fillMaxWidth(fraction))
+                SkeletonBar(colors.raised, Spacing.s, Modifier.fillMaxWidth(fraction / 2))
+            }
+        }
+    }
+}
+
+/** Varied widths read as a list of names; equal bars read as a broken layout. */
+private val SKELETON_ROW_WIDTHS = listOf(0.7f, 0.5f, 0.85f, 0.6f, 0.4f)
+
+private const val COMMIT_MESSAGE_MAX_LINES = 3
 
 private val GitChangeType.letter: String
     get() = when (this) {
@@ -342,15 +380,10 @@ private val GitChangeType.letter: String
         GitChangeType.CONFLICTED -> "C"
     }
 
-private fun GitChangeType.tint(
-    added: Color,
-    modified: Color,
-    conflicted: Color,
-    untracked: Color,
-): Color = when (this) {
-    GitChangeType.ADDED -> added
-    GitChangeType.MODIFIED -> modified
-    GitChangeType.DELETED -> conflicted
-    GitChangeType.CONFLICTED -> conflicted
-    GitChangeType.UNTRACKED -> untracked
+private fun GitChangeType.tint(git: GitColors): Color = when (this) {
+    GitChangeType.ADDED -> git.added
+    GitChangeType.MODIFIED -> git.modified
+    GitChangeType.DELETED -> git.deleted
+    GitChangeType.CONFLICTED -> git.conflict
+    GitChangeType.UNTRACKED -> git.untracked
 }

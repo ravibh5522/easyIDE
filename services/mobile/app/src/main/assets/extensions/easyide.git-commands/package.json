@@ -1,0 +1,72 @@
+{
+  "name": "git-commands",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Git Commands",
+  "description": "Common git commands in the palette, the editor title bar and the explorer: status, diff, log, commit all, pull, push and branch switching.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      { "command": "git-commands.status", "title": "Show Status", "category": "Git", "enablement": "envState == ready" },
+      { "command": "git-commands.diffFile", "title": "Diff Current File", "shortTitle": "Diff", "category": "Git", "icon": "history", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-commands.log", "title": "Show Recent Commits", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-commands.commitAll", "title": "Commit All Changes", "category": "Git", "icon": "check", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-commands.pull", "title": "Pull", "category": "Git", "icon": "download", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-commands.push", "title": "Push", "category": "Git", "icon": "upload", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-commands.currentBranch", "title": "Show Current Branch", "category": "Git", "enablement": "envState == ready && gitRepo" },
+      { "command": "git-commands.switchBranch", "title": "Switch Branch", "shortTitle": "Branch", "category": "Git", "enablement": "envState == ready && gitRepo" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "git-commands.diffFile", "when": "gitRepo && resourcePath", "group": "navigation@10" },
+        { "command": "git-commands.commitAll", "when": "gitRepo", "group": "git@1" },
+        { "command": "git-commands.switchBranch", "when": "gitRepo", "group": "git@2" }
+      ],
+      "editor/context": [
+        { "command": "git-commands.diffFile", "when": "gitRepo", "group": "git@1" }
+      ],
+      "editor/touchToolbar": [
+        { "command": "git-commands.diffFile", "when": "gitRepo" }
+      ],
+      "explorer/context": [
+        { "command": "git-commands.status", "when": "gitRepo", "group": "7_git@1" },
+        { "command": "git-commands.log", "when": "gitRepo", "group": "7_git@2" }
+      ],
+      "commandPalette": [
+        { "command": "git-commands.diffFile", "when": "resourcePath" }
+      ]
+    },
+    "keybindings": [
+      { "command": "git-commands.status", "key": "ctrl+alt+g", "when": "gitRepo && !terminalFocus" },
+      { "command": "git-commands.commitAll", "key": "ctrl+alt+enter", "when": "gitRepo && !terminalFocus" }
+    ]
+  },
+  "easyide": {
+    "capabilities": ["sandbox.exec"],
+    "actions": {
+      "git-commands.status": { "type": "runInTerminal", "terminal": "Git", "command": "git status" },
+      "git-commands.diffFile": { "type": "runInTerminal", "terminal": "Git", "command": "git --no-pager diff -- ${relativeFile}" },
+      "git-commands.log": { "type": "runInTerminal", "terminal": "Git", "command": "git --no-pager log --oneline --graph --decorate -n 30" },
+      "git-commands.commitAll": { "type": "sequence", "steps": [
+        { "type": "showInputBox", "id": "message", "prompt": "Commit message for all changes", "placeHolder": "Describe the change", "validate": ".*\\S.*" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git add -A && git commit -m ${input:message}" }
+      ] },
+      "git-commands.pull": { "type": "runInTerminal", "terminal": "Git", "command": "git pull --ff-only" },
+      "git-commands.push": { "type": "runInTerminal", "terminal": "Git", "command": "git push" },
+      "git-commands.currentBranch": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["git", "branch", "--show-current"], "output": "capture", "as": "branch" },
+        { "type": "showMessage", "severity": "info", "text": "On branch ${result:branch}" }
+      ] },
+      "git-commands.switchBranch": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["git", "branch", "--format=%(refname:short)"], "output": "capture", "as": "branches" },
+        { "type": "showQuickPick", "id": "branch", "itemsFrom": "${result:branches}", "placeHolder": "Branch to switch to" },
+        { "type": "runInTerminal", "terminal": "Git", "command": "git switch ${input:branch}" }
+      ] }
+    },
+    "statusBarItems": [
+      { "id": "git-commands.branchSwitcher", "text": "Switch branch", "tooltip": "Switch git branch", "command": "git-commands.switchBranch", "alignment": "right", "priority": 10, "when": "gitRepo" }
+    ]
+  }
+}

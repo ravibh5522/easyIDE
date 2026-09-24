@@ -2,7 +2,7 @@
 
 Low-level design of `:ext-wasm`, the L2 layer that runs extension logic compiled to core wasm inside the app process.
 
-Status: PROPOSED (2026-09-23). Nothing implemented. Design context: [arch.md](../arch.md) sec 6.2, 6.3 ("WASM action call"), 9, 10, 12 (M7).
+Status: IMPLEMENTED in `services/mobile/ext-wasm` (2026-09-24; `:app` port bridges and `:extensions` `LogicHost` wiring pending). ART spike results: [0014](../../decision/0014-wasm-logic-layer-chicory.md#spike-results-2026-09-24). Design context: [arch.md](../arch.md) sec 6.2, 6.3 ("WASM action call"), 9, 10, 12 (M7).
 Contract (ABI, host functions, capabilities, settings keys): [sdk-reference.md#wasm-host-api](../sdk-reference.md#wasm-host-api).
 Feature area: arch.md sec 5.3 (Extension capabilities, `easyide.wasm` row). Needs ADR-F (0014) before M7.
 
@@ -38,12 +38,12 @@ chroot+BusyBox provide no per-extension isolation, 0002).
 | Pure JVM, zero native deps | verified | README (arch.md sec 13) |
 | Repo has an `android-tests` module | verified 2026-09-23 | repo tree |
 | `Instance.builder(module).build()`, `instance.export(name)` -> `ExportFunction` | verified 2026-09-23 | chicory.dev/docs Quick Start |
-| `MemoryLimits` type exists | seen in repo tree 2026-09-23; semantics **to verify** | repo tree |
-| Built-in fuel / gas metering | **to verify**; secondary sources say not in 1.7.5 ("Resource Control API ... still in development") | kaappi-studio issue #24, InfoQ talk "WASM in the Enterprise" (both secondary) |
-| Cooperative interruption of a running call (`Thread.interrupt` honoured by the interpreter loop) | **to verify**; a secondary source reports 1.7.5 has no interrupt hook | kaappi-studio issue #24 (secondary) |
-| Per-opcode execution listener in the interpreter | **to verify**; mentioned in a talk | InfoQ (secondary) |
-| Calling a guest export (`alloc`) from inside a host function (re-entrancy) | **to verify**; ABI v1 depends on it | - |
-| Interpreter speed on ART (instructions/s on the reference device) | **to measure** in the M7 spike | - |
+| `Instance.Builder.withMemoryLimits` caps `memory.grow` below the module max | **verified on ART 2026-09-24** (grow returns -1 at the cap; pages allocated on grow) | 0014 spike |
+| Built-in fuel / gas metering | **absent in 1.7.5** (verified in source 2026-09-24); our metering pass (sec 4) is required | Chicory 1.7.5 sources |
+| Cooperative interruption of a running call (`Thread.interrupt` honoured by the interpreter loop) | **partial**: polled on `call`/`call_indirect`/`br` only; a `br_if` loop ignores it (ART spike). Not used; the fuel global is the interruption channel | 0014 spike, Chicory sources |
+| Per-opcode execution listener in the interpreter | exists as `withUnsafeExecutionListener`, documented experimental and hot-path; not used | Chicory 1.7.5 sources |
+| Calling a guest export (`alloc`) from inside a host function (re-entrancy) | **verified on ART 2026-09-24** (11 us round trip) | 0014 spike |
+| Interpreter speed on ART (instructions/s on the reference device) | **~7 M instr/s** raw, ~15x below HotSpot; AOT-compiling the APK does not help | 0014 spike |
 | Build-time/runtime AOT compilers | exist (`build-time-compiler`, `compiler` modules); runtime AOT emits JVM bytecode and **likely does not apply on ART** (arch.md sec 13); build-time AOT to dex unexplored | repo tree |
 
 Design consequence: **this LLD does not rely on any to-verify runtime feature for safety.**
@@ -111,9 +111,12 @@ would renumber every defined function).
 - Append a mutable `i64` global `__easyide_fuel` (not exported to the guest's view of names;
   the host reads/writes it through the instance's global table).
 - At every function entry and every `loop` header insert:
-  `global.get $f; i64.const <cost>; i64.sub; global.tee $f; i64.const 0; i64.lt_s; if; unreachable; end`
-  where `<cost>` is the static instruction count of the straight-line region that follows,
-  up to the next branch/loop/call (over-counting allowed; exactness is not a goal).
+  `global.get $f; i64.const <cost>; i64.sub; global.set $f; global.get $f; i64.const 0; i64.lt_s; if; unreachable; end`
+  (wasm has no `global.tee`). `<cost>` is the instruction count of the checkpoint's *region*:
+  every instruction whose innermost enclosing `loop` is this one (or, for the entry
+  checkpoint, that is in no loop). Sound because wasm branches backwards only to loop headers,
+  so each region instruction runs at most once per pass of its checkpoint; both `if` arms are
+  charged (over-counting allowed). Implemented in `binary/InstructionScanner.kt`.
 - Host sets `__easyide_fuel = extensions.wasm.fuelPerCall` before each guest entry
   (`ext_activate`, `ext_handle`, and after every `host_call` returns it is **not** refilled - fuel
   is per top-level call, host-call time excluded).
@@ -121,13 +124,15 @@ would renumber every defined function).
 
 Interruption (wall clock, cancel, deactivate timeout) reuses the same global: the watchdog
 (sec 8) writes `__easyide_fuel = -1` from another thread, so the next metered checkpoint traps.
-Cross-thread visibility of a Chicory global write is **to verify**; if not guaranteed, the
-checkpoint also traps at the next `host_call` (the host checks the deadline on every call), and
-the worst case is bounded by `fuelPerCall` - a runaway guest can never run unbounded.
+Cross-thread visibility: observed on ART (10-13 ms with a 10 ms tick) and guaranteed by making
+mutable globals volatile through Chicory's `GlobalFactory` (no measurable cost). The watchdog
+rewrites -1 on every tick, because the guest's read-modify-write can overwrite one store; the
+host also refuses every `host_call` once an interrupt is pending.
 
-`Meter` also needs a wasm encoder for the rewritten code section. Chicory's encoder support is
-**to verify**; if absent, `Meter` re-emits only the code and global sections (small, well-specified
-binary format) and copies every other section byte-for-byte.
+Chicory's `WasmWriter` only frames raw sections (and uses an API 33 method), so `Meter` has its
+own encoder: it re-emits only the code and global sections and copies every other section
+byte-for-byte. Supported code: MVP, sign-ext, sat-trunc, bulk memory, reference types,
+multi-value, tail calls; SIMD, threads, exception handling and GC are refused by name.
 
 ## 5. Instance model
 
@@ -315,7 +320,7 @@ Real boundaries here: guest code (traps), the Chicory runtime, host I/O inside h
 
 | Failure | Detected by | Effect on call | Effect on instance |
 |---|---|---|---|
-| Trap (`unreachable`, OOB, div by zero, stack overflow) | Chicory `TrapException` (name to verify) | caller gets `E_INTERNAL` | discarded, counted |
+| Trap (`unreachable`, OOB, div by zero, stack overflow) | `ChicoryException` (`TrapException`, `WasmRuntimeException`, "call stack exhausted") | caller gets `E_INTERNAL` | discarded, counted |
 | Fuel exhaustion | trap at metering checkpoint with fuel <= 0 and no interrupt flag | `E_LIMIT`, logged | discarded, counted |
 | Wall clock / cancel | watchdog interrupt flag set | `E_TIMEOUT` / `E_CANCELLED` | discarded, counted (cancel: not counted) |
 | Memory grow beyond cap | `memory.grow` returns -1 (guest decides) or trap | as the guest behaves | counted only if it traps |
@@ -470,10 +475,8 @@ contribution inspector.
 
 ## 16. Open issues
 
-1. Chicory re-entrancy (host function calling guest `alloc` mid-`host_call`). If unsupported,
-   ABI v1 as specified cannot work on Chicory and ADR-F must choose another runtime or ABI v2.
-   Top item for the M7 spike.
-2. Cross-thread visibility of the fuel global write; fallback bound is `fuelPerCall`.
+1. Resolved 2026-09-24: Chicory re-entrancy works on ART (0014 spike).
+2. Resolved 2026-09-24: fuel global writes are visible cross-thread (volatile globals, spike).
 3. Time excluded while a host function awaits the user: a guest can hold its worker forever
    behind a quick pick. Acceptable (user-visible) but no per-extension "max prompt time" yet.
 4. Whether global-scope WASM extensions should get one instance per environment instead of one
@@ -487,3 +490,21 @@ contribution inspector.
   sdk-reference; `sandbox.exec` follows extension-runtime.md 8.5.
 - `WasmPolicy.*` internal constants are not settings keys; they are listed here so they have one
   declarative home.
+- Implementation notes (2026-09-24, `services/mobile/ext-wasm`):
+  - JSON is `kotlinx.serialization.json` `JsonElement`/`JsonObject` (pure JVM), not `org.json`.
+  - Load order is size -> sha256 -> metering pass on raw bytes -> one Chicory parse of the metered
+    bytes -> static validation (sec 3.1 parses twice; parsing dominates load time on ART). The
+    disk-cache sidecar stores the metered sha256 and the fuel global index.
+  - No `Thread.interrupt`: Chicory misses `br_if` loops; the fuel global covers every loop.
+  - `onTrimMemory(level)` is `trimMemory()`: Android trim levels are mapped in `:app`.
+  - Imports: only `easyide.host_call` may be imported; a guest that never calls the host may
+    import nothing.
+  - `fs.project(write)` implies `fs.project(read)` (prompt text "read and change").
+  - The dropped-event count rides on the next event as `"events.dropped": n`.
+  - Worker threads get an 8 MiB JVM stack (`WasmPolicy.WORKER_STACK_BYTES`), about 10000 guest
+    frames on the spike device.
+  - `:ext-wasm` depends on no project module: capabilities arrive as the granted id list and all
+    effects go through the ports in `host/HostPorts.kt`, which `:app` implements. hld.md rule 4
+    allows an `:extensions` edge; it is not needed yet.
+  - Re-entrancy guard: a call from any WASM worker thread into a busy instance is refused
+    (`E_UNAVAILABLE`), covering cycles through other extensions, not only an instance's own commands.

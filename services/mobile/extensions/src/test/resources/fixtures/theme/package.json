@@ -1,0 +1,3 @@
+{ "name": "graphite-night", "publisher": "acme", "version": "0.1.0", "license": "MIT",
+  "engines": { "easyide": "^0.3.0" }, "categories": ["Themes"], "contributes": { "themes": [
+    { "label": "Graphite Night", "uiTheme": "vs-dark", "path": "./themes/graphite-night-color-theme.json" }] } }

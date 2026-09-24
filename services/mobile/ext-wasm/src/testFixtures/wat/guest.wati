@@ -1,0 +1,82 @@
+;; Shared ABI v1 guest runtime for the test fixtures, pulled in with `;; #include guest.wati`.
+;; Bump allocator (free only counts), byte helpers, and reply builders. No JSON parser: the
+;; fixtures locate the few fields they need by substring search, which is enough because the
+;; host's message key order is fixed (runtime/Messages.kt).
+
+  (import "easyide" "host_call" (func $host_call (param i32 i32) (result i32)))
+  (global $heap (mut i32) (i32.const 8192))
+  (global $frees (mut i32) (i32.const 0))
+
+  (func $alloc (export "alloc") (param $n i32) (result i32)
+    (local $p i32) (local $end i32) (local $size i32)
+    (local.set $p (global.get $heap))
+    (local.set $end (i32.add (local.get $p) (local.get $n)))
+    (local.set $size (i32.mul (memory.size) (i32.const 65536)))
+    (if (i32.gt_u (local.get $end) (local.get $size))
+      (then
+        (if (i32.eq (i32.const -1)
+              (memory.grow (i32.add (i32.const 1)
+                (i32.shr_u (i32.sub (local.get $end) (local.get $size)) (i32.const 16)))))
+          (then unreachable))))
+    (global.set $heap (local.get $end))
+    (local.get $p))
+
+  (func $free (export "free") (param i32 i32)
+    (global.set $frees (i32.add (global.get $frees) (i32.const 1))))
+
+  ;; Index of needle in haystack, or -1.
+  (func $find (param $h i32) (param $hl i32) (param $n i32) (param $nl i32) (result i32)
+    (local $i i32) (local $j i32)
+    (loop $outer
+      (if (i32.gt_s (local.get $i) (i32.sub (local.get $hl) (local.get $nl)))
+        (then (return (i32.const -1))))
+      (local.set $j (i32.const 0))
+      (block $next
+        (loop $inner
+          (if (i32.ge_s (local.get $j) (local.get $nl)) (then (return (local.get $i))))
+          (br_if $next (i32.ne
+            (i32.load8_u (i32.add (local.get $h) (i32.add (local.get $i) (local.get $j))))
+            (i32.load8_u (i32.add (local.get $n) (local.get $j)))))
+          (local.set $j (i32.add (local.get $j) (i32.const 1)))
+          (br $inner)))
+      (local.set $i (i32.add (local.get $i) (i32.const 1)))
+      (br $outer))
+    (i32.const -1))
+
+  (func $has (param $h i32) (param $hl i32) (param $n i32) (param $nl i32) (result i32)
+    (i32.ge_s (call $find (local.get $h) (local.get $hl) (local.get $n) (local.get $nl)) (i32.const 0)))
+
+  ;; a ++ b ++ c in a fresh buffer; with $pre the buffer is [u32 LE length][bytes].
+  (func $build (param $pre i32) (param $a i32) (param $al i32) (param $b i32) (param $bl i32)
+      (param $c i32) (param $cl i32) (result i32)
+    (local $total i32) (local $p i32) (local $o i32)
+    (local.set $total (i32.add (local.get $al) (i32.add (local.get $bl) (local.get $cl))))
+    (local.set $p (call $alloc (i32.add (local.get $total) (i32.mul (local.get $pre) (i32.const 4)))))
+    (local.set $o (local.get $p))
+    (if (local.get $pre)
+      (then
+        (i32.store (local.get $p) (local.get $total))
+        (local.set $o (i32.add (local.get $p) (i32.const 4)))))
+    (memory.copy (local.get $o) (local.get $a) (local.get $al))
+    (memory.copy (i32.add (local.get $o) (local.get $al)) (local.get $b) (local.get $bl))
+    (memory.copy (i32.add (local.get $o) (i32.add (local.get $al) (local.get $bl))) (local.get $c) (local.get $cl))
+    (local.get $p))
+
+  ;; Decimal digits of a non-negative i32 into a fresh buffer; returns ptr, length in $itoa_len.
+  (global $itoa_len (mut i32) (i32.const 0))
+  (func $itoa (param $v i32) (result i32)
+    (local $p i32) (local $n i32) (local $t i32)
+    (local.set $p (call $alloc (i32.const 11)))
+    (local.set $t (local.get $v))
+    (loop $count
+      (local.set $n (i32.add (local.get $n) (i32.const 1)))
+      (local.set $t (i32.div_u (local.get $t) (i32.const 10)))
+      (br_if $count (local.get $t)))
+    (global.set $itoa_len (local.get $n))
+    (loop $digits
+      (local.set $n (i32.sub (local.get $n) (i32.const 1)))
+      (i32.store8 (i32.add (local.get $p) (local.get $n))
+        (i32.add (i32.const 48) (i32.rem_u (local.get $v) (i32.const 10))))
+      (local.set $v (i32.div_u (local.get $v) (i32.const 10)))
+      (br_if $digits (local.get $n)))
+    (local.get $p))

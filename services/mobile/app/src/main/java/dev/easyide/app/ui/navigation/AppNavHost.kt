@@ -14,13 +14,18 @@ import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.WorkspaceViewModelFactory
 import dev.easyide.app.ui.appViewModel
 import dev.easyide.app.ui.foundation.NavTransitions
+import dev.easyide.app.ui.screens.extensions.ExtensionsScreen
+import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeScreen
 import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectScreen
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
 import dev.easyide.app.ui.screens.onboarding.OnboardingScreen
+import dev.easyide.app.ui.screens.settings.ProjectSettingsScope
 import dev.easyide.app.ui.screens.settings.SettingsScreen
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
+import dev.easyide.app.ui.screens.workspace.ProjectNotFound
+import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
 import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
 
@@ -75,14 +80,20 @@ fun AppNavHost(
 
         composable(Destination.Workspace.route) { backStackEntry ->
             val projectId = backStackEntry.arguments?.getString(Destination.Workspace.ARG_PROJECT_ID).orEmpty()
-            val homeViewModel: HomeViewModel = appViewModel(viewModelFactory)
-            val homeState by homeViewModel.uiState.collectAsStateWithLifecycle()
-            val project = homeState.items.find { it.project.id == projectId }?.project
+            // Straight from the repository rather than a second HomeViewModel:
+            // null means the store has not emitted yet, which is distinct from
+            // "loaded, and no such project".
+            val projects by container.projectManager.projects.collectAsStateWithLifecycle(initialValue = null)
+            val project = projects?.find { it.id == projectId }
 
             // Wait for the project record: its environment id decides which
             // rootfs the terminal runs in, and guessing would start the wrong one.
-            val environmentId = project?.environmentId
-            if (environmentId != null) {
+            if (projects == null) {
+                WorkspaceLoading()
+            } else if (project == null) {
+                ProjectNotFound(onBackHome = { navController.popBackStack(Destination.Home.route, inclusive = false) })
+            } else {
+            val environmentId = project.environmentId
             val workspaceViewModel: WorkspaceViewModel = viewModel(
                 key = projectId,
                 factory = WorkspaceViewModelFactory(container, projectId, environmentId),
@@ -90,10 +101,17 @@ fun AppNavHost(
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
 
+            ProjectSettingsScope(container, projectId, environmentId) {
             WorkspaceScreen(
                 projectName = project.name,
                 uiState = uiState,
                 gitState = gitState,
+                decorations = workspaceViewModel.decorations,
+                lsp = workspaceViewModel.lsp,
+                extensionHost = workspaceViewModel.extensionHost,
+                extensions = container.extensions,
+                selections = workspaceViewModel.selections,
+                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
                     onCommit = workspaceViewModel::commitGit,
@@ -113,6 +131,7 @@ fun AppNavHost(
                     onContentChanged = workspaceViewModel::onContentChanged,
                     onTogglePreview = workspaceViewModel::onTogglePreview,
                     onSave = workspaceViewModel::onSaveActiveTab,
+                    onSaveTabs = workspaceViewModel::onSaveTabs,
                     onCreateFile = workspaceViewModel::onCreateFile,
                     onCreateFolder = workspaceViewModel::onCreateFolder,
                     onRename = workspaceViewModel::onRename,
@@ -130,25 +149,22 @@ fun AppNavHost(
                 ),
             )
             }
+            }
         }
 
         composable(Destination.Settings.route) {
             val viewModel: SettingsViewModel = appViewModel(viewModelFactory)
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
-
             SettingsScreen(
-                uiState = uiState,
-                errorMessage = errorMessage,
+                viewModel = viewModel,
                 externalFolderSync = container.externalFolderSync,
-                onThemeSelected = viewModel::onThemeSelected,
-                onDefaultEnvironmentSelected = viewModel::onDefaultEnvironmentSelected,
-                onDeleteEnvironment = viewModel::onDeleteEnvironment,
-                onDefaultProjectsFolderChosen = viewModel::onDefaultProjectsFolderChosen,
-                onDefaultProjectsFolderPickFailed = viewModel::onDefaultProjectsFolderPickFailed,
-                onErrorShown = viewModel::onErrorShown,
+                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 onBack = { navController.popBackStack() },
             )
+        }
+
+        composable(Destination.Extensions.route) {
+            val viewModel: ExtensionsViewModel = appViewModel(viewModelFactory)
+            ExtensionsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
 
         composable(Destination.NewProject.route) {

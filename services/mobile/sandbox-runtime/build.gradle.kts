@@ -22,4 +22,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.documentfile)
     implementation(libs.jgit)
+
+    testImplementation(libs.junit)
 }

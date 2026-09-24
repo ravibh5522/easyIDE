@@ -1,0 +1,6 @@
+#!/bin/sh
+# Launcher for the easyide-ext jar. Looks next to itself first, then in build/libs.
+dir=$(cd "$(dirname "$0")" && pwd)
+jar=$(ls "$dir"/easyide-ext-*.jar "$dir"/build/libs/easyide-ext-*.jar 2>/dev/null | head -n 1)
+[ -n "$jar" ] || { echo "easyide-ext: jar not found; run ./gradlew jar" >&2; exit 2; }
+exec java -jar "$jar" "$@"

@@ -1,0 +1,12 @@
+{
+  "Main guard": {
+    "prefix": "main",
+    "body": ["def main() -> None:", "\t$0", "", "", "if __name__ == \"__main__\":", "\tmain()"],
+    "description": "Entry point with a __main__ guard"
+  },
+  "Dataclass": {
+    "prefix": "dataclass",
+    "body": ["@dataclass", "class ${1:Name}:", "\t${2:field}: ${3:str}"],
+    "description": "A dataclass (import it from dataclasses)"
+  }
+}

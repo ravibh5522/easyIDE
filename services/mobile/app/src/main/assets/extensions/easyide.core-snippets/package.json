@@ -1,0 +1,64 @@
+{
+  "name": "core-snippets",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Core Snippets",
+  "description": "Everyday snippets for Python, JavaScript/TypeScript, shell and Markdown, plus a coding key row for touch editing.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Snippets"],
+  "contributes": {
+    "snippets": [
+      { "language": "python", "path": "./snippets/python.code-snippets" },
+      { "language": "javascript", "path": "./snippets/javascript.code-snippets" },
+      { "language": "typescript", "path": "./snippets/javascript.code-snippets" },
+      { "language": "shellscript", "path": "./snippets/shellscript.code-snippets" },
+      { "language": "markdown", "path": "./snippets/markdown.code-snippets" }
+    ]
+  },
+  "easyide": {
+    "keyRows": [
+      {
+        "id": "core-snippets.code",
+        "title": "Code",
+        "when": "editorLangId && editorLangId != markdown",
+        "keys": [
+          { "label": "Tab", "key": "tab" },
+          { "label": "←", "key": "left" },
+          { "label": "→", "key": "right" },
+          { "label": "↑", "key": "up" },
+          { "label": "↓", "key": "down" },
+          { "label": "( )", "snippet": "($0)" },
+          { "label": "[ ]", "snippet": "[$0]" },
+          { "label": "{ }", "snippet": "{$0}" },
+          { "label": "\" \"", "snippet": "\"$0\"", "longPress": { "snippet": "'$0'" } },
+          { "label": "=", "insert": "=", "longPress": { "insert": "==" } },
+          { "label": ":", "insert": ":" },
+          { "label": ";", "insert": ";" },
+          { "label": ",", "insert": "," },
+          { "label": ".", "insert": "." },
+          { "label": "_", "insert": "_" },
+          { "label": "<", "insert": "<" },
+          { "label": ">", "insert": ">" },
+          { "label": "#", "insert": "#" },
+          { "label": "Snip", "command": "editor.action.insertSnippet" }
+        ]
+      },
+      {
+        "id": "core-snippets.markdown",
+        "title": "Markdown",
+        "when": "editorLangId == markdown",
+        "keys": [
+          { "label": "Tab", "key": "tab" },
+          { "label": "#", "insert": "# " },
+          { "label": "B", "snippet": "**${1:$TM_SELECTED_TEXT}**$0" },
+          { "label": "I", "snippet": "_${1:$TM_SELECTED_TEXT}_$0" },
+          { "label": "`", "snippet": "`${1:$TM_SELECTED_TEXT}`$0" },
+          { "label": "Link", "snippet": "[${1:text}](${2:https://})$0" },
+          { "label": "- [ ]", "insert": "- [ ] " },
+          { "label": "Snip", "command": "editor.action.insertSnippet" }
+        ]
+      }
+    ]
+  }
+}

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -26,12 +27,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.termux.view.TerminalView
 import dev.easyide.app.R
+import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.ui.foundation.LocalSettings
+import androidx.core.content.res.ResourcesCompat
+import dev.easyide.app.ui.theme.ControlSize
+import dev.easyide.app.ui.theme.IconSize
+import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.extensions.contrib.KeyAction
+import dev.easyide.extensions.contrib.RowKey
 
 /**
  * Terminal panel: tabs across the top, a real pty-backed terminal below, and
@@ -55,7 +63,11 @@ fun TerminalPane(
     onCloseTab: (String) -> Unit,
     onRenameTab: (String, String) -> Unit,
     onInstallLinux: () -> Unit,
+    onHardwareKey: (android.view.KeyEvent) -> Boolean,
     modifier: Modifier = Modifier,
+    /** The active key row's keys (built-in `builtin.terminal` unless a pack's row applies). */
+    rowKeys: List<RowKey> = emptyList(),
+    onRowKey: (KeyAction, com.termux.terminal.TerminalSession) -> Unit = { _, _ -> },
 ) {
     val colors = editorColors
     val tab = tabs.find { it.id == activeTabId } ?: tabs.firstOrNull()
@@ -77,29 +89,39 @@ fun TerminalPane(
 
         EasyTerminalView(
             tab = tab,
+            onHardwareKey = onHardwareKey,
             modifier = Modifier.fillMaxWidth().weight(1f),
         )
 
         // Writing to a TerminalSession is a plain, synchronous, non-suspending
         // queue push - no ViewModel round trip needed, the same way a tap
         // inside MermaidView's WebView does not need one either.
-        TerminalKeyRow(onKey = { key -> tab.session.write(key.bytes) })
+        if (rowKeys.isNotEmpty()) KeyRowBar(keys = rowKeys, onKey = { action -> onRowKey(action, tab.session) })
     }
 }
 
 /**
  * Hosts a single [TerminalView] (a plain Android `View`, wrapped the same way
  * [MermaidView] wraps a `WebView`) and keeps it attached to whichever tab is
- * active. Text size is set once up front - the view needs it before its first
- * real layout pass, since `attachSession()` calls `updateSize()` immediately
- * and that dereferences the renderer.
+ * active. Text size is set in the factory too - the view needs it before its
+ * first real layout pass, since `attachSession()` calls `updateSize()`
+ * immediately and that dereferences the renderer - and again in `update` when
+ * the `terminal.fontSize` setting changes.
  */
 @Composable
-private fun EasyTerminalView(tab: PtyTerminalTab, modifier: Modifier = Modifier) {
+private fun EasyTerminalView(
+    tab: PtyTerminalTab,
+    onHardwareKey: (android.view.KeyEvent) -> Boolean,
+    modifier: Modifier = Modifier,
+) {
     val density = LocalDensity.current
-    val textSizePx = remember(density) { with(density) { TERMINAL_FONT_SP.sp.roundToPx() } }
+    val fontSp = LocalSettings.current[SettingsSchema.terminalFontSize]
+    val textSizePx = with(density) { fontSp.sp.roundToPx() }
+    // setTextSize() rebuilds the renderer and resizes the emulator, so it runs
+    // only on a real change, not on every recomposition that re-runs update.
+    val appliedTextSize = remember { AppliedTextSize(textSizePx) }
     val client = remember { EasyTerminalViewClient() }
-    val colors = editorColors
+    val palette = editorColors.terminal
 
     AndroidView(
         factory = { context ->
@@ -108,6 +130,8 @@ private fun EasyTerminalView(tab: PtyTerminalTab, modifier: Modifier = Modifier)
                 isFocusableInTouchMode = true
                 setTerminalViewClient(client)
                 setTextSize(textSizePx)
+                // After setTextSize: setTypeface rebuilds the renderer it creates.
+                ResourcesCompat.getFont(context, R.font.geist_mono_regular)?.let(::setTypeface)
                 // The client raises the soft keyboard on tap and needs the view
                 // to do it; the view does not hand itself to the client.
                 client.terminalView = this
@@ -119,6 +143,15 @@ private fun EasyTerminalView(tab: PtyTerminalTab, modifier: Modifier = Modifier)
             // recomposition (idempotent) rather than only on attach, so this
             // stays correct if Compose ever recreates the AndroidView.
             tab.client.onScreenChanged = { view.onScreenUpdated(); view.invalidate() }
+            client.onHardwareKey = onHardwareKey
+            if (appliedTextSize.px != textSizePx) {
+                appliedTextSize.px = textSizePx
+                view.setTextSize(textSizePx)
+                view.invalidate()
+            }
+            // Before attach, so an emulator created by this attach already
+            // copies the themed defaults; an existing one is re-coloured.
+            if (TerminalTheme.apply(palette, tab.session.emulator)) view.invalidate()
             // attachSession() itself no-ops (returns false) when already
             // attached to this exact session, so this only steals focus on a
             // real tab switch, not on every unrelated recomposition.
@@ -128,10 +161,10 @@ private fun EasyTerminalView(tab: PtyTerminalTab, modifier: Modifier = Modifier)
         // columns from measured width, not padding-adjusted width), so the
         // margin has to come from Compose padding around it instead - with a
         // matching background so the margin reads as inset, not a mismatched
-        // strip next to the terminal's own black canvas.
+        // strip next to the terminal's own canvas.
         modifier = modifier
-            .background(colors.terminalBackground)
-            .padding(horizontal = TERMINAL_HORIZONTAL_PADDING_DP.dp),
+            .background(palette.background)
+            .padding(horizontal = Spacing.s),
     )
 }
 
@@ -164,27 +197,29 @@ private fun TerminalTabBar(
             val active = tab.id == activeTabId
             Row(
                 modifier = Modifier
-                    .background(if (active) colors.tabActive else colors.panel)
+                    .height(ControlSize.tab)
+                    .background(if (active) colors.tabActive else colors.tabInactive)
+                    .tabAccentBar(active, colors.tabActiveBorder)
                     .combinedClickable(
                         onClick = { onSelectTab(tab.id) },
                         onLongClick = { onRenameTab(tab.id, tab.title) },
                     )
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                    .padding(horizontal = Spacing.m),
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
             ) {
                 Text(
                     text = tab.title,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (active) colors.plainText else colors.gutterText,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (active) colors.tabActiveText else colors.tabInactiveText,
                 )
                 if (tabs.size > 1) {
                     Icon(
                         imageVector = Icons.Filled.Close,
                         contentDescription = "Close ${tab.title}",
-                        tint = colors.gutterText,
+                        tint = colors.textMuted,
                         modifier = Modifier
-                            .size(TAB_ICON_DP.dp)
+                            .size(IconSize.xs)
                             .clickable { onCloseTab(tab.id) },
                     )
                 }
@@ -194,10 +229,10 @@ private fun TerminalTabBar(
         Icon(
             imageVector = Icons.Filled.Add,
             contentDescription = stringResource(R.string.terminal_new),
-            tint = colors.gutterText,
+            tint = colors.textMuted,
             modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .size(TAB_ICON_DP.dp)
+                .padding(horizontal = Spacing.s)
+                .size(IconSize.s)
                 .clickable(onClick = onNewTab),
         )
         }
@@ -209,7 +244,7 @@ private fun TerminalTabBar(
             TextButton(
                 onClick = onInstallLinux,
                 enabled = !isInstalling,
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                contentPadding = PaddingValues(horizontal = Spacing.s, vertical = Spacing.none),
             ) {
                 Text(
                     text = if (isInstalling) {
@@ -224,6 +259,5 @@ private fun TerminalTabBar(
     }
 }
 
-private const val TAB_ICON_DP = 14
-private const val TERMINAL_FONT_SP = 13
-private const val TERMINAL_HORIZONTAL_PADDING_DP = 8
+/** Last text size handed to the view; plain holder, never observed by Compose. */
+private class AppliedTextSize(var px: Int)

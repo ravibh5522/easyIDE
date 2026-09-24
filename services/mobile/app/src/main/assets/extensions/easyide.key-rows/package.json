@@ -1,0 +1,144 @@
+{
+  "name": "key-rows",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Key Rows",
+  "description": "Extra touch key rows: every coding symbol one tap away, caret and tab navigation, and a shell row with control keys for the terminal.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Keymaps"],
+  "contributes": {
+    "commands": [
+      { "command": "key-rows.chooseLayout", "title": "Choose Key Row", "category": "Key Rows" },
+      { "command": "key-rows.toggleShellRow", "title": "Toggle Shell Row in Terminal", "category": "Key Rows" }
+    ],
+    "configuration": {
+      "title": "Key Rows",
+      "properties": {
+        "key-rows.shellRowInTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the Shell row (Ctrl keys, pipes, redirections) in the terminal instead of the built-in terminal row."
+        }
+      }
+    }
+  },
+  "easyide": {
+    "capabilities": ["ui.settings"],
+    "actions": {
+      "key-rows.chooseLayout": { "type": "sequence", "steps": [
+        { "type": "showQuickPick", "id": "row", "placeHolder": "Key row above the keyboard", "items": [
+          { "label": "Automatic", "description": "The row of the file's language, if any", "value": "auto" },
+          { "label": "Symbols", "description": "Brackets, operators and punctuation", "value": "key-rows.symbols" },
+          { "label": "Navigation", "description": "Caret keys, editor tabs and symbol navigation", "value": "key-rows.navigation" }
+        ] },
+        { "type": "setConfig", "key": "keyRows.active", "value": "${input:row}", "target": "user" }
+      ] },
+      "key-rows.toggleShellRow": { "type": "toggleConfig", "key": "key-rows.shellRowInTerminal" }
+    },
+    "keyRows": [
+      {
+        "id": "key-rows.symbols",
+        "title": "Symbols",
+        "when": "config.keyRows.active == 'key-rows.symbols'",
+        "keys": [
+          { "label": "Tab", "key": "tab" },
+          { "label": "{", "insert": "{" },
+          { "label": "}", "insert": "}" },
+          { "label": "(", "insert": "(" },
+          { "label": ")", "insert": ")" },
+          { "label": "[", "insert": "[" },
+          { "label": "]", "insert": "]" },
+          { "label": "<", "insert": "<", "longPress": { "insert": "<=" } },
+          { "label": ">", "insert": ">", "longPress": { "insert": ">=" } },
+          { "label": "=", "insert": "=", "longPress": { "insert": "==" } },
+          { "label": "!", "insert": "!", "longPress": { "insert": "!=" } },
+          { "label": "+", "insert": "+", "longPress": { "insert": "+=" } },
+          { "label": "-", "insert": "-", "longPress": { "insert": "->" } },
+          { "label": "*", "insert": "*" },
+          { "label": "/", "insert": "/", "longPress": { "insert": "//" } },
+          { "label": "%", "insert": "%" },
+          { "label": "&", "insert": "&", "longPress": { "insert": "&&" } },
+          { "label": "|", "insert": "|", "longPress": { "insert": "||" } },
+          { "label": "^", "insert": "^" },
+          { "label": "~", "insert": "~" },
+          { "label": "?", "insert": "?" },
+          { "label": ":", "insert": ":", "longPress": { "insert": "::" } },
+          { "label": ";", "insert": ";" },
+          { "label": ",", "insert": "," },
+          { "label": ".", "insert": "." },
+          { "label": "_", "insert": "_" },
+          { "label": "#", "insert": "#" },
+          { "label": "@", "insert": "@" },
+          { "label": "$", "insert": "$" },
+          { "label": "\\", "insert": "\\" },
+          { "label": "`", "insert": "`" },
+          { "label": "'", "insert": "'" },
+          { "label": "\"", "insert": "\"" }
+        ]
+      },
+      {
+        "id": "key-rows.navigation",
+        "title": "Navigation",
+        "when": "config.keyRows.active == 'key-rows.navigation'",
+        "keys": [
+          { "label": "Tab", "key": "tab" },
+          { "label": "Home", "key": "home" },
+          { "label": "End", "key": "end" },
+          { "label": "←", "key": "left" },
+          { "label": "↑", "key": "up" },
+          { "label": "↓", "key": "down" },
+          { "label": "→", "key": "right" },
+          { "label": "Bksp", "key": "backspace" },
+          { "label": "Del", "key": "delete" },
+          { "label": "Enter", "key": "enter" },
+          { "label": "Prev", "command": "workbench.action.previousEditor" },
+          { "label": "Next", "command": "workbench.action.nextEditor" },
+          { "label": "Symbols", "command": "workbench.action.gotoSymbol" },
+          { "label": "Def", "command": "editor.action.revealDefinition" },
+          { "label": "Refs", "command": "editor.action.goToReferences" },
+          { "label": "Save", "command": "workbench.action.files.save" }
+        ]
+      },
+      {
+        "id": "key-rows.shell",
+        "title": "Shell",
+        "when": "terminalFocus && config.key-rows.shellRowInTerminal",
+        "keys": [
+          { "label": "^C", "key": "ctrl+c" },
+          { "label": "^D", "key": "ctrl+d" },
+          { "label": "^Z", "key": "ctrl+z" },
+          { "label": "^R", "key": "ctrl+r" },
+          { "label": "^A", "key": "ctrl+a" },
+          { "label": "^E", "key": "ctrl+e" },
+          { "label": "^U", "key": "ctrl+u" },
+          { "label": "^W", "key": "ctrl+w" },
+          { "label": "clr", "key": "ctrl+l" },
+          { "label": "Tab", "key": "tab" },
+          { "label": "Esc", "key": "escape" },
+          { "label": "↑", "key": "up" },
+          { "label": "↓", "key": "down" },
+          { "label": "←", "key": "left" },
+          { "label": "→", "key": "right" },
+          { "label": "|", "insert": " | " },
+          { "label": "&&", "insert": " && " },
+          { "label": ">", "insert": " > ", "longPress": { "insert": " >> " } },
+          { "label": "2>&1", "insert": " 2>&1" },
+          { "label": "$(", "insert": "$(" },
+          { "label": "~/", "insert": "~/" },
+          { "label": "../", "insert": "../" },
+          { "label": "-", "insert": "-", "longPress": { "insert": "--" } },
+          { "label": "/", "insert": "/" },
+          { "label": "*", "insert": "*" },
+          { "label": "$", "insert": "$" },
+          { "label": "\"", "insert": "\"" },
+          { "label": "'", "insert": "'" }
+        ]
+      }
+    ],
+    "statusBarItems": [
+      { "id": "key-rows.symbolsActive", "text": "Keys: Symbols", "tooltip": "Choose the key row", "command": "key-rows.chooseLayout", "alignment": "right", "priority": 5, "when": "config.keyRows.active == 'key-rows.symbols'" },
+      { "id": "key-rows.navigationActive", "text": "Keys: Navigation", "tooltip": "Choose the key row", "command": "key-rows.chooseLayout", "alignment": "right", "priority": 5, "when": "config.keyRows.active == 'key-rows.navigation'" }
+    ]
+  }
+}

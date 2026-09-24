@@ -1,11 +1,15 @@
 package dev.easyide.app.ui.screens.workspace
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import com.termux.terminal.TerminalSession
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.lsp.LspRuntime
+import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
+import dev.easyide.app.ui.screens.workspace.ext.EditorBuffers
+import dev.easyide.app.ui.screens.workspace.ext.WorkspaceExtensionHost
+import dev.easyide.app.ui.screens.workspace.lsp.LspWorkspaceHost
+import dev.easyide.app.ui.screens.workspace.lsp.WorkspaceLspController
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.LinuxEnvironment
 import dev.easyide.sandbox.ProjectManager
@@ -13,8 +17,6 @@ import dev.easyide.sandbox.files.FileContent
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.sandbox.files.FilePolicy
 import dev.easyide.sandbox.git.GitService
-import dev.easyide.sandbox.git.GitResult
-import dev.easyide.sandbox.git.GitStatus
 import dev.easyide.sandbox.files.ProjectFileWatcher
 import dev.easyide.sandbox.files.ProjectFiles
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
@@ -26,53 +28,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.UUID
-
-/**
- * An open editor tab. [savedContent] is what is on disk; [content] is the
- * buffer. A tab may be read-only (a binary preview, or a truncated view of a
- * file too large to edit safely), in which case it can never be dirty.
- */
-data class EditorTab(
-    val relativePath: String,
-    val name: String,
-    val content: String,
-    val savedContent: String,
-    val editable: Boolean = true,
-    val highlightingEnabled: Boolean = true,
-    val notice: String? = null,
-    val showPreview: Boolean = false,
-) {
-    val isDirty: Boolean get() = editable && content != savedContent
-
-    /** Markdown gets a preview toggle; nothing else has a renderer yet. */
-    val isMarkdown: Boolean get() = name.substringAfterLast('.', "").lowercase() in MARKDOWN_EXTENSIONS
-
-    private companion object {
-        val MARKDOWN_EXTENSIONS = setOf("md", "markdown")
-    }
-}
-
-/** A pending file copy/cut, populated by the explorer context menu. */
-data class FileClipboard(val relativePath: String, val isCut: Boolean)
-
-data class WorkspaceUiState(
-    val projectName: String = "",
-    val tree: List<FileNode> = emptyList(),
-    val expandedDirs: Set<String> = emptySet(),
-    val childrenByDir: Map<String, List<FileNode>> = emptyMap(),
-    val openTabs: List<EditorTab> = emptyList(),
-    val activeTabPath: String? = null,
-    val terminals: List<PtyTerminalTab> = emptyList(),
-    val activeTerminalId: String? = null,
-    val statusMessage: String? = null,
-    val linuxReady: Boolean = false,
-    val isInstalling: Boolean = false,
-    val clipboard: FileClipboard? = null,
-) {
-    val activeTab: EditorTab? get() = openTabs.find { it.relativePath == activeTabPath }
-    val activeTerminal: PtyTerminalTab? get() = terminals.find { it.id == activeTerminalId }
-}
 
 /**
  * Drives the workspace: the file tree, open editor buffers, and the terminals.
@@ -89,14 +44,63 @@ class WorkspaceViewModel(
     private val appContext: Context,
     private val imageProvider: suspend (String) -> SandboxImage,
     private val gitService: GitService,
-) : ViewModel() {
+    lspRuntime: LspRuntime,
+    extensions: ExtensionsContainer,
+) : ViewModel(), EditorBuffers {
 
     private val _uiState = MutableStateFlow(WorkspaceUiState())
     val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
 
-    private val _gitState = MutableStateFlow(GitPanelState())
-    val gitState: StateFlow<GitPanelState> = _gitState.asStateFlow()
-    private val mainHandler = Handler(Looper.getMainLooper())
+    private val git = WorkspaceGitController(gitService, projectFiles.projectRoot(projectId), viewModelScope)
+    val gitState: StateFlow<GitPanelState> = git.state
+
+    /** Per-document editor decorations; producers (LSP, find) write, `EditorPane` paints. */
+    val decorations = DecorationRegistry()
+
+    /** Caret/selection per open tab, shared by the editor and extension actions. */
+    val selections = EditorSelections()
+
+    val terminals = WorkspaceTerminals(
+        _uiState, viewModelScope, appContext, linuxEnvironment, environmentId, projectFiles.projectRoot(projectId), ::setStatus,
+    )
+
+    /** Language servers for this workspace's tabs: documents, decorations, popups, panels. */
+    val lsp = WorkspaceLspController(
+        runtime = lspRuntime,
+        host = object : LspWorkspaceHost {
+            override val state: StateFlow<WorkspaceUiState> get() = uiState
+            override fun setContent(path: String, text: String) = onContentChanged(path, text)
+            override fun openProjectFile(path: String) = openFileByPath(path)
+            override fun openTab(tab: EditorTab) = openVirtualTab(tab)
+            override fun showStatus(message: String) = setStatus(message)
+            override fun runInTerminal(command: String) = terminals.newShell(initialCommand = command)
+            override fun string(id: Int, vararg args: Any): String = appContext.getString(id, *args)
+        },
+        decorations = decorations,
+        scope = viewModelScope,
+        environmentId = environmentId,
+        projectId = projectId,
+        projectRoot = projectFiles.projectRoot(projectId),
+        rootfsDir = lspRuntime.rootfsDir(environmentId),
+    )
+
+    /** This workspace as the extension host sees it; attached while the workspace lives. */
+    val extensionHost = WorkspaceExtensionHost(
+        projectId = projectId,
+        environmentId = environmentId,
+        projectRoot = projectFiles.projectRoot(projectId),
+        state = uiState,
+        git = git.state,
+        selections = selections,
+        terminals = terminals,
+        editor = this,
+        extensions = extensions,
+        lsp = lsp.extensionRequests,
+        lspFacts = lsp.languageFacts,
+        environmentManager = environmentManager,
+        linuxEnvironment = linuxEnvironment,
+        scope = viewModelScope,
+    )
 
     // The terminal writes straight to the bind-mounted project directory,
     // entirely outside every method below - nothing here runs when a shell
@@ -104,24 +108,28 @@ class WorkspaceViewModel(
     // that the disk changed. See ProjectFileWatcher's doc comment.
     private val fileWatcher = ProjectFileWatcher(onChanged = { dirs ->
         relistChangedDirs(dirs)
-        // The watcher already debounces, and git status is cheap next to the
-        // re-list it fires alongside, so this needs no throttle of its own.
-        refreshGit()
+        // The watcher already debounces, and the refresh is single-flight
+        // (see WorkspaceGitController.refresh), so bursts cannot pile up.
+        git.refresh()
     })
 
     init {
         refreshTree()
-        _uiState.update { it.copy(linuxReady = linuxEnvironment.isReady(environmentId)) }
-        createTerminalTab()
+        viewModelScope.launch {
+            val ready = linuxEnvironment.isReady(environmentId)
+            _uiState.update { it.copy(linuxReady = ready) }
+        }
+        terminals.newShell()
         fileWatcher.watch(projectFiles.projectRoot(projectId), emptySet())
+        extensionHost.attach()
     }
 
     override fun onCleared() {
-        // A pty subprocess is a real Linux process, not something garbage
-        // collection reclaims - it needs an explicit SIGKILL or it keeps
-        // running (and holding the pty) after the workspace is gone.
-        _uiState.value.terminals.forEach { it.session.finishIfRunning() }
+        extensionHost.detach()
+        terminals.release()
         fileWatcher.stop()
+        lsp.release()
+        git.release()
         super.onCleared()
     }
 
@@ -129,17 +137,18 @@ class WorkspaceViewModel(
 
     fun refreshTree() {
         viewModelScope.launch {
-            projectFiles.list(projectId).onSuccess { nodes ->
-                _uiState.update { it.copy(tree = nodes) }
-                launch(Dispatchers.Default) { TextMateHighlighter.prewarm(nodes.map { it.name }) }
-            }
+            val nodes = projectFiles.list(projectId).getOrNull()
             // Re-list every expanded directory so a change deeper in the tree
-            // is reflected without collapsing the user's expansion state.
-            _uiState.value.expandedDirs.forEach { dir ->
-                projectFiles.list(projectId, dir).onSuccess { children ->
-                    _uiState.update { it.copy(childrenByDir = it.childrenByDir + (dir to children)) }
-                }
+            // is reflected without collapsing the user's expansion state -
+            // all of them first, then one state update, so the explorer
+            // recomposes once instead of once per directory.
+            val children = _uiState.value.expandedDirs.mapNotNull { dir ->
+                projectFiles.list(projectId, dir).getOrNull()?.let { dir to it }
+            }.toMap()
+            _uiState.update {
+                it.copy(tree = nodes ?: it.tree, childrenByDir = it.childrenByDir + children)
             }
+            if (nodes != null) launch(Dispatchers.Default) { TextMateHighlighter.prewarm(nodes.map { it.name }) }
         }
     }
 
@@ -231,11 +240,32 @@ class WorkspaceViewModel(
         }
     }
 
-    private fun openContent(node: FileNode, content: FileContent) {
+    override suspend fun openAndAwait(relativePath: String): Boolean {
+        if (_uiState.value.openTabs.any { it.relativePath == relativePath }) {
+            _uiState.update { it.copy(activeTabPath = relativePath) }
+            return true
+        }
+        val node = FileNode(relativePath.substringAfterLast('/'), relativePath, isDirectory = false, sizeBytes = 0)
+        return projectFiles.open(projectId, relativePath).map { openContent(node, it) }.getOrDefault(false)
+    }
+
+    override fun replaceContent(path: String, content: String): Boolean {
+        val tab = _uiState.value.openTabs.find { it.relativePath == path }?.takeIf { it.editable } ?: return false
+        if (tab.content != content) updateTab(path) { it.copy(content = content) }
+        return true
+    }
+
+    override suspend fun writeClosedFile(path: String, content: String): Boolean =
+        projectFiles.writeText(projectId, path, content).onSuccess { externalMirror.write(path, content.toByteArray()) }.isSuccess
+
+    override suspend fun readClosedFile(path: String): String? =
+        (projectFiles.open(projectId, path).getOrNull() as? FileContent.Text)?.takeIf { it.editable && !it.truncated }?.text
+
+    private fun openContent(node: FileNode, content: FileContent): Boolean {
         val tab = when (content) {
             is FileContent.Rejected -> {
                 setStatus(content.reason)
-                return
+                return false
             }
 
             is FileContent.BinaryPreview -> EditorTab(
@@ -261,6 +291,7 @@ class WorkspaceViewModel(
             )
         }
         _uiState.update { it.copy(openTabs = it.openTabs + tab, activeTabPath = tab.relativePath) }
+        return true
     }
 
     private fun textNotice(content: FileContent.Text): String? = when {
@@ -275,6 +306,8 @@ class WorkspaceViewModel(
     fun onTabSelected(path: String) = _uiState.update { it.copy(activeTabPath = path) }
 
     fun onTabClosed(path: String) {
+        decorations.remove(path)
+        selections.remove(path)
         _uiState.update { state ->
             val remaining = state.openTabs.filterNot { it.relativePath == path }
             state.copy(
@@ -303,16 +336,43 @@ class WorkspaceViewModel(
             setStatus("${tab.name} is read-only")
             return
         }
+        viewModelScope.launch { saveTab(tab) }
+    }
+
+    /**
+     * Saves the dirty tabs among [paths], then runs [onSaved] only if every
+     * write succeeded - the caller is about to drop those buffers, so a failed
+     * save must keep them (and the status message says why).
+     */
+    fun onSaveTabs(paths: Collection<String>, onSaved: () -> Unit) {
+        val dirty = _uiState.value.openTabs.filter { it.isDirty && it.relativePath in paths }
         viewModelScope.launch {
-            projectFiles.writeText(projectId, tab.relativePath, tab.content)
-                .onSuccess {
-                    updateTab(tab.relativePath) { it.copy(savedContent = it.content) }
-                    setStatus("Saved ${tab.name}")
-                    refreshTree()
-                    externalMirror.write(tab.relativePath, tab.content.toByteArray())
-                }
-                .onFailure { cause -> setStatus(cause.message ?: "Could not save ${tab.name}") }
+            if (dirty.map { saveTab(it) }.all { it }) onSaved()
         }
+    }
+
+    /** Save participants (format on save, code actions on save) run first and may change the text. */
+    private suspend fun saveTab(tab: EditorTab): Boolean {
+        val text = lsp.beforeSave(tab)
+        return projectFiles.writeText(projectId, tab.relativePath, text)
+            .onSuccess {
+                updateTab(tab.relativePath) { it.copy(savedContent = text) }
+                lsp.afterSave(tab.relativePath, text)
+                setStatus("Saved ${tab.name}")
+                // No refreshTree(): only the root and expanded directories
+                // are visible, and ProjectFileWatcher watches exactly
+                // those, so its CLOSE_WRITE event already re-lists (and
+                // refreshes git) for any save the explorer can show.
+                externalMirror.write(tab.relativePath, text.toByteArray())
+            }
+            .onFailure { cause -> setStatus(cause.message ?: "Could not save ${tab.name}") }
+            .isSuccess
+    }
+
+    /** A tab that is not a project file (an environment file opened by navigation), or selects it. */
+    private fun openVirtualTab(tab: EditorTab) = _uiState.update { state ->
+        if (state.openTabs.any { it.relativePath == tab.relativePath }) state.copy(activeTabPath = tab.relativePath)
+        else state.copy(openTabs = state.openTabs + tab, activeTabPath = tab.relativePath)
     }
 
     private fun updateTab(path: String, transform: (EditorTab) -> EditorTab) {
@@ -344,6 +404,8 @@ class WorkspaceViewModel(
                     // An open tab still points at the old path; retarget it so
                     // saving does not recreate the file under its old name.
                     updateTab(node.relativePath) { it.copy(relativePath = newPath, name = newName) }
+                    decorations.rename(node.relativePath, newPath)
+                    selections.rename(node.relativePath, newPath)
                     _uiState.update { state ->
                         state.copy(
                             activeTabPath = if (state.activeTabPath == node.relativePath) newPath else state.activeTabPath,
@@ -420,157 +482,30 @@ class WorkspaceViewModel(
         if (parentDir.isEmpty()) name else "$parentDir/$name"
 
     // ----------------------------------------------------------- terminals
-    //
-    // There is no input-mediation left here (no prompt buffer, no history, no
-    // per-tab "is a command running" flag) - a real TerminalSession/TerminalView
-    // owns typing, scrollback and process state entirely (see TerminalPane).
-    // The ViewModel's job is just the tab list: create one on request, retire
-    // its process when a tab closes or the workspace does, and keep the tab
-    // title in step with what the shell itself reports.
 
-    /**
-     * Resolves proot-or-fallback shell params off the main thread, then
-     * constructs the real `TerminalSession` and adds it as a new tab. Async
-     * because [LinuxEnvironment.interactiveShellParams] may need to install
-     * proot on first use - the same reason [onInstallLinux] is a coroutine.
-     */
-    private fun createTerminalTab() {
-        viewModelScope.launch {
-            val params = runCatching {
-                linuxEnvironment.interactiveShellParams(environmentId, projectFiles.projectRoot(projectId))
-            }.getOrElse { cause ->
-                setStatus(cause.message ?: "Could not start a terminal")
-                return@launch
-            }
+    fun onNewTerminal() = terminals.newShell()
 
-            val id = UUID.randomUUID().toString()
-            val client = EasyTerminalSessionClient(
-                context = appContext,
-                onTitleChanged = { changed -> retitleTerminal(id, changed.title) },
-                onSessionFinished = { /* frozen scrollback with the exit message is the desired end state */ },
-            )
-            val session = TerminalSession(
-                params.shellPath,
-                params.cwd,
-                params.args.toTypedArray(),
-                params.env.map { (key, value) -> "$key=$value" }.toTypedArray(),
-                null,
-                client,
-            )
-            val tab = PtyTerminalTab(
-                id = id,
-                title = "sh ${_uiState.value.terminals.size + 1}",
-                session = session,
-                client = client,
-            )
-            _uiState.update { it.copy(terminals = it.terminals + tab, activeTerminalId = tab.id) }
-        }
-    }
+    fun onRenameTerminal(id: String, title: String) = terminals.rename(id, title)
 
+    fun onSelectTerminal(id: String) = terminals.select(id)
+
+    fun onCloseTerminal(id: String) = terminals.close(id)
 
     // ---- source control ----------------------------------------------------
 
-    /**
-     * Re-reads status (and history) from disk.
-     *
-     * Called on every watcher event, so it must stay cheap and must not fight
-     * with itself: [GitPanelState.busy] gates the UI's own actions, not this,
-     * because a refresh triggered by an external write (the terminal, Claude
-     * Code) has to land even while a commit is in flight.
-     */
-    fun refreshGit() {
-        val root = projectFiles.projectRoot(projectId)
-        viewModelScope.launch {
-            val isRepo = gitService.isRepository(root)
-            if (!isRepo) {
-                _gitState.update { it.copy(isRepository = false, status = null, commits = emptyList()) }
-                return@launch
-            }
-            when (val result = gitService.status(root)) {
-                is GitResult.Success -> {
-                    val commits = gitService.log(root).valueOrNull().orEmpty()
-                    _gitState.update {
-                        it.copy(isRepository = true, status = result.value, commits = commits, error = null)
-                    }
-                }
-                is GitResult.Failure ->
-                    _gitState.update { it.copy(isRepository = true, error = result.message) }
-                GitResult.NotARepository ->
-                    _gitState.update { it.copy(isRepository = false, status = null) }
-            }
-        }
-    }
+    fun refreshGit() = git.refresh()
 
-    fun onGitMessageChanged(message: String) = _gitState.update { it.copy(commitMessage = message) }
+    fun onGitMessageChanged(message: String) = git.onMessageChanged(message)
 
-    fun stageGit(paths: Collection<String>) = gitAction { gitService.stage(it, paths) }
+    fun stageGit(paths: Collection<String>) = git.stage(paths)
 
-    fun unstageGit(paths: Collection<String>) = gitAction { gitService.unstage(it, paths) }
+    fun unstageGit(paths: Collection<String>) = git.unstage(paths)
 
-    fun discardGit(paths: Collection<String>) = gitAction { gitService.discard(it, paths) }
+    fun discardGit(paths: Collection<String>) = git.discard(paths)
 
-    fun initGitRepository() = gitAction { gitService.createRepository(it) }
+    fun initGitRepository() = git.initRepository()
 
-    /**
-     * Commits, then clears the message only on success - a failed commit that
-     * silently ate the message the user typed is the worst possible outcome.
-     */
-    fun commitGit() {
-        val message = _gitState.value.commitMessage
-        if (message.isBlank()) return
-        gitAction(onSuccess = { _gitState.update { it.copy(commitMessage = "") } }) { root ->
-            gitService.commit(root, message, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL)
-        }
-    }
-
-    private fun gitAction(
-        onSuccess: () -> Unit = {},
-        block: suspend (File) -> GitResult<GitStatus>,
-    ) {
-        val root = projectFiles.projectRoot(projectId)
-        viewModelScope.launch {
-            _gitState.update { it.copy(busy = true, error = null) }
-            when (val result = block(root)) {
-                is GitResult.Success -> {
-                    onSuccess()
-                    val commits = gitService.log(root).valueOrNull().orEmpty()
-                    _gitState.update {
-                        it.copy(isRepository = true, status = result.value, commits = commits, busy = false)
-                    }
-                }
-                is GitResult.Failure ->
-                    _gitState.update { it.copy(busy = false, error = result.message) }
-                GitResult.NotARepository ->
-                    _gitState.update { it.copy(busy = false, isRepository = false, status = null) }
-            }
-        }
-    }
-
-    private fun retitleTerminal(id: String, title: String?) {
-        if (title.isNullOrBlank()) return
-        _uiState.update { state ->
-            state.copy(terminals = state.terminals.map { if (it.id == id) it.copy(title = title) else it })
-        }
-    }
-
-    fun onNewTerminal() = createTerminalTab()
-
-    /** User-driven rename, distinct from [retitleTerminal] which tracks the shell's own OSC title. */
-    fun onRenameTerminal(id: String, title: String) = retitleTerminal(id, title)
-
-    fun onSelectTerminal(id: String) = _uiState.update { it.copy(activeTerminalId = id) }
-
-    /** The last tab is never closed, so the panel always has something to show. */
-    fun onCloseTerminal(id: String) {
-        val state = _uiState.value
-        if (state.terminals.size <= 1) return
-        state.terminals.find { it.id == id }?.session?.finishIfRunning()
-        _uiState.update { current ->
-            val remaining = current.terminals.filterNot { it.id == id }
-            val active = if (current.activeTerminalId == id) remaining.lastOrNull()?.id else current.activeTerminalId
-            current.copy(terminals = remaining, activeTerminalId = active)
-        }
-    }
+    fun commitGit() = git.commit()
 
     // ------------------------------------------------------------- linux
 
@@ -586,9 +521,9 @@ class WorkspaceViewModel(
             // apt/dpkg line) and not a single truncated status line either.
             // `write()` is stdin and would be typed *at* the shell; this goes
             // through the emulator's own output path instead, exactly the way
-            // real process output reaches the screen - see appendInstallLog.
+            // real process output reaches the screen - see WorkspaceTerminals.appendInstallLog.
             linuxEnvironment.install(environmentId, imageProvider(environmentId)) { line ->
-                appendInstallLog(targetTabId, line)
+                terminals.appendInstallLog(targetTabId, line)
             }
                 .onSuccess {
                     environmentManager.markProvisioned(environmentId)
@@ -598,30 +533,8 @@ class WorkspaceViewModel(
                     environmentManager.markProvisioned(environmentId, cause.message ?: INSTALL_FAILED)
                     setStatus("Install failed: ${cause.message}")
                 }
-            _uiState.update {
-                it.copy(isInstalling = false, linuxReady = linuxEnvironment.isReady(environmentId))
-            }
-        }
-    }
-
-    /**
-     * Feeds one line of install progress into a terminal's screen buffer as
-     * if it were real process output - not `session.write()`, which is stdin
-     * and would be typed *at* the shell. `install()`'s progress callback fires
-     * from a background (IO) dispatcher, but `TerminalEmulator`/`TerminalBuffer`
-     * are not thread-safe (Termux's own pty-read loop only ever touches them
-     * from the main thread via its `Handler`), so this hops to the main
-     * thread before touching either. Falls back to whatever terminal tab is
-     * still open if the one active at install-start was since closed.
-     */
-    private fun appendInstallLog(tabId: String?, line: String) {
-        mainHandler.post {
-            val tab = _uiState.value.terminals.find { it.id == tabId }
-                ?: _uiState.value.terminals.firstOrNull()
-                ?: return@post
-            val bytes = "$line\r\n".toByteArray()
-            tab.session.emulator?.append(bytes, bytes.size)
-            tab.client.onTextChanged(tab.session)
+            val ready = linuxEnvironment.isReady(environmentId)
+            _uiState.update { it.copy(isInstalling = false, linuxReady = ready) }
         }
     }
 
@@ -632,10 +545,5 @@ class WorkspaceViewModel(
     private companion object {
         const val GUEST_WORKSPACE = "/workspace"
         const val INSTALL_FAILED = "install failed"
-
-        // Placeholder identity until a git settings screen exists; a commit
-        // must have an author, and refusing to commit would be worse.
-        const val GIT_AUTHOR_NAME = "easyIDE"
-        const val GIT_AUTHOR_EMAIL = "dev@easyide.local"
     }
 }

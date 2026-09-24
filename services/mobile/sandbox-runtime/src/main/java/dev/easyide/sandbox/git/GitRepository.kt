@@ -171,7 +171,12 @@ class GitRepository private constructor(
     fun originUrl(): String? =
         repository.config.getString("remote", "origin", "url")
 
-    override fun close() = git.close()
+    /** False once `.git` is deleted out from under an open handle. */
+    fun gitDirExists(): Boolean = repository.directory.isDirectory
+
+    // The repository, not the Git wrapper: a Git built around an existing
+    // Repository (see [open]) does not close it, which leaked the handle.
+    override fun close() = repository.close()
 
     companion object {
         const val DETACHED = "detached"

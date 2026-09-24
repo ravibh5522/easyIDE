@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.Icon
@@ -17,8 +16,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.theme.IconSize
+import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.sandbox.model.EnvironmentState
 
 /**
@@ -44,19 +44,19 @@ fun EnvironmentBadge(
         modifier = modifier,
         color = animatedContainer,
         contentColor = state.contentColor(),
-        shape = RoundedCornerShape(BADGE_CORNER_DP.dp),
+        shape = MaterialTheme.shapes.small,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = Spacing.s, vertical = Spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
             Text(text = label, style = MaterialTheme.typography.labelMedium)
             if (sharedWithCount > 0) {
                 Icon(
                     imageVector = Icons.Filled.Group,
                     contentDescription = null,
-                    modifier = Modifier.size(SHARED_ICON_DP.dp),
+                    modifier = Modifier.size(IconSize.xs),
                 )
                 Text(text = "+$sharedWithCount", style = MaterialTheme.typography.labelMedium)
             }
@@ -79,6 +79,3 @@ private fun EnvironmentState.contentColor(): Color = when (this) {
     EnvironmentState.FAILED -> MaterialTheme.colorScheme.onErrorContainer
     EnvironmentState.NOT_PROVISIONED -> MaterialTheme.colorScheme.onSurfaceVariant
 }
-
-private const val BADGE_CORNER_DP = 8
-private const val SHARED_ICON_DP = 14

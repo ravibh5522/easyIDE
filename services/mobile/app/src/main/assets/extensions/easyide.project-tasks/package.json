@@ -1,0 +1,70 @@
+{
+  "name": "project-tasks",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Project Tasks",
+  "description": "Run the usual build and test commands of a project: make targets, npm scripts, pytest (all, file, test at cursor, last failed) and cargo build, check, test and run, from the palette and from buttons on Makefile, package.json, Cargo.toml and test files.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      { "command": "project-tasks.make", "title": "Build Default Target", "category": "Make", "enablement": "envState == ready" },
+      { "command": "project-tasks.makeTarget", "title": "Run Target...", "shortTitle": "Make", "category": "Make", "icon": "build", "enablement": "envState == ready" },
+      { "command": "project-tasks.npmInstall", "title": "Install Dependencies", "category": "npm", "enablement": "envState == ready" },
+      { "command": "project-tasks.npmScript", "title": "Run Script...", "shortTitle": "Script", "category": "npm", "icon": "play_arrow", "enablement": "envState == ready" },
+      { "command": "project-tasks.pytestAll", "title": "Run All Tests", "category": "pytest", "enablement": "envState == ready" },
+      { "command": "project-tasks.pytestFile", "title": "Run Tests in Current File", "shortTitle": "Tests", "category": "pytest", "icon": "check", "enablement": "envState == ready && editorLangId == python" },
+      { "command": "project-tasks.pytestAtCursor", "title": "Run Test at Cursor", "shortTitle": "Test", "category": "pytest", "enablement": "envState == ready && editorLangId == python" },
+      { "command": "project-tasks.pytestFailed", "title": "Rerun Failed Tests", "category": "pytest", "enablement": "envState == ready" },
+      { "command": "project-tasks.cargoBuild", "title": "Build", "category": "Cargo", "icon": "build", "enablement": "envState == ready" },
+      { "command": "project-tasks.cargoCheck", "title": "Check", "category": "Cargo", "enablement": "envState == ready" },
+      { "command": "project-tasks.cargoTest", "title": "Test", "category": "Cargo", "enablement": "envState == ready" },
+      { "command": "project-tasks.cargoRun", "title": "Run", "category": "Cargo", "icon": "play_arrow", "enablement": "envState == ready" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "project-tasks.makeTarget", "when": "resourceFilename =~ /^(GNUmakefile|[Mm]akefile)$/", "group": "navigation@20" },
+        { "command": "project-tasks.npmScript", "when": "resourceFilename == package.json", "group": "navigation@20" },
+        { "command": "project-tasks.cargoBuild", "when": "resourceFilename == Cargo.toml", "group": "navigation@20" },
+        { "command": "project-tasks.cargoRun", "when": "resourceFilename == Cargo.toml", "group": "navigation@21" },
+        { "command": "project-tasks.pytestFile", "when": "editorLangId == python && resourceFilename =~ /^test_.*\\.py$|_test\\.py$/", "group": "navigation@20" },
+        { "command": "project-tasks.cargoBuild", "when": "editorLangId == rust", "group": "tasks@1" },
+        { "command": "project-tasks.cargoTest", "when": "editorLangId == rust", "group": "tasks@2" },
+        { "command": "project-tasks.cargoRun", "when": "editorLangId == rust", "group": "tasks@3" }
+      ],
+      "editor/touchToolbar": [
+        { "command": "project-tasks.pytestAtCursor", "when": "editorLangId == python && resourceFilename =~ /^test_.*\\.py$|_test\\.py$/", "group": "8_tasks@1" }
+      ],
+      "commandPalette": [
+        { "command": "project-tasks.pytestFile", "when": "editorLangId == python" },
+        { "command": "project-tasks.pytestAtCursor", "when": "editorLangId == python" }
+      ]
+    }
+  },
+  "easyide": {
+    "capabilities": ["sandbox.exec"],
+    "actions": {
+      "project-tasks.make": { "type": "runInTerminal", "terminal": "Tasks", "command": "make" },
+      "project-tasks.makeTarget": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["sh", "-c", "make -qp 2>/dev/null | awk -F: '/^[A-Za-z0-9_][^$#\\/\\t=]*:([^=]|$)/ { n = split($1, t, / +/); for (i = 1; i <= n; i++) if (t[i] != \"\") print t[i] }' | grep -vx -e Makefile -e makefile -e GNUmakefile | sort -u"], "output": "capture", "as": "targets" },
+        { "type": "showQuickPick", "id": "target", "itemsFrom": "${result:targets}", "placeHolder": "Target of the Makefile in the project root" },
+        { "type": "runInTerminal", "terminal": "Tasks", "command": "make ${input:target}" }
+      ] },
+      "project-tasks.npmInstall": { "type": "runInTerminal", "terminal": "Tasks", "command": "npm install" },
+      "project-tasks.npmScript": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["node", "-e", "const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8')); for (const name of Object.keys(pkg.scripts || {})) console.log(name)"], "output": "capture", "as": "scripts" },
+        { "type": "showQuickPick", "id": "script", "itemsFrom": "${result:scripts}", "placeHolder": "Script from package.json in the project root" },
+        { "type": "runInTerminal", "terminal": "Tasks", "command": "npm run ${input:script}" }
+      ] },
+      "project-tasks.pytestAll": { "type": "runInTerminal", "terminal": "Tasks", "command": "python3 -m pytest" },
+      "project-tasks.pytestFile": { "type": "runInTerminal", "terminal": "Tasks", "command": "python3 -m pytest ${relativeFile}" },
+      "project-tasks.pytestAtCursor": { "type": "runInTerminal", "terminal": "Tasks", "command": "python3 -m pytest ${relativeFile} -k ${currentWord}" },
+      "project-tasks.pytestFailed": { "type": "runInTerminal", "terminal": "Tasks", "command": "python3 -m pytest --last-failed" },
+      "project-tasks.cargoBuild": { "type": "runInTerminal", "terminal": "Tasks", "command": "cargo build" },
+      "project-tasks.cargoCheck": { "type": "runInTerminal", "terminal": "Tasks", "command": "cargo check" },
+      "project-tasks.cargoTest": { "type": "runInTerminal", "terminal": "Tasks", "command": "cargo test" },
+      "project-tasks.cargoRun": { "type": "runInTerminal", "terminal": "Tasks", "command": "cargo run" }
+    }
+  }
+}

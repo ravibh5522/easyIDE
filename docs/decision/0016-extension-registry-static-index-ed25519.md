@@ -1,6 +1,6 @@
 # 0016 - Extension registry: static signed git index, ed25519 publisher keys, TOFU pins, revocation
 
-Status: Proposed
+Status: Accepted (2026-09-24) - root key is held offline by the project owner; Ed25519 availability at minSdk 26 still to confirm before M6.
 
 ## Context
 

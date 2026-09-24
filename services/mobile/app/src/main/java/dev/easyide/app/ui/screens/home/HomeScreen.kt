@@ -36,10 +36,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
 import dev.easyide.app.ui.components.EmptyState
+import dev.easyide.app.ui.components.SkeletonBar
 import dev.easyide.app.ui.components.EnvironmentBadge
 import dev.easyide.app.ui.foundation.WidthClass
 import dev.easyide.app.ui.foundation.motionSpec
 import dev.easyide.app.ui.foundation.LocalWindowSize
+import dev.easyide.app.ui.theme.Spacing
 
 /**
  * Project List (Home) - the nav root. Adaptive per
@@ -103,6 +105,16 @@ fun HomeScreen(
             )
         }
 
+        // Skeleton cards in the same grid, so the first real cards land where
+        // the placeholders were instead of popping into an empty screen.
+        AnimatedVisibility(
+            visible = uiState.items.isEmpty() && uiState.isLoading,
+            enter = fadeIn(motionSpec()),
+            exit = fadeOut(motionSpec()),
+        ) {
+            SkeletonGrid(columns = windowSize.width.gridColumns(), contentPadding = padding)
+        }
+
         AnimatedVisibility(
             visible = uiState.items.isNotEmpty(),
             enter = fadeIn(motionSpec()),
@@ -122,7 +134,45 @@ private fun WidthClass.gridColumns(): GridCells = when (this) {
     WidthClass.COMPACT -> GridCells.Fixed(1)
     // Adaptive rather than a fixed count so a 3-column layout appears only when
     // cards would still be readable, including in split-screen.
-    else -> GridCells.Adaptive(minSize = MIN_CARD_WIDTH_DP.dp)
+    else -> GridCells.Adaptive(minSize = MIN_CARD_WIDTH)
+}
+
+/** Grid spacing shared by the real and skeleton grids so they line up exactly. */
+private fun gridPadding(contentPadding: PaddingValues) = PaddingValues(
+    start = Spacing.l,
+    end = Spacing.l,
+    top = contentPadding.calculateTopPadding() + Spacing.l,
+    // Clears the FAB so the last card is never hidden under it.
+    bottom = GRID_BOTTOM_PADDING,
+)
+
+@Composable
+private fun SkeletonGrid(columns: GridCells, contentPadding: PaddingValues) {
+    LazyVerticalGrid(
+        columns = columns,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = gridPadding(contentPadding),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        verticalArrangement = Arrangement.spacedBy(Spacing.m),
+        userScrollEnabled = false,
+    ) {
+        items(SKELETON_CARD_COUNT) { SkeletonCard() }
+    }
+}
+
+/** Shaped like [ProjectCard]: a title line over an environment badge. */
+@Composable
+private fun SkeletonCard() {
+    val placeholder = MaterialTheme.colorScheme.surfaceContainerHigh
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(Spacing.l),
+            verticalArrangement = Arrangement.spacedBy(Spacing.s),
+        ) {
+            SkeletonBar(placeholder, Spacing.l, Modifier.fillMaxWidth(SKELETON_TITLE_FRACTION))
+            SkeletonBar(placeholder, Spacing.l + Spacing.xs, Modifier.fillMaxWidth(SKELETON_BADGE_FRACTION))
+        }
+    }
 }
 
 @Composable
@@ -135,14 +185,9 @@ private fun ProjectGrid(
     LazyVerticalGrid(
         columns = columns,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = GRID_PADDING_DP.dp,
-            end = GRID_PADDING_DP.dp,
-            top = contentPadding.calculateTopPadding() + GRID_PADDING_DP.dp,
-            bottom = GRID_BOTTOM_PADDING_DP.dp,
-        ),
-        horizontalArrangement = Arrangement.spacedBy(GRID_SPACING_DP.dp),
-        verticalArrangement = Arrangement.spacedBy(GRID_SPACING_DP.dp),
+        contentPadding = gridPadding(contentPadding),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         items(items, key = { it.project.id }) { item ->
             ProjectCard(
@@ -162,8 +207,8 @@ private fun ProjectCard(
 ) {
     Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Column(
-            modifier = Modifier.padding(CARD_PADDING_DP.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(Spacing.l),
+            verticalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
             Text(
                 text = item.project.name,
@@ -173,7 +218,7 @@ private fun ProjectCard(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
             ) {
                 val environment = item.environment
                 if (environment != null) {
@@ -194,8 +239,8 @@ private fun ProjectCard(
     }
 }
 
-private const val MIN_CARD_WIDTH_DP = 260
-private const val GRID_PADDING_DP = 16
-private const val GRID_SPACING_DP = 12
-private const val GRID_BOTTOM_PADDING_DP = 96
-private const val CARD_PADDING_DP = 16
+private val MIN_CARD_WIDTH = 260.dp
+private val GRID_BOTTOM_PADDING = 96.dp
+private const val SKELETON_CARD_COUNT = 6
+private const val SKELETON_TITLE_FRACTION = 0.6f
+private const val SKELETON_BADGE_FRACTION = 0.35f

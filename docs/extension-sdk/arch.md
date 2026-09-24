@@ -450,6 +450,10 @@ States `NotInstalled`, `Stopped(reason)`, `Starting`, `Initializing`, `Running`,
 
 ### 7.9 UI integration (via ADR-B decoration layers)
 
+ADR-B is [decision 0018](../decision/0018-editor-engine-and-decorations.md). Until the
+line-virtualised editor (PE1) lands, inline inserted text renders as end-of-line ghost text
+and between-line blocks (code lens) as a gutter glyph with a tap-to-list popup.
+
 | Layer | Used by |
 |---|---|
 | underline decorations | diagnostics (severity token colours), document links |
@@ -573,7 +577,7 @@ are policy constants ([fixed limits](sdk-reference.md#fixed-limits-and-protected
 | ADR-B editor engine slips | no squiggles/popups; M2 blocked | M1 does not need decorations beyond folding; sequence M0 first; keep LSP core testable headless |
 | Language servers exceed memory on 8 GB tablets | LMK kills app or servers thrash | per-server + global budgets, kill order, 3-server cap, opt-in warning for heavy servers, jedi as light Python option |
 | proot syscall overhead makes servers slow | diagnostics targets missed | measure in M2; chroot opt-in (0002) path; prefer native-binary servers (ruff, gopls, clangd, marksman) |
-| Chicory on Android ART | L2 unusable | Chicory is pure JVM, zero native deps (README, verified); ART compatibility and interpreter speed unverified - spike before ADR-F; AOT mode generates JVM bytecode and likely does not apply on ART |
+| Chicory on Android ART | L2 unusable | Verified on ART 2026-09-24 (0014 spike): re-entrancy, memory cap and fuel/interrupt via our metering pass all pass; interpreter ~7 M instr/s, so L2 stays UI-latency logic |
 | Action vocabulary is an API we support forever | lock-in | keep it small (sdk-reference), version it, deprecation window, WASM for everything else |
 | Supply-chain attack via registry | malicious code in sandbox | signatures, pins, revocation, capability delta on update, no auto-update, disclosure copy |
 | vscode-langservers-extracted stale since 2024-05 | HTML/CSS/JSON pack rots | pin version; fall back to extracting servers from VS Code MIT sources ourselves |

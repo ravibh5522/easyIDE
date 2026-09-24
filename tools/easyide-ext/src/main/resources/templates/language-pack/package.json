@@ -1,0 +1,23 @@
+{
+  "name": "{{name}}",
+  "publisher": "{{publisher}}",
+  "version": "0.1.0",
+  "displayName": "{{displayName}}",
+  "description": "Highlighting and editing rules for the {{displayName}} language.",
+  "license": "MIT",
+  "engines": { "easyide": "{{engine}}" },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "{{name}}",
+        "aliases": ["{{displayName}}"],
+        "extensions": [".{{name}}"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      { "language": "{{name}}", "scopeName": "source.{{name}}", "path": "./syntaxes/{{name}}.tmLanguage.json" }
+    ]
+  }
+}

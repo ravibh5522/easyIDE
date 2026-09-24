@@ -1,0 +1,21 @@
+{
+  "name": "{{displayName}}",
+  "scopeName": "source.{{name}}",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#string" },
+    { "include": "#number" },
+    { "include": "#keyword" }
+  ],
+  "repository": {
+    "comment": { "name": "comment.line.number-sign.{{name}}", "match": "#.*$" },
+    "string": {
+      "name": "string.quoted.double.{{name}}",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [{ "name": "constant.character.escape.{{name}}", "match": "\\\\." }]
+    },
+    "number": { "name": "constant.numeric.{{name}}", "match": "\\b[0-9]+(\\.[0-9]+)?\\b" },
+    "keyword": { "name": "keyword.control.{{name}}", "match": "\\b(if|else|while|for|return|fn|let)\\b" }
+  }
+}

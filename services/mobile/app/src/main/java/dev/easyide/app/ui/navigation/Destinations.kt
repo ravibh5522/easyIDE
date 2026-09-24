@@ -13,6 +13,7 @@ sealed class Destination(val route: String) {
         fun routeFor(projectId: String) = "workspace/$projectId"
     }
     data object Settings : Destination("settings")
+    data object Extensions : Destination("extensions")
     data object CredentialVault : Destination("credential_vault")
     data object NewProject : Destination("new_project")
 }

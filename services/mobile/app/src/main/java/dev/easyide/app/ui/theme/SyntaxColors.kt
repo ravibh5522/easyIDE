@@ -34,7 +34,7 @@ enum class SyntaxRole {
     INVALID,
 }
 
-/** One color per [SyntaxRole]. Paired light/dark sets live below. */
+/** One color per [SyntaxRole]. The built-in sets live in each [Palette] (BuiltInPalettes.kt). */
 data class SyntaxColors(
     val plain: Color,
     val keyword: Color,
@@ -82,51 +82,3 @@ data class SyntaxColors(
         SyntaxRole.INVALID -> invalid
     }
 }
-
-internal val DarkSyntaxColors = SyntaxColors(
-    plain = Color(0xFFD4D4D4),
-    keyword = Color(0xFF569CD6),
-    string = Color(0xFFCE9178),
-    comment = Color(0xFF6A9955),
-    number = Color(0xFFB5CEA8),
-    type = Color(0xFF4EC9B0),
-    function = Color(0xFFDCDCAA),
-    variable = Color(0xFF9CDCFE),
-    parameter = Color(0xFF9CDCFE),
-    property = Color(0xFF9CDCFE),
-    constant = Color(0xFF4FC1FF),
-    operator = Color(0xFFD4D4D4),
-    punctuation = Color(0xFF9A9A9A),
-    tag = Color(0xFF569CD6),
-    attribute = Color(0xFF9CDCFE),
-    namespace = Color(0xFF4EC9B0),
-    regexp = Color(0xFFD16969),
-    escape = Color(0xFFD7BA7D),
-    heading = Color(0xFF569CD6),
-    link = Color(0xFF3794FF),
-    invalid = Color(0xFFF44747),
-)
-
-internal val LightSyntaxColors = SyntaxColors(
-    plain = Color(0xFF000000),
-    keyword = Color(0xFF0000FF),
-    string = Color(0xFFA31515),
-    comment = Color(0xFF008000),
-    number = Color(0xFF098658),
-    type = Color(0xFF267F99),
-    function = Color(0xFF795E26),
-    variable = Color(0xFF001080),
-    parameter = Color(0xFF001080),
-    property = Color(0xFF001080),
-    constant = Color(0xFF0070C1),
-    operator = Color(0xFF000000),
-    punctuation = Color(0xFF555555),
-    tag = Color(0xFF800000),
-    attribute = Color(0xFFE50000),
-    namespace = Color(0xFF267F99),
-    regexp = Color(0xFF811F3F),
-    escape = Color(0xFFEE0000),
-    heading = Color(0xFF800000),
-    link = Color(0xFF0066BF),
-    invalid = Color(0xFFCD3131),
-)

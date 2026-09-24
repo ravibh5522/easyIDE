@@ -1,0 +1,232 @@
+package dev.easyide.app.ui.screens.extensions
+
+import android.content.Context
+import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.SettingsSnapshot
+import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.extensions.TimedLogEntry
+import dev.easyide.app.extensions.install.FolderNode
+import dev.easyide.app.extensions.install.StageResult
+import dev.easyide.app.extensions.install.StagedPackage
+import dev.easyide.extensions.contrib.ContributionConflict
+import dev.easyide.extensions.contrib.ContributionSnapshot
+import dev.easyide.extensions.contrib.Owned
+import dev.easyide.extensions.contrib.Owner
+import dev.easyide.extensions.host.ActivationState
+import dev.easyide.extensions.host.DisabledReason
+import dev.easyide.extensions.host.InstalledPackage
+import dev.easyide.extensions.host.LoadedExtension
+import dev.easyide.extensions.host.PackageProblem
+import dev.easyide.app.data.settings.SafeModeReason
+import dev.easyide.app.data.settings.SafeModeState
+import dev.easyide.extensions.manifest.ExtensionId
+import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.model.SandboxEnvironment
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.InputStream
+
+/** One contribution as the inspector (ECO-32) lists it. */
+data class InspectorLine(val ref: String, val pointer: String, val hiddenBy: String?, val conflicts: List<ContributionConflict>)
+
+/** One row of the Extensions screen: a valid package with its state, or an invalid one with its errors. */
+data class ExtensionRow(
+    val pkg: InstalledPackage,
+    val loaded: LoadedExtension?,
+    val problem: PackageProblem?,
+    val activation: ActivationState?,
+    val disabledReason: DisabledReason?,
+    /** The user's toggle: not listed in `extensions.disabled`. */
+    val userEnabled: Boolean,
+    val contributions: List<InspectorLine>,
+    /** Conflicts this extension lost (its entries were dropped, so they are not in [contributions]). */
+    val shadowed: List<ContributionConflict>,
+) {
+    val key: String get() = pkg.directory.absolutePath
+    val id: String get() = loaded?.descriptor?.id?.value ?: pkg.directory.parentFile?.name.orEmpty()
+}
+
+data class ExtensionsUiState(
+    val rows: List<ExtensionRow> = emptyList(),
+    val safeMode: SafeModeReason? = null,
+    val safeModeSuspects: List<ExtensionId> = emptyList(),
+    val log: List<TimedLogEntry> = emptyList(),
+    val environments: List<SandboxEnvironment> = emptyList(),
+)
+
+/** A staged local package waiting on the capability sheet, or the reasons it was refused. */
+sealed interface InstallState {
+    data object Idle : InstallState
+    data object Staging : InstallState
+    data class Review(val pkg: StagedPackage) : InstallState
+    data class Refused(val problems: List<String>) : InstallState
+    data class Failed(val message: String) : InstallState
+}
+
+/**
+ * The Extensions screen: installed and built-in packs with their state, the enable toggle
+ * (`extensions.disabled`, whole list per layer), crash-disable clearing, safe mode exit,
+ * the contribution inspector, capabilities, the Extension Log, and "Install from
+ * folder / file" (ECO-02) through [dev.easyide.app.extensions.install.LocalInstaller].
+ */
+class ExtensionsViewModel(
+    private val appContext: Context,
+    private val extensions: ExtensionsContainer,
+    private val settingsStore: SettingsStore,
+    safeMode: SafeModeState,
+    environmentManager: EnvironmentManager,
+) : ViewModel() {
+
+    private val runtime = extensions.runtime
+    private val installState = MutableStateFlow<InstallState>(InstallState.Idle)
+    val install: StateFlow<InstallState> = installState.asStateFlow()
+
+    private val hosts = combine(runtime.extensions.loaded, runtime.extensions.problems, runtime.extensions.disabledReasons, runtime.activation.states) { l, p, r, a ->
+        HostView(l, p, r, a)
+    }
+
+    val uiState: StateFlow<ExtensionsUiState> = combine(
+        hosts,
+        runtime.contributions.snapshot,
+        settingsStore.snapshot,
+        combine(safeMode.active, runtime.safeMode.suspects) { a, s -> a to s },
+        combine(extensions.log.entries, environmentManager.environments) { l, e -> l to e },
+    ) { h, snapshot, settings, (safe, suspects), (log, envs) ->
+        ExtensionsUiState(rows(h, snapshot, settings), safe, suspects, log.asReversed(), envs)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), ExtensionsUiState())
+
+    private class HostView(
+        val loaded: List<LoadedExtension>,
+        val problems: List<PackageProblem>,
+        val reasons: Map<ExtensionId, DisabledReason>,
+        val states: Map<ExtensionId, ActivationState>,
+    )
+
+    private fun rows(h: HostView, snapshot: ContributionSnapshot, settings: SettingsSnapshot): List<ExtensionRow> {
+        val disabled = settings[SettingsSchema.extensionsDisabled].toSet()
+        val hidden = settings[SettingsSchema.contributionsHidden]
+        val valid = h.loaded.map { l ->
+            val id = l.descriptor.id
+            val owner = Owner.Ext(id)
+            ExtensionRow(
+                pkg = l.pkg, loaded = l, problem = null,
+                activation = h.states[id], disabledReason = h.reasons[id],
+                userEnabled = id.value !in disabled,
+                contributions = inspect(snapshot, owner, hidden),
+                shadowed = snapshot.conflicts.filter { it.loser == owner },
+            )
+        }
+        val invalid = h.problems.map { p ->
+            ExtensionRow(p.pkg, null, p, null, null, userEnabled = true, contributions = emptyList(), shadowed = emptyList())
+        }
+        return (valid + invalid).sortedWith(compareBy({ it.pkg.installedAt }, { it.id }))
+    }
+
+    private fun inspect(s: ContributionSnapshot, owner: Owner, hidden: List<String>): List<InspectorLine> {
+        val all: List<Owned<*>> = s.commands + s.menus + s.keybindings + s.configuration + s.configurationDefaults +
+            s.languages + s.grammars + s.languageConfigurations + s.snippets + s.themes + s.iconThemes + s.viewContainers +
+            s.views + s.viewsWelcome + s.taskDefinitions + s.problemMatchers + s.walkthroughs + s.stages + s.statusBarItems +
+            s.keyRows + s.languageServers + s.sandbox + s.viewData
+        return all.filter { it.owner == owner }.map { o ->
+            val entry = runtime.contributions.inspect(o.ref, hidden)
+            InspectorLine(o.ref.toString(), o.pointer, entry?.hiddenBy, entry?.conflicts.orEmpty())
+        }
+    }
+
+    fun setEnabled(row: ExtensionRow, enabled: Boolean) {
+        viewModelScope.launch {
+            if (enabled && row.disabledReason == DisabledReason.CRASH_DISABLED) {
+                row.loaded?.descriptor?.id?.let { runtime.activation.clearCrashDisable(it) }
+            }
+            // The whole stored list, including ids of packs not installed right now.
+            val current = settingsStore.get(SettingsSchema.extensionsDisabled).first().toSet()
+            val next = if (enabled) current - row.id else current + row.id
+            settingsStore.set(SettingsSchema.extensionsDisabled, next.sorted())
+        }
+    }
+
+    /** Session reasons end for this process; the setting is cleared when it is set. */
+    fun exitSafeMode() {
+        viewModelScope.launch { extensions.exitSafeMode() }
+    }
+
+    fun uninstall(row: ExtensionRow) {
+        viewModelScope.launch { extensions.installer.uninstall(row.pkg) }
+    }
+
+    fun clearLog() = extensions.log.clear()
+
+    /** A picked `.easyext` file (SAF document). */
+    fun stageArchive(uri: Uri) = stage {
+        extensions.installer.stageArchive {
+            appContext.contentResolver.openInputStream(uri) ?: throw FileNotFoundException(uri.toString())
+        }
+    }
+
+    /** A picked folder (SAF tree) holding an unpacked package. */
+    fun stageFolder(uri: Uri) = stage {
+        val root = DocumentFile.fromTreeUri(appContext, uri) ?: throw FileNotFoundException(uri.toString())
+        extensions.installer.stageFolder(DocumentFolder(root, appContext))
+    }
+
+    fun approve(pkg: StagedPackage, envId: String?) {
+        viewModelScope.launch {
+            installState.value = try {
+                extensions.installer.commit(pkg, envId)
+                InstallState.Idle
+            } catch (e: IOException) {
+                extensions.installer.discard(pkg)
+                InstallState.Failed(e.message ?: e.javaClass.simpleName)
+            }
+        }
+    }
+
+    fun decline(pkg: StagedPackage) {
+        viewModelScope.launch {
+            extensions.installer.discard(pkg)
+            installState.value = InstallState.Idle
+        }
+    }
+
+    fun dismissInstall() { installState.value = InstallState.Idle }
+
+    private fun stage(block: suspend () -> StageResult) {
+        installState.value = InstallState.Staging
+        viewModelScope.launch {
+            // SAF boundary: a revoked or vanished document surfaces here.
+            installState.value = try {
+                when (val r = block()) {
+                    is StageResult.Staged -> InstallState.Review(r.pkg)
+                    is StageResult.Rejected -> InstallState.Refused(r.problems)
+                }
+            } catch (e: IOException) {
+                InstallState.Failed(e.message ?: e.javaClass.simpleName)
+            } catch (e: SecurityException) {
+                InstallState.Failed(e.message ?: e.javaClass.simpleName)
+            }
+        }
+    }
+
+    private companion object { const val SUBSCRIPTION_TIMEOUT_MS = 5_000L }
+}
+
+/** SAF tree as a [FolderNode]; SAF has no symlinks, and names are validated by the unpacker. */
+private class DocumentFolder(private val doc: DocumentFile, private val context: Context) : FolderNode {
+    override val name: String get() = doc.name.orEmpty()
+    override val isDirectory: Boolean get() = doc.isDirectory
+    override fun children(): List<FolderNode> = doc.listFiles().map { DocumentFolder(it, context) }
+    override fun open(): InputStream = context.contentResolver.openInputStream(doc.uri) ?: throw FileNotFoundException(doc.uri.toString())
+}

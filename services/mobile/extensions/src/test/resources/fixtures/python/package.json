@@ -1,0 +1,58 @@
+{
+  "name": "python", "publisher": "easyide", "version": "1.0.0",
+  "displayName": "Python", "description": "Python highlighting, pyright + ruff, run button",
+  "icon": "icon.png", "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "https://github.com/easyide/ext-python" },
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Programming Languages", "Language Packs"],
+  "activationEvents": ["onLanguage:python", "workspaceContains:**/pyproject.toml"],
+  "contributes": {
+    "languages": [{ "id": "python", "aliases": ["Python"], "extensions": [".py", ".pyi"],
+                    "firstLine": "^#!.*\\bpython[0-9.]*\\b", "configuration": "./language-configuration.json" }],
+    "grammars": [{ "language": "python", "scopeName": "source.python", "path": "./syntaxes/python.tmLanguage.json" }],
+    "snippets": [{ "language": "python", "path": "./snippets/python.code-snippets" }],
+    "commands": [{ "command": "python.runFile", "title": "Run Python File", "icon": "play_arrow",
+                   "category": "Python", "enablement": "envState == ready" },
+                 { "command": "python.selectVenv", "title": "Select Virtualenv", "category": "Python" }],
+    "menus": {
+      "editor/title": [{ "command": "python.runFile", "when": "editorLangId == python", "group": "navigation@1" }],
+      "editor/touchToolbar": [{ "command": "python.runFile", "when": "editorLangId == python" }],
+      "commandPalette": [{ "command": "python.selectVenv", "when": "editorLangId == python" }]
+    },
+    "keybindings": [{ "command": "python.runFile", "key": "ctrl+shift+r", "when": "editorLangId == python" }],
+    "configuration": { "title": "Python", "properties": {
+      "python.interpreter": { "type": "string", "default": "python3", "scope": "environment", "description": "Used by Run" },
+      "python.lint.onType": { "type": "boolean", "default": true, "scope": "language-overridable" } } },
+    "configurationDefaults": { "[python]": { "editor.tabSize": 4, "editor.formatOnSave": true } }
+  },
+  "easyide": {
+    "capabilities": ["sandbox.exec", "sandbox.install", "lsp.spawn", "network(pypi.org,files.pythonhosted.org)"],
+    "actions": {
+      "python.runFile": { "type": "runInTerminal", "terminal": "Python", "cwd": "${fileDirname}",
+                          "command": "${config:python.interpreter} ${file}" },
+      "python.selectVenv": { "type": "sequence", "steps": [
+        { "type": "sandboxExec", "command": ["sh", "-c", "ls -d /workspace/*/bin/python 2>/dev/null"],
+          "output": "capture", "as": "venvs" },
+        { "type": "showQuickPick", "id": "venv", "itemsFrom": "${result:venvs}", "placeHolder": "Interpreter" },
+        { "type": "setConfig", "key": "python.interpreter", "value": "${input:venv}", "target": "project" } ] }
+    },
+    "languageServers": [
+      { "id": "pyright", "languages": ["python"], "command": ["pyright-langserver", "--stdio"],
+        "settingsSection": "python", "rootMarkers": ["pyproject.toml", "setup.py", ".git"], "memoryBudgetMb": 500 },
+      { "id": "ruff", "languages": ["python"], "command": ["ruff", "server"], "memoryBudgetMb": 80,
+        "features": { "only": ["diagnostics", "codeAction", "formatting"] } } ],
+    "sandbox": {
+      "requires": ["python3"],
+      "install": [{ "id": "base", "title": "Install pipx and Node", "run": "apt-get install -y pipx nodejs npm",
+                    "when": "envDistro in 'debian,ubuntu'" },
+                  { "id": "tools", "title": "Install pyright and ruff", "run": "npm install -g pyright && pipx install ruff" }],
+      "verify": "pyright-langserver --version && ruff --version",
+      "uninstall": ["npm uninstall -g pyright", "pipx uninstall ruff"]
+    },
+    "keyRows": [{ "id": "python.symbols", "title": "Python", "when": "editorLangId == python",
+                  "keys": [{ "label": ":" }, { "label": "self." , "insert": "self." },
+                           { "label": "()", "snippet": "($0)" }, { "label": "Run", "command": "python.runFile" }] }],
+    "statusBarItems": [{ "id": "python.interpreter", "text": "${config:python.interpreter}", "command": "python.selectVenv",
+                         "alignment": "right", "when": "editorLangId == python" }], "memoryBudgetMb": 600
+  }
+}

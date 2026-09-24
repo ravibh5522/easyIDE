@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Window/splash background shown before Compose draws its first frame.
+      Must equal the editor surface of the built-in palettes in
+      ui/theme/BuiltInPalettes.kt (PaperLightPalette here, GraphiteDarkPalette
+      in values-night) so the hand-off to Compose is invisible. XML is the only
+      place the window can read a color from before any Kotlin runs;
+      WindowBackgroundTest keeps the two in step.
+    -->
+    <color name="window_background">#FFFBFAF8</color>
+</resources>

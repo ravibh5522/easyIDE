@@ -1,4 +1,6 @@
 [versions]
+# Tree API (JsonElement) only - no serialization compiler plugin, see decision 0013.
+kotlinxSerialization = "1.11.0"
 agp = "9.3.1"
 kotlin = "2.4.10"
 coreKtx = "1.19.0"
@@ -12,8 +14,20 @@ documentfile = "1.1.0"
 kotlinTextmate = "0.2.0"
 jgit = "7.7.1.202607240634-r"
 annotation = "1.9.1"
+junit = "4.13.2"
+coreSplashscreen = "1.2.0"
+profileinstaller = "1.4.1"
+benchmark = "1.5.0"
+androidxTestJunit = "1.3.0"
+androidxTestRunner = "1.7.0"
+uiautomator = "2.4.0"
+# Pure-JVM wasm interpreter for L2 extensions, confined to :ext-wasm (decision 0014).
+chicory = "1.7.5"
 
 [libraries]
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
@@ -34,9 +48,22 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 kotlin-textmate-core = { group = "io.github.ivan-magda", name = "kotlin-textmate-core", version.ref = "kotlinTextmate" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestJunit" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+chicory-runtime = { group = "com.dylibso.chicory", name = "runtime", version.ref = "chicory" }
+# Build-time only: compiles .wat test fixtures; never on an app classpath.
+chicory-wabt = { group = "com.dylibso.chicory", name = "wabt", version.ref = "chicory" }
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 
 [plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

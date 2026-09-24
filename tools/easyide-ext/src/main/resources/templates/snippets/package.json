@@ -1,0 +1,15 @@
+{
+  "name": "{{name}}",
+  "publisher": "{{publisher}}",
+  "version": "0.1.0",
+  "displayName": "{{displayName}}",
+  "description": "Snippets for Python.",
+  "license": "MIT",
+  "engines": { "easyide": "{{engine}}" },
+  "categories": ["Snippets"],
+  "contributes": {
+    "snippets": [
+      { "language": "python", "path": "./snippets/{{name}}.code-snippets" }
+    ]
+  }
+}

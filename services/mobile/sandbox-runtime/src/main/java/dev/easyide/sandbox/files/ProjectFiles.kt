@@ -134,6 +134,43 @@ class ProjectFiles(
             }
         }
 
+    /**
+     * Size of a regular file, or null when there is none. Config readers check
+     * this first so an oversized file (a hostile clone) is refused unread.
+     */
+    suspend fun fileSize(projectId: String, relativePath: String): Result<Long?> = runCatching {
+        withContext(ioDispatcher) {
+            resolve(projectId, relativePath).takeIf { it.isFile }?.length()
+        }
+    }
+
+    /** The whole file as UTF-8, with no size or binary policy: for small config files only. */
+    suspend fun readText(projectId: String, relativePath: String): Result<String> = runCatching {
+        withContext(ioDispatcher) { resolve(projectId, relativePath).readText() }
+    }
+
+    /**
+     * Writes through a sibling temp file and a rename, so a crash or a full disk
+     * leaves either the old file or the new one - never a truncated config that
+     * the next launch would read as broken. Unlike [writeText] this replaces the
+     * file's inode, which is why the editor's save does not use it.
+     */
+    suspend fun writeTextAtomic(projectId: String, relativePath: String, content: String): Result<Unit> =
+        runCatching {
+            withContext(ioDispatcher) {
+                val file = resolve(projectId, relativePath)
+                val dir = file.parentFile ?: throw SandboxError.StorageFailure("write $relativePath")
+                dir.mkdirs()
+                val temp = File.createTempFile(file.name, TEMP_SUFFIX, dir)
+                try {
+                    temp.writeText(content)
+                    if (!temp.renameTo(file)) throw SandboxError.StorageFailure("write $relativePath")
+                } finally {
+                    temp.delete()
+                }
+            }
+        }
+
     suspend fun createFile(projectId: String, relativePath: String): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             val file = resolve(projectId, relativePath)
@@ -304,6 +341,7 @@ class ProjectFiles(
         const val HEX_BYTES_PER_ROW = 16
         const val PRINTABLE_MIN = 0x20
         const val PRINTABLE_MAX = 0x7E
+        const val TEMP_SUFFIX = ".tmp"
 
         val STARTER_PYTHON = """
             def main():

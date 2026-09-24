@@ -1,0 +1,591 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "easyide-extension-manifest-0.3.0",
+  "$comment": "SPDX-License-Identifier: Apache-2.0. Copyright 2026 Ravi and easyIDE contributors. See LICENSE and NOTICE in this directory. Contract: docs/extension-sdk/sdk-reference.md (API 0.3.0). Uses only the keyword subset implemented by SchemaValidator (extension-runtime.md sec 2.2).",
+  "title": "easyIDE extension manifest (package.json)", "type": "object",
+  "required": ["name", "publisher", "version", "engines"], "additionalProperties": false,
+  "properties": {
+    "name": {"$ref": "#/$defs/segment"}, "publisher": {"$ref": "#/$defs/segment"}, "version": {"$ref": "#/$defs/semver"},
+    "displayName": {"type": "string", "minLength": 1}, "description": {"type": "string"},
+    "icon": {"$ref": "#/$defs/path"}, "license": {"type": "string", "minLength": 1},
+    "repository": {
+      "anyOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "object", "required": ["url"], "additionalProperties": false,
+          "properties": {
+            "type": {"type": "string"}, "url": {"type": "string", "minLength": 1}, "directory": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "engines": {
+      "type": "object", "required": ["easyide"], "additionalProperties": false,
+      "properties": {
+        "easyide": {
+          "type": "string", "minLength": 1, "description": "npm-style semver range containing the app API version"
+        },
+        "vscode": {"type": "string", "description": "Tolerated and ignored"}
+      }
+    },
+    "categories": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "activationEvents": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "contributes": {"$ref": "#/$defs/contributes"}, "easyide": {"$ref": "#/$defs/easyide"}
+  },
+  "$defs": {
+    "segment": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"},
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "path": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1, "pattern": "^[^\\s]+$"},
+    "when": {"type": "string", "minLength": 1}, "strings": {"type": "array", "items": {"type": "string"}},
+    "stringMap": {"type": "object", "additionalProperties": {"type": "string"}},
+    "envMap": {
+      "type": "object", "description": "Keys must be POSIX shell variable names; checked by the manifest parser",
+      "additionalProperties": {"type": "string"}
+    },
+    "bindName": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
+    "contributes": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "languages": {"type": "array", "items": {"$ref": "#/$defs/language"}},
+        "grammars": {"type": "array", "items": {"$ref": "#/$defs/grammar"}},
+        "snippets": {"type": "array", "items": {"$ref": "#/$defs/snippet"}},
+        "themes": {"type": "array", "items": {"$ref": "#/$defs/theme"}},
+        "iconThemes": {"type": "array", "items": {"$ref": "#/$defs/iconTheme"}},
+        "keybindings": {
+          "anyOf": [{"$ref": "#/$defs/keybinding"}, {"type": "array", "items": {"$ref": "#/$defs/keybinding"}}]
+        },
+        "commands": {"anyOf": [{"$ref": "#/$defs/command"}, {"type": "array", "items": {"$ref": "#/$defs/command"}}]},
+        "menus": {"type": "object", "additionalProperties": {"type": "array", "items": {"$ref": "#/$defs/menuItem"}}},
+        "configuration": {
+          "anyOf": [
+            {"$ref": "#/$defs/configurationSection"},
+            {"type": "array", "items": {"$ref": "#/$defs/configurationSection"}}
+          ]
+        },
+        "configurationDefaults": {"type": "object"},
+        "views": {"type": "object", "additionalProperties": {"type": "array", "items": {"$ref": "#/$defs/view"}}},
+        "viewsContainers": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "activitybar": {"type": "array", "items": {"$ref": "#/$defs/viewContainer"}},
+            "panel": {"type": "array", "items": {"$ref": "#/$defs/viewContainer"}}
+          }
+        },
+        "viewsWelcome": {"type": "array", "items": {"$ref": "#/$defs/viewWelcome"}},
+        "taskDefinitions": {"type": "array", "items": {"$ref": "#/$defs/taskDefinition"}},
+        "problemMatchers": {"type": "array", "items": {"$ref": "#/$defs/problemMatcher"}},
+        "walkthroughs": {"type": "array", "items": {"$ref": "#/$defs/walkthrough"}}
+      }
+    },
+    "language": {
+      "type": "object", "required": ["id"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "aliases": {"$ref": "#/$defs/strings"}, "extensions": {"$ref": "#/$defs/strings"},
+        "filenames": {"$ref": "#/$defs/strings"}, "filenamePatterns": {"$ref": "#/$defs/strings"},
+        "firstLine": {"type": "string", "minLength": 1}, "mimetypes": {"$ref": "#/$defs/strings"},
+        "configuration": {"$ref": "#/$defs/path"}, "icon": {"description": "Ignored: icon themes supply file icons"}
+      }
+    },
+    "grammar": {
+      "type": "object", "required": ["scopeName", "path"], "additionalProperties": false,
+      "properties": {
+        "language": {"$ref": "#/$defs/id"}, "scopeName": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/$defs/path"}, "embeddedLanguages": {"$ref": "#/$defs/stringMap"},
+        "injectTo": {"$ref": "#/$defs/strings"}, "tokenTypes": {"$ref": "#/$defs/stringMap"},
+        "balancedBracketScopes": {"$ref": "#/$defs/strings"}, "unbalancedBracketScopes": {"$ref": "#/$defs/strings"}
+      }
+    },
+    "snippet": {
+      "type": "object", "required": ["path"], "additionalProperties": false,
+      "properties": {"language": {"$ref": "#/$defs/id"}, "path": {"$ref": "#/$defs/path"}}
+    },
+    "theme": {
+      "type": "object", "required": ["label", "uiTheme", "path"], "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1}, "label": {"type": "string", "minLength": 1},
+        "uiTheme": {"enum": ["vs", "vs-dark", "hc-black", "hc-light"]}, "path": {"$ref": "#/$defs/path"}
+      }
+    },
+    "iconTheme": {
+      "type": "object", "required": ["id", "label", "path"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "label": {"type": "string", "minLength": 1}, "path": {"$ref": "#/$defs/path"}
+      }
+    },
+    "keybinding": {
+      "type": "object", "required": ["command", "key"], "additionalProperties": false,
+      "properties": {
+        "command": {"type": "string", "minLength": 1}, "key": {"type": "string", "minLength": 1},
+        "mac": {"type": "string", "minLength": 1}, "linux": {"type": "string", "minLength": 1},
+        "win": {"type": "string", "description": "Ignored"}, "when": {"$ref": "#/$defs/when"},
+        "args": {"description": "Passed to the command"}
+      }
+    },
+    "command": {
+      "type": "object", "required": ["command", "title"], "additionalProperties": false,
+      "properties": {
+        "command": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1},
+        "shortTitle": {"type": "string", "minLength": 1}, "category": {"type": "string", "minLength": 1},
+        "icon": {"type": "string", "minLength": 1, "description": "easyIDE icon token or a package SVG path"},
+        "enablement": {"$ref": "#/$defs/when"}
+      }
+    },
+    "menuItem": {
+      "type": "object", "required": ["command"], "additionalProperties": false,
+      "properties": {
+        "command": {"type": "string", "minLength": 1}, "alt": {"type": "string", "minLength": 1},
+        "when": {"$ref": "#/$defs/when"}, "group": {"type": "string", "minLength": 1}
+      }
+    },
+    "configurationSection": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string"}, "title": {"type": "string"}, "order": {"type": "integer"},
+        "properties": {"type": "object", "additionalProperties": {"$ref": "#/$defs/configurationProperty"}}
+      }
+    },
+    "configurationProperty": {
+      "type": "object", "description": "A JSON Schema for the value plus VS Code presentation fields",
+      "properties": {
+        "scope": {
+          "enum": [
+            "application", "machine", "machine-overridable", "window", "resource", "language-overridable", "environment",
+            "project"
+          ]
+        },
+        "description": {"type": "string"}, "markdownDescription": {"type": "string"},
+        "deprecationMessage": {"type": "string"}, "markdownDeprecationMessage": {"type": "string"},
+        "enumDescriptions": {"$ref": "#/$defs/strings"}, "markdownEnumDescriptions": {"$ref": "#/$defs/strings"},
+        "order": {"type": "integer"}
+      }
+    },
+    "view": {
+      "type": "object", "required": ["id", "name"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "name": {"type": "string", "minLength": 1}, "when": {"$ref": "#/$defs/when"},
+        "type": {"enum": ["tree"]}, "icon": {"type": "string"}, "contextualTitle": {"type": "string"},
+        "visibility": {"enum": ["visible", "hidden", "collapsed"]}
+      }
+    },
+    "viewContainer": {
+      "type": "object", "required": ["id", "title", "icon"], "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+$"}, "title": {"type": "string", "minLength": 1},
+        "icon": {"type": "string", "minLength": 1}
+      }
+    },
+    "viewWelcome": {
+      "type": "object", "required": ["view", "contents"], "additionalProperties": false,
+      "properties": {
+        "view": {"type": "string", "minLength": 1}, "contents": {"type": "string"}, "when": {"$ref": "#/$defs/when"}
+      }
+    },
+    "taskDefinition": {
+      "type": "object", "required": ["type"], "additionalProperties": false,
+      "properties": {
+        "type": {"type": "string", "minLength": 1}, "required": {"$ref": "#/$defs/strings"},
+        "properties": {"type": "object"}, "when": {"$ref": "#/$defs/when"}
+      }
+    },
+    "problemMatcher": {
+      "type": "object", "required": ["name", "pattern"], "additionalProperties": false,
+      "properties": {
+        "name": {"$ref": "#/$defs/id"}, "label": {"type": "string"}, "owner": {"type": "string"},
+        "source": {"type": "string"}, "base": {"type": "string"},
+        "applyTo": {"enum": ["allDocuments", "openDocuments", "closedDocuments"]},
+        "severity": {"enum": ["error", "warning", "info"]},
+        "fileLocation": {"anyOf": [{"type": "string"}, {"type": "array", "items": {"type": "string"}, "minItems": 1}]},
+        "pattern": {
+          "anyOf": [
+            {"type": "string", "minLength": 1}, {"$ref": "#/$defs/problemPattern"},
+            {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/problemPattern"}}
+          ]
+        },
+        "background": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "activeByDefault": {"type": "boolean"}, "beginsPattern": {"type": "string"},
+            "endsPattern": {"type": "string"}
+          }
+        }
+      }
+    },
+    "problemPattern": {
+      "type": "object", "required": ["regexp"], "additionalProperties": false,
+      "properties": {
+        "regexp": {"type": "string", "minLength": 1}, "kind": {"enum": ["file", "location"]},
+        "file": {"type": "integer", "minimum": 0}, "location": {"type": "integer", "minimum": 0},
+        "line": {"type": "integer", "minimum": 0}, "column": {"type": "integer", "minimum": 0},
+        "endLine": {"type": "integer", "minimum": 0}, "endColumn": {"type": "integer", "minimum": 0},
+        "severity": {"type": "integer", "minimum": 0}, "code": {"type": "integer", "minimum": 0},
+        "message": {"type": "integer", "minimum": 0}, "loop": {"type": "boolean"}
+      }
+    },
+    "walkthrough": {
+      "type": "object", "required": ["id", "title", "description", "steps"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1}, "description": {"type": "string"},
+        "when": {"$ref": "#/$defs/when"}, "featuredFor": {"$ref": "#/$defs/strings"},
+        "steps": {"type": "array", "items": {"$ref": "#/$defs/walkthroughStep"}}
+      }
+    },
+    "walkthroughStep": {
+      "type": "object", "required": ["id", "title", "media"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1}, "description": {"type": "string"},
+        "when": {"$ref": "#/$defs/when"}, "completionEvents": {"$ref": "#/$defs/strings"},
+        "media": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "image": {
+              "anyOf": [{"$ref": "#/$defs/path"}, {"type": "object", "additionalProperties": {"$ref": "#/$defs/path"}}]
+            },
+            "altText": {"type": "string"}, "markdown": {"$ref": "#/$defs/path"}, "svg": {"$ref": "#/$defs/path"},
+            "video": {"description": "Ignored"}
+          }
+        }
+      }
+    },
+    "easyide": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "capabilities": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "scope": {"enum": ["environment", "global"]},
+        "actions": {"type": "object", "additionalProperties": {"$ref": "#/$defs/action"}},
+        "inputs": {"type": "array", "items": {"$ref": "#/$defs/input"}},
+        "languageServers": {"type": "array", "items": {"$ref": "#/$defs/languageServer"}},
+        "sandbox": {"$ref": "#/$defs/sandbox"}, "stages": {"type": "array", "items": {"$ref": "#/$defs/stage"}},
+        "keyRows": {"type": "array", "items": {"$ref": "#/$defs/keyRow"}},
+        "statusBarItems": {"type": "array", "items": {"$ref": "#/$defs/statusBarItem"}},
+        "viewData": {"type": "object", "additionalProperties": {"$ref": "#/$defs/viewData"}},
+        "wasm": {"$ref": "#/$defs/wasm"}, "memoryBudgetMb": {"type": "integer", "minimum": 1}
+      }
+    },
+    "languageServer": {
+      "type": "object", "required": ["id", "languages", "command"], "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+$"},
+        "languages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}},
+        "command": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "env": {"$ref": "#/$defs/envMap"},
+        "initializationOptions": {"type": "object"}, "settingsSection": {"type": "string", "minLength": 1},
+        "rootMarkers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "memoryBudgetMb": {"type": "integer", "minimum": 1}, "idleShutdownSec": {"type": "integer", "minimum": 0},
+        "startupTimeoutSec": {"type": "integer", "minimum": 1},
+        "features": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "only": {"type": "array", "items": {"$ref": "#/$defs/lspFeature"}},
+            "exclude": {"type": "array", "items": {"$ref": "#/$defs/lspFeature"}}
+          }
+        },
+        "priority": {"type": "integer"}
+      }
+    },
+    "lspFeature": {
+      "enum": [
+        "diagnostics", "completion", "hover", "signatureHelp", "definition", "declaration", "typeDefinition",
+        "implementation", "references", "documentHighlight", "documentSymbol", "workspaceSymbol", "rename", "codeAction",
+        "codeLens", "formatting", "rangeFormatting", "onTypeFormatting", "inlayHints", "semanticTokens", "foldingRange",
+        "selectionRange", "documentLink"
+      ]
+    },
+    "sandbox": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "requires": {"type": "array", "items": {"type": "string", "pattern": "^[A-Za-z0-9_.+-]+$"}},
+        "install": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["id", "title", "run"], "additionalProperties": false,
+            "properties": {
+              "id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1},
+              "run": {"type": "string", "minLength": 1}, "when": {"$ref": "#/$defs/when"}
+            }
+          }
+        },
+        "verify": {"type": "string", "minLength": 1},
+        "uninstall": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "stage": {
+      "type": "object", "required": ["id", "title", "defaultStage"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1},
+        "icon": {"type": "string", "minLength": 1}, "defaultStage": {"enum": ["left", "main", "right", "bottom"]},
+        "views": {"type": "array", "items": {"type": "string", "minLength": 1}}, "when": {"$ref": "#/$defs/when"}
+      }
+    },
+    "keyAction": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "insert": {"type": "string", "minLength": 1}, "snippet": {"type": "string", "minLength": 1},
+        "key": {"type": "string", "minLength": 1}, "command": {"type": "string", "minLength": 1}
+      }
+    },
+    "keyRow": {
+      "type": "object", "required": ["id", "title", "keys"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1}, "when": {"$ref": "#/$defs/when"},
+        "keys": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["label"], "additionalProperties": false,
+            "properties": {
+              "label": {"type": "string", "minLength": 1}, "insert": {"type": "string", "minLength": 1},
+              "snippet": {"type": "string", "minLength": 1}, "key": {"type": "string", "minLength": 1},
+              "command": {"type": "string", "minLength": 1}, "longPress": {"$ref": "#/$defs/keyAction"}
+            }
+          }
+        }
+      }
+    },
+    "statusBarItem": {
+      "type": "object", "required": ["id", "text"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "text": {"type": "string", "minLength": 1}, "tooltip": {"type": "string"},
+        "command": {"type": "string", "minLength": 1}, "alignment": {"enum": ["left", "right"]},
+        "priority": {"type": "integer"}, "when": {"$ref": "#/$defs/when"}
+      }
+    },
+    "viewData": {
+      "type": "object", "required": ["kind", "from"], "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["list", "tree"]}, "from": {"$ref": "#/$defs/action"},
+        "refreshOn": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "wasm": {
+      "type": "object", "required": ["module", "abi"], "additionalProperties": false,
+      "properties": {
+        "module": {"$ref": "#/$defs/path"}, "abi": {"type": "integer", "minimum": 1},
+        "memoryMb": {"type": "integer", "minimum": 1},
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["kind", "languages"], "additionalProperties": false,
+            "properties": {
+              "kind": {"enum": ["completion", "hover"]},
+              "languages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}}
+            }
+          }
+        }
+      }
+    },
+    "input": {
+      "oneOf": [
+        {
+          "type": "object", "required": ["id", "type"], "additionalProperties": false,
+          "properties": {
+            "id": {"$ref": "#/$defs/id"}, "type": {"const": "promptString"}, "description": {"type": "string"},
+            "default": {"type": "string"}, "password": {"type": "boolean"}
+          }
+        },
+        {
+          "type": "object", "required": ["id", "type", "options"], "additionalProperties": false,
+          "properties": {
+            "id": {"$ref": "#/$defs/id"}, "type": {"const": "pickString"}, "description": {"type": "string"},
+            "default": {"type": "string"},
+            "options": {
+              "type": "array", "minItems": 1,
+              "items": {
+                "anyOf": [
+                  {"type": "string"},
+                  {
+                    "type": "object", "required": ["value"], "additionalProperties": false,
+                    "properties": {"label": {"type": "string"}, "value": {"type": "string"}}
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "object", "required": ["id", "type", "command"], "additionalProperties": false,
+          "properties": {
+            "id": {"$ref": "#/$defs/id"}, "type": {"const": "command"}, "command": {"type": "string", "minLength": 1},
+            "args": {}
+          }
+        }
+      ]
+    },
+    "action": {
+      "oneOf": [
+        {"$ref": "#/$defs/runInTerminal"}, {"$ref": "#/$defs/runTask"}, {"$ref": "#/$defs/sandboxExec"},
+        {"$ref": "#/$defs/openFile"}, {"$ref": "#/$defs/openUrl"}, {"$ref": "#/$defs/applyEdit"},
+        {"$ref": "#/$defs/insertSnippet"}, {"$ref": "#/$defs/setConfig"}, {"$ref": "#/$defs/toggleConfig"},
+        {"$ref": "#/$defs/lspRequest"}, {"$ref": "#/$defs/executeCommand"}, {"$ref": "#/$defs/showQuickPick"},
+        {"$ref": "#/$defs/showInputBox"}, {"$ref": "#/$defs/showMessage"}, {"$ref": "#/$defs/revealStage"},
+        {"$ref": "#/$defs/sequence"}
+      ]
+    },
+    "runInTerminal": {
+      "type": "object", "required": ["type", "command"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "runInTerminal"}, "as": {"$ref": "#/$defs/bindName"},
+        "command": {"type": "string", "minLength": 1}, "cwd": {"type": "string", "minLength": 1},
+        "env": {"$ref": "#/$defs/envMap"}, "terminal": {"type": "string", "minLength": 1}, "focus": {"type": "boolean"},
+        "clear": {"type": "boolean"}
+      }
+    },
+    "runTask": {
+      "type": "object", "required": ["type", "task"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "runTask"}, "as": {"$ref": "#/$defs/bindName"},
+        "task": {
+          "anyOf": [
+            {"type": "string", "minLength": 1},
+            {"type": "object", "required": ["type"], "properties": {"type": {"type": "string", "minLength": 1}}}
+          ]
+        }
+      }
+    },
+    "sandboxExec": {
+      "type": "object", "required": ["type", "command", "output"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "sandboxExec"}, "as": {"$ref": "#/$defs/bindName"},
+        "command": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "cwd": {"type": "string", "minLength": 1}, "env": {"$ref": "#/$defs/envMap"},
+        "timeoutSec": {"type": "integer", "minimum": 1}, "output": {"enum": ["terminal", "silent", "capture"]}
+      }
+    },
+    "openFile": {
+      "type": "object", "required": ["type", "path"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "openFile"}, "as": {"$ref": "#/$defs/bindName"}, "path": {"type": "string", "minLength": 1},
+        "line": {"type": "integer", "minimum": 1}, "column": {"type": "integer", "minimum": 1},
+        "preview": {"type": "boolean"}
+      }
+    },
+    "openUrl": {
+      "type": "object", "required": ["type", "url"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "openUrl"}, "as": {"$ref": "#/$defs/bindName"}, "url": {"type": "string", "minLength": 1}
+      }
+    },
+    "position": {
+      "type": "object", "required": ["line", "character"], "additionalProperties": false,
+      "properties": {"line": {"type": "integer", "minimum": 0}, "character": {"type": "integer", "minimum": 0}}
+    },
+    "applyEdit": {
+      "type": "object", "required": ["type", "edits"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "applyEdit"}, "as": {"$ref": "#/$defs/bindName"},
+        "edits": {
+          "anyOf": [
+            {
+              "type": "array", "minItems": 1,
+              "items": {
+                "type": "object", "required": ["range", "text"], "additionalProperties": false,
+                "properties": {
+                  "path": {"type": "string", "minLength": 1},
+                  "range": {
+                    "type": "object", "required": ["start", "end"], "additionalProperties": false,
+                    "properties": {"start": {"$ref": "#/$defs/position"}, "end": {"$ref": "#/$defs/position"}}
+                  },
+                  "text": {"type": "string"}
+                }
+              }
+            },
+            {
+              "type": "object", "description": "LSP WorkspaceEdit",
+              "properties": {"changes": {"type": "object"}, "documentChanges": {"type": "array"}}
+            }
+          ]
+        }
+      }
+    },
+    "insertSnippet": {
+      "type": "object", "required": ["type"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "insertSnippet"}, "as": {"$ref": "#/$defs/bindName"},
+        "snippet": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1},
+        "language": {"$ref": "#/$defs/id"}
+      }
+    },
+    "configTarget": {"enum": ["user", "language", "environment", "project"]},
+    "setConfig": {
+      "type": "object", "required": ["type", "key", "value", "target"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "setConfig"}, "as": {"$ref": "#/$defs/bindName"}, "key": {"type": "string", "minLength": 1},
+        "value": {}, "target": {"$ref": "#/$defs/configTarget"}
+      }
+    },
+    "toggleConfig": {
+      "type": "object", "required": ["type", "key"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "toggleConfig"}, "as": {"$ref": "#/$defs/bindName"}, "key": {"type": "string", "minLength": 1},
+        "values": {"type": "array", "minItems": 2}, "target": {"$ref": "#/$defs/configTarget"}
+      }
+    },
+    "lspRequest": {
+      "type": "object", "required": ["type", "method"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "lspRequest"}, "as": {"$ref": "#/$defs/bindName"},
+        "method": {"type": "string", "minLength": 1}, "params": {}, "language": {"$ref": "#/$defs/id"},
+        "then": {"enum": ["showLocations", "applyWorkspaceEdit", "showMessage", "none"]}
+      }
+    },
+    "executeCommand": {
+      "type": "object", "required": ["type", "command"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "executeCommand"}, "as": {"$ref": "#/$defs/bindName"},
+        "command": {"type": "string", "minLength": 1}, "args": {}
+      }
+    },
+    "showQuickPick": {
+      "type": "object", "required": ["type", "id"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "showQuickPick"}, "as": {"$ref": "#/$defs/bindName"}, "id": {"$ref": "#/$defs/bindName"},
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["label"], "additionalProperties": false,
+            "properties": {"label": {"type": "string"}, "description": {"type": "string"}, "value": {}}
+          }
+        },
+        "itemsFrom": {"type": "string", "minLength": 1}, "placeHolder": {"type": "string"},
+        "canPickMany": {"type": "boolean"}
+      }
+    },
+    "showInputBox": {
+      "type": "object", "required": ["type", "id"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "showInputBox"}, "as": {"$ref": "#/$defs/bindName"}, "id": {"$ref": "#/$defs/bindName"},
+        "prompt": {"type": "string"}, "value": {"type": "string"}, "placeHolder": {"type": "string"},
+        "validate": {"type": "string", "minLength": 1}, "password": {"type": "boolean"}
+      }
+    },
+    "showMessage": {
+      "type": "object", "required": ["type", "text"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "showMessage"}, "as": {"$ref": "#/$defs/bindName"}, "text": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["info", "warning", "error"]},
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["title"], "additionalProperties": false,
+            "properties": {"title": {"type": "string", "minLength": 1}, "action": {"$ref": "#/$defs/action"}}
+          }
+        }
+      }
+    },
+    "revealStage": {
+      "type": "object", "required": ["type", "stage"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "revealStage"}, "as": {"$ref": "#/$defs/bindName"},
+        "stage": {"type": "string", "minLength": 1}, "view": {"type": "string", "minLength": 1},
+        "focus": {"type": "boolean"}
+      }
+    },
+    "sequence": {
+      "type": "object", "required": ["type", "steps"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "sequence"}, "as": {"$ref": "#/$defs/bindName"},
+        "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/action"}},
+        "continueOnError": {"type": "boolean"}
+      }
+    }
+  }
+}

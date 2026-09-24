@@ -80,6 +80,16 @@ internal object ScopeRules {
         "invalid" to SyntaxRole.INVALID,
     )
 
+    /**
+     * The scope prefixes that resolve to [role]. Theme `tokenColors` selectors are
+     * matched against these so a theme colours roles through this same table
+     * (docs/extension-sdk/lld/customization.md sec 8.2) instead of a second one.
+     */
+    fun prefixesFor(role: SyntaxRole): List<String> = PREFIXES_BY_ROLE[role].orEmpty()
+
+    private val PREFIXES_BY_ROLE: Map<SyntaxRole, List<String>> =
+        RULES.groupBy(keySelector = { it.second }, valueTransform = { it.first })
+
     /** Prefix -> role, sorted longest-first so the first hit is the most specific. */
     private val SORTED = RULES.sortedByDescending { it.first.length }
 

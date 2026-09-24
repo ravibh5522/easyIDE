@@ -1,0 +1,36 @@
+{
+  "name": "tablet-toolbar",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Tablet Toolbar",
+  "description": "One-tap editor actions for touch: save, comment, format, go to definition, references, rename, quick fix and the command palette, on the touch toolbar and the editor title menu.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "menus": {
+      "editor/touchToolbar": [
+        { "command": "workbench.action.files.save", "when": "activeEditorIsDirty", "group": "1_file@1" },
+        { "command": "editor.action.commentLine", "when": "editorLangId && !editorReadonly", "group": "2_edit@1" },
+        { "command": "editor.action.formatDocument", "when": "editorLangId && !editorReadonly && !editorHasSelection", "group": "2_edit@2" },
+        { "command": "editor.action.formatSelection", "when": "editorLangId && !editorReadonly && editorHasSelection", "group": "2_edit@2" },
+        { "command": "editor.action.quickFix", "when": "editorLangId && !editorReadonly", "group": "2_edit@3" },
+        { "command": "editor.action.rename", "when": "editorLangId && !editorReadonly", "group": "2_edit@4" },
+        { "command": "editor.action.revealDefinition", "when": "editorLangId", "group": "3_goto@1" },
+        { "command": "editor.action.goToReferences", "when": "editorLangId", "group": "3_goto@2" },
+        { "command": "editor.action.showHover", "when": "editorLangId", "group": "3_goto@3" },
+        { "command": "workbench.action.gotoSymbol", "when": "editorLangId", "group": "3_goto@4" },
+        { "command": "workbench.action.showCommands", "group": "9_palette@1" }
+      ],
+      "editor/title": [
+        { "command": "editor.action.formatDocument", "when": "editorLangId && !editorReadonly", "group": "1_modification@1" },
+        { "command": "editor.action.formatSelection", "when": "editorLangId && !editorReadonly && editorHasSelection", "group": "1_modification@2" },
+        { "command": "editor.action.commentLine", "when": "editorLangId && !editorReadonly", "group": "1_modification@3" },
+        { "command": "editor.action.revealDefinition", "when": "editorLangId", "group": "2_goto@1" },
+        { "command": "editor.action.goToReferences", "when": "editorLangId", "group": "2_goto@2" },
+        { "command": "editor.action.rename", "when": "editorLangId && !editorReadonly", "group": "2_goto@3" },
+        { "command": "editor.action.quickFix", "when": "editorLangId && !editorReadonly", "group": "2_goto@4" }
+      ]
+    }
+  }
+}

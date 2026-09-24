@@ -1,0 +1,6 @@
+<resources>
+    <!-- Night half of the DayNight pair in values/themes.xml. -->
+    <style name="Theme.EasyIde" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

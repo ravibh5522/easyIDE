@@ -12,5 +12,14 @@ class EasyIdeApplication : Application() {
         super.onCreate()
         container = AppContainer(this)
         TextMateHighlighter.init(this)
+        // Before any activity: the crash-journal verdict must hold before contributions register.
+        container.extensions.start()
+        SafeModeShortcut.publish(this)
+    }
+
+    /** Language servers shed memory before Android kills the app (lsp-lifecycle.md 3.2). */
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        container.lsp.onTrimMemory(level)
     }
 }

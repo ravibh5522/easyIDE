@@ -1,10 +1,12 @@
 package dev.easyide.sandbox.shell
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runInterruptible
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * A running command you can watch and talk to.
@@ -51,10 +53,36 @@ class TerminalProcess internal constructor(
     /**
      * Streams until the process exits or the coroutine is cancelled.
      *
+     * The read blocks instead of polling `available()`: polling either burns
+     * wakeups while a command is idle or adds latency to every chunk.
+     * Cancellation cannot rely on the thread interrupt [runInterruptible]
+     * sends - a read blocked on a pipe ignores it - so a sibling coroutine
+     * kills the process and closes the stream, which is what unblocks it.
+     *
      * @param onLines called with each batch of complete lines.
-     * @return the exit code, or [CANCELLED_EXIT_CODE] if cancelled.
+     * @return the exit code; a cancelled caller gets CancellationException.
      */
-    suspend fun stream(onLines: (List<String>) -> Unit): Int = withContext(ioDispatcher) {
+    suspend fun stream(onLines: (List<String>) -> Unit): Int = coroutineScope {
+        val finished = AtomicBoolean(false)
+        val unblocker = launch(ioDispatcher) {
+            try {
+                awaitCancellation()
+            } finally {
+                if (!finished.get()) {
+                    kill()
+                    runCatching { process.inputStream.close() }
+                }
+            }
+        }
+        try {
+            runInterruptible(ioDispatcher) { readUntilExit(onLines) }
+        } finally {
+            finished.set(true)
+            unblocker.cancel()
+        }
+    }
+
+    private fun readUntilExit(onLines: (List<String>) -> Unit): Int {
         val stream = process.inputStream
         val buffer = ByteArray(READ_BUFFER)
         val partial = StringBuilder()
@@ -72,32 +100,13 @@ class TerminalProcess internal constructor(
 
         try {
             while (true) {
-                if (!currentCoroutineContext().isActive) {
-                    kill()
-                    flush(force = true)
-                    return@withContext CANCELLED_EXIT_CODE
-                }
-
-                val available = stream.available()
-                if (available > 0) {
-                    val read = stream.read(buffer, 0, minOf(available, buffer.size))
-                    if (read < 0) break
-                    partial.append(String(buffer, 0, read))
-                    extractLines(partial, pending)
-                    flush(force = false)
-                    continue
-                }
-
-                if (!process.isAlive) {
-                    // Drain anything written between the last poll and exit.
-                    val remaining = stream.readBytes()
-                    if (remaining.isNotEmpty()) {
-                        partial.append(String(remaining))
-                        extractLines(partial, pending)
-                    }
-                    break
-                }
-                Thread.sleep(POLL_INTERVAL_MS)
+                // Returns -1 once every writer of the pipe has exited, so
+                // output written just before exit is drained, not dropped.
+                val read = stream.read(buffer)
+                if (read < 0) break
+                partial.append(String(buffer, 0, read))
+                extractLines(partial, pending)
+                flush(force = false)
             }
         } catch (cause: IOException) {
             // Boundary: the stream dies when the process is killed mid-read,
@@ -109,7 +118,7 @@ class TerminalProcess internal constructor(
         if (partial.isNotEmpty()) pending += partial.toString()
         flush(force = true)
 
-        runCatching { process.waitFor() }.getOrDefault(CANCELLED_EXIT_CODE)
+        return runCatching { process.waitFor() }.getOrDefault(CANCELLED_EXIT_CODE)
     }
 
     private fun extractLines(partial: StringBuilder, into: MutableList<String>) {
@@ -135,7 +144,6 @@ class TerminalProcess internal constructor(
 
     private companion object {
         const val READ_BUFFER = 16 * 1024
-        const val POLL_INTERVAL_MS = 25L
 
         /** Fast enough to feel live, slow enough not to flood recomposition. */
         const val FLUSH_INTERVAL_MS = 60L

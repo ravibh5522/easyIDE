@@ -1,0 +1,1 @@
+{ "scopeName": "source.python", "name": "Python", "patterns": [{ "match": "\\b(def|class)\\b", "name": "keyword.control.python" }] }

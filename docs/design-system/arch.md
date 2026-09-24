@@ -19,7 +19,7 @@ All theme definitions live as **`ColorScheme` token sets**, not scattered hex li
 
 ## Color system
 
-- **Seed-color-driven**: Material 3's tonal palette generation takes one seed color and derives the full `ColorScheme` (primary/secondary/tertiary/surface/error tones, each with on-color pairs) — avoids hand-picking dozens of individually-inconsistent colors.
+- **Palette-driven** (superseded seed-colour generation, see [decision 0019](../decision/0019-visual-identity.md)): each theme is a small hand-tuned `Palette` (neutral ramp, one accent, signals) derived into one `ThemeTokens` set that feeds both Material's `ColorScheme` and the workspace `EditorColors`; contrast is enforced by a JVM test.
 - **Semantic tokens only in component code**: components reference `colorScheme.primary`, `colorScheme.surfaceVariant`, etc. — never a literal hex value — so a theme switch or seed-color rebrand doesn't require touching component code.
 - **Status/signal colors** (git-dirty indicator, error/warning banners, sandbox-backend indicator for proot vs. chroot per [decision 0002](../decision/0002-sandbox-backend-proot-default-chroot-optin.md)) get their own named semantic tokens (e.g. `colorScheme.error`, a custom `LocalExtendedColors.gitDirty`) rather than inline colors, so they adapt correctly across all six themes automatically.
 

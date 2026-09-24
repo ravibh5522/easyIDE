@@ -1,0 +1,25 @@
+{
+  "name": "{{name}}",
+  "publisher": "{{publisher}}",
+  "version": "0.1.0",
+  "displayName": "{{displayName}}",
+  "description": "A touch toolbar button that runs a declarative action.",
+  "license": "MIT",
+  "engines": { "easyide": "{{engine}}" },
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      { "command": "{{name}}.hello", "title": "Say Hello", "category": "{{displayName}}", "icon": "check" }
+    ],
+    "menus": {
+      "editor/touchToolbar": [
+        { "command": "{{name}}.hello", "when": "editorLangId" }
+      ]
+    }
+  },
+  "easyide": {
+    "actions": {
+      "{{name}}.hello": { "type": "showMessage", "severity": "info", "text": "Hello from {{displayName}} in ${fileBasename}" }
+    }
+  }
+}

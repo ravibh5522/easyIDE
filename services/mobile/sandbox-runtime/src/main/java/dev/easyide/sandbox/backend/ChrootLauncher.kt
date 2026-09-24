@@ -28,7 +28,11 @@ class ChrootLauncher(
                 add(mkdirCommand("$rootfs${request.guestProjectPath}"))
                 add(bindCommand(host.absolutePath, "$rootfs${request.guestProjectPath}"))
             }
-            add(chrootCommand(rootfs, request.command))
+            request.extraBinds.forEach { bind ->
+                add(mkdirCommand("$rootfs${bind.guestPath}"))
+                add(bindCommand(bind.host.absolutePath, "$rootfs${bind.guestPath}"))
+            }
+            add(chrootCommand(rootfs, request.guestCwd?.let { withCwd(it, request.command) } ?: request.command))
         }.joinToString(separator = "\n")
 
         return LaunchSpec(
@@ -51,6 +55,14 @@ class ChrootLauncher(
     private fun mkdirCommand(target: String): String =
         "$busyboxBinary mkdir -p ${target.shellQuote()}"
 
+    /**
+     * `busybox chroot` has no working-directory option, so the guest's own shell
+     * changes into [cwd] and then execs the argv unchanged ("$0" is [cwd], "$@"
+     * the command), which keeps every argument one word with no re-quoting.
+     */
+    private fun withCwd(cwd: String, command: List<String>): List<String> =
+        listOf(GUEST_SHELL, GUEST_SHELL_FLAG, CD_THEN_EXEC, cwd) + command
+
     private fun chrootCommand(rootfs: String, command: List<String>): String {
         val quoted = command.joinToString(" ") { it.shellQuote() }
         return "$busyboxBinary chroot ${rootfs.shellQuote()} $quoted"
@@ -61,6 +73,9 @@ class ChrootLauncher(
         const val DEFAULT_BUSYBOX = "busybox"
         const val SU_COMMAND_FLAG = "-c"
         const val GUEST_HOME = "/root"
+        const val GUEST_SHELL = "/bin/sh"
+        const val GUEST_SHELL_FLAG = "-c"
+        const val CD_THEN_EXEC = "cd \"$0\" && exec \"$@\""
 
         /** source, guest target, filesystem type (null means bind mount). */
         val PASSTHROUGH_MOUNTS = listOf(

@@ -12,22 +12,24 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.easyide.app.ui.theme.SyntaxColors
+import dev.easyide.app.ui.theme.EasyIdeFonts
+import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.ui.theme.editorColors
 
 private val ROW_HEIGHT = 44.dp
 private val LANE_WIDTH = 14.dp
 private val DOT_RADIUS = 3.5.dp
 private const val MAX_DRAWN_LANES = 8
+
+/** Lines merely passing through a row sit slightly behind this row's own dot and connectors. */
+private const val PASSING_LANE_ALPHA = 0.85f
 
 /**
  * The commit graph: a drawn lane gutter beside the commit list.
@@ -58,9 +60,9 @@ private fun CommitRow(row: GraphRow, onCommitClick: (String) -> Unit) {
             .clickable { onCommitClick(row.commit.id) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        LaneGutter(row, laneCount, colors.syntax, Modifier.width(LANE_WIDTH * laneCount))
+        LaneGutter(row, laneCount, colors.lanes, Modifier.width(LANE_WIDTH * laneCount))
 
-        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+        Column(modifier = Modifier.weight(1f).padding(end = Spacing.s)) {
             Text(
                 text = row.commit.subject,
                 style = MaterialTheme.typography.bodySmall,
@@ -71,8 +73,8 @@ private fun CommitRow(row: GraphRow, onCommitClick: (String) -> Unit) {
             Text(
                 text = "${row.commit.shortId}  ${row.commit.authorName}",
                 style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily.Monospace,
-                color = colors.gutterText,
+                fontFamily = EasyIdeFonts.mono,
+                color = colors.textMuted,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -84,11 +86,9 @@ private fun CommitRow(row: GraphRow, onCommitClick: (String) -> Unit) {
 private fun LaneGutter(
     row: GraphRow,
     laneCount: Int,
-    syntax: SyntaxColors,
+    palette: List<Color>,
     modifier: Modifier,
 ) {
-    val palette = remember(syntax) { syntax.lanePalette() }
-
     Canvas(modifier = modifier.height(ROW_HEIGHT)) {
         val laneW = LANE_WIDTH.toPx()
         val midY = size.height / 2f
@@ -98,7 +98,7 @@ private fun LaneGutter(
         // so consecutive rows join without seams.
         row.passing.filter { it < laneCount }.forEach { lane ->
             drawLine(
-                color = palette[lane % palette.size].copy(alpha = 0.85f),
+                color = palette[lane % palette.size].copy(alpha = PASSING_LANE_ALPHA),
                 start = Offset(laneX(lane), 0f),
                 end = Offset(laneX(lane), size.height),
                 strokeWidth = 2f,
@@ -127,10 +127,3 @@ private fun LaneGutter(
         }
     }
 }
-
-/**
- * Lane colours come from the syntax token set rather than new constants, so the
- * graph stays in step with whichever of the six themes is active.
- */
-private fun SyntaxColors.lanePalette(): List<Color> =
-    listOf(keyword, function, type, string, constant, tag, regexp, number)
