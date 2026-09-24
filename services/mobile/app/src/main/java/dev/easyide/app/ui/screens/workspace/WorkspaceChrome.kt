@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.FolderCopy
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +52,7 @@ fun ActivityBar(
     onToggleTerminal: () -> Unit,
     onShowCommands: () -> Unit,
     onShowExtensions: () -> Unit,
+    onOpenSettings: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -75,6 +77,7 @@ fun ActivityBar(
             onShowCommands,
         )
         ActivityBarButton(Icons.Filled.Extension, stringResource(R.string.command_show_extensions), false, onShowExtensions)
+        ActivityBarButton(Icons.Filled.Settings, stringResource(R.string.nav_settings), false, onOpenSettings)
     }
 }
 

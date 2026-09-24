@@ -42,10 +42,10 @@ IDs match [arch.md](arch.md).
 | PS4-PS9 remaining structural perf | in-progress | PS5, PS7, PS8 done; PS4 editor part done; PS6, PS9 not started |
 | **Phase 2 — layout + editor** | | |
 | Resizable, persisted panes | not-started | |
-| New Home (list-detail, rich cards, search) | not-started | |
+| New Home (list-detail, rich cards, search) | done | List-detail at EXPANDED, one column + detail screen below; cards with monogram, branch/dirty (JGit `GitService.summary`, cached, 2 at a time), language dot, environment badge, relative time; search + sort; long-press/right-click menu (rename, duplicate, delete with confirm, change environment, open folder location); import folder (SAF) and clone (https, through `GitRemote`, environment must be installed; no PAT entry UI yet, so private repos fail with an explanatory message); skeleton, empty state, Install Linux prompt. `ProjectManager.rename/duplicate/delete` real, symlink-safe (`SafeTree`), never touch environments. "Open with terminal" reveals the terminal panel (no terminal-only workspace mode exists); sessions info not shown (no tmux sessions yet). Settings added to the workspace rail. Built + unit tests; not run on device |
 | Compact bottom switcher + modal drawer | not-started | |
 | Foldable postures | not-started | |
-| Stepped onboarding | not-started | |
+| Stepped onboarding | done | Welcome, battery exemption (real system intent, state re-read on resume), notifications (API 33+), first environment (preset, real download/unpack/setup progress, cancel, retry/resume, classified actionable errors), Done; complete only at the end; skipping the environment leaves Home's Install Linux prompt (same content on `install_linux`). See [0021](../decision/0021-onboarding-permissions-and-install-keepalive.md). Built + unit tests; not run on device |
 | Living status bar | not-started | |
 | Tab strip (overflow, reorder, MRU, menus) | not-started | |
 | Right-click / hover / pinch zoom | not-started | |

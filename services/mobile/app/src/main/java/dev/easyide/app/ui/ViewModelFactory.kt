@@ -9,6 +9,7 @@ import dev.easyide.app.AppContainer
 import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
+import dev.easyide.app.ui.screens.onboarding.EnvironmentSetupViewModel
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
 
@@ -25,6 +26,17 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
             HomeViewModel::class.java -> HomeViewModel(
                 projectManager = container.projectManager,
                 environmentManager = container.environmentManager,
+                projectFiles = container.projectFiles,
+                gitService = container.gitService,
+                externalFolderSync = container.externalFolderSync,
+                cloner = container.gitRemote::clone,
+                defaultEnvironmentId = container.uiPreferences.defaultEnvironmentId,
+            )
+
+            EnvironmentSetupViewModel::class.java -> EnvironmentSetupViewModel(
+                environmentManager = container.environmentManager,
+                linuxEnvironment = container.linuxEnvironment,
+                keepAlive = container.installKeepAlive,
             )
 
             NewProjectViewModel::class.java -> NewProjectViewModel(

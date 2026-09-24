@@ -485,6 +485,8 @@ class WorkspaceViewModel(
 
     fun onNewTerminal() = terminals.newShell()
 
+    fun revealTerminal() = terminals.reveal()
+
     fun onRenameTerminal(id: String, title: String) = terminals.rename(id, title)
 
     fun onSelectTerminal(id: String) = terminals.select(id)

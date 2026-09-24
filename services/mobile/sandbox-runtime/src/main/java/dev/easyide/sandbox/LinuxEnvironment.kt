@@ -4,6 +4,7 @@ import android.os.Build
 import dev.easyide.sandbox.backend.GuestBind
 import dev.easyide.sandbox.backend.GuestEnvironment
 import dev.easyide.sandbox.backend.GuestBindSource
+import dev.easyide.sandbox.bootstrap.InstallEvent
 import dev.easyide.sandbox.bootstrap.ProgressReporter
 import dev.easyide.sandbox.bootstrap.ProotInstaller
 import dev.easyide.sandbox.bootstrap.RootfsProvisioner
@@ -53,10 +54,16 @@ class LinuxEnvironment(
      * Setup output is streamed through [onProgress] rather than swallowed: an
      * apt install is minutes of work, and a silent progress bar during it is
      * indistinguishable from a hang.
+     *
+     * @param onEvent structured progress (see [InstallEvent]) for a progress bar. Listed before
+     *   [onProgress] so existing trailing-lambda callers keep binding to the text reporter.
+     *   Cancelling the caller aborts the install: a download keeps its partial
+     *   file, so the next attempt resumes instead of restarting.
      */
     suspend fun install(
         environmentId: String,
         image: SandboxImage,
+        onEvent: (InstallEvent) -> Unit = {},
         onProgress: ProgressReporter,
     ): Result<Unit> = runCatching {
         val rootfsArchive = image.rootfsFor(Build.SUPPORTED_ABIS.toList())
@@ -66,6 +73,7 @@ class LinuxEnvironment(
             )
 
         onProgress("Installing proot...")
+        onEvent(InstallEvent.PreparingRuntime)
         paths.ensureBaseDirs()
         val installation = prootInstaller.ensureInstalled(paths.runtimeDir).getOrThrow()
 
@@ -76,13 +84,14 @@ class LinuxEnvironment(
             // and every later environment extracts from the same file.
             archive = paths.cachedImage(imageIdFor(rootfsArchive.url)),
             onProgress = onProgress,
+            onEvent = onEvent,
         ).getOrThrow()
 
         if (!isReady(environmentId)) {
             throw SandboxError.ProvisioningFailed(environmentId, "rootfs has no $GUEST_SHELL_RELATIVE")
         }
 
-        runSetup(environmentId, image, installation, onProgress)
+        runSetup(environmentId, image, installation, onProgress, onEvent)
         onProgress("${image.label} ready.")
     }
 
@@ -91,12 +100,14 @@ class LinuxEnvironment(
         image: SandboxImage,
         installation: ProotInstaller.Installation,
         onProgress: ProgressReporter,
+        onEvent: (InstallEvent) -> Unit,
     ) {
         if (image.setupCommands.isEmpty()) return
         val shell = SandboxShell(installation, ioDispatcher)
         val rootfs = rootfsFor(environmentId)
 
-        image.setupCommands.forEach { command ->
+        image.setupCommands.forEachIndexed { index, command ->
+            onEvent(InstallEvent.Setup(index + 1, image.setupCommands.size, command))
             var exit = runInGuest(shell, rootfs, command, onProgress)
             var attempt = 1
 

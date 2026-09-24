@@ -9,6 +9,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import dev.easyide.app.AppContainer
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.WorkspaceViewModelFactory
@@ -16,10 +18,12 @@ import dev.easyide.app.ui.appViewModel
 import dev.easyide.app.ui.foundation.NavTransitions
 import dev.easyide.app.ui.screens.extensions.ExtensionsScreen
 import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
+import dev.easyide.app.ui.screens.home.HomeCallbacks
 import dev.easyide.app.ui.screens.home.HomeScreen
 import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectScreen
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
+import dev.easyide.app.ui.screens.onboarding.InstallLinuxScreen
 import dev.easyide.app.ui.screens.onboarding.OnboardingScreen
 import dev.easyide.app.ui.screens.settings.ProjectSettingsScope
 import dev.easyide.app.ui.screens.settings.SettingsScreen
@@ -54,7 +58,8 @@ fun AppNavHost(
     ) {
         composable(Destination.Onboarding.route) {
             OnboardingScreen(
-                onContinue = {
+                setup = appViewModel(viewModelFactory),
+                onFinished = {
                     onOnboardingComplete()
                     navController.navigate(Destination.Home.route) {
                         popUpTo(Destination.Onboarding.route) { inclusive = true }
@@ -63,23 +68,55 @@ fun AppNavHost(
             )
         }
 
+        composable(Destination.InstallLinux.route) {
+            InstallLinuxScreen(setup = appViewModel(viewModelFactory), onBack = { navController.popBackStack() })
+        }
+
         composable(Destination.Home.route) {
             val viewModel: HomeViewModel = appViewModel(viewModelFactory)
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
             HomeScreen(
                 uiState = uiState,
-                onOpenProject = { item ->
-                    viewModel.onProjectOpened(item.project.id)
-                    navController.navigate(Destination.Workspace.routeFor(item.project.id))
-                },
-                onNewProject = { navController.navigate(Destination.NewProject.route) },
-                onOpenSettings = { navController.navigate(Destination.Settings.route) },
+                externalFolderSync = container.externalFolderSync,
+                callbacks = HomeCallbacks(
+                    onQueryChanged = viewModel::onQueryChanged,
+                    onSortChanged = viewModel::onSortChanged,
+                    onSelect = viewModel::onSelect,
+                    onCloseDetail = viewModel::onCloseDetail,
+                    onResumed = viewModel::onResumed,
+                    onOpenProject = { item, withTerminal ->
+                        viewModel.onProjectOpened(item.project.id)
+                        navController.navigate(Destination.Workspace.routeFor(item.project.id, withTerminal))
+                    },
+                    onNewProject = { navController.navigate(Destination.NewProject.route) },
+                    onOpenSettings = { navController.navigate(Destination.Settings.route) },
+                    onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
+                    onDialog = viewModel::onDialog,
+                    onFolderPicked = viewModel::onFolderPicked,
+                    onFolderPickFailed = viewModel::onFolderPickFailed,
+                    onMessageShown = viewModel::onMessageShown,
+                    rename = viewModel::rename,
+                    duplicate = viewModel::duplicate,
+                    delete = viewModel::delete,
+                    changeEnvironment = viewModel::changeEnvironment,
+                    importFolder = viewModel::importFolder,
+                    clone = viewModel::clone,
+                ),
             )
         }
 
-        composable(Destination.Workspace.route) { backStackEntry ->
+        composable(
+            route = Destination.Workspace.route,
+            arguments = listOf(
+                navArgument(Destination.Workspace.ARG_OPEN_TERMINAL) {
+                    type = NavType.BoolType
+                    defaultValue = false
+                },
+            ),
+        ) { backStackEntry ->
             val projectId = backStackEntry.arguments?.getString(Destination.Workspace.ARG_PROJECT_ID).orEmpty()
+            val openTerminal = backStackEntry.arguments?.getBoolean(Destination.Workspace.ARG_OPEN_TERMINAL) == true
             // Straight from the repository rather than a second HomeViewModel:
             // null means the store has not emitted yet, which is distinct from
             // "loaded, and no such project".
@@ -100,6 +137,7 @@ fun AppNavHost(
             )
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
+            LaunchedEffect(projectId) { if (openTerminal) workspaceViewModel.revealTerminal() }
 
             ProjectSettingsScope(container, projectId, environmentId) {
             WorkspaceScreen(
@@ -112,6 +150,7 @@ fun AppNavHost(
                 extensions = container.extensions,
                 selections = workspaceViewModel.selections,
                 onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
+                onOpenSettings = { navController.navigate(Destination.Settings.route) },
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
                     onCommit = workspaceViewModel::commitGit,

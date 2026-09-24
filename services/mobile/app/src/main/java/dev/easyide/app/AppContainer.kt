@@ -2,6 +2,9 @@ package dev.easyide.app
 
 import android.content.Context
 import dev.easyide.sandbox.git.GitCredentials
+import dev.easyide.sandbox.git.GitRemote
+import dev.easyide.sandbox.service.SandboxForegroundService
+import dev.easyide.app.ui.screens.onboarding.InstallKeepAlive
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
@@ -169,6 +172,20 @@ class AppContainer(context: Context) {
         // `extensions` below is constructed.
         guestBinds = EnvironmentExtensionBinds(paths) { envId, id -> extensions.isEnabledIn(envId, id.value) },
     )
+
+    /** Network git (clone, pull, push) through the guest's own `git`; tokens come from [gitCredentials]. */
+    val gitRemote = GitRemote(linuxEnvironment, gitCredentials, Dispatchers.IO)
+
+    /** Holds the sandbox foreground service open while an install runs, so backgrounding the app does not kill it. */
+    val installKeepAlive: InstallKeepAlive = object : InstallKeepAlive {
+        // Starting a foreground service can be refused (background-start limits on Android 12+, a
+        // missing permission); the install then simply runs unprotected, which is what it did before.
+        override fun start() {
+            runCatching { SandboxForegroundService.start(appContext) }
+        }
+
+        override fun stop() = SandboxForegroundService.stop(appContext)
+    }
 
     /** The extension platform; started by [EasyIdeApplication] before any screen exists. */
     val extensions: ExtensionsContainer = ExtensionsContainer(

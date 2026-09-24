@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
@@ -39,6 +40,12 @@ import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
 import dev.easyide.app.ui.components.ChoiceCard
 import dev.easyide.app.ui.components.EnvironmentBadge
+import dev.easyide.app.ui.components.label
+import dev.easyide.app.ui.theme.IconSize
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.Stroke
+import dev.easyide.app.ui.theme.editorColors
+import dev.easyide.app.ui.theme.sectionHeader
 import dev.easyide.app.ui.components.rememberFolderPicker
 import dev.easyide.app.ui.foundation.motionSpec
 import dev.easyide.sandbox.external.ExternalFolderSync
@@ -89,21 +96,21 @@ fun NewProjectScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = CONTENT_PADDING_DP.dp, vertical = 8.dp),
+                .padding(horizontal = Spacing.l, vertical = Spacing.s),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
                 // Capped so a long form does not stretch into an unreadable
                 // single line across an expanded tablet.
-                modifier = Modifier.widthIn(max = MAX_FORM_WIDTH_DP.dp).fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.widthIn(max = MAX_FORM_WIDTH).fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Spacing.l),
             ) {
                 OutlinedTextField(
                     value = uiState.projectName,
                     onValueChange = onProjectNameChanged,
                     label = { Text(stringResource(R.string.new_project_name_label)) },
                     singleLine = true,
-                    isError = uiState.errorMessage != null,
+                    isError = uiState.error != null,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -116,13 +123,14 @@ fun NewProjectScreen(
                 )
 
                 Text(
-                    text = stringResource(R.string.new_project_environment_section),
-                    style = MaterialTheme.typography.titleSmall,
+                    text = stringResource(R.string.new_project_environment_section).uppercase(),
+                    style = MaterialTheme.typography.sectionHeader,
+                    color = editorColors.textMuted,
                 )
 
                 Column(
                     modifier = Modifier.selectableGroup(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.s),
                 ) {
                     if (uiState.canReuse) {
                         ChoiceCard(
@@ -159,12 +167,12 @@ fun NewProjectScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = uiState.errorMessage != null,
+                    visible = uiState.error != null,
                     enter = fadeIn(motionSpec()),
                     exit = fadeOut(motionSpec()),
                 ) {
                     Text(
-                        text = uiState.errorMessage.orEmpty(),
+                        text = uiState.error?.text().orEmpty(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -177,8 +185,8 @@ fun NewProjectScreen(
                 ) {
                     if (uiState.isSubmitting) {
                         CircularProgressIndicator(
-                            modifier = Modifier.padding(end = 8.dp),
-                            strokeWidth = PROGRESS_STROKE_DP.dp,
+                            modifier = Modifier.padding(end = Spacing.s).size(IconSize.m),
+                            strokeWidth = Stroke.accentBar,
                         )
                     }
                     Text(stringResource(R.string.action_create))
@@ -235,16 +243,16 @@ private fun ExistingEnvironmentPicker(
     uiState: NewProjectUiState,
     onEnvironmentSelected: (String) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
         uiState.availableEnvironments.forEach { environment ->
             ChoiceCard(
                 selected = uiState.selectedEnvironmentId == environment.id,
                 title = environment.label,
-                body = environment.backend.name,
+                body = environment.backend.label(),
                 onClick = { onEnvironmentSelected(environment.id) },
                 trailing = {
                     EnvironmentBadge(
-                        label = environment.state.name,
+                        label = environment.state.label(),
                         state = environment.state,
                         sharedWithCount = 0,
                     )
@@ -261,7 +269,7 @@ private fun NewEnvironmentForm(
     onBackendSelected: (SandboxBackend) -> Unit,
     onImageSelected: (String) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
         OutlinedTextField(
             value = uiState.newEnvironmentLabel,
             onValueChange = onNewEnvironmentLabelChanged,
@@ -271,12 +279,13 @@ private fun NewEnvironmentForm(
         )
 
         Text(
-            text = stringResource(R.string.new_project_image_label),
-            style = MaterialTheme.typography.labelLarge,
+            text = stringResource(R.string.new_project_image_label).uppercase(),
+            style = MaterialTheme.typography.sectionHeader,
+            color = editorColors.textMuted,
         )
         Column(
             modifier = Modifier.selectableGroup(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
             uiState.availableImages.forEach { image ->
                 ChoiceCard(
@@ -292,15 +301,16 @@ private fun NewEnvironmentForm(
         // unrooted devices never see a chroot option they cannot use.
         if (uiState.availableBackends.size > 1) {
             Text(
-                text = stringResource(R.string.new_project_backend_label),
-                style = MaterialTheme.typography.labelLarge,
+                text = stringResource(R.string.new_project_backend_label).uppercase(),
+                style = MaterialTheme.typography.sectionHeader,
+                color = editorColors.textMuted,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 uiState.availableBackends.forEach { backend ->
                     FilterChip(
                         selected = uiState.selectedBackend == backend,
                         onClick = { onBackendSelected(backend) },
-                        label = { Text(backend.name) },
+                        label = { Text(backend.label()) },
                     )
                 }
             }
@@ -319,6 +329,14 @@ private fun NewEnvironmentForm(
     }
 }
 
-private const val CONTENT_PADDING_DP = 16
-private const val MAX_FORM_WIDTH_DP = 560
-private const val PROGRESS_STROKE_DP = 2
+/** Capped so a long form does not stretch into an unreadable single line across an expanded tablet. */
+private val MAX_FORM_WIDTH = 560.dp
+
+@Composable
+private fun NewProjectError.text(): String = when (this) {
+    NewProjectError.NameTaken -> stringResource(R.string.home_error_name_taken)
+    NewProjectError.NameBlank -> stringResource(R.string.home_error_name_blank)
+    NewProjectError.FolderPickFailed -> stringResource(R.string.new_project_error_folder)
+    is NewProjectError.Other -> detail?.let { stringResource(R.string.home_error_other_detail, it) }
+        ?: stringResource(R.string.new_project_error_generic)
+}

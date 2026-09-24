@@ -34,7 +34,7 @@
     <string name="new_project_reuse">Reuse an existing environment</string>
     <string name="new_project_reuse_body">Shares an already-provisioned toolchain. Faster, and no extra disk.</string>
     <string name="new_project_create_new">Create a new environment</string>
-    <string name="new_project_create_new_body">A clean, isolated rootfs for this project. Provisioned from scratch.</string>
+    <string name="new_project_create_new_body">A separate Linux install for this project, set up from scratch.</string>
     <string name="new_project_environment_label">Environment name</string>
     <string name="new_project_backend_label">Backend</string>
     <string name="new_project_image_label">Preset</string>

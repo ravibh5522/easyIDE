@@ -35,6 +35,24 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
 
     suspend fun status(projectDir: File): GitResult<GitStatus> = run(projectDir) { it.status() }
 
+    /**
+     * Branch and change count without opening a workspace, for project lists.
+     * Reuses a handle the workspace already holds, but never caches a new one:
+     * a list of many projects would otherwise pin a JGit repository per row.
+     */
+    suspend fun summary(projectDir: File): GitResult<GitSummary> = withContext(ioDispatcher) {
+        runCatching {
+            if (!GitRepository.isRepository(projectDir)) return@runCatching null
+            val cached = synchronized(openRepositories) {
+                openRepositories[projectDir.absolutePath]?.takeIf { it.gitDirExists() }
+            }
+            cached?.summary() ?: GitRepository.open(projectDir)?.use { it.summary() }
+        }.fold(
+            onSuccess = { value -> if (value == null) GitResult.NotARepository else GitResult.Success(value) },
+            onFailure = { GitResult.Failure(it.message ?: it::class.java.simpleName) },
+        )
+    }
+
     suspend fun stage(projectDir: File, paths: Collection<String>): GitResult<GitStatus> =
         run(projectDir) { it.stage(paths); it.status() }
 

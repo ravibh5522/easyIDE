@@ -17,8 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import dev.easyide.app.ui.foundation.motionSpec
+import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.theme.Stroke
 
 /**
  * A selectable option with a title, an explanation, and optional trailing
@@ -62,17 +63,17 @@ fun ChoiceCard(
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
         shape = MaterialTheme.shapes.medium,
         color = containerColor,
-        border = BorderStroke(BORDER_WIDTH_DP.dp, borderColor),
+        border = BorderStroke(Stroke.hairline, borderColor),
     ) {
         Row(
-            modifier = Modifier.padding(CARD_PADDING_DP.dp),
+            modifier = Modifier.padding(Spacing.m),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
             RadioButton(selected = selected, onClick = null)
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(Spacing.xxs),
             ) {
                 Text(text = title, style = MaterialTheme.typography.titleSmall)
                 Text(
@@ -86,5 +87,3 @@ fun ChoiceCard(
     }
 }
 
-private const val BORDER_WIDTH_DP = 1
-private const val CARD_PADDING_DP = 12

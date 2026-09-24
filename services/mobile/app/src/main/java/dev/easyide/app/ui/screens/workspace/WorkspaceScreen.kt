@@ -107,6 +107,7 @@ fun WorkspaceScreen(
     extensions: ExtensionsContainer,
     selections: EditorSelections,
     onOpenExtensions: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val onRefreshGit = gitCallbacks.onRefresh
@@ -234,6 +235,7 @@ fun WorkspaceScreen(
                     onToggleTerminal = stages::toggleBottom,
                     onShowCommands = { paletteOpen = true },
                     onShowExtensions = onOpenExtensions,
+                    onOpenSettings = onOpenSettings,
                     onBack = requestLeave,
                 )
                 VerticalDivider()

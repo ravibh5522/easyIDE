@@ -44,6 +44,9 @@ class GitRepository private constructor(
     /** True before the first commit, when `HEAD` points at an unborn branch. */
     fun isUnborn(): Boolean = repository.resolve(Constants.HEAD) == null
 
+    /** Just what a project list shows: the branch and how many paths differ from HEAD. */
+    fun summary(): GitSummary = status().let { GitSummary(it.branch, it.totalChanges) }
+
     /**
      * Working tree and index state in one pass.
      *
@@ -228,6 +231,11 @@ data class GitStatus(
     companion object {
         val NONE = GitStatus("", emptyList(), emptyList(), emptyList(), isClean = true)
     }
+}
+
+/** Branch plus number of changed paths (staged, unstaged, untracked, conflicting). */
+data class GitSummary(val branch: String, val changedFiles: Int) {
+    val isDirty: Boolean get() = changedFiles > 0
 }
 
 data class GitCommit(

@@ -3,11 +3,14 @@ package dev.easyide.sandbox.bootstrap
 import dev.easyide.sandbox.SandboxError
 import dev.easyide.sandbox.backend.GuestEnvironment
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import dev.easyide.sandbox.download.DownloadError
 import dev.easyide.sandbox.download.DownloadEvent
 import dev.easyide.sandbox.download.DownloadRequest
 import dev.easyide.sandbox.download.VerifiedDownloader
+import dev.easyide.sandbox.files.SafeTree
 import dev.easyide.sandbox.model.RootfsArchive
 import java.io.File
 
@@ -38,22 +41,27 @@ class RootfsProvisioner(
      * @return failure with [SandboxError.ProvisioningFailed] when the download
      *   fails or its sha256 does not match [RootfsArchive.sha256]; a mismatch
      *   deletes the partial file, an interruption keeps it for resume.
+     * @param onEvent structured progress for a UI; [onProgress] carries the same
+     *   story as text. Cancelling the caller stops the download (its partial
+     *   file is kept for resume) or the extraction (its half-unpacked rootfs is
+     *   removed, so it can never be mistaken for a usable one).
      */
     suspend fun provision(
         source: RootfsArchive,
         rootfs: File,
         archive: File,
         onProgress: ProgressReporter,
+        onEvent: (InstallEvent) -> Unit = {},
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
             rootfs.mkdirs()
             // A cached archive is re-hashed, not trusted: images cached by
             // builds that predate checksums, or damaged on disk, are replaced
             // instead of being extracted into a broken rootfs.
-            fetch(source, archive, onProgress)
+            fetch(source, archive, onProgress, onEvent)
 
             onProgress("Extracting rootfs (this takes a minute)...")
-            val result = archive.inputStream().buffered().use { extractor.extract(it, rootfs) }
+            val result = extractOrWipe(archive, rootfs, onEvent)
             onProgress(
                 "Extracted ${result.entries} files, ${result.symlinks} links, " +
                     "${result.hardLinksCopied} hard links copied"
@@ -108,7 +116,13 @@ class RootfsProvisioner(
      * Progress is reported per megabyte, not per event, so the terminal does
      * not drown in progress lines.
      */
-    private suspend fun fetch(source: RootfsArchive, archive: File, onProgress: ProgressReporter) {
+    private suspend fun fetch(
+        source: RootfsArchive,
+        archive: File,
+        onProgress: ProgressReporter,
+        onEvent: (InstallEvent) -> Unit,
+    ) {
+        var resumedFrom = 0L
         var lastReportedMb = -1L
         val request = DownloadRequest(
             url = source.url,
@@ -119,14 +133,19 @@ class RootfsProvisioner(
         try {
             downloader.download(request).collect { event ->
                 when (event) {
-                    is DownloadEvent.Started -> onProgress(
-                        if (event.resumedFrom > 0) {
-                            "Resuming ${source.url} at ${event.resumedFrom / MB} MB"
-                        } else {
-                            "Downloading ${source.url}"
-                        }
-                    )
+                    is DownloadEvent.Started -> {
+                        resumedFrom = event.resumedFrom
+                        onEvent(InstallEvent.Downloading(event.resumedFrom, event.totalBytes, event.resumedFrom))
+                        onProgress(
+                            if (event.resumedFrom > 0) {
+                                "Resuming ${source.url} at ${event.resumedFrom / MB} MB"
+                            } else {
+                                "Downloading ${source.url}"
+                            }
+                        )
+                    }
                     is DownloadEvent.Progress -> {
+                        onEvent(InstallEvent.Downloading(event.bytes, event.totalBytes, resumedFrom))
                         val mb = event.bytes / MB
                         if (mb != lastReportedMb) {
                             lastReportedMb = mb
@@ -144,6 +163,29 @@ class RootfsProvisioner(
             }
         } catch (e: DownloadError) {
             throw SandboxError.ProvisioningFailed(archive.name, e.message.orEmpty(), e)
+        }
+    }
+
+    /**
+     * Unpacks [archive] into [rootfs]; if that fails or is cancelled part-way,
+     * removes what was written. [LinuxEnvironment.isReady] only looks for a
+     * shell, and a half-unpacked tree can already contain one.
+     */
+    private suspend fun extractOrWipe(
+        archive: File,
+        rootfs: File,
+        onEvent: (InstallEvent) -> Unit,
+    ): TarGzExtractor.Result {
+        val context = currentCoroutineContext()
+        try {
+            val total = archive.length()
+            val stream = ObservedInputStream(archive.inputStream().buffered(), context, total) { read, all ->
+                onEvent(InstallEvent.Extracting(read, all))
+            }
+            return stream.use { extractor.extract(it, rootfs) }
+        } catch (cause: Throwable) {
+            withContext(NonCancellable) { SafeTree.deleteRecursively(rootfs) }
+            throw cause
         }
     }
 

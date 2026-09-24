@@ -32,3 +32,4 @@ Lightweight ADRs (Architecture Decision Records) for major, hard-to-reverse choi
 | [0017](0017-lsp-client-hand-rolled-server-lifecycle.md) | LSP client: hand-rolled JSON-RPC in the app process; one server per (environment, project, server) | Accepted |
 | [0018](0018-editor-engine-and-decorations.md) | Editor engine: keep the text field, add engine-neutral decoration layers now, build our own line-virtualised editor next | Accepted |
 | [0019](0019-visual-identity.md) | Visual identity: graphite neutrals, iris accent, Geist type, one `ThemeTokens` system for chrome + editor + terminal | Proposed |
+| [0021](0021-onboarding-permissions-and-install-keepalive.md) | Onboarding asks for battery exemption and notifications; installs run under the foreground service | Accepted |
