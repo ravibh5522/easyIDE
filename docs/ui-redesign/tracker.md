@@ -17,7 +17,7 @@ Design: [arch.md](arch.md). Design accepted by the owner on 2026-09-24 (ADR 0025
 | Roborazzi compatibility spike | not-started | AGP 9.3.1 / Kotlin 2.4.10 unverified; Dropshots fallback |
 | `Appearance`, `UiMetrics`, `Motion`, `Feel` + settings schema | done | `ui/props`, `AppearanceSettingsSchema`; defaults equal today's constants (test); wired into `EasyIdeTheme` (accent, scale, shapes, typography, motion) |
 | Token refactors 1-10 (kit.md section 6) | in-progress | done: 2 radius scale, 3 shapes fn, 5-6 typography by pairing, 7 theme takes `Appearance`, 8 `withAccent`, 10 (follows accent); open: 1 spacing call sites, 4 control scale call sites, 9 semantic accessors + `Tone` |
-| Kit primitives (about 20) + gallery | not-started | kit.md section 3 |
+| Kit primitives (about 20) + gallery | in-progress | input primitives landed (field, button, icon button, tag, banner, dialog, tabs, toggle, menu, choice, stepper): compile and JVM rule tests only, not seen on a device; open: scaffold, section, group, row, empty state, progress (KIT-A), gallery |
 | Motif drawables (cursor block, crop corners, prompt glyph, cell fill) | not-started | block is drawn: Geist Mono has no U+25AE |
 | **R1 App shell** | | |
 | `ShellState`, registries (navigation, container, document) | not-started | |
