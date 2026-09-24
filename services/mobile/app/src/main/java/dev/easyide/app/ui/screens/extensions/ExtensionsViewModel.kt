@@ -18,7 +18,10 @@ import dev.easyide.app.data.settings.AuthoringSettingsSchema
 import dev.easyide.app.extensions.authoring.ExtensionScaffold
 import dev.easyide.app.extensions.authoring.ScaffoldResult
 import dev.easyide.app.extensions.dev.DevPending
+import dev.easyide.app.extensions.install.AssetTree
 import dev.easyide.app.extensions.install.FileFolder
+import dev.easyide.app.extensions.install.SampleInfo
+import dev.easyide.app.extensions.install.SamplePacks
 import dev.easyide.app.extensions.install.FolderNode
 import dev.easyide.app.extensions.install.RollbackResult
 import dev.easyide.app.extensions.install.StageResult
@@ -167,6 +170,12 @@ class ExtensionsViewModel(
     ) { view, records, q, installed -> BrowseState.build(view, records, q, installed, Instant.now()) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), BrowseUiState())
 
+    private val samplePacks = SamplePacks(AssetTree.of(appContext.assets))
+    private val samplesState = MutableStateFlow<List<SampleInfo>?>(null)
+
+    /** The bundled sample packs while their list is open, else null. */
+    val samples: StateFlow<List<SampleInfo>?> = samplesState.asStateFlow()
+
     private val createState = MutableStateFlow<CreateState>(CreateState.Idle)
 
     /** In-app "Create extension" (M5): the form, then what was written. */
@@ -245,7 +254,7 @@ class ExtensionsViewModel(
         val all: List<Owned<*>> = s.commands + s.menus + s.keybindings + s.configuration + s.configurationDefaults +
             s.languages + s.grammars + s.languageConfigurations + s.snippets + s.themes + s.iconThemes + s.viewContainers +
             s.views + s.viewsWelcome + s.taskDefinitions + s.problemMatchers + s.walkthroughs + s.stages + s.statusBarItems +
-            s.keyRows + s.languageServers + s.sandbox + s.viewData
+            s.keyRows + s.languageServers + s.sandbox + s.viewData + s.navigation + s.viewBadges + s.documents + s.documentOpeners + s.layoutPresets
         return all.filter { it.owner == owner }.map { o ->
             val entry = runtime.contributions.inspect(o.ref, overrides.hidden)
             val ref = o.ref.toString()
@@ -345,6 +354,19 @@ class ExtensionsViewModel(
     fun stageFolder(uri: Uri) = stage {
         val root = DocumentFile.fromTreeUri(appContext, uri) ?: throw FileNotFoundException(uri.toString())
         extensions.installer.stageFolder(DocumentFolder(root, appContext))
+    }
+
+    /** Opens the list of bundled sample packs (Docker, Agents, Chat). */
+    fun openSamples() {
+        viewModelScope.launch { samplesState.value = withContext(Dispatchers.IO) { samplePacks.list() } }
+    }
+
+    fun closeSamples() { samplesState.value = null }
+
+    /** Stages the bundled pack [id] like a picked folder: validation, then the capability sheet, and nothing runs before the user approves. */
+    fun installSample(id: String) {
+        samplesState.value = null
+        stage { withContext(Dispatchers.IO) { samplePacks.folder(id) }?.let { extensions.installer.stageFolder(it) } ?: StageResult.Rejected(listOf("no sample pack $id")) }
     }
 
     fun setQuery(text: String) { query.value = text }

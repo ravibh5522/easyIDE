@@ -113,6 +113,7 @@ private fun PanelHeader(showRefresh: Boolean, onRefresh: () -> Unit, viewModel: 
                     KitMenuItem.Action(stringResource(R.string.extui_install_registry), onBrowse),
                     KitMenuItem.Action(stringResource(R.string.extui_install_file), { pickFile.launch(arrayOf(ANY_MIME)) }),
                     KitMenuItem.Action(stringResource(R.string.extui_install_folder), { pickFolder.launch(null) }),
+                    KitMenuItem.Action(stringResource(R.string.extui_install_sample), viewModel::openSamples),
                     KitMenuItem.Divider,
                     KitMenuItem.Action(stringResource(R.string.create_ext_action), viewModel::openCreate),
                 ),

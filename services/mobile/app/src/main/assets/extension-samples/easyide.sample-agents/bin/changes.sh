@@ -7,5 +7,5 @@ out=$(git status --porcelain 2>&1) || fail "not a git repository"
 printf '%s\n' "$out" | awk '
   function q(s) { gsub(/\\/, "\\\\", s); gsub(/"/, "\\\"", s); gsub(/\t/, "\\t", s); gsub(/[[:cntrl:]]/, "", s); return "\"" s "\"" }
   BEGIN { printf "{\"files\":[" }
-  length($0) > 3 { s = substr($0, 1, 2); gsub(/ /, "", s); if (n++) printf ","; printf "{\"path\":%s,\"status\":%s}", q(substr($0, 4)), q(s) }
+  length($0) > 3 { s = substr($0, 1, 2); gsub(/ /, "", s); if (n++) printf ","; p = substr($0, 4); if (p ~ /^".*"$/) p = substr(p, 2, length(p) - 2); printf "{\"path\":%s,\"status\":%s}", q(p), q(s) }
   END { printf "],\"error\":\"\"}\n" }'

@@ -21,6 +21,11 @@
     <string name="extui_tag_update" translatable="false">update</string>
     <string name="extui_tag_incompatible" translatable="false">incompatible</string>
 
+    <string name="extui_install_sample">Install a sample pack</string>
+    <string name="extui_sample_title">Sample packs</string>
+    <string name="extui_sample_hint">Working examples of extension screens. Each one asks for the capabilities it needs before it installs, and can be disabled or removed like any extension.</string>
+    <string name="extui_sample_none">No sample packs in this build.</string>
+    <string name="extui_sample_close">Close</string>
     <string name="extui_update">Update</string>
     <string name="extui_review">Review</string>
     <string name="extui_tab_browse_updates">Browse (%1$d)</string>
@@ -47,6 +52,7 @@
     <string name="extui_group_servers">Language servers</string>
     <string name="extui_group_commands">Commands and menus</string>
     <string name="extui_group_views">Views and status</string>
+    <string name="extui_group_screens">Screens and navigation</string>
     <string name="extui_group_appearance">Appearance</string>
     <string name="extui_group_other">Other</string>
 
