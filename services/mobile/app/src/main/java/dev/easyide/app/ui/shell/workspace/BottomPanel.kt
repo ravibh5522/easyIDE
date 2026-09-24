@@ -7,7 +7,6 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -38,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
-import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.kit.kitTag
+import dev.easyide.app.ui.screens.workspace.PanelTabRow
 import dev.easyide.app.ui.shell.ContainerSpec
 import dev.easyide.app.ui.shell.host.PaneSplitter
 import dev.easyide.app.ui.shell.host.PanelRendererRegistry
@@ -100,8 +99,7 @@ fun BottomPanel(
                 actions.onSize, actions.onReset, vertical = true, growsTowardsStart = true,
             )
         }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            KitTabs(tabs.map { it.title }, tabs.indexOfFirst { it.id == spec.active }.coerceAtLeast(0), { actions.onSelect(tabs[it].id) }, Modifier.weight(1f), height = Kit.control.panelTabHeight)
+        PanelTabRow(tabs.map { it.title }, tabs.indexOfFirst { it.id == spec.active }.coerceAtLeast(0), { actions.onSelect(tabs[it].id) }) {
             KitIconButton(Icons.Filled.Close, stringResource(R.string.wshell_bottom_close), actions.onClose)
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {

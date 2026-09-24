@@ -2,7 +2,6 @@ package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -30,7 +28,6 @@ import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitMenu
 import dev.easyide.app.ui.kit.KitMenuItem
-import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.screens.workspace.zoom.rememberFontZoom
 import androidx.core.content.res.ResourcesCompat
 import dev.easyide.extensions.contrib.KeyAction
@@ -167,7 +164,7 @@ private fun EasyTerminalView(
 /**
  * Session tabs, then the pinned actions: new terminal, a menu for the active session (rename,
  * close) and the Linux install. Rename and close are in the menu, not behind a long press or a
- * 14dp cross, so every action has a visible 44dp control.
+ * small cross, so every action has a visible control.
  */
 @Composable
 private fun TerminalTabBar(
@@ -184,17 +181,12 @@ private fun TerminalTabBar(
     val active = tabs.find { it.id == activeTabId }
     var menuOpen by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier.fillMaxWidth().background(Kit.colors.panel),
-        verticalAlignment = Alignment.CenterVertically,
+    PanelTabRow(
+        labels = tabs.map { it.title },
+        selected = tabs.indexOf(active),
+        onSelect = { onSelectTab(tabs[it].id) },
+        modifier = Modifier.background(Kit.colors.panel),
     ) {
-        KitTabs(
-            labels = tabs.map { it.title },
-            selected = tabs.indexOf(active),
-            onSelect = { onSelectTab(tabs[it].id) },
-            modifier = Modifier.weight(1f),
-            height = Kit.control.panelTabHeight,
-        )
         KitIconButton(Icons.Filled.Add, stringResource(R.string.terminal_new), onNewTab)
         if (active != null) {
             Box {

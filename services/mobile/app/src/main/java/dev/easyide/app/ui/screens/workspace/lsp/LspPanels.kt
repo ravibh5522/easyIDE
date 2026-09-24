@@ -28,14 +28,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import dev.easyide.app.R
-import dev.easyide.app.ui.kit.EmptyArt
 import dev.easyide.app.ui.kit.Kit
-import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitRow
-import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.kit.KitTag
+import dev.easyide.app.ui.kit.CountBadge
 import dev.easyide.app.ui.kit.Tone
+import dev.easyide.app.ui.kit.Twistie
+import dev.easyide.app.ui.screens.workspace.ClosedSections
+import dev.easyide.app.ui.screens.workspace.PanelTabRow
+import dev.easyide.app.ui.screens.workspace.files.FileIcon
+import dev.easyide.app.ui.screens.workspace.rememberClosedSections
 import dev.easyide.lsp.protocol.DiagnosticSeverity
 
 /**
@@ -44,24 +47,24 @@ import dev.easyide.lsp.protocol.DiagnosticSeverity
  */
 @Composable
 fun LspSidePanel(controller: WorkspaceLspController, panel: LspPanel, modifier: Modifier = Modifier) {
-    val colors = Kit.colors
-    val panels = LspPanel.entries
-    Column(modifier = modifier.fillMaxHeight().background(colors.panel)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            KitTabs(
-                labels = panels.map { stringResource(it.title()) },
-                selected = panels.indexOf(panel),
-                onSelect = { controller.showPanel(panels[it]) },
-                modifier = Modifier.weight(1f),
-                height = Kit.control.panelTabHeight,
-            )
-            KitIconButton(Icons.Filled.Close, stringResource(R.string.lsp_panel_close), { controller.showPanel(null) })
-        }
+    LspPanelFrame(panel, { controller.showPanel(it) }, { controller.showPanel(null) }, modifier) {
         when (panel) {
             LspPanel.PROBLEMS -> ProblemsPanel(controller)
             LspPanel.REFERENCES -> ReferencesPanel(controller)
             LspPanel.OUTLINE -> OutlinePanel(controller)
         }
+    }
+}
+
+/** The panel's tab row over its [content]; a frame of its own so the row and a list can be drawn without a language server. */
+@Composable
+internal fun LspPanelFrame(panel: LspPanel, onSelect: (LspPanel) -> Unit, onClose: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val panels = LspPanel.entries
+    Column(modifier = modifier.fillMaxHeight().background(Kit.colors.panel)) {
+        PanelTabRow(panels.map { stringResource(it.title()) }, panels.indexOf(panel), { onSelect(panels[it]) }) {
+            KitIconButton(Icons.Filled.Close, stringResource(R.string.lsp_panel_close), onClose)
+        }
+        content()
     }
 }
 
@@ -81,12 +84,22 @@ internal fun DiagnosticSeverity.tone(): Tone = when (this) {
 
 @Composable
 private fun ProblemsPanel(controller: WorkspaceLspController) {
-    val colors = Kit.colors
     val all by controller.diagnostics.problems.collectAsState()
+    ProblemsView(all, controller::navigate)
+}
+
+@Composable
+internal fun ProblemsView(all: List<ProblemGroup>, onNavigate: (NavLocation) -> Unit) {
+    val colors = Kit.colors
     var shown by rememberSaveable { mutableStateOf(DiagnosticSeverity.entries.map { it.name }.toSet()) }
+    val closed = rememberClosedSections()
     val visible = ProblemsModel.visible(all, shown.map(DiagnosticSeverity::valueOf).toSet())
     val counts = ProblemsModel.counts(all)
-    Row(modifier = Modifier.padding(horizontal = Kit.space.s), horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs),
+        horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         for (s in DiagnosticSeverity.entries) {
             val on = s.name in shown
             val n = when (s) {
@@ -101,15 +114,17 @@ private fun ProblemsPanel(controller: WorkspaceLspController) {
     if (visible.isEmpty()) return EmptyPanel(stringResource(R.string.lsp_problems_empty))
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         for (group in visible) {
-            fileHeader(group.label, group.problems.size)
-            items(group.problems) { p ->
-                val origin = listOfNotNull(p.source, p.code?.let { "($it)" }).joinToString(" ")
-                KitRow(
-                    title = p.message,
-                    subtitle = "$origin  ${p.location.range.start.line + 1}:${p.location.range.start.character + 1}".trim(),
-                    leading = { Image(LspIcons.severity(p.severity), null, Modifier.size(LspUiMetrics.statusIconSize), colorFilter = ColorFilter.tint(LspIcons.severityTint(p.severity, colors))) },
-                    onClick = { controller.navigate(p.location) },
-                )
+            fileGroup(closed, group.label, group.problems.size) {
+                items(group.problems) { p ->
+                    val origin = listOfNotNull(p.source, p.code?.let { "($it)" }).joinToString(" ")
+                    KitRow(
+                        title = p.message,
+                        subtitle = "$origin  ${p.location.range.start.line + 1}:${p.location.range.start.character + 1}".trim(),
+                        leading = { Image(LspIcons.severity(p.severity), null, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(LspIcons.severityTint(p.severity, colors))) },
+                        twistie = Twistie.Leaf,
+                        onClick = { onNavigate(p.location) },
+                    )
+                }
             }
         }
     }
@@ -119,22 +134,27 @@ private fun ProblemsPanel(controller: WorkspaceLspController) {
 private fun ReferencesPanel(controller: WorkspaceLspController) {
     val colors = Kit.colors
     val ui by controller.navigation.locations.collectAsState()
+    val closed = rememberClosedSections()
     val refs = ui ?: return EmptyPanel(stringResource(R.string.lsp_references_empty))
     BasicText(
         stringResource(R.string.lsp_references_title, refs.symbol, refs.groups.sumOf { it.rows.size }),
-        Modifier.padding(Kit.space.s),
+        Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs),
         style = Kit.text.caption.copy(color = colors.textMuted),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
     )
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         for (group in refs.groups) {
-            fileHeader(group.label, group.rows.size)
-            items(group.rows) { row ->
-                KitRow(
-                    title = row.preview,
-                    mono = true,
-                    trailing = { BasicText("${row.location.range.start.line + 1}", style = Kit.text.monoSmall.copy(color = colors.textMuted)) },
-                    onClick = { controller.navigate(row.location) },
-                )
+            fileGroup(closed, group.label, group.rows.size) {
+                items(group.rows) { row ->
+                    KitRow(
+                        title = row.preview,
+                        mono = true,
+                        twistie = Twistie.Leaf,
+                        trailing = { BasicText("${row.location.range.start.line + 1}", style = Kit.text.monoSmall.copy(color = colors.textMuted)) },
+                        onClick = { controller.navigate(row.location) },
+                    )
+                }
             }
         }
     }
@@ -149,34 +169,36 @@ private fun OutlinePanel(controller: WorkspaceLspController) {
     }
 }
 
-/** A symbol: kind glyph, name, detail. Nesting shows as an indent from the row's start edge; a null [onClick] leaves the tap to the host. */
+/** A symbol: kind glyph, name, detail inline. Nesting is the row's indent level; a null [onClick] leaves the tap to the host. */
 @Composable
 internal fun SymbolRowView(row: SymbolRow, onClick: (() -> Unit)?) {
     KitRow(
         title = row.name,
         subtitle = row.detail,
-        mono = true,
-        modifier = Modifier.padding(start = LspUiMetrics.panelIndent * row.depth),
-        leading = { Image(LspIcons.symbol(row.kind), null, Modifier.size(LspUiMetrics.kindIconSize), colorFilter = ColorFilter.tint(Kit.colors.accent)) },
+        level = row.depth,
+        leading = { Image(LspIcons.symbol(row.kind), null, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(Kit.colors.accent)) },
         onClick = onClick,
     )
 }
 
-/** The file a group of rows belongs to: its path in mono with the row count, on the raised tone. */
-private fun LazyListScope.fileHeader(label: String, count: Int) {
+/** The file a group of rows belongs to, as a row: twistie, file icon, name, its directory inline and the row count; a tap folds it. */
+private fun LazyListScope.fileGroup(closed: ClosedSections, label: String, count: Int, rows: LazyListScope.() -> Unit) {
+    val open = closed.isOpen(label)
     item(key = "header:$label") {
-        val colors = Kit.colors
-        Row(
-            modifier = Modifier.fillMaxWidth().background(colors.raised).padding(horizontal = Kit.space.s, vertical = Kit.space.xs),
-            horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
-        ) {
-            BasicText(label, Modifier.weight(1f), style = Kit.text.monoSmall.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            BasicText(count.toString(), style = Kit.text.monoSmall.copy(color = colors.textMuted))
-        }
+        val name = label.substringAfterLast('/')
+        KitRow(
+            title = name,
+            subtitle = label.substringBeforeLast('/', "").ifEmpty { null },
+            twistie = if (open) Twistie.Expanded else Twistie.Collapsed,
+            leading = { FileIcon(name, size = Kit.control.rowIcon) },
+            trailing = { CountBadge(count) },
+            onClick = { closed.toggle(label) },
+        )
     }
+    if (open) rows()
 }
 
 @Composable
 private fun EmptyPanel(text: String) {
-    KitEmptyState(art = EmptyArt.Prompt, message = text)
+    KitRow(text, enabled = false)
 }

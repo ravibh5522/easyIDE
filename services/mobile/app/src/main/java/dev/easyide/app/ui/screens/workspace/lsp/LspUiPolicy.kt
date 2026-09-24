@@ -57,6 +57,5 @@ internal object LspUiMetrics {
     val rowPaddingH = 8.dp
     val rowPaddingV = 4.dp
     val panelWidth = 320.dp
-    val panelIndent = 12.dp
     val statusIconSize = 14.dp
 }
