@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workspace panels and their dialogs on the kit (docs/ui-redesign/screens.md 8-9). Voice: identity.md 9. -->
+<resources>
+    <string name="wp_files_title">Files</string>
+    <string name="wp_new_file">New file</string>
+    <string name="wp_new_folder">New folder</string>
+    <string name="wp_refresh">Refresh</string>
+    <string name="wp_create">Create</string>
+    <string name="wp_copy">Copy</string>
+    <string name="wp_cut">Cut</string>
+    <string name="wp_paste">Paste</string>
+    <string name="wp_rename">Rename</string>
+    <string name="wp_delete">Delete</string>
+    <string name="wp_copy_path">Copy path</string>
+    <string name="wp_copy_relative_path">Copy relative path</string>
+    <string name="wp_rename_terminal">Rename terminal</string>
+    <string name="wp_delete_title">Delete \"%1$s\"?</string>
+    <string name="wp_delete_body_folder">The folder and everything in it will be deleted. Not recoverable.</string>
+    <string name="wp_delete_body_file">Not recoverable.</string>
+    <string name="wp_delete_type_name">Type %1$s to confirm</string>
+</resources>

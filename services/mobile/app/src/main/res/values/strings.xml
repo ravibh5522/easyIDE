@@ -112,7 +112,6 @@
     <string name="unsaved_save_all">Save all</string>
     <string name="unsaved_discard">Discard</string>
 
-    <string name="workspace_project_not_found_title">Project not found</string>
-    <string name="workspace_project_not_found_body">This project may have been deleted.</string>
+    <string name="workspace_project_not_found">Project not found. It may have been deleted.</string>
     <string name="workspace_back_home">Back to projects</string>
 </resources>

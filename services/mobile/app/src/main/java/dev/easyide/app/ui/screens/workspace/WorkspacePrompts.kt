@@ -1,6 +1,8 @@
 package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import dev.easyide.app.R
 import dev.easyide.sandbox.files.FileNode
 
 /** Which naming dialog is open, if any. */
@@ -25,25 +27,25 @@ internal fun PromptDialogs(
         null -> Unit
 
         is PendingPrompt.NewFile -> NameInputDialog(
-            title = "New file",
+            title = stringResource(R.string.wp_new_file),
             initialValue = "",
-            confirmLabel = "Create",
+            confirmLabel = stringResource(R.string.wp_create),
             onConfirm = { name -> callbacks.onCreateFile(prompt.parentDir, name); onDismiss() },
             onDismiss = onDismiss,
         )
 
         is PendingPrompt.NewFolder -> NameInputDialog(
-            title = "New folder",
+            title = stringResource(R.string.wp_new_folder),
             initialValue = "",
-            confirmLabel = "Create",
+            confirmLabel = stringResource(R.string.wp_create),
             onConfirm = { name -> callbacks.onCreateFolder(prompt.parentDir, name); onDismiss() },
             onDismiss = onDismiss,
         )
 
         is PendingPrompt.Rename -> NameInputDialog(
-            title = "Rename",
+            title = stringResource(R.string.wp_rename),
             initialValue = prompt.node.name,
-            confirmLabel = "Rename",
+            confirmLabel = stringResource(R.string.wp_rename),
             onConfirm = { name -> callbacks.onRename(prompt.node, name); onDismiss() },
             onDismiss = onDismiss,
         )
@@ -55,9 +57,9 @@ internal fun PromptDialogs(
         )
 
         is PendingPrompt.RenameTerminal -> NameInputDialog(
-            title = "Rename terminal",
+            title = stringResource(R.string.wp_rename_terminal),
             initialValue = prompt.currentTitle,
-            confirmLabel = "Rename",
+            confirmLabel = stringResource(R.string.wp_rename),
             onConfirm = { name -> callbacks.onRenameTerminal(prompt.tabId, name); onDismiss() },
             onDismiss = onDismiss,
         )
