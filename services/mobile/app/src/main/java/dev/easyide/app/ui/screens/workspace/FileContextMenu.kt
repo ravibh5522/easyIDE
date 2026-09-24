@@ -1,9 +1,7 @@
 package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,8 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import dev.easyide.app.R
 import dev.easyide.app.extensions.adapters.MenuEntry
 import dev.easyide.app.ui.kit.Kit
@@ -107,7 +103,7 @@ fun NameInputDialog(
             value = value,
             onValueChange = { value = it },
             mono = true,
-            keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, imeAction = ImeAction.Done),
+            keyboard = NAME_KEYBOARD,
             keyboardActions = KeyboardActions(onDone = { if (value.isNotBlank()) submit() }),
         )
     }
@@ -126,8 +122,6 @@ fun ConfirmDeleteDialog(
     onDismiss: () -> Unit,
 ) {
     var typed by remember { mutableStateOf("") }
-    val colors = Kit.colors
-
     KitDialog(
         title = stringResource(R.string.wp_delete_title, node.name),
         onDismiss = onDismiss,
@@ -135,10 +129,7 @@ fun ConfirmDeleteDialog(
         confirm = if (deleteConfirmed(node, typed)) KitAction(stringResource(R.string.wp_delete), onConfirm) else null,
         dismiss = KitAction(stringResource(R.string.action_cancel), onDismiss),
     ) {
-        BasicText(
-            stringResource(if (node.isDirectory) R.string.wp_delete_body_folder else R.string.wp_delete_body_file),
-            style = Kit.type.bodyMedium.copy(color = colors.plainText),
-        )
+        DialogText(stringResource(if (node.isDirectory) R.string.wp_delete_body_folder else R.string.wp_delete_body_file))
         if (deleteNeedsName(node)) {
             KitField(
                 value = typed,
@@ -146,7 +137,7 @@ fun ConfirmDeleteDialog(
                 modifier = Modifier.padding(top = Kit.space.m),
                 label = stringResource(R.string.wp_delete_type_name, node.name),
                 mono = true,
-                keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false),
+                keyboard = NAME_KEYBOARD,
             )
         }
     }

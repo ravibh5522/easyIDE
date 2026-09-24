@@ -1,7 +1,6 @@
 package dev.easyide.app.ui.screens.workspace.session
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +15,7 @@ import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitDialog
+import dev.easyide.app.ui.screens.workspace.DialogText
 import dev.easyide.app.ui.screens.workspace.EditorTab
 import dev.easyide.app.ui.screens.workspace.NoticeBar
 
@@ -41,7 +41,7 @@ fun ExternalChangeDialog(tabs: List<EditorTab>, onResolve: (path: String, keepMi
         confirm = KitAction(stringResource(R.string.session_conflict_keep_mine)) { onResolve(path, true) },
         dismiss = KitAction(stringResource(R.string.session_conflict_later), later),
     ) {
-        BasicText(stringResource(R.string.session_conflict_body), style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText))
+        DialogText(stringResource(R.string.session_conflict_body))
         KitButton(
             stringResource(R.string.session_conflict_use_disk),
             { onResolve(path, false) },

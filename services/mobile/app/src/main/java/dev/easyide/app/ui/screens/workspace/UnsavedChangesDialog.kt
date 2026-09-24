@@ -1,7 +1,6 @@
 package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -39,7 +38,7 @@ fun UnsavedChangesDialog(
         confirm = KitAction(stringResource(if (fileName != null) R.string.unsaved_save else R.string.unsaved_save_all), onSave),
         dismiss = KitAction(stringResource(R.string.action_cancel), onDismiss),
     ) {
-        BasicText(stringResource(R.string.unsaved_body), style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText))
+        DialogText(stringResource(R.string.unsaved_body))
         KitButton(stringResource(R.string.unsaved_discard), onDiscard, Modifier.padding(top = Kit.space.s), KitButtonStyle.Danger)
     }
 }

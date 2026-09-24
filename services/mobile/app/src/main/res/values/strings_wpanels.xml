@@ -18,4 +18,11 @@
     <string name="wp_delete_body_folder">The folder and everything in it will be deleted. Not recoverable.</string>
     <string name="wp_delete_body_file">Not recoverable.</string>
     <string name="wp_delete_type_name">Type %1$s to confirm</string>
+
+    <string name="wp_close">Close</string>
+
+    <string name="wp_git_sync_count">%1$s %2$d</string>
+    <string name="wp_git_branches_title">Branches</string>
+    <string name="wp_git_invalid_name">Not a valid name.</string>
+    <string name="wp_git_invalid_host">Not a host name.</string>
 </resources>

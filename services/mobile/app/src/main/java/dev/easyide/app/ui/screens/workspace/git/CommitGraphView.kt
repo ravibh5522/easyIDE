@@ -9,8 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,9 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.theme.EasyIdeFonts
-import dev.easyide.app.ui.theme.Spacing
-import dev.easyide.app.ui.theme.editorColors
 
 private val ROW_HEIGHT = 44.dp
 private val LANE_WIDTH = 14.dp
@@ -50,7 +48,7 @@ fun LazyListScope.commitGraph(
 
 @Composable
 private fun CommitRow(row: GraphRow, onCommitClick: (String) -> Unit) {
-    val colors = editorColors
+    val colors = Kit.colors
     val laneCount = row.laneCount.coerceIn(1, MAX_DRAWN_LANES)
 
     Row(
@@ -62,19 +60,16 @@ private fun CommitRow(row: GraphRow, onCommitClick: (String) -> Unit) {
     ) {
         LaneGutter(row, laneCount, colors.lanes, Modifier.width(LANE_WIDTH * laneCount))
 
-        Column(modifier = Modifier.weight(1f).padding(end = Spacing.s)) {
-            Text(
+        Column(modifier = Modifier.weight(1f).padding(end = Kit.space.s)) {
+            BasicText(
                 text = row.commit.subject,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.plainText,
+                style = Kit.type.bodySmall.copy(color = colors.plainText),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
+            BasicText(
                 text = "${row.commit.shortId}  ${row.commit.authorName}",
-                style = MaterialTheme.typography.labelSmall,
-                fontFamily = EasyIdeFonts.mono,
-                color = colors.textMuted,
+                style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
