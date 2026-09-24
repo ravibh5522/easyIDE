@@ -1,0 +1,80 @@
+{
+  "name": "sample-agents",
+  "publisher": "easyide",
+  "version": "0.1.0",
+  "displayName": "Agents (sample)",
+  "description": "Chat sessions with a command line agent: the claude CLI when the environment has it, otherwise a documented echo agent.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      { "command": "easyide.sample-agents.newSession", "title": "New session", "category": "Agents (sample)" },
+      { "command": "easyide.sample-agents.session", "title": "Read session", "category": "Agents (sample)" },
+      { "command": "easyide.sample-agents.send", "title": "Send message", "category": "Agents (sample)" }
+    ],
+    "configuration": {
+      "title": "Agents (sample)",
+      "properties": {
+        "easyide.sample-agents.command": {
+          "type": "string", "default": "", "scope": "environment",
+          "description": "Shell command that answers the message in $AGENT_PROMPT on standard output. Empty: claude -p when the claude CLI is installed, else the echo agent."
+        }
+      }
+    },
+    "viewsContainers": {
+      "sidebar": [{ "id": "easyide.sample-agents.sessions", "title": "Agents", "icon": "./icons/agent.svg", "scope": "workspace" }],
+      "secondarySidebar": [{ "id": "easyide.sample-agents.context", "title": "Changes", "icon": "./icons/agent.svg", "scope": "workspace" }]
+    },
+    "views": {
+      "easyide.sample-agents.sessions": [{ "id": "easyide.sample-agents.sessions.list", "name": "Sessions", "schema": "./views/sessions.json" }],
+      "easyide.sample-agents.context": [{ "id": "easyide.sample-agents.changes", "name": "Changed files", "schema": "./views/changes.json" }]
+    }
+  },
+  "easyide": {
+    "capabilities": ["ui.contribute", "ui.stage", "sandbox.exec", "fs.project(read)", "network(api.anthropic.com)"],
+    "actions": {
+      "easyide.sample-agents.newSession": {
+        "type": "sequence",
+        "steps": [
+          { "type": "showInputBox", "id": "title", "prompt": "Session title", "value": "New session" },
+          { "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/new.sh", "${input:title}"], "cwd": "${workspaceFolder}", "output": "capture", "as": "created", "timeoutSec": 20 },
+          { "type": "openDocument", "uri": "ext://easyide.sample-agents/session/${result:created}" }
+        ]
+      },
+      "easyide.sample-agents.session": {
+        "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/session.sh", "${arg:key}"],
+        "cwd": "${workspaceFolder}", "output": "capture", "timeoutSec": 20
+      },
+      "easyide.sample-agents.send": {
+        "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/send.sh", "${arg:id}", "${arg:text}"],
+        "cwd": "${workspaceFolder}", "env": { "AGENT_COMMAND": "${config:easyide.sample-agents.command}" },
+        "output": "capture", "timeoutSec": 300
+      }
+    },
+    "navigation": [
+      { "id": "easyide.sample-agents.nav", "title": "Agents", "icon": "./icons/agent.svg", "target": { "container": "easyide.sample-agents.sessions" }, "scope": "workspace", "order": 310 }
+    ],
+    "documents": [
+      { "type": "easyide.sample-agents/session", "title": "{title}", "icon": "./icons/agent.svg", "schema": "./docs/session.json", "state": { "provider": "easyide.sample-agents.session" } }
+    ],
+    "layoutPresets": [
+      {
+        "id": "easyide.sample-agents.review", "title": "Agent review", "sizeClass": ["expanded"],
+        "containers": { "sidebar": "easyide.sample-agents.sessions", "secondarySidebar": "easyide.sample-agents.context", "panel": "terminal" },
+        "panels": { "sidebar": true, "secondarySidebar": true, "panel": false },
+        "stage": { "split": "row", "groups": 2 }
+      }
+    ],
+    "viewData": {
+      "easyide.sample-agents.sessions.list": {
+        "kind": "object", "intervalSec": 5,
+        "from": { "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/sessions.sh"], "cwd": "${workspaceFolder}", "output": "capture", "timeoutSec": 20 }
+      },
+      "easyide.sample-agents.changes": {
+        "kind": "object", "intervalSec": 5,
+        "from": { "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/changes.sh"], "cwd": "${workspaceFolder}", "output": "capture", "timeoutSec": 20 }
+      }
+    }
+  }
+}

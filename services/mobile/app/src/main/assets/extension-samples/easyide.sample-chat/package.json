@@ -1,0 +1,37 @@
+{
+  "name": "sample-chat",
+  "publisher": "easyide",
+  "version": "0.1.0",
+  "displayName": "Chat (sample)",
+  "description": "A local notes-style chat: rooms of messages kept in the extension's own storage, one document per room.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "easyide.sample-chat.load", "title": "Load room", "category": "Chat (sample)" },
+      { "command": "easyide.sample-chat.send", "title": "Send message", "category": "Chat (sample)" },
+      { "command": "easyide.sample-chat.clear", "title": "Clear room", "category": "Chat (sample)" }
+    ],
+    "viewsContainers": {
+      "sidebar": [{ "id": "easyide.sample-chat.rooms", "title": "Chat", "icon": "./icons/chat.svg", "scope": "both" }]
+    },
+    "views": {
+      "easyide.sample-chat.rooms": [{ "id": "easyide.sample-chat.rooms.list", "name": "Rooms", "schema": "./views/rooms.json" }]
+    }
+  },
+  "easyide": {
+    "capabilities": ["ui.contribute"],
+    "navigation": [
+      { "id": "easyide.sample-chat.nav", "title": "Chat", "icon": "./icons/chat.svg", "target": { "container": "easyide.sample-chat.rooms" }, "scope": "both", "order": 320 }
+    ],
+    "documents": [
+      {
+        "type": "easyide.sample-chat/room", "title": "{title}", "icon": "./icons/chat.svg", "schema": "./docs/room.json",
+        "state": { "provider": "easyide.sample-chat.load" }
+      }
+    ],
+    "wasm": { "module": "./wasm/main.wasm", "abi": 1, "memoryMb": 16 }
+  }
+}

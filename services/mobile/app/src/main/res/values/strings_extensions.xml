@@ -104,6 +104,7 @@
     <string name="cap_lsp_request">Can query language servers about your code.</string>
     <string name="cap_clipboard">Can read and change your clipboard.</string>
     <string name="cap_ui_stage">Adds a panel.</string>
+    <string name="cap_ui_contribute">Adds screens and navigation items.</string>
     <string name="cap_ui_settings">Can change editor settings outside its own.</string>
     <string name="cap_secrets_read">Can use secrets you give it. It never sees git credentials.</string>
 </resources>

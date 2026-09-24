@@ -89,9 +89,15 @@ object ShellSettingsSchema {
         default = emptyList(), scope = SettingScope.G,
     )
 
+    /** `{extensionId: false}` turns an extension's UI contributions off (its data and commands stay); packs are on unless listed. */
+    val extensionsContribute = Setting.Json(
+        "shell.extensions.contribute", C, R.string.setting_ext_contribute_title, R.string.setting_ext_contribute_desc,
+        default = JsonObject(emptyMap()), scope = SettingScope.G, accepts = ::isSwitchMap, merge = Merge.OBJECT,
+    )
+
     val all: List<Setting<*>> = listOf(
         layoutPreset, navigationPosition, navigationLabels, navigationOrder, navigationHidden, navigationPinned,
-        containerPlacement, containersHidden,
+        containerPlacement, containersHidden, extensionsContribute,
     )
 
     fun navSettings(settings: SettingsSnapshot): NavSettings =
@@ -112,6 +118,19 @@ object ShellSettingsSchema {
     fun placementMap(json: JsonElement): Map<String, Placement> = buildMap {
         (json as? JsonObject)?.forEach { (id, value) -> (value as? JsonPrimitive)?.contentOrNull?.let(Placement::ofWire)?.let { put(id, it) } }
     }
+
+    /** The extension ids the user switched off. */
+    fun extensionsOff(settings: SettingsSnapshot): Set<String> =
+        (settings[extensionsContribute] as? JsonObject).orEmpty().filterValues { (it as? JsonPrimitive)?.content == "false" }.keys
+
+    /** [current] (`shell.extensions.contribute`) with [id] on (its key removed, the default) or off (`false`). */
+    fun withExtension(current: JsonElement, id: String, on: Boolean): JsonObject {
+        val rest = (current as? JsonObject).orEmpty().filterKeys { it != id }
+        return JsonObject(if (on) rest else rest + (id to JsonPrimitive(false)))
+    }
+
+    private fun isSwitchMap(value: JsonElement): Boolean =
+        value is JsonObject && value.values.all { v -> v is JsonPrimitive && !v.isString && (v.content == "true" || v.content == "false") }
 
     private fun isPlacementMap(value: JsonElement): Boolean =
         value is JsonObject && value.values.all { v -> v is JsonPrimitive && v.isString && Placement.ofWire(v.content) != null }

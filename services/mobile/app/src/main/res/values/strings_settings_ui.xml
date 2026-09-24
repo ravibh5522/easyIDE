@@ -92,6 +92,10 @@
     <string name="setting_nav_pinned_desc">Item ids that stay among the visible cells of the phone bar.</string>
     <string name="setting_container_placement_title">Panel positions</string>
     <string name="setting_container_placement_desc">Container id to sidebar, secondarySidebar or panel.</string>
+    <string name="layout_packs_section">Extension screens</string>
+    <string name="layout_packs_hint">Turn off an extension\'s navigation items, panels and documents here. The extension stays enabled.</string>
+    <string name="setting_ext_contribute_title">Extension screens</string>
+    <string name="setting_ext_contribute_desc">Extension id to false hides that extension\'s navigation items, panels and documents; its data and commands stay.</string>
     <string name="setting_container_hidden_title">Hidden panels</string>
     <string name="setting_container_hidden_desc">Container ids that are not shown anywhere.</string>
     <string name="nav_position_auto">Auto</string>

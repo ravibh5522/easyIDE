@@ -42,12 +42,19 @@ sealed interface DocumentChoice {
  * extension, a page a newer app wrote) and a type nobody registered a renderer for both resolve
  * to [DocumentChoice.Unavailable], so restore and open never fail on the UI side either.
  */
-class DocumentRendererRegistry(private val byType: Map<String, DocumentRenderer> = emptyMap()) {
-    fun choose(type: DocumentType): DocumentChoice =
-        byType[type.id]?.takeIf { type.id != DocumentType.UNAVAILABLE_ID }?.let(DocumentChoice::Render) ?: DocumentChoice.Unavailable
+class DocumentRendererRegistry(
+    private val byType: Map<String, DocumentRenderer> = emptyMap(),
+    /** Asked for a type nobody registered a renderer for: extension document types, which come and go with their packs. */
+    private val fallback: (DocumentType) -> DocumentRenderer? = { null },
+) {
+    fun choose(type: DocumentType): DocumentChoice {
+        if (type.id == DocumentType.UNAVAILABLE_ID) return DocumentChoice.Unavailable
+        return (byType[type.id] ?: fallback(type))?.let(DocumentChoice::Render) ?: DocumentChoice.Unavailable
+    }
 
     /** This registry's renderers and [other]'s (the workspace adds its files to the app's pages). */
-    operator fun plus(other: DocumentRendererRegistry) = DocumentRendererRegistry(byType + other.byType)
+    operator fun plus(other: DocumentRendererRegistry) =
+        DocumentRendererRegistry(byType + other.byType) { type -> fallback(type) ?: other.fallback(type) }
 }
 
 /** The title of [uri]'s tab: the renderer's own subject name, else the fixed title of its type. */
@@ -59,10 +66,15 @@ fun DocumentRendererRegistry.titleOf(documents: DocumentRegistry, uri: DocumentU
 }
 
 /** Panel renderers by container id; a container with none gets the "panel unavailable" message. */
-class PanelRendererRegistry(private val byContainer: Map<String, PanelBinding> = emptyMap()) {
-    fun binding(containerId: String): PanelBinding? = byContainer[containerId]
+class PanelRendererRegistry(
+    private val byContainer: Map<String, PanelBinding> = emptyMap(),
+    /** Asked for a container nobody registered a renderer for: extension containers, which come and go with their packs. */
+    private val fallback: (String) -> PanelBinding? = { null },
+) {
+    fun binding(containerId: String): PanelBinding? = byContainer[containerId] ?: fallback(containerId)
 
-    operator fun plus(other: PanelRendererRegistry) = PanelRendererRegistry(byContainer + other.byContainer)
+    operator fun plus(other: PanelRendererRegistry) =
+        PanelRendererRegistry(byContainer + other.byContainer) { id -> fallback(id) ?: other.fallback(id) }
 }
 
 /** A [PanelRenderer] from a composable lambda: the app's bindings are all of this shape. */

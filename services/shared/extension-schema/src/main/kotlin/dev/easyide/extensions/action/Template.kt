@@ -38,6 +38,9 @@ sealed interface VariableRef {
     data class Command(val id: String) : VariableRef
     data class Input(val id: String) : VariableRef
     data class Result(val name: String) : VariableRef
+
+    /** `${arg:name}` or `${arg:a.b}`: a field of the `args` the command was invoked with (a view event's args). */
+    data class Arg(val path: String) : VariableRef
 }
 
 /**
@@ -68,6 +71,7 @@ class Template private constructor(val source: String, val segments: List<Segmen
 
     companion object {
         private val ENV_NAME = Regex("[A-Za-z_][A-Za-z0-9_]*")
+        private val ARG_PATH = Regex("[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z0-9_-]+)*")
 
         fun literal(text: String): Template = Template(text, if (text.isEmpty()) emptyList() else listOf(Segment.Literal(text)))
 
@@ -102,6 +106,7 @@ class Template private constructor(val source: String, val segments: List<Segmen
                 "command" -> VariableRef.Command(arg)
                 "input" -> VariableRef.Input(arg)
                 "result" -> VariableRef.Result(arg)
+                "arg" -> if (ARG_PATH.matches(arg)) VariableRef.Arg(arg) else null
                 else -> null
             }
         }

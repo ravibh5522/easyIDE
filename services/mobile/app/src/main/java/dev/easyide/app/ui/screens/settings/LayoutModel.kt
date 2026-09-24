@@ -24,6 +24,9 @@ data class LayoutContainerEntry(val id: String, val title: String, val placement
  * built-in set for a host that has no extensions.
  */
 data class LayoutCatalog(val navigation: List<LayoutNavEntry>, val containers: List<LayoutContainerEntry>) {
+    /** The extensions that added anything, by id: the packs whose screens the user can switch off as a whole. */
+    val packs: List<String> get() = (navigation.mapNotNull { it.pack } + containers.mapNotNull { it.pack }).distinct().sorted()
+
     companion object {
         private val EVERYTHING = NavEnv(holds = { true }, resolves = { true })
 

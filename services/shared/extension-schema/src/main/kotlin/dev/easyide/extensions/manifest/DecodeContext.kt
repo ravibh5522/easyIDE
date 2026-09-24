@@ -9,6 +9,7 @@ import dev.easyide.extensions.json.booleanOrNull
 import dev.easyide.extensions.json.intOrNull
 import dev.easyide.extensions.json.stringOrNull
 import dev.easyide.extensions.schema.SchemaValidator
+import dev.easyide.extensions.view.SvgIconRules
 import dev.easyide.extensions.whenclause.ContextKeys
 import dev.easyide.extensions.whenclause.WhenExpr
 import dev.easyide.extensions.whenclause.WhenParseResult
@@ -16,6 +17,7 @@ import dev.easyide.extensions.whenclause.WhenParser
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import java.io.IOException
 
 /**
  * Shared state of one manifest decode: the package, the diagnostics sink, and the set of
@@ -32,8 +34,8 @@ internal class DecodeContext(
     val diagnostics = ArrayList<Diagnostic>()
     val referenced = HashSet<String>()
 
-    fun error(code: String, pointer: String, message: String) { diagnostics += Diagnostic.error(code, pointer, message) }
-    fun warn(code: String, pointer: String, message: String) { diagnostics += Diagnostic.warning(code, pointer, message) }
+    fun error(code: String, pointer: String, message: String, file: String = MANIFEST_FILE) { diagnostics += Diagnostic.error(code, pointer, message, file) }
+    fun warn(code: String, pointer: String, message: String, file: String = MANIFEST_FILE) { diagnostics += Diagnostic.warning(code, pointer, message, file) }
 
     /** Parses a when-clause; a syntax error is E_WHEN_SYNTAX, an unknown key a warning. */
     fun whenExpr(text: String?, pointer: String): WhenExpr? {
@@ -84,6 +86,30 @@ internal class DecodeContext(
         return file(value, pointer)?.let(CommandIcon::Svg)
     }
 
+    /**
+     * An icon of a UI contribution point (navigation, containers, documents, view components): a token from the
+     * icon set, or a pack SVG that must be a single-colour vector on the 24 grid (extension-ui.md sections 2.1 and 9.3).
+     * Older points keep [icon]'s looser rule so existing packs behave as before.
+     */
+    fun uiIcon(value: String, pointer: String, file: String = MANIFEST_FILE): CommandIcon? {
+        val icon = icon(value, pointer) ?: return null
+        val svg = (icon as? CommandIcon.Svg)?.file ?: return icon
+        val bytes = try { files.read(svg.path) } catch (e: IOException) {
+            diagnostics += Diagnostic.error(DiagnosticCode.PATH_INVALID, pointer, "cannot read '${svg.path}': ${e.message}", file)
+            return null
+        }
+        val problems = SvgIconRules.check(bytes.decodeToString(), bytes.size)
+        problems.forEach { diagnostics += Diagnostic.error(DiagnosticCode.ICON_RULE, pointer, "icon '${svg.path}': $it", file) }
+        return icon.takeIf { problems.isEmpty() }
+    }
+
+    /** Ids of UI points are `<publisher>.<name>.<part>`: the shell refuses any other spelling (Origin.owns), so it is an error here. */
+    fun uiPrefix(id: String, pointer: String, what: String, separator: Char = '.'): Boolean {
+        val ok = id.length > extensionId.value.length + 1 && id.startsWith(extensionId.value) && id[extensionId.value.length] == separator
+        if (!ok) error(DiagnosticCode.UI_ID, pointer, "$what '$id' must start with '${extensionId.value}$separator'")
+        return ok
+    }
+
     /** A regex authors supply (`firstLine`, input `validate`); bounded like every other pattern. */
     fun regex(text: String, pointer: String): Regex? {
         if (text.length > ExtensionPolicy.MAX_PATTERN_LENGTH) {
@@ -112,9 +138,12 @@ internal class DecodeContext(
         return out
     }
 
-    /** Warns when an id is not namespaced `<name>.` (sdk-reference validate rule). */
+    /** Whether [id] is in this extension's namespace: `<name>.` (sdk-reference) or the full `<publisher>.<name>.` the shell points require. */
+    fun ownsId(id: String): Boolean = id.startsWith("$extensionName.") || id.startsWith("${extensionId.value}.")
+
+    /** Warns when an id is not namespaced `<name>.` or `<publisher>.<name>.` (sdk-reference validate rule). */
     fun checkPrefix(id: String, pointer: String, what: String) {
-        if (!id.startsWith("$extensionName.")) warn(DiagnosticCode.ID_PREFIX, pointer, "$what '$id' should start with '$extensionName.'")
+        if (!ownsId(id)) warn(DiagnosticCode.ID_PREFIX, pointer, "$what '$id' should start with '$extensionName.'")
     }
 
     /** Reports duplicates in [ids] (pointer, id) as E_DUPLICATE_ID at the later occurrence. */

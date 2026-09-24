@@ -12,10 +12,9 @@ import dev.easyide.app.ui.shell.DocumentType
 import dev.easyide.app.ui.shell.DocumentUri
 import dev.easyide.app.ui.shell.NavEnv
 import dev.easyide.app.ui.shell.NavItem
-import dev.easyide.app.ui.shell.NavRegistry
+import dev.easyide.app.ui.shell.LayoutPreset
 import dev.easyide.app.ui.shell.NavTarget
 import dev.easyide.app.ui.shell.OpenOptions
-import dev.easyide.app.ui.shell.Origin
 import dev.easyide.app.ui.shell.Placement
 import dev.easyide.app.ui.shell.ScopeState
 import dev.easyide.app.ui.shell.ShellAction
@@ -24,6 +23,8 @@ import dev.easyide.app.ui.shell.ShellReducer
 import dev.easyide.app.ui.shell.ShellScope
 import dev.easyide.app.ui.shell.ShellSnapshot
 import dev.easyide.app.ui.shell.ShellState
+import dev.easyide.app.ui.shell.ext.ExtRegistries
+import dev.easyide.app.ui.shell.ext.ExtShell
 import dev.easyide.app.ui.shell.nav.NavItemSource
 import dev.easyide.app.ui.shell.nav.NavSettings
 import dev.easyide.app.ui.shell.workspace.WorkspaceNav
@@ -61,6 +62,8 @@ class ShellViewModel(
     settings: Flow<NavSettings>,
     private val scope: CoroutineScope,
     debounceMs: Long = ShellTokens.SAVE_DEBOUNCE_MS,
+    extensions: StateFlow<ExtShell> = MutableStateFlow(ExtShell.EMPTY),
+    private val runCommand: suspend (String) -> Unit = {},
 ) : ViewModel(scope) {
 
     private val mutable = MutableStateFlow<ShellState?>(null)
@@ -75,18 +78,27 @@ class ShellViewModel(
     /** The toast on screen, or null. */
     val toast: StateFlow<String?> = toasts.map { it.current }.stateIn(scope, SharingStarted.Eagerly, null)
 
+    /**
+     * [registries] with what the enabled extensions contribute folded in: their containers, document types, openers and
+     * navigation items. The engine's own rules keep core first, so an extension never displaces or removes a core item.
+     */
+    val effective: StateFlow<AppRegistries> = combine(extensions, source.contributions) { ext, nav ->
+        val folded = ExtRegistries.fold(registries, ext).registries
+        AppRegistries(folded.documents, folded.containers, ExtRegistries.navigation(registries.navigation, nav).registry)
+    }.stateIn(scope, SharingStarted.Eagerly, registries)
+
+    /** The presets extensions offer, beside the built-in ones. */
+    val extensionPresets: StateFlow<List<LayoutPreset>> = extensions.map { it.presetList }.stateIn(scope, SharingStarted.Eagerly, emptyList())
+
     val navItems: StateFlow<List<NavItem>> = itemsIn(ShellScope.APP)
 
     /** The items of an open workspace's navigation surface: the same registry and settings, workspace scope. */
     val workspaceNavItems: StateFlow<List<NavItem>> = itemsIn(ShellScope.WORKSPACE)
 
     private fun itemsIn(shellScope: ShellScope): StateFlow<List<NavItem>> =
-        combine(source.contributions, navSettings) { contributions, nav ->
-            val registry = contributions.fold(registries.navigation) { r, c -> r.register(c.item, Origin.Extension(c.extensionId)).registry }
-            visible(registry, nav, shellScope)
-        }.stateIn(scope, SharingStarted.Eagerly, visible(registries.navigation, NavSettings(), shellScope))
+        combine(effective, navSettings) { reg, nav -> visible(reg, nav, shellScope) }
+            .stateIn(scope, SharingStarted.Eagerly, visible(registries, NavSettings(), shellScope))
 
-    private val env = ShellEnv(::typeOf)
     private var restoring = false
 
     init {
@@ -100,14 +112,20 @@ class ShellViewModel(
         }
     }
 
-    private fun visible(registry: NavRegistry, nav: NavSettings, shellScope: ShellScope): List<NavItem> =
+    private fun visible(reg: AppRegistries, nav: NavSettings, shellScope: ShellScope): List<NavItem> =
         if (shellScope == ShellScope.WORKSPACE) {
-            WorkspaceNav.items(registry, registries.containers, nav.prefs, source::holds)
+            WorkspaceNav.items(reg.navigation, reg.containers, nav.prefs, source.commands, source::holds)
         } else {
-            registry.visible(shellScope, nav.prefs, NavEnv(source::holds) { it is NavTarget.Container && registries.containers.byId(it.id) != null })
+            reg.navigation.visible(shellScope, nav.prefs, NavEnv(source::holds) { it.resolvesIn(reg) })
         }
 
-    fun typeOf(uri: DocumentUri): DocumentType = registries.documents.resolve(uri)
+    /** A container target needs the container; a command target needs a command an extension declared. */
+    private fun NavTarget.resolvesIn(reg: AppRegistries): Boolean = when (this) {
+        is NavTarget.Container -> reg.containers.byId(id) != null
+        is NavTarget.Command -> id in source.commands
+    }
+
+    fun typeOf(uri: DocumentUri): DocumentType = effective.value.documents.resolve(uri)
 
     /** Called with the window on every change; the first call restores, later ones re-fit the layout. */
     fun onWindow(window: WindowSize) {
@@ -129,18 +147,22 @@ class ShellViewModel(
     }
 
     private fun dispatch(action: ShellAction) {
-        mutable.update { s -> s?.let { ShellReducer.reduce(it, action, env) } }
+        mutable.update { s -> s?.let { ShellReducer.reduce(it, action, ShellEnv(::typeOf, extensionPresets.value)) } }
     }
 
     fun selectNav(item: NavItem) {
-        val target = item.target as? NavTarget.Container ?: return
-        val spec = registries.containers.byId(target.id) ?: return
-        dispatch(ShellAction.SelectNav(item.id, ContainerRef(registries.containers.placementOf(spec), spec.id)))
+        val containers = effective.value.containers
+        when (val target = item.target) {
+            is NavTarget.Command -> scope.launch { runCommand(target.id) }
+            is NavTarget.Container -> containers.byId(target.id)?.let { spec ->
+                dispatch(ShellAction.SelectNav(item.id, ContainerRef(containers.placementOf(spec), spec.id)))
+            }
+        }
     }
 
     /** Selects a core destination by id (a Settings link inside Home, the workspace's "open settings"). */
     fun goTo(navId: String) {
-        registries.navigation.byId(navId)?.let(::selectNav)
+        effective.value.navigation.byId(navId)?.let(::selectNav)
     }
 
     fun open(uri: DocumentUri, options: OpenOptions = OpenOptions(preview = true)) = dispatch(ShellAction.Open(uri, options))

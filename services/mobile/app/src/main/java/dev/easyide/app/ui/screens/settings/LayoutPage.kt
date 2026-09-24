@@ -39,6 +39,32 @@ internal fun LayoutPage(env: PageEnv, host: SettingsHost) {
     }
     NavigationRows(ctx, host.layout)
     ContainerRows(ctx, host.layout)
+    PackRows(ctx, host.layout)
+}
+
+/**
+ * The extensions that add screens, each with a switch for all of its navigation items, panels and documents at once
+ * (`shell.extensions.contribute`). Off hides them; the extension stays enabled and keeps its data and commands.
+ */
+@Composable
+private fun PackRows(ctx: SettingsContext, catalog: LayoutCatalog) {
+    if (catalog.packs.isEmpty()) return
+    val current = ctx.snapshot[ShellSettingsSchema.extensionsContribute]
+    val off = ShellSettingsSchema.extensionsOff(ctx.snapshot)
+    val editable = RowState.blockOf(ShellSettingsSchema.extensionsContribute, ctx.layer, ctx.language) == null
+    KitSection(stringResource(R.string.layout_packs_section), description = stringResource(R.string.layout_packs_hint)) {
+        catalog.packs.forEach { pack ->
+            val on = pack !in off
+            KitRow(
+                title = pack,
+                mono = true,
+                trailing = {
+                    KitToggle(on, { ctx.actions.setJson(ShellSettingsSchema.extensionsContribute, ShellSettingsSchema.withExtension(current, pack, it), ctx.language) }, enabled = editable)
+                },
+                id = "pack:$pack",
+            )
+        }
+    }
 }
 
 /** The preset and the two navigation settings the first section lists. */

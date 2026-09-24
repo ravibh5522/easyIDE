@@ -2,6 +2,7 @@ package dev.easyide.app.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import dev.easyide.app.ui.screens.workspace.ProjectNotFound
 import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
 import dev.easyide.app.ui.screens.workspace.files.LocalIgnoreIndex
+import dev.easyide.app.ui.shell.ext.documentOpener
 import dev.easyide.app.ui.shell.host.AppRenderers
 import dev.easyide.app.ui.shell.host.ShellDeps
 import dev.easyide.app.ui.shell.host.ShellExits
@@ -79,6 +81,12 @@ fun AppNavHost(
 
         composable(Destination.Home.route) {
             val deps = rememberShellDeps(container, viewModelFactory, navController, shell)
+            // Extensions open their own documents (`openDocument`, a view row's `open`) through the shell that is showing.
+            DisposableEffect(shell, container) {
+                val opener = documentOpener(shell::open)
+                container.extensions.host.documents = opener
+                onDispose { if (container.extensions.host.documents === opener) container.extensions.host.documents = null }
+            }
             ShellHost(
                 shell, remember(deps) { AppRenderers.panels(deps) }, remember(deps) { AppRenderers.documents(deps) },
                 dialogs = { AppRenderers.Dialogs(deps) },
@@ -235,6 +243,7 @@ private fun rememberShellDeps(
             onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
             onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
         ),
-        shell.registries,
+        shell.effective,
+        shell.extensionPresets,
     )
 }

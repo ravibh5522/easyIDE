@@ -75,7 +75,7 @@ fun NavSurface(surface: NavSurfaceState, onSelect: (NavItem) -> Unit, modifier: 
             val focusable = if (id == landing) m.focusRequester(surface.focus) else m
             if (item != null) {
                 NavCell(
-                    iconFor(item.icon.name), item.title, item.id == surface.active, surface.showLabels, surface.placement,
+                    navIcon(item.icon), item.title, item.id == surface.active, surface.showLabels, surface.placement,
                     surface.badges[item.id], { onSelect(item) }, focusable, "nav-${item.id}",
                 )
             } else {

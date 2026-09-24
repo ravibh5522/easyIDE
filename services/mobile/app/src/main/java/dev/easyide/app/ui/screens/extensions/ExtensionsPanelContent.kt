@@ -46,6 +46,7 @@ internal class PanelActions(
     val onClearLog: () -> Unit,
     val onPickFile: () -> Unit,
     val onPickFolder: () -> Unit,
+    val onSamples: () -> Unit,
     val onCreate: () -> Unit,
 )
 
@@ -110,6 +111,7 @@ private fun PanelHeader(showRefresh: Boolean, actions: PanelActions, onBrowse: (
                     KitMenuItem.Action(stringResource(R.string.extui_install_registry), onBrowse),
                     KitMenuItem.Action(stringResource(R.string.extui_install_file), actions.onPickFile),
                     KitMenuItem.Action(stringResource(R.string.extui_install_folder), actions.onPickFolder),
+                    KitMenuItem.Action(stringResource(R.string.extui_install_sample), actions.onSamples),
                     KitMenuItem.Divider,
                     KitMenuItem.Action(stringResource(R.string.create_ext_action), actions.onCreate),
                 ),

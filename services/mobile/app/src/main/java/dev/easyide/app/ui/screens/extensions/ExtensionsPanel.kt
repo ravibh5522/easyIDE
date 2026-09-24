@@ -32,6 +32,7 @@ fun ExtensionsPanel(selectedId: String?, onSelect: (String) -> Unit, viewModel: 
         onClearLog = viewModel::clearLog,
         onPickFile = { pickFile.launch(arrayOf(ANY_MIME)) },
         onPickFolder = { pickFolder.launch(null) },
+        onSamples = viewModel::openSamples,
         onCreate = viewModel::openCreate,
     )
     ExtensionsPanelContent(state, browse, selectedId, actions, modifier)

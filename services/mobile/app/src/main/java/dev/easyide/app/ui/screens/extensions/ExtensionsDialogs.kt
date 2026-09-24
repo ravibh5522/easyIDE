@@ -18,7 +18,9 @@ fun ExtensionsDialogs(viewModel: ExtensionsViewModel) {
     val create by viewModel.create.collectAsStateWithLifecycle()
     val projects by viewModel.projects.collectAsStateWithLifecycle()
     val developerMode by viewModel.developerMode.collectAsStateWithLifecycle()
+    val samples by viewModel.samples.collectAsStateWithLifecycle()
 
+    samples?.let { SamplePacksDialog(it, viewModel::installSample, viewModel::closeSamples) }
     detail?.let { RegistryDetail(it, viewModel::installFromRegistry, viewModel::forgetPin, viewModel::closeDetail) }
     InstallDialogs(install, state.environments, viewModel)
     CreateExtensionDialogs(create, projects, developerMode, viewModel)

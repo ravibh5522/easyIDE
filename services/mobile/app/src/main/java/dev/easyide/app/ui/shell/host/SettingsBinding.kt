@@ -30,14 +30,16 @@ private val DEFAULT_CATEGORY = SettingsCategory.APPEARANCE.id
 @Composable
 private fun rememberSettingsHost(deps: ShellDeps): SettingsHost {
     val shell = LocalShellActions.current
-    return remember(deps, shell) {
+    val registries by deps.registries.collectAsStateWithLifecycle()
+    val extensionPresets by deps.presets.collectAsStateWithLifecycle()
+    return remember(deps, shell, registries, extensionPresets) {
         SettingsHost(
             externalFolderSync = deps.container.externalFolderSync,
             onOpenExtensions = { shell.goTo(CoreShell.EXTENSIONS) },
             onOpenDiagnostics = deps.exits.onOpenDiagnostics,
             onNotify = shell.notify,
-            layout = LayoutCatalog.of(deps.registries.navigation, deps.registries.containers),
-            presets = LayoutPresets.BUILT_IN,
+            layout = LayoutCatalog.of(registries.navigation, registries.containers),
+            presets = LayoutPresets.BUILT_IN + extensionPresets,
         )
     }
 }

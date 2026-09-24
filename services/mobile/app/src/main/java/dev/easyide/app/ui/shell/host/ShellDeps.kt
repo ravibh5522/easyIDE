@@ -2,6 +2,8 @@ package dev.easyide.app.ui.shell.host
 
 import dev.easyide.app.AppContainer
 import dev.easyide.app.ui.AppViewModelFactory
+import dev.easyide.app.ui.shell.LayoutPreset
+import kotlinx.coroutines.flow.StateFlow
 
 /** What the app shell cannot do itself: leave for a route outside it. */
 class ShellExits(
@@ -11,5 +13,5 @@ class ShellExits(
     val onOpenDiagnostics: () -> Unit,
 )
 
-/** What the bound panels and pages draw on: the app's services, the view-model factory, the exits, and the registries the layout page lists. */
-class ShellDeps(val container: AppContainer, val factory: AppViewModelFactory, val exits: ShellExits, val registries: AppRegistries)
+/** What the bound panels and pages draw on: the app's services, the view-model factory, the exits, and what the layout page lists: the registries and the presets extensions offer (they change as extensions come and go). */
+class ShellDeps(val container: AppContainer, val factory: AppViewModelFactory, val exits: ShellExits, val registries: StateFlow<AppRegistries>, val presets: StateFlow<List<LayoutPreset>>)

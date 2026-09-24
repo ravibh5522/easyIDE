@@ -1,6 +1,11 @@
 package dev.easyide.app.ui.icons
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -91,7 +96,8 @@ internal val MATERIAL_ICONS: Map<String, ImageVector> = mapOf(
     "download" to Icons.Filled.Download, "arrow_upward" to Icons.Filled.ArrowUpward,
     "arrow_downward" to Icons.Filled.ArrowDownward,
     "chevron_right" to Icons.AutoMirrored.Filled.KeyboardArrowRight, "chevron_down" to Icons.Filled.KeyboardArrowDown,
-    "chevron_up" to Icons.Filled.KeyboardArrowUp, "open_in_new" to Icons.AutoMirrored.Filled.OpenInNew,
+    "chevron_up" to Icons.Filled.KeyboardArrowUp, "send" to Icons.AutoMirrored.Filled.Send, "info" to Icons.Filled.Info,
+    "warning" to Icons.Filled.Warning, "star" to Icons.Filled.Star, "chat" to Icons.Filled.Chat, "open_in_new" to Icons.AutoMirrored.Filled.OpenInNew,
 )
 
 /** What an unknown token draws, so an extension's item is always visible and tappable. */

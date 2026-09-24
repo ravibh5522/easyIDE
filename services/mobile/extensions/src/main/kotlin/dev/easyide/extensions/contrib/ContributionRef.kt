@@ -21,7 +21,9 @@ data class ContributionRef(val kind: Kind, val location: String?, val id: String
         SNIPPET("snippet"), THEME("theme"), ICON_THEME("iconTheme"), VIEW_CONTAINER("viewContainer"),
         VIEW("view"), VIEW_WELCOME("viewWelcome"), TASK_DEFINITION("taskDefinition"),
         PROBLEM_MATCHER("problemMatcher"), WALKTHROUGH("walkthrough"), STAGE("stage"),
-        STATUS_BAR("statusBar"), KEY_ROW("keyRow"), SERVER("server"), SANDBOX("sandbox"), VIEW_DATA("viewData");
+        STATUS_BAR("statusBar"), KEY_ROW("keyRow"), SERVER("server"), SANDBOX("sandbox"), VIEW_DATA("viewData"),
+        NAVIGATION("navigation"), VIEW_BADGE("viewBadge"), DOCUMENT("document"), DOCUMENT_OPENER("documentOpener"),
+        LAYOUT_PRESET("layoutPreset");
 
         companion object {
             fun parse(tag: String): Kind? = entries.firstOrNull { it.tag == tag }

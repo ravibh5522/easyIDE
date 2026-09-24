@@ -66,6 +66,7 @@ internal class VariableResolver(
         is VariableRef.Config -> settings.value(ref.key, ctx.query)?.takeUnless { it == JsonNull }
             ?: fail(ActionError.ARGS, "setting '${ref.key}' has no value")
         is VariableRef.Command -> command(ref.id, ctx)
+        is VariableRef.Arg -> arg(ref.path, ctx)
         else -> JsonPrimitive(text(ref, ctx, null))
     }
 
@@ -77,6 +78,19 @@ internal class VariableResolver(
         }
         is VariableRef.Result -> resultText(raw(ref, ctx))
         else -> raw(ref, ctx).asText()
+    }
+
+    /** Object keys and array indexes only; a missing field is a step error like any unresolvable variable. */
+    private fun arg(path: String, ctx: ActionContext): JsonElement {
+        var at: JsonElement? = ctx.args
+        for (segment in path.split('.')) {
+            at = when (at) {
+                is JsonObject -> at[segment]
+                is JsonArray -> segment.toIntOrNull()?.let { at.getOrNull(it) }
+                else -> null
+            }
+        }
+        return at?.takeUnless { it == JsonNull } ?: fail(ActionError.ARGS, "\${arg:$path} is not set")
     }
 
     private suspend fun input(id: String, ctx: ActionContext): JsonElement =

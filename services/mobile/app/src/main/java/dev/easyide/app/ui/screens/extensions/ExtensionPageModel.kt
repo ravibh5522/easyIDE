@@ -24,6 +24,7 @@ enum class ContributionGroup(@StringRes val title: Int, val kinds: Set<Kind>) {
     Servers(R.string.extui_group_servers, setOf(Kind.SERVER)),
     Commands(R.string.extui_group_commands, setOf(Kind.COMMAND, Kind.MENU, Kind.KEYBINDING, Kind.TASK_DEFINITION, Kind.PROBLEM_MATCHER)),
     Views(R.string.extui_group_views, setOf(Kind.VIEW_CONTAINER, Kind.VIEW, Kind.VIEW_WELCOME, Kind.VIEW_DATA, Kind.STAGE, Kind.STATUS_BAR, Kind.KEY_ROW, Kind.WALKTHROUGH)),
+    Screens(R.string.extui_group_screens, setOf(Kind.NAVIGATION, Kind.VIEW_BADGE, Kind.DOCUMENT, Kind.DOCUMENT_OPENER, Kind.LAYOUT_PRESET)),
     Appearance(R.string.extui_group_appearance, setOf(Kind.THEME, Kind.ICON_THEME)),
     Other(R.string.extui_group_other, setOf(Kind.CONFIGURATION, Kind.SANDBOX)),
 }

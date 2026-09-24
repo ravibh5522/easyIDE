@@ -6,18 +6,19 @@ import dev.easyide.app.R
 import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitDialog
 import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.shell.LayoutPreset
 import dev.easyide.app.ui.shell.LayoutPresets
 import dev.easyide.app.ui.shell.ShellState
 
 /**
  * The layout picker (Ctrl+Alt+P): Automatic, which follows the window, and every preset offered for
- * this window's arrangement. The choice is kept with the project's layout, so reopening it brings the
+ * this window's arrangement, the built-in ones first and then those extensions offer ([extra]). The choice is kept with the project's layout, so reopening it brings the
  * same arrangement back.
  */
 @Composable
-fun LayoutPresetPicker(state: ShellState, onPick: (String) -> Unit, onDismiss: () -> Unit) {
+fun LayoutPresetPicker(state: ShellState, extra: List<LayoutPreset>, onPick: (String) -> Unit, onDismiss: () -> Unit) {
     val chosen = state.current.layout.preset
-    val offered = LayoutPresets.offered(state.arrangement)
+    val offered = LayoutPresets.offered(state.arrangement, extra)
     KitDialog(
         title = stringResource(R.string.wshell_preset_title),
         onDismiss = onDismiss,

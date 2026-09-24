@@ -83,6 +83,7 @@ fun capabilityPrompt(c: Capability, envId: String?): String {
         Capability.Clipboard -> stringResource(R.string.cap_clipboard)
         Capability.UiStage -> stringResource(R.string.cap_ui_stage)
         Capability.UiSettings -> stringResource(R.string.cap_ui_settings)
+        Capability.UiContribute -> stringResource(R.string.cap_ui_contribute)
         Capability.SecretsRead -> stringResource(R.string.cap_secrets_read)
     }
 }

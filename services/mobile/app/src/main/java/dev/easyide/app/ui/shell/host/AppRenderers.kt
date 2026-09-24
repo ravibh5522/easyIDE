@@ -2,6 +2,7 @@ package dev.easyide.app.ui.shell.host
 
 import androidx.compose.runtime.Composable
 import dev.easyide.app.ui.shell.CoreShell
+import dev.easyide.app.ui.shell.ext.ExtRenderers
 
 /**
  * The one place app-scope panels and document pages are bound to their composables (screens.md
@@ -26,9 +27,12 @@ object AppRenderers {
     val containerIds: Set<String> get() = panelBindings.keys
     val documentTypeIds: Set<String> get() = documentBindings.keys
 
-    fun panels(deps: ShellDeps): PanelRendererRegistry = PanelRendererRegistry(panelBindings.mapValues { (_, bind) -> bind(deps) })
+    /** The app's panels, and extension containers drawn as their views (looked up when asked: packs come and go). */
+    fun panels(deps: ShellDeps): PanelRendererRegistry =
+        PanelRendererRegistry(panelBindings.mapValues { (_, bind) -> bind(deps) }) { id -> ExtRenderers.panel(deps, id) }
 
-    fun documents(deps: ShellDeps): DocumentRendererRegistry = DocumentRendererRegistry(documentBindings.mapValues { (_, bind) -> bind(deps) })
+    fun documents(deps: ShellDeps): DocumentRendererRegistry =
+        DocumentRendererRegistry(documentBindings.mapValues { (_, bind) -> bind(deps) }) { type -> ExtRenderers.document(deps, type) }
 
     /** Dialogs that belong to no single panel or page: one copy of each, or every question would show twice. */
     @Composable

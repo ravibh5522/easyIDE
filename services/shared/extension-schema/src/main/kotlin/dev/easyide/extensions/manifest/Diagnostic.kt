@@ -76,6 +76,26 @@ object DiagnosticCode {
     const val ENGINES_VSCODE = "W_ENGINES_VSCODE"
     const val WASM_TOO_LARGE = "E_WASM_TOO_LARGE"
 
+    // UI contribution points and view schemas (extension-ui.md)
+    const val VIEW_SYNTAX = "E_VIEW_SYNTAX"
+    const val VIEW_VERSION = "E_VIEW_VERSION"
+    const val VIEW_LIMIT = "E_VIEW_LIMIT"
+    const val VIEW_COMPONENT = "E_VIEW_COMPONENT"
+    const val VIEW_PROP = "E_VIEW_PROP"
+    const val VIEW_TEMPLATE = "E_VIEW_TEMPLATE"
+    const val VIEW_ACTION = "E_VIEW_ACTION"
+    const val VIEW_ID = "E_VIEW_ID"
+    const val VIEW_COMPOSER = "E_VIEW_COMPOSER"
+    const val VIEW_CONFIRM = "E_VIEW_CONFIRM"
+    const val ICON_RULE = "E_ICON_RULE"
+    const val UI_ID = "E_UI_ID"
+    const val UI_TITLE = "E_UI_TITLE"
+    const val UI_REF = "E_UI_REF"
+    const val UI_LIMIT = "E_UI_LIMIT"
+    const val UI_PRIORITY = "E_UI_PRIORITY"
+    const val UI_ORDER = "W_UI_ORDER"
+    const val UI_IGNORED = "W_UI_IGNORED"
+
     // Contribution registry conflicts (extension-runtime.md sec 7.1), logged not blocking
     const val COMMAND_SHADOWED = "E_COMMAND_SHADOWED"
     const val CONTRIBUTION_SHADOWED = "W_CONTRIBUTION_SHADOWED"

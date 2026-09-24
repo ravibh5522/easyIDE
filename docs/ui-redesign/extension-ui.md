@@ -1,6 +1,6 @@
 # UI Redesign - Extension UI Model
 
-Status: PROPOSED (2026-09-24). Part of [arch.md](arch.md). Builds on [shell-model.md](shell-model.md).
+Status: ACCEPTED (2026-09-24); the SDK side and the renderer are built (R4, 2026-09-25, [decision 0027](../decision/0027-extension-view-schema.md)), see section 10. Part of [arch.md](arch.md). Builds on [shell-model.md](shell-model.md).
 
 How an extension puts UI into the shell: a navigation item, a panel, a document in the main
 stage, a status item. Everything is declarative and rendered by the app's own UI kit, so an
@@ -271,3 +271,26 @@ Existing packs keep working unchanged: their `views` without `schema` render as 
    document instead of a container? Proposed: yes, via `target.command`.
 3. How does a pack provide light/dark icon variants? Proposed: monochrome only, tinted by the
    shell, no variants.
+
+## 10. As built (R4)
+
+The proposals of section 9 were adopted: `chat` is a v1 component and `terminal` is **reserved** (the validator refuses it, the
+renderer skips it); an app-scope navigation item may target a command; icons are monochrome, tinted by the shell, no variants.
+
+What differs from or adds to the text above:
+
+- `navigation`, `viewBadge`, `documents`, `documentOpeners` and `layoutPresets` are easyIDE-only keys, so they live under
+  `easyide` in `package.json`; `viewsContainers` and `views` stay under `contributes`. Reference: [sdk-reference.md](../extension-sdk/sdk-reference.md);
+  authoring: [views.md](../extension-sdk/views.md).
+- Every id of these points is `<publisher>.<name>.<part>` (a document type `<publisher>.<name>/<name>`); the validator enforces what the shell
+  already refused. Navigation titles are at most 14 characters, a pack has at most 3 navigation items (the rest are ignored with a warning).
+- Events name a command, an inline action, or `open` (one of the pack's own documents); `args` reach the action as the new variable
+  `${arg:name}`; `confirm`, `as`/`mode`/`parse` and `before`/`after` effects are the whole write-back model (views.md section 5).
+- `openDocument` exists as an action too (own `ext://` documents, needs `ui.stage`); a view's `open` needs nothing beyond `ui.contribute`.
+- Data sources: `easyide.viewData` (`kind: object`, `intervalSec >= 2`), a document type's `state.provider`, WASM `ui.setViewData` (10 a
+  second, 256 KB). Views not on screen fetch nothing; a badge's view is fetched once when its item first shows. "File watch" and provider
+  `visible: false` notifications are not built; `logStream` over an action polls (the last 200 lines, refreshed) instead of streaming.
+- `composer` is a multi-line field and a send button (Ctrl+Enter sends); slash commands and attachments are not in v1. `code` is monospace
+  without highlighting; `diff` is a coloured unified diff, not the split view (R6 owns that).
+- The user's switch `shell.extensions.contribute` (`{ "<extension id>": false }`) hides one pack's screens and items without disabling it.
+- The Extensions page's "Contributions" listing and the Layout page's provenance read the same registries, so nothing a pack adds is hidden.

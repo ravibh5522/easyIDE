@@ -14,6 +14,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -77,7 +78,9 @@ import dev.easyide.app.ui.shell.workspace.DockFocus
 import dev.easyide.app.ui.shell.workspace.DockRules
 import dev.easyide.app.ui.shell.workspace.FileDocuments
 import dev.easyide.app.ui.shell.workspace.InputDock
+import dev.easyide.app.ui.shell.ext.documentOpener
 import dev.easyide.app.ui.shell.workspace.LayoutPresetPicker
+import dev.easyide.app.ui.shell.workspace.forWorkspace
 import dev.easyide.app.ui.shell.workspace.LocalWorkspaceEnv
 import dev.easyide.app.ui.shell.workspace.StatusParts
 import dev.easyide.app.ui.shell.workspace.StatusStrip
@@ -274,8 +277,21 @@ fun WorkspaceScreen(
     val navItems by shell.workspaceNavItems.collectAsStateWithLifecycle()
     val navSettings by shell.navSettings.collectAsStateWithLifecycle()
     val navBadges by shell.navBadges.collectAsStateWithLifecycle()
-    val parts = remember(model, deps) {
-        WorkspaceParts(model.documents, model.containers, AppRenderers.panels(deps) + WorkspacePanels.panels(), AppRenderers.documents(deps) + WorkspacePanels.documents())
+    // Extensions come and go while the workspace is open: the model resolves against the app shell's registries with the files added.
+    val appRegistries by shell.effective.collectAsStateWithLifecycle()
+    val extensionPresets by shell.extensionPresets.collectAsStateWithLifecycle()
+    LaunchedEffect(appRegistries, extensionPresets) {
+        val registries = appRegistries.forWorkspace()
+        model.setRegistries(registries.documents, registries.containers, extensionPresets)
+    }
+    val modelRegistries by model.registryState.collectAsStateWithLifecycle()
+    val parts = remember(modelRegistries, deps) {
+        WorkspaceParts(modelRegistries.documents, modelRegistries.containers, AppRenderers.panels(deps) + WorkspacePanels.panels(), AppRenderers.documents(deps) + WorkspacePanels.documents())
+    }
+    DisposableEffect(model, extensions) {
+        val opener = documentOpener(model::open)
+        extensions.host.documents = opener
+        onDispose { if (extensions.host.documents === opener) extensions.host.documents = null }
     }
     val slots = WorkspaceSlots(
         idle = panelRenderer { m ->
@@ -413,7 +429,7 @@ fun WorkspaceScreen(
             onPrefix = openSymbolPicker,
         )
         if (presetsOpen) {
-            shellState?.let { LayoutPresetPicker(it, { id -> model.dispatch(dev.easyide.app.ui.shell.ShellAction.ApplyPreset(id)) }, { presetsOpen = false }) }
+            shellState?.let { LayoutPresetPicker(it, extensionPresets, { id -> model.dispatch(dev.easyide.app.ui.shell.ShellAction.ApplyPreset(id)) }, { presetsOpen = false }) }
         }
 
         SnackbarHost(

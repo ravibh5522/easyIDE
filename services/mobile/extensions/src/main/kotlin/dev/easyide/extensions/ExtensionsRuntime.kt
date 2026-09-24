@@ -1,5 +1,7 @@
 package dev.easyide.extensions
 
+import dev.easyide.extensions.action.Action
+import dev.easyide.extensions.action.ActionError
 import dev.easyide.extensions.action.ActionOutcome
 import dev.easyide.extensions.action.ActionRunner
 import dev.easyide.extensions.action.CommandBinding
@@ -9,6 +11,8 @@ import dev.easyide.extensions.action.CommandOutcome
 import dev.easyide.extensions.action.ExtensionLog
 import dev.easyide.extensions.action.HostPort
 import dev.easyide.extensions.action.LogicHost
+import dev.easyide.extensions.action.StepResult
+import dev.easyide.extensions.capability.Capability
 import dev.easyide.extensions.contrib.ContributionRegistry
 import dev.easyide.extensions.contrib.Contributions
 import dev.easyide.extensions.contrib.Owner
@@ -137,6 +141,18 @@ class ExtensionsRuntime(
     /** Runs a command through the action engine (the app's command registry calls this). */
     suspend fun run(commandId: String, args: JsonElement? = null): ActionOutcome = actions.run(commandId, args)
 
+    /**
+     * Runs an action written in place (a view's event, a view data source) as [owner], with the capabilities the user granted
+     * that extension: the same checks as a declared command, just without a command id. [title] names it in the log.
+     */
+    suspend fun runInline(owner: ExtensionId, title: String, action: Action, args: JsonElement?): StepResult {
+        val ext = extensions.enabled.value.byId(owner)
+            ?: return StepResult.Failed(ActionError.UNAVAILABLE, "extension ${owner.value} is not enabled", null)
+        val d = ext.descriptor
+        val binding = CommandBinding(owner, "$title#inline", title, CommandHandler.Declarative(action), d.inputs, ext.granted, contributions.ownedSettings(Owner.Ext(owner)), d.guestRoot)
+        return actions.runStep(actions.newContext(binding, args), action)
+    }
+
     /** Glob patterns the workspace scanner must look for (`workspaceContains:`) among enabled packs. */
     fun workspaceGlobs(): Set<String> = extensions.enabled.value.extensions
         .flatMap { it.descriptor.activationEvents }.filterIsInstance<ActivationEvent.WorkspaceContains>().mapTo(HashSet()) { it.glob }
@@ -145,7 +161,9 @@ class ExtensionsRuntime(
 
     /** Journal-wrapped registration of newcomers, then activation bookkeeping. */
     private suspend fun apply(set: EnabledSet) {
-        val registered = set.extensions.map { RegisteredExtension(it.id, it.descriptor.version, it.descriptor.contributes) }
+        val registered = set.extensions.map {
+            RegisteredExtension(it.id, it.descriptor.version, it.descriptor.contributes, it.granted.satisfies(Capability.UiContribute))
+        }
         val before = contributions.registered().mapTo(HashSet()) { it.id to it.version }
         val newcomers = registered.filter { (it.id to it.version) !in before }
         newcomers.forEach { journal.begin(it.id, CrashJournal.Phase.REGISTER_CONTRIBUTIONS) }
