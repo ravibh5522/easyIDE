@@ -30,7 +30,7 @@ internal fun LazyListScope.installedTab(groups: ExtensionGroups, query: String, 
     item {
         KitField(
             query, actions.onQuery,
-            Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s),
+            Modifier.padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs),
             hint = stringResource(R.string.extui_search_installed),
         )
     }
@@ -45,9 +45,10 @@ internal fun LazyListScope.installedTab(groups: ExtensionGroups, query: String, 
     if (groups.builtIn.isNotEmpty()) item { ExtensionSection(R.string.extui_section_builtin, groups.builtIn, selectedId, actions) }
 }
 
+/** A collapsible group with its count, rows directly on the panel (U-DEN-03). */
 @Composable
 private fun ExtensionSection(title: Int, items: List<ExtensionListItem>, selectedId: String?, actions: InstalledActions) {
-    KitSection(stringResource(title)) {
+    KitSection(stringResource(title), count = items.size, flat = true, collapsible = true) {
         items.forEach { item ->
             ExtensionListRow(item, selected = item.id == selectedId, onSelect = { actions.onSelect(item.id) }, onEnabled = { actions.onEnabled(item.key, it) })
         }

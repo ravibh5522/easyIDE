@@ -2,8 +2,6 @@ package dev.easyide.app.ui.screens.extensions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
@@ -49,14 +47,14 @@ internal fun LazyListScope.browseTab(state: BrowseUiState, query: String, action
     item {
         KitField(
             query, actions.onQuery,
-            Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s),
+            Modifier.padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs),
             hint = stringResource(R.string.reg_search_hint),
         )
     }
     if (state.items.isEmpty()) {
         item { KitEmptyState(EmptyArt.Search, stringResource(R.string.reg_no_results)) }
     } else {
-        item { KitSection(title = null) { state.items.forEach { BrowseRow(it, actions) } } }
+        item { KitSection(title = null, flat = true) { state.items.forEach { BrowseRow(it, actions) } } }
     }
 }
 
@@ -77,42 +75,34 @@ private fun RegistryHeader(line: RegistryLine) {
         else -> stringResource(R.string.reg_age, line.id, ageText(age))
     }
     Column {
-        BasicText(text, Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s), style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
+        BasicText(text, Modifier.padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs), style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
         if (line.stale) KitBanner(stringResource(R.string.reg_stale, RegistryPolicy.STALE_INDEX_WARN_DAYS.toInt()), tone = Tone.Warning)
         line.error?.let { KitBanner(registryErrorLine(it), tone = Tone.Danger) }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * One registry extension on one line: `name  id@version . registry ...... [state] [Install]`. What is
+ * installed already shows as a tag in the place of the button.
+ */
 @Composable
 private fun BrowseRow(item: BrowseItem, actions: BrowseActions) {
     val action = item.action()
-    Column {
-        KitRow(
-            title = item.id,
-            mono = true,
-            subtitle = item.description ?: item.displayName,
-            onClick = { actions.onOpen(item) },
-            id = "browse-row",
-            trailing = {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.s)) {
-                    item.entry?.let { BasicText(it.version.toString(), style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted)) }
-                    if (action == BrowseAction.Install || action == BrowseAction.Update) {
-                        val label = if (action == BrowseAction.Install) R.string.reg_install else R.string.extui_update
-                        KitButton(stringResource(label), { actions.onInstall(item) }, style = KitButtonStyle.Secondary)
-                    }
+    val version = item.entry?.version?.toString()
+    KitRow(
+        title = item.displayName,
+        subtitle = listOfNotNull(if (version != null) "${item.id}@$version" else item.id, item.registryId).joinToString(stringResource(R.string.home_separator)),
+        onClick = { actions.onOpen(item) },
+        id = "browse-row",
+        trailing = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
+                if (item.entry == null) KitTag(stringResource(R.string.extui_tag_incompatible), tone = Tone.Warning)
+                if (action == BrowseAction.Installed) item.installedVersion?.let { KitTag(stringResource(R.string.reg_installed, it)) }
+                if (action == BrowseAction.Install || action == BrowseAction.Update) {
+                    val label = if (action == BrowseAction.Install) R.string.reg_install else R.string.extui_update
+                    KitButton(stringResource(label), { actions.onInstall(item) }, style = KitButtonStyle.Secondary)
                 }
-            },
-        )
-        FlowRow(
-            Modifier.padding(start = Kit.space.l, end = Kit.space.l, bottom = Kit.space.s),
-            horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
-            verticalArrangement = Arrangement.spacedBy(Kit.space.xs),
-        ) {
-            item.registryId?.let { KitTag(stringResource(R.string.reg_badge, it)) }
-            item.installedVersion?.let { KitTag(stringResource(R.string.reg_installed, it)) }
-            if (item.updateAvailable) KitTag(stringResource(R.string.extui_tag_update), tone = Tone.Accent)
-            if (item.entry == null) KitTag(stringResource(R.string.extui_tag_incompatible), tone = Tone.Warning)
-        }
-    }
+            }
+        },
+    )
 }

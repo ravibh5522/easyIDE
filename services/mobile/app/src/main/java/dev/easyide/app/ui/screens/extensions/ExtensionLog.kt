@@ -47,26 +47,27 @@ internal fun levelTone(level: LogLevel): Tone = when (level) {
 
 /**
  * The Extension Log (ECO-31): [entries] newest first, with Copy and, where the log is the whole
- * ring, Clear. [showId] names the extension on each line; a page's own log leaves it out.
+ * ring, Clear. [showId] names the extension on each line; a page's own log leaves it out. [flat] is
+ * the side-panel form.
  */
 @Composable
-internal fun LogSection(entries: List<TimedLogEntry>, showId: Boolean, onClear: (() -> Unit)?) {
+internal fun LogSection(entries: List<TimedLogEntry>, showId: Boolean, flat: Boolean, onClear: (() -> Unit)?) {
     val format = remember { DateFormat.getTimeInstance(DateFormat.MEDIUM) }
     val timeOf: (Long) -> String = { format.format(Date(it)) }
     val context = LocalContext.current
     val title = stringResource(R.string.ext_log_title)
-    KitSection(title) {
+    KitSection(title, count = entries.size.takeIf { it > 0 }, flat = flat, collapsible = true) {
         if (entries.isEmpty()) {
             KitEmptyState(EmptyArt.Prompt, stringResource(R.string.ext_log_empty))
             return@KitSection
         }
-        Column(Modifier.padding(Kit.space.m)) {
+        Column(Modifier.padding(Kit.control.hPad)) {
             entries.take(LOG_LINES_SHOWN).forEach { e ->
                 val color = if (levelTone(e.entry.level) == Tone.Neutral) Kit.colors.plainText else levelTone(e.entry.level).content(Kit.colors)
                 BasicText(logLine(e, timeOf(e.atMs), showId), style = Kit.text.monoSmall.copy(color = color))
             }
         }
-        Row(Modifier.padding(horizontal = Kit.space.s), horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
+        Row(Modifier.padding(horizontal = Kit.control.hPad), horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
             KitButton(stringResource(R.string.extui_log_copy), {
                 val clipboard = context.getSystemService(ClipboardManager::class.java)
                 clipboard.setPrimaryClip(ClipData.newPlainText(title, logText(entries, showId, timeOf)))
