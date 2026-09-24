@@ -9,4 +9,5 @@ Kept as a top-level sibling of `services/`, not nested inside it, because these 
 | Path | What | License |
 |---|---|---|
 | `build-grammars.py` | Builds the bundled TextMate grammar assets for `services/mobile` | PolyForm NC (repo default) |
+| `ui-device-check.sh` | On-device check: font scales 1.0/1.3/2.0, every clickable node >= 44dp with a label (adb + uiautomator) | PolyForm NC (repo default) |
 | [`easyide-ext/`](easyide-ext/) | Extension author CLI: init, validate, package, keygen, sign, verify | **Apache-2.0** ([0015](../docs/decision/0015-extension-sdk-licensing-apache.md)) |

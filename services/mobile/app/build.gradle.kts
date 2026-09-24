@@ -98,6 +98,17 @@ android {
         compose = true
     }
 
+    // Developer tools (the kit gallery) exist only in debug and canary: release compiles the
+    // no-op twin in src/release instead, so the route and its strings are absent from the R8 output.
+    sourceSets {
+        for (name in listOf("debug", "canary")) {
+            getByName(name) {
+                kotlin.directories.add("src/devtools/java")
+                res.directories.add("src/devtools/res")
+            }
+        }
+    }
+
     // Robolectric needs merged resources and manifest to load R.font.* (Geist) and themes.
     testOptions {
         unitTests.isIncludeAndroidResources = true

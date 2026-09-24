@@ -14,6 +14,8 @@ import androidx.navigation.navArgument
 import dev.easyide.app.AppContainer
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.appViewModel
+import dev.easyide.app.ui.devtools.devToolsEntries
+import dev.easyide.app.ui.devtools.devToolsRoutes
 import dev.easyide.app.ui.foundation.NavTransitions
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsScreen
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
@@ -213,8 +215,14 @@ fun AppNavHost(
 
         composable(Destination.Diagnostics.route) {
             val viewModel: DiagnosticsViewModel = appViewModel(viewModelFactory)
-            DiagnosticsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+            DiagnosticsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                extraSections = { devToolsEntries(navController) },
+            )
         }
+
+        devToolsRoutes(navController)
 
         composable(Destination.Extensions.route) {
             val viewModel: ExtensionsViewModel = appViewModel(viewModelFactory)
