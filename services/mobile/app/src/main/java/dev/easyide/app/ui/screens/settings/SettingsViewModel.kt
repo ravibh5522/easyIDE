@@ -139,6 +139,21 @@ class SettingsViewModel(
 
     private val tab = MutableStateFlow<LayerTab>(LayerTab.User)
 
+    private val _query = MutableStateFlow("")
+
+    /** The search box text (with its `@modified`, `@ext:` and `@lang:` filters); shared by the panel and every page. */
+    val query: StateFlow<String> = _query.asStateFlow()
+
+    private val _language = MutableStateFlow("")
+
+    /** The language whose `[lang]` block rows write to; blank writes the plain layer. */
+    val language: StateFlow<String> = _language.asStateFlow()
+
+    private val _highlight = MutableStateFlow<String?>(null)
+
+    /** The key a search result asked the page to scroll to and mark. */
+    val highlight: StateFlow<String?> = _highlight.asStateFlow()
+
     private val _message = MutableStateFlow<SettingsMessage?>(null)
     val message: StateFlow<SettingsMessage?> = _message.asStateFlow()
 
@@ -212,6 +227,18 @@ class SettingsViewModel(
         tab.value = next
     }
 
+    fun onQueryChanged(text: String) {
+        _query.value = text
+    }
+
+    fun onLanguageChanged(text: String) {
+        _language.value = text.trim()
+    }
+
+    fun onHighlight(key: String?) {
+        _highlight.value = key
+    }
+
     override fun <T> set(setting: Setting<T>, value: T, language: String?) {
         write(listOf(SettingEdit(setting.key, language, setting.encode(value))))
     }
@@ -222,6 +249,10 @@ class SettingsViewModel(
 
     override fun reset(setting: Setting<*>, language: String?) {
         write(listOf(SettingEdit(setting.key, language, null)))
+    }
+
+    override fun resetMany(settings: List<Setting<*>>) {
+        write(settings.map { SettingEdit(it.key, null, null) })
     }
 
     /** A built-in card also clears an extension theme, which would otherwise keep winning. */
