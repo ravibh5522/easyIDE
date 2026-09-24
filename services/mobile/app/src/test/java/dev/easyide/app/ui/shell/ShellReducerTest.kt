@@ -52,7 +52,7 @@ class ShellReducerTest {
             assertEquals(name, LayoutPresets.AUTO, s.current.layout.preset)
         }
         assertEquals(CoreShell.EXPLORER, workspaceShell(EXPANDED).current.layout.container(Placement.SIDEBAR))
-        assertEquals(CoreShell.OUTLINE, workspaceShell(EXPANDED).current.layout.container(Placement.SECONDARY_SIDEBAR))
+        assertFalse(workspaceShell(EXPANDED).current.layout.isOpen(Placement.SECONDARY_SIDEBAR))
     }
 
     @Test
