@@ -46,4 +46,10 @@ object CommandIds {
     const val NEW_TERMINAL = "workbench.action.terminal.new"
     const val REFRESH_EXPLORER = "workbench.files.action.refreshFilesExplorer"
     const val TOGGLE_MARKDOWN_PREVIEW = "markdown.togglePreview"
+
+    /** Every built-in id: keybindings.json entries naming anything else get an "unknown command" warning. */
+    val ALL: Set<String> = setOf(
+        SHOW_COMMANDS, SAVE, SAVE_ALL, CLOSE_EDITOR, NEXT_EDITOR, PREVIOUS_EDITOR, TOGGLE_EXPLORER,
+        TOGGLE_SOURCE_CONTROL, TOGGLE_TERMINAL, NEW_TERMINAL, REFRESH_EXPLORER, TOGGLE_MARKDOWN_PREVIEW,
+    )
 }

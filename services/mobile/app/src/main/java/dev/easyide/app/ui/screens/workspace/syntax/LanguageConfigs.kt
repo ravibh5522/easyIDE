@@ -43,6 +43,12 @@ object LanguageConfigs {
         return lookup(fileName)
     }
 
+    /** Language id of [fileName] for per-language settings, or null when no grammar claims it; off the main thread. */
+    fun languageIdFor(fileName: String): String? {
+        TextMateHighlighter.ensureIndexLoaded()
+        return synchronized(this) { index?.languageIdFor(fileName) }
+    }
+
     @Synchronized
     private fun lookup(fileName: String): LanguageConfig {
         val scope = index?.scopeFor(fileName) ?: return LanguageConfig.GENERIC

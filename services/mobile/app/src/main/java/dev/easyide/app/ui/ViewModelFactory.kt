@@ -37,6 +37,10 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
             SettingsViewModel::class.java -> SettingsViewModel(
                 uiPreferences = container.uiPreferences,
                 settingsStore = container.settingsStore,
+                profileManager = container.profileManager,
+                safeModeState = container.safeMode,
+                projectTrust = container.projectTrust,
+                transfer = container.settingsTransfer,
                 environmentManager = container.environmentManager,
                 externalFolderSync = container.externalFolderSync,
                 projectManager = container.projectManager,

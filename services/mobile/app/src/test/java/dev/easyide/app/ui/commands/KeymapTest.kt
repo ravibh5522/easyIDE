@@ -44,7 +44,7 @@ class KeymapTest {
     fun laterBindingWins() {
         val chord = ctrl(KeyEvent.KEYCODE_S)
         val overridden = Keymap(
-            listOf(KeyBinding(chord, "a", inTerminal = false), KeyBinding(chord, "b", inTerminal = false))
+            listOf(KeyBinding(chord, "a", KeyFocus.OUTSIDE_TERMINAL), KeyBinding(chord, "b", KeyFocus.OUTSIDE_TERMINAL))
         )
         assertEquals("b", overridden.commandFor(chord, terminalFocused = false))
         assertEquals(chord, overridden.chordFor("b"))

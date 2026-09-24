@@ -14,9 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.ui.AppViewModelFactory
+import dev.easyide.app.ui.commands.Keymap
+import dev.easyide.app.ui.foundation.LocalKeymap
 import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.foundation.LocalMotionEnabled
 import dev.easyide.app.ui.foundation.LocalWindowSize
@@ -47,6 +50,11 @@ class MainActivity : ComponentActivity() {
 
         val container = (application as EasyIdeApplication).container
         val factory = AppViewModelFactory(container)
+        // Only on a fresh launch: a recreate (e.g. "Exit safe mode") re-delivers
+        // the same intent and must not turn safe mode straight back on.
+        if (savedInstanceState == null && intent?.action == ACTION_SAFE_MODE) {
+            container.safeMode.enterForSession(SafeModeReason.LAUNCHER_SHORTCUT)
+        }
 
         setContent {
             // Null until DataStore's first read, like onboardingComplete, so
@@ -56,6 +64,7 @@ class MainActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle(initialValue = null)
             val onboardingComplete by container.uiPreferences.onboardingComplete
                 .collectAsStateWithLifecycle(initialValue = null)
+            val keymap by container.keymap.collectAsStateWithLifecycle(initialValue = null)
             val settings = storedSettings ?: SettingsSnapshot.DEFAULTS
             val themeMode = settings[SettingsSchema.themeMode]
             SideEffect {
@@ -72,6 +81,7 @@ class MainActivity : ComponentActivity() {
                     LocalWindowSize provides windowSize,
                     LocalMotionEnabled provides motionEnabled,
                     LocalSettings provides settings,
+                    LocalKeymap provides (keymap?.keymap ?: Keymap.DEFAULT),
                 ) {
                     Surface(modifier = Modifier.fillMaxSize()) {
                         // Null means preferences have not loaded yet; showing
@@ -94,5 +104,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        /** The launcher shortcut "Start in safe mode" (res/xml/shortcuts.xml). */
+        const val ACTION_SAFE_MODE = "dev.easyide.app.action.SAFE_MODE"
     }
 }

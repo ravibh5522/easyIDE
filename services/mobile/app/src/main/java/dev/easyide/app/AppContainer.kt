@@ -6,7 +6,25 @@ import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
 import dev.easyide.app.data.preferencesStore
+import dev.easyide.app.data.settings.DataStoreUserLayer
+import dev.easyide.app.data.settings.FileKeybindings
+import dev.easyide.app.data.settings.FileLayerSource
+import dev.easyide.app.data.settings.InvalidValueSink
+import dev.easyide.app.data.settings.LayerSource
+import dev.easyide.app.data.settings.PlainFileIo
+import dev.easyide.app.data.settings.ProfileManager
+import dev.easyide.app.data.settings.ProjectFileIo
+import dev.easyide.app.data.settings.ProjectTrust
+import dev.easyide.app.data.settings.SafeModeState
+import dev.easyide.app.data.settings.SettingsDirWatcher
+import dev.easyide.app.data.settings.SettingsRegistry
+import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.data.settings.SettingsTransfer
+import dev.easyide.app.ui.commands.CommandIds
+import dev.easyide.app.ui.commands.KeybindingsFile
+import dev.easyide.app.ui.commands.Keymap
+import dev.easyide.app.ui.commands.KeymapResolver
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.RootDetector
@@ -23,7 +41,12 @@ import dev.easyide.sandbox.store.SandboxStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import android.util.Log
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Manual dependency wiring. A DI framework would need annotation processing,
@@ -44,7 +67,69 @@ class AppContainer(context: Context) {
 
     val uiPreferences: UiPreferences = UiPreferences(appContext)
 
-    val settingsStore: SettingsStore = SettingsStore(appContext.preferencesStore)
+    private val defaultUserLayer = DataStoreUserLayer(appContext.preferencesStore)
+
+    private val userDir = File(appContext.filesDir, USER_DIR)
+
+    private val defaultKeybindings = FileKeybindings(PlainFileIo(File(userDir, KEYBINDINGS_FILE), Dispatchers.IO))
+
+    /** Built-in settings now; the extension runtime adds `configuration` contributions at runtime. */
+    val settingsRegistry = SettingsRegistry(SettingsSchema.all)
+
+    val profileManager = ProfileManager(
+        defaultUser = defaultUserLayer,
+        defaultKeybindings = defaultKeybindings,
+        profilesDir = File(userDir, PROFILES_DIR),
+        io = Dispatchers.IO,
+        scope = applicationScope,
+    )
+
+    /** Built before anything that could start extension code (LLD sec 11). */
+    val safeMode = SafeModeState(defaultUserLayer)
+
+    val projectTrust = ProjectTrust(appContext.preferencesStore)
+
+    private val environmentLayers = ConcurrentHashMap<String, LayerSource>()
+    private val projectLayers = ConcurrentHashMap<String, LayerSource>()
+
+    val settingsStore: SettingsStore = SettingsStore(
+        user = profileManager.userLayer,
+        registry = settingsRegistry,
+        environment = { id ->
+            environmentLayers.getOrPut(id) {
+                // Beside rootfs/, not inside it: guests never see or write it.
+                FileLayerSource(PlainFileIo(File(paths.environmentDir(id), ENVIRONMENT_SETTINGS), Dispatchers.IO), applicationScope)
+            }
+        },
+        project = { id ->
+            projectLayers.getOrPut(id) {
+                FileLayerSource(ProjectFileIo(projectFiles, id, ProjectFileIo.SETTINGS), applicationScope) { onChange ->
+                    SettingsDirWatcher(projectFiles.projectRoot(id), onChange)
+                }
+            }
+        },
+        trust = projectTrust,
+        safeMode = safeMode.active,
+        // Key and layer only: a value may be a path or token the user would not want in logcat.
+        log = InvalidValueSink { layer, key, _ -> Log.w(LOG_TAG, "ignoring invalid value for $key in $layer") },
+    )
+
+    /** The keymap with the active profile's keybindings.json applied, plus its diagnostics. */
+    val keymap: Flow<KeymapResolver.Result> = profileManager.keybindings.text.map { text ->
+        KeymapResolver.resolve(Keymap.DEFAULT, KeybindingsFile.parse(text), CommandIds.ALL)
+    }
+
+    val settingsTransfer = SettingsTransfer(
+        resolver = appContext.contentResolver,
+        defaultUser = defaultUserLayer,
+        defaultKeybindings = defaultKeybindings,
+        profiles = profileManager,
+        registry = settingsRegistry,
+        appVersion = appVersionName(),
+        // No extension runtime is wired into :app yet, so nothing is installed to list.
+        installedExtensions = { emptyList() },
+        io = Dispatchers.IO,
+    )
 
     val gitCredentials = GitCredentials(appContext)
 
@@ -91,4 +176,16 @@ class AppContainer(context: Context) {
         SandboxImages.byId(
             environmentManager.environments.first().find { it.id == environmentId }?.imageId
         )
+
+    @Suppress("DEPRECATION") // the flags overload is API 33+; minSdk is 26
+    private fun appVersionName(): String =
+        appContext.packageManager.getPackageInfo(appContext.packageName, 0).versionName.orEmpty()
+
+    private companion object {
+        const val LOG_TAG = "Settings"
+        const val USER_DIR = "user"
+        const val PROFILES_DIR = "profiles"
+        const val KEYBINDINGS_FILE = "keybindings.json"
+        const val ENVIRONMENT_SETTINGS = "easyide/settings.json"
+    }
 }

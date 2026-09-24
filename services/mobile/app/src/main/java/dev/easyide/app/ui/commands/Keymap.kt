@@ -22,23 +22,46 @@ data class KeyChord(
 }
 
 /**
- * [inTerminal] false means the chord goes to the shell when a terminal has
- * focus - the stand-in for VS Code's `when: "!terminalFocus"` until when-clauses
- * exist. Plain Ctrl+letter chords are shell control bytes (Ctrl+S is XOFF,
- * Ctrl+W deletes a word, Ctrl+B is readline back / the tmux prefix), so they
- * must not be stolen there.
+ * Where a binding applies: the one context key the app has until when-clauses
+ * arrive, spelled as VS Code's `when` so keybindings.json entries carry over.
+ * [OUTSIDE_TERMINAL] is for plain Ctrl+letter chords, which are shell control
+ * bytes (Ctrl+S is XOFF, Ctrl+W deletes a word, Ctrl+B is readline back / the
+ * tmux prefix) and must not be stolen from a focused terminal.
  */
-data class KeyBinding(val chord: KeyChord, val command: String, val inTerminal: Boolean)
+enum class KeyFocus(val whenText: String?) {
+    ANYWHERE(null),
+    OUTSIDE_TERMINAL("!terminalFocus"),
+    TERMINAL_ONLY("terminalFocus");
 
-class Keymap(private val bindings: List<KeyBinding>) {
+    fun matches(terminalFocused: Boolean): Boolean = when (this) {
+        ANYWHERE -> true
+        OUTSIDE_TERMINAL -> !terminalFocused
+        TERMINAL_ONLY -> terminalFocused
+    }
+
+    /** False only when no focus state satisfies both, i.e. the two can never fire for the same key press. */
+    fun overlaps(other: KeyFocus): Boolean = this == ANYWHERE || other == ANYWHERE || this == other
+
+    companion object {
+        /** A `when` text this app can evaluate, whitespace-insensitive; null when it cannot. */
+        fun parse(whenText: String?): KeyFocus? {
+            val normalized = whenText?.filterNot(Char::isWhitespace)
+            return entries.firstOrNull { it.whenText == normalized?.ifEmpty { null } }
+        }
+    }
+}
+
+data class KeyBinding(val chord: KeyChord, val command: String, val focus: KeyFocus)
+
+class Keymap(val bindings: List<KeyBinding>) {
 
     /**
      * The command bound to [chord] in this focus context, or null to let the
-     * key through. Scanned last to first so a later entry (a user override,
-     * once keybindings.json exists) wins over the default table.
+     * key through. Scanned last to first so a later entry (a keybindings.json
+     * override) wins over the default table.
      */
     fun commandFor(chord: KeyChord, terminalFocused: Boolean): String? =
-        bindings.lastOrNull { it.chord == chord && (it.inTerminal || !terminalFocused) }?.command
+        bindings.lastOrNull { it.chord == chord && it.focus.matches(terminalFocused) }?.command
 
     /** The chord shown next to [command] in the palette: the one that would win dispatch. */
     fun chordFor(command: String): KeyChord? = bindings.lastOrNull { it.command == command }?.chord
@@ -54,14 +77,14 @@ class Keymap(private val bindings: List<KeyBinding>) {
         /** The built-in keymap: the single source for workspace shortcuts. */
         val DEFAULT = Keymap(
             listOf(
-                KeyBinding(ctrlShift(KeyEvent.KEYCODE_P), CommandIds.SHOW_COMMANDS, inTerminal = true),
-                KeyBinding(ctrl(KeyEvent.KEYCODE_S), CommandIds.SAVE, inTerminal = false),
-                KeyBinding(ctrl(KeyEvent.KEYCODE_W), CommandIds.CLOSE_EDITOR, inTerminal = false),
-                KeyBinding(ctrl(KeyEvent.KEYCODE_TAB), CommandIds.NEXT_EDITOR, inTerminal = true),
-                KeyBinding(ctrlShift(KeyEvent.KEYCODE_TAB), CommandIds.PREVIOUS_EDITOR, inTerminal = true),
-                KeyBinding(ctrl(KeyEvent.KEYCODE_B), CommandIds.TOGGLE_EXPLORER, inTerminal = false),
-                KeyBinding(ctrl(KeyEvent.KEYCODE_GRAVE), CommandIds.TOGGLE_TERMINAL, inTerminal = true),
-                KeyBinding(ctrlShift(KeyEvent.KEYCODE_G), CommandIds.TOGGLE_SOURCE_CONTROL, inTerminal = true),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_P), CommandIds.SHOW_COMMANDS, KeyFocus.ANYWHERE),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_S), CommandIds.SAVE, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_W), CommandIds.CLOSE_EDITOR, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_TAB), CommandIds.NEXT_EDITOR, KeyFocus.ANYWHERE),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_TAB), CommandIds.PREVIOUS_EDITOR, KeyFocus.ANYWHERE),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_B), CommandIds.TOGGLE_EXPLORER, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_GRAVE), CommandIds.TOGGLE_TERMINAL, KeyFocus.ANYWHERE),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_G), CommandIds.TOGGLE_SOURCE_CONTROL, KeyFocus.ANYWHERE),
             )
         )
 

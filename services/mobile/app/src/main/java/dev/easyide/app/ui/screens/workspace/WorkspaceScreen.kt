@@ -45,7 +45,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalView
 import com.termux.view.TerminalView
 import dev.easyide.app.ui.commands.CommandPalette
-import dev.easyide.app.ui.commands.Keymap
+import dev.easyide.app.ui.foundation.LocalKeymap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -138,7 +138,7 @@ fun WorkspaceScreen(
             closeTab = requestCloseTab,
         ),
     )
-    val keymap = Keymap.DEFAULT
+    val keymap = LocalKeymap.current
     val hostView = LocalView.current
     val rootFocus = remember { FocusRequester() }
 

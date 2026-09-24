@@ -144,6 +144,7 @@ private fun EditableSurface(
     val config by produceState(LanguageConfig.GENERIC, tab.name) {
         value = withContext(Dispatchers.IO) { LanguageConfigs.forFile(tab.name) }
     }
+    val languageId = rememberLanguageId(tab.name)
 
     // Text comes from the tab; selection and IME composition are local, the
     // same split BasicTextField's String overload makes internally. Owning the
@@ -211,7 +212,7 @@ private fun EditableSurface(
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
             Text(
                 text = numbered,
-                style = codeTextStyle().copy(color = colors.gutterText),
+                style = codeTextStyle(languageId).copy(color = colors.gutterText),
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .width(gutterWidth)
@@ -239,7 +240,7 @@ private fun EditableSurface(
                             }
                             if (result.text != field.text) onContentChanged(result.text)
                         },
-                        textStyle = codeTextStyle().copy(color = colors.plainText),
+                        textStyle = codeTextStyle(languageId).copy(color = colors.plainText),
                         cursorBrush = SolidColor(colors.cursor),
                         visualTransformation = transformation,
                         onTextLayout = { layout = it },
@@ -248,7 +249,7 @@ private fun EditableSurface(
                             .drawCurrentLine({ layout }, { selection.start }, colors.currentLine, TEXT_PADDING_V_DP.dp)
                             .padding(horizontal = TEXT_PADDING_H_DP.dp, vertical = TEXT_PADDING_V_DP.dp)
                             .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
-                            .textDecorations(paint, colors.decorations, measurer, codeTextStyle())
+                            .textDecorations(paint, colors.decorations, measurer, codeTextStyle(languageId))
                             // Own layer for the text itself: a decoration redraw then replays
                             // the recorded paragraph instead of drawing it again.
                             .graphicsLayer(),
@@ -286,6 +287,7 @@ private fun Modifier.drawBracketMatch(
 @Composable
 private fun ReadOnlySurface(tab: EditorTab) {
     val colors = editorColors
+    val languageId = rememberLanguageId(tab.name)
     val horizontalScroll = rememberScrollState()
     // Read-only tabs are the multi-megabyte ones; splitting them on the main
     // thread was a visible stall on open. The result is tagged with its source
@@ -304,7 +306,7 @@ private fun ReadOnlySurface(tab: EditorTab) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "${index + 1}",
-                    style = codeTextStyle().copy(color = colors.gutterText),
+                    style = codeTextStyle(languageId).copy(color = colors.gutterText),
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .width(gutterWidth)
@@ -313,7 +315,7 @@ private fun ReadOnlySurface(tab: EditorTab) {
                 )
                 Text(
                     text = line,
-                    style = codeTextStyle().copy(color = colors.plainText),
+                    style = codeTextStyle(languageId).copy(color = colors.plainText),
                     maxLines = 1,
                     modifier = Modifier
                         .weight(1f)
@@ -509,18 +511,30 @@ private fun EmptyEditor(modifier: Modifier) {
     }
 }
 
-/** One definition so the gutter and buffer share a line height and never drift. */
+/**
+ * One definition so the gutter and buffer share a line height and never drift.
+ * [languageId] applies `[lang]` settings blocks for the open document.
+ */
 @Composable
-fun codeTextStyle(): TextStyle {
+fun codeTextStyle(languageId: String? = null): TextStyle {
     val settings = LocalSettings.current
-    val fontSize = settings[SettingsSchema.editorFontSize]
+    val fontSize = settings.get(SettingsSchema.editorFontSize, languageId)
     return TextStyle(
         fontFamily = EasyIdeFonts.mono,
         fontSize = fontSize.sp,
         // Both are independent settings; a line shorter than its glyphs would
         // overlap neighbouring lines, so the font size is the floor.
-        lineHeight = settings[SettingsSchema.editorLineHeight].coerceAtLeast(fontSize).sp,
+        lineHeight = settings.get(SettingsSchema.editorLineHeight, languageId).coerceAtLeast(fontSize).sp,
     )
+}
+
+/** The document's language id, looked up off the main thread (the grammar index may still be loading). */
+@Composable
+private fun rememberLanguageId(fileName: String): String? {
+    val id by produceState<String?>(null, fileName) {
+        value = withContext(Dispatchers.IO) { LanguageConfigs.languageIdFor(fileName) }
+    }
+    return id
 }
 
 private const val GUTTER_WIDTH_DP = 52

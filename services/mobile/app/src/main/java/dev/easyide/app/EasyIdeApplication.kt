@@ -12,5 +12,6 @@ class EasyIdeApplication : Application() {
         super.onCreate()
         container = AppContainer(this)
         TextMateHighlighter.init(this)
+        SafeModeShortcut.publish(this)
     }
 }

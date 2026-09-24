@@ -40,6 +40,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
+import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.ui.theme.Accent
@@ -70,22 +71,22 @@ fun ThemePickerRow(
     Column(modifier = modifier.padding(horizontal = Spacing.l, vertical = Spacing.s)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(setting.title), style = MaterialTheme.typography.bodyLarge)
+                Text(setting.title.resolve(), style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    text = stringResource(setting.description),
+                    text = setting.description.resolve(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (snapshot.isModified(setting)) {
-                IconButton(onClick = { actions.reset(setting) }) {
+            if (snapshot.isSetIn(setting, LayerId.USER)) {
+                IconButton(onClick = { actions.reset(setting, null) }) {
                     Icon(Icons.Filled.Restore, contentDescription = stringResource(R.string.setting_reset))
                 }
             }
         }
         ThemeCardGrid(
             selected = current,
-            onSelect = { actions.set(setting, it) },
+            onSelect = { actions.set(setting, it, null) },
             label = { stringResource(setting.label(it)) },
             modifier = Modifier.padding(top = Spacing.m),
         )

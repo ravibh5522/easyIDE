@@ -19,6 +19,7 @@ import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectScreen
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
 import dev.easyide.app.ui.screens.onboarding.OnboardingScreen
+import dev.easyide.app.ui.screens.settings.ProjectSettingsScope
 import dev.easyide.app.ui.screens.settings.SettingsScreen
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.ProjectNotFound
@@ -98,6 +99,7 @@ fun AppNavHost(
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
 
+            ProjectSettingsScope(container, projectId, environmentId) {
             WorkspaceScreen(
                 projectName = project.name,
                 uiState = uiState,
@@ -140,23 +142,14 @@ fun AppNavHost(
                 ),
             )
             }
+            }
         }
 
         composable(Destination.Settings.route) {
             val viewModel: SettingsViewModel = appViewModel(viewModelFactory)
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
-
             SettingsScreen(
-                uiState = uiState,
-                errorMessage = errorMessage,
+                viewModel = viewModel,
                 externalFolderSync = container.externalFolderSync,
-                settingActions = viewModel,
-                onDefaultEnvironmentSelected = viewModel::onDefaultEnvironmentSelected,
-                onDeleteEnvironment = viewModel::onDeleteEnvironment,
-                onDefaultProjectsFolderChosen = viewModel::onDefaultProjectsFolderChosen,
-                onDefaultProjectsFolderPickFailed = viewModel::onDefaultProjectsFolderPickFailed,
-                onErrorShown = viewModel::onErrorShown,
                 onBack = { navController.popBackStack() },
             )
         }
