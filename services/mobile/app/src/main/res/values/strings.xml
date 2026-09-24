@@ -5,10 +5,6 @@
     <string name="nav_workspace">Workspace</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_onboarding">Welcome</string>
-    <string name="onboarding_title">A real dev environment, on your tablet</string>
-    <string name="onboarding_body">Editor, terminal, git and a Linux sandbox — all running on-device, offline.</string>
-    <string name="onboarding_continue">Get started</string>
-    <string name="onboarding_footnote">You can change the theme and manage sandbox environments in Settings.</string>
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_create">Create</string>
@@ -25,20 +21,6 @@
     <string name="workspace_toggle_bottom">Toggle terminal</string>
     <string name="workspace_stage_placeholder">This stage will host Theia widgets once the runtime lands.</string>
     <string name="workspace_main_placeholder">Editor, PDF, docs and video widgets all render in this stage.</string>
-
-    <string name="new_project_title">New project</string>
-    <string name="new_project_name_label">Project name</string>
-    <string name="new_project_environment_section">Sandbox environment</string>
-    <string name="new_project_reuse">Reuse an existing environment</string>
-    <string name="new_project_reuse_body">Shares an already-provisioned toolchain. Faster, and no extra disk.</string>
-    <string name="new_project_create_new">Create a new environment</string>
-    <string name="new_project_create_new_body">A separate Linux install for this project, set up from scratch.</string>
-    <string name="new_project_environment_label">Environment name</string>
-    <string name="new_project_backend_label">Backend</string>
-    <string name="new_project_image_label">Preset</string>
-    <string name="new_project_storage_app_default">App storage (default)</string>
-    <string name="new_project_storage_body">Files always keep a working copy in app storage. Choosing a folder also mirrors saves there, visible in a normal file manager.</string>
-    <string name="new_project_backend_chroot_warning">chroot runs as real root, outside Android\'s app sandbox. Faster, but a weaker boundary.</string>
 
     <string name="settings_theme_section">Appearance</string>
     <string name="settings_sandbox_section">Sandbox environments</string>

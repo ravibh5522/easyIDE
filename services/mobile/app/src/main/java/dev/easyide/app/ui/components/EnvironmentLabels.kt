@@ -3,6 +3,7 @@ package dev.easyide.app.ui.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
+import dev.easyide.app.ui.kit.Tone
 import dev.easyide.sandbox.model.EnvironmentState
 import dev.easyide.sandbox.model.SandboxBackend
 
@@ -24,3 +25,11 @@ fun EnvironmentState.label(): String = stringResource(
         EnvironmentState.NOT_PROVISIONED -> R.string.environment_state_not_installed
     },
 )
+
+/** The tag tone of an environment's state: the word carries the meaning, the tone only agrees with it. */
+fun EnvironmentState.tone(): Tone = when (this) {
+    EnvironmentState.READY -> Tone.Success
+    EnvironmentState.PROVISIONING -> Tone.Info
+    EnvironmentState.FAILED -> Tone.Danger
+    EnvironmentState.NOT_PROVISIONED -> Tone.Neutral
+}

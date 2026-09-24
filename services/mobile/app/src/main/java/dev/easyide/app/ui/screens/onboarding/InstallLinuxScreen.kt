@@ -1,39 +1,23 @@
 package dev.easyide.app.ui.screens.onboarding
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.easyide.app.R
-import dev.easyide.app.ui.theme.Spacing
+import dev.easyide.app.ui.components.FlowFrame
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitButton
 
 /**
- * Install Linux outside first-run: what Home's prompt opens for a user who
- * skipped the environment step. The same content as onboarding, in a screen with
- * its own Back; leaving while installing cancels it (the download resumes later).
+ * Install Linux outside first-run: what Home's prompt opens for a user who skipped the environment
+ * step. The same content as onboarding, in a [FlowFrame] with its own Back; leaving while installing
+ * cancels it (the download resumes later). Done, the one primary action, appears once Linux is in place.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InstallLinuxScreen(
     setup: EnvironmentSetupViewModel,
@@ -47,40 +31,21 @@ fun InstallLinuxScreen(
     }
     BackHandler(onBack = leave)
 
-    Scaffold(
+    FlowFrame(
+        title = stringResource(R.string.setup_screen_title),
+        onBack = leave,
         modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.setup_screen_title)) },
-                navigationIcon = {
-                    IconButton(onClick = leave) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
-                    }
-                },
-            )
-        },
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
-            Column(
-                modifier = Modifier
-                    .widthIn(max = CONTENT_MAX_WIDTH)
-                    .verticalScroll(rememberScrollState())
-                    .padding(Spacing.xl),
-                verticalArrangement = Arrangement.spacedBy(Spacing.l),
-            ) {
-                EnvironmentSetupContent(
-                    state = state,
-                    onImageSelected = setup::onImageSelected,
-                    onInstall = setup::install,
-                    onCancel = setup::cancel,
-                    onChooseAnother = setup::backToChoosing,
-                )
-                if (state.stage is SetupStage.Ready) {
-                    Button(onClick = onBack) { Text(stringResource(R.string.setup_done)) }
-                }
-            }
-        }
+        footer = if (state.stage is SetupStage.Ready) {
+            { KitButton(stringResource(R.string.setup_done), onBack, Modifier.fillMaxWidth()) }
+        } else null,
+    ) {
+        EnvironmentSetupContent(
+            state = state,
+            onImageSelected = setup::onImageSelected,
+            onInstall = setup::install,
+            onCancel = setup::cancel,
+            onChooseAnother = setup::backToChoosing,
+            modifier = Modifier.padding(vertical = Kit.space.l),
+        )
     }
 }
-
-private val CONTENT_MAX_WIDTH = 520.dp
