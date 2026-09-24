@@ -24,7 +24,7 @@ Design: [arch.md](arch.md). Design accepted by the owner on 2026-09-24 (ADR 0025
 | `NavSurface` (bottom bar / rail), `PanelHost`, `StageHost` (1 group) | not-started | |
 | Document URIs + open/preview/pin/history | in-progress | `DocumentUri`, `DocumentRegistry` (open-with, placeholder), `EditorGroup`/`EditorStage` (preview, pin, MRU, history, 1-4 groups) done and tested; no UI (`StageHost`) yet |
 | Home "Now" page + project page | not-started | needs session registry (ADR-D) for Running |
-| Extensions on the shell (list + extension page + install flow) | not-started | |
+| Extensions on the shell (list + extension page + install flow) | in-progress | built on the kit: `ExtensionsPanel`, `ExtensionPage`, `ExtensionsDialogs` (install approval, rollback, create, Browse detail, uninstall confirm) with unit-tested row/filter/grouping/capability-diff logic; `ExtensionsScreen` is a temporary frame until the shell hosts them. Compiles and passes JVM tests; not seen on a device; not yet wired into `StageHost`/`PanelHost` |
 | Settings on the shell (categories + pages + Appearance + Layout) | not-started | |
 | Back behaviour + app-scope restore | in-progress | `BackNavigation` (section 11 steps) and the versioned `ShellSnapshot` (section 12, golden JSON tests) done; not connected to `BackHandler` or storage |
 | **R2 Flows and dialogs** | | |
