@@ -43,13 +43,20 @@ import dev.easyide.lsp.protocol.WorkspaceSymbolItem
 import dev.easyide.lsp.protocol.documentParams
 import dev.easyide.lsp.protocol.positionParams
 import dev.easyide.lsp.session.LspSession
+import dev.easyide.lsp.session.RefreshKind
 import dev.easyide.lsp.session.ServerKey
 import dev.easyide.lsp.workspace.ApplyResult
 import dev.easyide.lsp.workspace.FileUri
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.serialization.json.JsonElement
 import java.io.File
 
@@ -67,6 +74,17 @@ class LspClient(private val manager: LanguageServerManager) {
     private val semanticTokens = SemanticTokensCache()
 
     val statuses: StateFlow<Map<ServerKey, ServerStatus>> get() = manager.statuses
+
+    /**
+     * `workspace/{semanticTokens,inlayHint,codeLens}/refresh` from any server of the project,
+     * for presenters to re-run that feature for visible documents (diagnostics refresh is
+     * handled inside the session).
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun refreshes(environmentId: String, projectId: String): Flow<RefreshKind> = manager.statuses
+        .map { m -> m.keys.filterTo(HashSet()) { it.environmentId == environmentId && it.projectId == projectId } }
+        .distinctUntilChanged()
+        .flatMapLatest { keys -> keys.mapNotNull(manager::session).map { it.refreshes }.merge() }
 
     fun diagnostics(environmentId: String, projectId: String): StateFlow<Map<String, Map<ServerKey, DiagnosticSet>>> =
         manager.diagnostics(environmentId, projectId).byUri

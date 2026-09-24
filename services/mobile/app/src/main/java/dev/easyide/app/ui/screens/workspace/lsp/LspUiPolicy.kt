@@ -13,6 +13,19 @@ object LspUiPolicy {
     const val CODE_ACTION_DEBOUNCE_MS = 250L
     const val VIEWPORT_FEATURES_DEBOUNCE_MS = 300L
     const val WORKSPACE_SYMBOL_DEBOUNCE_MS = 200L
+    const val SEMANTIC_TOKENS_DEBOUNCE_MS = 300L
+
+    /** A document longer than this gets `semanticTokens/range` for the viewport before the full set. */
+    const val SEMANTIC_RANGE_FIRST_LINES = 2000
+
+    /** Lines above and below the viewport included in viewport requests. */
+    const val VIEWPORT_MARGIN_LINES = 50
+
+    /** Semantic tokens kept per document; a server sending more gets the rest ignored. */
+    const val MAX_SEMANTIC_TOKENS = 250_000
+
+    /** Code lenses resolved per visible-range pass, so a huge file cannot flood the server. */
+    const val MAX_CODE_LENS_RESOLVES = 50
 
     /** Focus changes this close together resolve only the item the user stopped on. */
     const val COMPLETION_RESOLVE_DEBOUNCE_MS = 60L

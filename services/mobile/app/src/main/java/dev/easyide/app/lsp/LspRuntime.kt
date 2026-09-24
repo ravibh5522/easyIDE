@@ -10,6 +10,7 @@ import dev.easyide.app.data.settings.SettingsQuery
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.lsp.servers.ServerRegistry
+import dev.easyide.app.ui.screens.workspace.syntax.SemanticRules
 import dev.easyide.lsp.client.LspClient
 import dev.easyide.lsp.manager.LanguageServerManager
 import dev.easyide.lsp.manager.ManagerDeps
@@ -123,14 +124,19 @@ class LspRuntime(
 
         /**
          * What the editor renders today (decision 0018): underline, background ranges, gutter
-         * icons, caret popups and end-of-line inlay text; no between-line blocks and no token
-         * overlay yet. Folding, selection ranges and document links have no presenter, so they
-         * are withheld rather than advertised and discarded.
+         * icons (also code lens, listed on a gutter tap), caret popups, end-of-line inlay text
+         * and the semantic token overlay over TextMate colouring, with the token types
+         * [SemanticRules] can colour. No between-line blocks. Folding, selection ranges and
+         * document links have no presenter, so they are withheld rather than advertised and
+         * discarded.
          */
         val CLIENT_UI = ClientUi(
-            layers = setOf(UiLayer.UNDERLINE, UiLayer.BACKGROUND_RANGE, UiLayer.GUTTER_ICON, UiLayer.CARET_POPUP, UiLayer.INLINE_TEXT),
-            semanticTokenTypes = emptyList(),
-            semanticTokenModifiers = emptyList(),
+            layers = setOf(
+                UiLayer.UNDERLINE, UiLayer.BACKGROUND_RANGE, UiLayer.GUTTER_ICON, UiLayer.CARET_POPUP, UiLayer.INLINE_TEXT,
+                UiLayer.TOKEN_OVERLAY,
+            ),
+            semanticTokenTypes = SemanticRules.TOKEN_TYPES,
+            semanticTokenModifiers = SemanticRules.TOKEN_MODIFIERS,
             withheld = setOf(LspFeature.FOLDING_RANGE, LspFeature.SELECTION_RANGE, LspFeature.DOCUMENT_LINK),
         )
 

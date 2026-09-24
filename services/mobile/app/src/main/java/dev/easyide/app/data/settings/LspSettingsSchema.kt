@@ -13,6 +13,9 @@ enum class AcceptOnEnter { ON, OFF, SMART }
 /** `editor.inlayHints.enabled`; `onUnlessPressed` hides hints while Ctrl+Alt is held. */
 enum class InlayHintsMode { ON, OFF, ON_UNLESS_PRESSED }
 
+/** `editor.semanticHighlighting.enabled`: VS Code's `true` / `false` / `"configuredByTheme"`. */
+enum class SemanticHighlighting { ON, OFF, CONFIGURED_BY_THEME }
+
 /** `editor.diagnostics.minSeverity`, most severe first (the protocol's order). */
 enum class MinSeverity { ERROR, WARNING, INFORMATION, HINT }
 
@@ -136,6 +139,17 @@ object LspSettingsSchema {
         values = InlayHintsMode.entries, label = ::inlayLabel,
     )
 
+    val semanticHighlighting = Setting.Enum(
+        "editor.semanticHighlighting.enabled", SettingCategory.EDITOR, R.string.setting_semantic_highlighting_title,
+        R.string.setting_semantic_highlighting_desc, default = SemanticHighlighting.CONFIGURED_BY_THEME, scope = SettingScope.L,
+        values = SemanticHighlighting.entries, label = ::semanticLabel, aliases = ::semanticAlias,
+    )
+
+    val codeLens = Setting.Bool(
+        "editor.codeLens", SettingCategory.EDITOR, R.string.setting_code_lens_title,
+        R.string.setting_code_lens_desc, default = true, scope = SettingScope.L,
+    )
+
     val formatOnSave = Setting.Bool(
         "editor.formatOnSave", SettingCategory.EDITOR, R.string.setting_format_on_save_title,
         R.string.setting_format_on_save_desc, default = false, scope = SettingScope.L,
@@ -194,7 +208,7 @@ object LspSettingsSchema {
         enabled, servers, trace, globalMemoryBudgetMb, defaultMemoryBudgetMb, maxServers, idleShutdownSec,
         startupTimeoutSec, restartMaxRetries, restartBackoffMs, didChangeDebounceMs, requestTimeoutMs,
         quickSuggestions, quickSuggestionsDelay, suggestOnTriggerCharacters, acceptSuggestionOnEnter,
-        parameterHints, hoverEnabled, hoverDelay, inlayHints, formatOnSave, formatOnType, defaultFormatter,
+        parameterHints, hoverEnabled, hoverDelay, inlayHints, semanticHighlighting, codeLens, formatOnSave, formatOnType, defaultFormatter,
         codeActionsOnSave, lightbulb, occurrencesHighlight, diagnosticsMinSeverity, diagnosticsShowInGutter,
         diagnosticsShowSquiggles, diagnosticsIgnoreSources,
     )
@@ -223,6 +237,19 @@ object LspSettingsSchema {
         InlayHintsMode.ON -> R.string.setting_value_on
         InlayHintsMode.OFF -> R.string.setting_value_off
         InlayHintsMode.ON_UNLESS_PRESSED -> R.string.setting_value_on_unless_pressed
+    }
+
+    private fun semanticLabel(value: SemanticHighlighting): Int = when (value) {
+        SemanticHighlighting.ON -> R.string.setting_value_on
+        SemanticHighlighting.OFF -> R.string.setting_value_off
+        SemanticHighlighting.CONFIGURED_BY_THEME -> R.string.setting_value_configured_by_theme
+    }
+
+    /** VS Code's spellings: booleans and `"configuredByTheme"`. */
+    private fun semanticAlias(e: JsonElement): SemanticHighlighting? = when {
+        isBoolean(e) -> if ((e as JsonPrimitive).booleanOrNull == true) SemanticHighlighting.ON else SemanticHighlighting.OFF
+        e is JsonPrimitive && e.isString && e.content == "configuredByTheme" -> SemanticHighlighting.CONFIGURED_BY_THEME
+        else -> null
     }
 
     private fun severityLabel(value: MinSeverity): Int = when (value) {

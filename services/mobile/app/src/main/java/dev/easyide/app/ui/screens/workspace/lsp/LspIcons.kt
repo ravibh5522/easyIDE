@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Functions
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.Palette
@@ -75,4 +76,7 @@ internal object LspIcons {
     }
 
     val quickFix: ImageVector get() = Icons.Filled.Lightbulb
+
+    /** The same glyph as the gutter's code lens marker. */
+    val codeLens: ImageVector get() = Icons.Filled.MoreHoriz
 }

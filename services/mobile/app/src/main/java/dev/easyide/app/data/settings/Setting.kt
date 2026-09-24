@@ -99,14 +99,19 @@ sealed class Setting<T>(
         override fun encode(value: Int): JsonElement = JsonPrimitive(value)
     }
 
-    /** Stored as the constant's name, so reordering [values] never remaps a saved choice. */
+    /**
+     * Stored as the constant's name, so reordering [values] never remaps a saved choice.
+     * [aliases] also accepts other spellings of a value, such as VS Code's `true` /
+     * `"configuredByTheme"`, so a settings.json copied from VS Code keeps working.
+     */
     class Enum<E : kotlin.Enum<E>>(
         key: String, category: SettingCategory, @StringRes title: Int, @StringRes description: Int,
         default: E, scope: SettingScope, val values: List<E>, val label: (E) -> Int,
+        private val aliases: (JsonElement) -> E? = { null },
     ) : Setting<E>(key, SettingGroup.BuiltIn(category), Text.Res(title), Text.Res(description), default, scope) {
         override fun decode(value: JsonElement): E? {
-            val name = SchemaValidator.stringOrNull(value) ?: return null
-            return values.find { it.name == name }
+            val name = SchemaValidator.stringOrNull(value) ?: return aliases(value)
+            return values.find { it.name == name } ?: aliases(value)
         }
         override fun encode(value: E): JsonElement = JsonPrimitive(value.name)
     }

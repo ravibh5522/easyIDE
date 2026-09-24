@@ -28,10 +28,11 @@ class LspRuntimeTest {
     @Test
     fun clientAdvertisesOnlyWhatTheAppRenders() {
         val features = ClientCapabilitiesBuilder.advertisedFeatures(Milestone.M4, LspRuntime.CLIENT_UI)
-        for (f in listOf(LspFeature.COMPLETION, LspFeature.HOVER, LspFeature.INLAY_HINTS, LspFeature.WORKSPACE_SYMBOL, LspFeature.DOCUMENT_HIGHLIGHT)) {
+        for (f in listOf(LspFeature.COMPLETION, LspFeature.HOVER, LspFeature.INLAY_HINTS, LspFeature.WORKSPACE_SYMBOL, LspFeature.DOCUMENT_HIGHLIGHT,
+            LspFeature.SEMANTIC_TOKENS, LspFeature.CODE_LENS)) {
             assertTrue("$f has a presenter", f in features)
         }
-        for (f in listOf(LspFeature.SEMANTIC_TOKENS, LspFeature.CODE_LENS, LspFeature.FOLDING_RANGE, LspFeature.SELECTION_RANGE, LspFeature.DOCUMENT_LINK)) {
+        for (f in listOf(LspFeature.FOLDING_RANGE, LspFeature.SELECTION_RANGE, LspFeature.DOCUMENT_LINK)) {
             assertFalse("$f has no presenter", f in features)
         }
     }

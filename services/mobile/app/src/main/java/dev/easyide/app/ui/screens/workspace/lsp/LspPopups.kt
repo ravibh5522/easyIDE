@@ -43,7 +43,7 @@ import dev.easyide.app.ui.theme.editorColors
 
 /**
  * Everything LSP draws over the editor text of [path]: completion, hover, signature help, the
- * quick-fix menu and the snippet "next field" chip. Each is an [EditorPopup], so the text field
+ * quick-fix menu, a gutter line's code lenses and the snippet "next field" chip. Each is an [EditorPopup], so the text field
  * keeps focus and the soft keyboard stays up (decision 0018).
  */
 @Composable
@@ -52,6 +52,7 @@ fun LspEditorOverlay(controller: WorkspaceLspController, path: String, geometry:
     val hover by controller.info.hover.collectAsState()
     val signature by controller.info.signature.collectAsState()
     val menu by controller.actions.menu.collectAsState()
+    val lenses by controller.codeLens.menu.collectAsState()
     val snippet by controller.snippets.active.collectAsState()
 
     signature?.takeIf { it.path == path }?.let { s ->
@@ -72,6 +73,11 @@ fun LspEditorOverlay(controller: WorkspaceLspController, path: String, geometry:
     menu?.takeIf { it.path == path }?.let { m ->
         EditorPopup(anchor = { geometry.caretRect(m.anchor) }, onDismiss = controller.actions::closeMenu) {
             CodeActionContent(m, controller)
+        }
+    }
+    lenses?.takeIf { it.path == path }?.let { m ->
+        EditorPopup(anchor = { geometry.caretRect(m.anchor) }, onDismiss = controller.codeLens::closeMenu) {
+            CodeLensContent(m, controller)
         }
     }
     snippet?.takeIf { it.path == path && completion == null && it.session.hasNext }?.let {
@@ -248,6 +254,33 @@ private fun CodeActionContent(ui: CodeActionMenuUi, controller: WorkspaceLspCont
                     Text(a.title, style = MaterialTheme.typography.bodySmall, color = if (enabled) colors.plainText else colors.textDisabled)
                     a.disabledReason?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = colors.textDisabled) }
                 }
+            }
+        }
+    }
+}
+
+/** A gutter line's code lenses; a tap runs one. Unresolved lenses show a placeholder title. */
+@Composable
+private fun CodeLensContent(ui: CodeLensMenuUi, controller: WorkspaceLspController) {
+    val colors = editorColors
+    LazyColumn(modifier = Modifier.widthIn(max = LspUiMetrics.hoverMaxWidth).heightIn(max = LspUiMetrics.popupMaxHeight)) {
+        itemsIndexed(ui.lenses) { _, lens ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { controller.codeLens.run(lens) }
+                    .padding(horizontal = LspUiMetrics.rowPaddingH, vertical = LspUiMetrics.rowPaddingV),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+            ) {
+                Icon(LspIcons.codeLens, contentDescription = null, tint = colors.decorations.codeLens, modifier = Modifier.size(LspUiMetrics.kindIconSize))
+                Text(
+                    lens.title ?: stringResource(R.string.lsp_code_lens_unresolved),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (lens.title != null) colors.plainText else colors.textMuted,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }
