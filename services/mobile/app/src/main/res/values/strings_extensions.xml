@@ -27,6 +27,10 @@
     <string name="ext_install_review_title">Install %1$s %2$s?</string>
     <string name="ext_install_unsigned">Unsigned, local. Not checked by any registry and never updated automatically.</string>
     <string name="ext_install_already">This version is already installed. Uninstall it first, or install a newer version.</string>
+    <string name="ext_install_setup_steps">Environment setup commands</string>
+    <string name="ext_install_setup_when">Not run now. They run in a visible terminal when you choose Install on a missing language server.</string>
+    <string name="ext_install_servers">Language servers</string>
+    <string name="ext_install_server_budget">up to %1$d MB</string>
     <string name="ext_install_not_isolated">Commands an extension runs in an environment are not contained: they can do anything a process in that environment can.</string>
     <string name="ext_install_environment">Environment</string>
     <string name="ext_install_no_environment">This extension installs into an environment, and there is none yet.</string>

@@ -47,10 +47,12 @@ sealed interface StageResult {
  * atomic `current` flip -> `state.json` record -> inventory rescan (which enables and
  * registers it). Local packages are labelled "unsigned, local" and never auto-updated.
  *
- * Packages with `easyide.sandbox.install` steps are refused: those steps must run
- * visibly in an environment terminal with verify and rollback (EXT-27), which belongs to
- * the registry installer, and enabling such a pack without its toolchain would leave
- * commands that cannot work.
+ * Packages with `easyide.sandbox.install` steps install like any other: the steps are
+ * shown verbatim on the capability sheet and are not run here. They run later, visibly,
+ * in a workspace terminal when a language server they provide is missing (the LSP
+ * "not installed" notice runs the pack's recipe), so nothing touches an environment
+ * without the user watching. Install-time verify and rollback of those steps (EXT-27)
+ * belongs to the registry installer.
  */
 class LocalInstaller(
     private val paths: SandboxPaths,
@@ -156,9 +158,6 @@ class LocalInstaller(
             is ParseResult.Ok -> r
         }
         val d = parsed.descriptor
-        if (d.contributes.sandbox?.install?.isNotEmpty() == true) {
-            return StageResult.Rejected(listOf(SANDBOX_STEPS_REFUSED))
-        }
         if (inventory.installed.value.any { it.source == Source.BUILT_IN && it.directory.parentFile?.name == d.id.value }) {
             return StageResult.Rejected(listOf("${d.id} is built into easyIDE"))
         }
@@ -186,8 +185,5 @@ class LocalInstaller(
     private companion object {
         const val ARCHIVE_SUFFIX = ".easyext"
         const val NEW_LINK_SUFFIX = ".new"
-        const val SANDBOX_STEPS_REFUSED =
-            "This package declares easyide.sandbox install steps. Local install does not run toolchain steps; " +
-                "they need the registry installer, which runs them visibly with verify and rollback."
     }
 }

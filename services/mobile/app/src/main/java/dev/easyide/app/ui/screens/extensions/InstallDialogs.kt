@@ -17,9 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
 import dev.easyide.extensions.capability.Capability
+import dev.easyide.extensions.contrib.Contributions
 import dev.easyide.extensions.manifest.InstallScope
 import dev.easyide.sandbox.model.SandboxEnvironment
 
@@ -56,6 +58,7 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
                         Text(stringResource(R.string.ext_capabilities), style = MaterialTheme.typography.titleSmall)
                         if (d.capabilities.items.isEmpty()) Text(stringResource(R.string.ext_capabilities_none))
                         d.capabilities.items.sortedBy { it.id }.forEach { Text("- ${capabilityPrompt(it, envId)}") }
+                        InstallCommands(d.contributes)
                         Text(stringResource(R.string.ext_install_not_isolated), style = MaterialTheme.typography.bodySmall)
                         if (needsEnv) {
                             Text(stringResource(R.string.ext_install_environment), style = MaterialTheme.typography.titleSmall)
@@ -90,6 +93,30 @@ private fun ProblemDialog(title: String, problems: List<String>, onDismiss: () -
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ext_prompt_close)) } },
     )
+}
+
+/**
+ * Environment setup steps and language server commands, verbatim (registry-and-install.md
+ * sec 8.2 step 5): what the pack will run is shown before it is approved, not after.
+ */
+@Composable
+private fun InstallCommands(c: Contributions) {
+    val steps = c.sandbox?.install.orEmpty()
+    if (steps.isNotEmpty()) {
+        Text(stringResource(R.string.ext_install_setup_steps), style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.ext_install_setup_when), style = MaterialTheme.typography.bodySmall)
+        steps.forEach { step ->
+            Text(step.title, style = MaterialTheme.typography.bodyMedium)
+            Text(step.run.source, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+        }
+    }
+    if (c.languageServers.isNotEmpty()) {
+        Text(stringResource(R.string.ext_install_servers), style = MaterialTheme.typography.titleSmall)
+        c.languageServers.forEach { s ->
+            val budget = s.memoryBudgetMb?.let { " (${stringResource(R.string.ext_install_server_budget, it)})" }.orEmpty()
+            Text(s.command.joinToString(" ") { it.source } + budget, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+        }
+    }
 }
 
 /** The sdk-reference "Prompt text" of one capability. */

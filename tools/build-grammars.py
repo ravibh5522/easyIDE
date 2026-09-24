@@ -53,6 +53,13 @@ VSCODE_TAG = "1.139.0"
 VSCODE_API = "https://api.github.com/repos/microsoft/vscode/contents/extensions?ref={t}"
 VSCODE_RAW = "https://raw.githubusercontent.com/microsoft/vscode/{t}/{path}"
 CONFIG_DIR = "config"
+# Grammars owned by a first-party extension pack instead of the core set (M3: languages
+# ship as extensions). They are still fetched and licence-checked here, then written into
+# the pack; the core index neither lists them nor maps their file types. The pack's
+# package.json `languages` entry is hand-maintained and must claim the same types.
+PACK_GRAMMARS = {"source.python": "easyide.python"}
+PACK_DIR = os.path.join(os.path.dirname(__file__), "..", "services", "mobile", "app",
+                        "src", "main", "assets", "extensions")
 # The language-configuration keys the editor reads; the rest (e.g. VS Code-only
 # experimental keys) would be dead weight in the APK.
 CONFIG_KEYS = ("comments", "brackets", "autoClosingPairs", "surroundingPairs",
@@ -322,6 +329,21 @@ def main():
     for g in kept:                       # a grammar's own fileTypes fill any gap
         for e in g["ext"]:
             by_extension.setdefault(e, g["scope"])
+
+    for scope, pack in PACK_GRAMMARS.items():
+        g = by_scope.get(scope)
+        if g is None:
+            sys.exit(f"{scope} is owned by {pack} but was not built")
+        dest = os.path.join(PACK_DIR, pack)
+        shutil.move(os.path.join(out, g["name"] + ".json"),
+                    os.path.join(dest, "syntaxes", g["name"] + ".tmLanguage.json"))
+        if "config" in g:
+            shutil.move(os.path.join(out, g["config"]),
+                        os.path.join(dest, "language-configuration.json"))
+        kept.remove(g)
+        print(f"  {g['name']} handed to extension pack {pack}")
+    by_extension = {k: v for k, v in by_extension.items() if v not in PACK_GRAMMARS}
+    by_filename = {k: v for k, v in by_filename.items() if v not in PACK_GRAMMARS}
 
     with open(os.path.join(out, "index.json"), "w") as fh:
         json.dump({

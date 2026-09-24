@@ -17,7 +17,7 @@ class BuiltInPacksTest {
         assertEquals(
             listOf(
                 "easyide.core-snippets", "easyide.git-commands", "easyide.git-extras", "easyide.key-rows",
-                "easyide.project-tasks", "easyide.tablet-toolbar", "easyide.toggles",
+                "easyide.project-tasks", "easyide.python", "easyide.tablet-toolbar", "easyide.toggles",
             ),
             ids,
         )

@@ -1,0 +1,265 @@
+{
+  "name": "python",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Python",
+  "description": "Python highlighting, editing rules and snippets; pyright and ruff language servers; run the current file and pick a virtualenv.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:python",
+    "workspaceContains:**/pyproject.toml"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "python",
+        "aliases": [
+          "Python"
+        ],
+        "extensions": [
+          ".bzl",
+          ".eb",
+          ".gyp",
+          ".gypi",
+          ".lmi",
+          ".py",
+          ".py3",
+          ".pyde",
+          ".pyi",
+          ".pyp",
+          ".pyt",
+          ".pyw",
+          ".rpy",
+          ".sage",
+          ".sagews",
+          ".smk",
+          ".snakefile",
+          ".spec",
+          ".star",
+          ".tac",
+          ".wsgi",
+          ".xpy",
+          ".xsh"
+        ],
+        "filenames": [
+          ".gclient",
+          "BUCK",
+          "BUILD",
+          "BUILD.bazel",
+          "DEPS",
+          "MODULE.bazel",
+          "SConscript",
+          "SConstruct",
+          "Snakefile",
+          "Tiltfile",
+          "WORKSPACE",
+          "WORKSPACE.bazel",
+          "WORKSPACE.bzlmod",
+          "wscript"
+        ],
+        "firstLine": "^#!.*\\bpython[0-9.]*\\b",
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "python",
+        "scopeName": "source.python",
+        "path": "./syntaxes/python.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "python",
+        "path": "./snippets/python.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "python.runFile",
+        "title": "Run Python File",
+        "shortTitle": "Run",
+        "category": "Python",
+        "icon": "play_arrow",
+        "enablement": "envState == ready && resourcePath"
+      },
+      {
+        "command": "python.selectVenv",
+        "title": "Select Interpreter",
+        "category": "Python",
+        "enablement": "envState == ready"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "python.runFile",
+          "when": "editorLangId == python",
+          "group": "navigation@1"
+        }
+      ],
+      "editor/touchToolbar": [
+        {
+          "command": "python.runFile",
+          "when": "editorLangId == python"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "python.runFile",
+          "when": "editorLangId == python"
+        },
+        {
+          "command": "python.selectVenv",
+          "when": "editorLangId == python"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "python.runFile",
+        "key": "ctrl+shift+r",
+        "when": "editorLangId == python && !terminalFocus"
+      }
+    ],
+    "configuration": {
+      "title": "Python",
+      "properties": {
+        "python.interpreter": {
+          "type": "string",
+          "default": "python3",
+          "scope": "environment",
+          "description": "Interpreter used by Run Python File."
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[python]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+      }
+    }
+  },
+  "easyide": {
+    "capabilities": [
+      "sandbox.exec",
+      "sandbox.install",
+      "lsp.spawn",
+      "network(registry.npmjs.org,pypi.org,files.pythonhosted.org)"
+    ],
+    "actions": {
+      "python.runFile": {
+        "type": "runInTerminal",
+        "terminal": "Python",
+        "cwd": "${fileDirname}",
+        "command": "${config:python.interpreter} ${file}"
+      },
+      "python.selectVenv": {
+        "type": "sequence",
+        "steps": [
+          {
+            "type": "sandboxExec",
+            "command": [
+              "sh",
+              "-c",
+              "ls -d \"$PWD\"/*/bin/python \"$PWD\"/.*/bin/python 2>/dev/null; command -v python3"
+            ],
+            "output": "capture",
+            "as": "interpreters"
+          },
+          {
+            "type": "showQuickPick",
+            "id": "interpreter",
+            "itemsFrom": "${result:interpreters}",
+            "placeHolder": "Interpreter for Run"
+          },
+          {
+            "type": "setConfig",
+            "key": "python.interpreter",
+            "value": "${input:interpreter}",
+            "target": "environment"
+          }
+        ]
+      }
+    },
+    "languageServers": [
+      {
+        "id": "pyright",
+        "languages": [
+          "python"
+        ],
+        "command": [
+          "pyright-langserver",
+          "--stdio"
+        ],
+        "settingsSection": "python",
+        "rootMarkers": [
+          "pyproject.toml",
+          "setup.py",
+          "setup.cfg",
+          ".git"
+        ],
+        "memoryBudgetMb": 500
+      },
+      {
+        "id": "ruff",
+        "languages": [
+          "python"
+        ],
+        "command": [
+          "ruff",
+          "server"
+        ],
+        "memoryBudgetMb": 80,
+        "features": {
+          "only": [
+            "diagnostics",
+            "codeAction",
+            "formatting"
+          ]
+        }
+      }
+    ],
+    "sandbox": {
+      "requires": [
+        "python3"
+      ],
+      "install": [
+        {
+          "id": "base",
+          "title": "Install pipx, Node.js and npm",
+          "run": "apt-get update && apt-get install -y pipx nodejs npm",
+          "when": "envDistro in 'debian,ubuntu'"
+        },
+        {
+          "id": "tools",
+          "title": "Install pyright and ruff",
+          "run": "npm install -g pyright && pipx install ruff && pipx ensurepath"
+        }
+      ],
+      "verify": "command -v pyright-langserver && command -v ruff",
+      "uninstall": [
+        "npm uninstall -g pyright",
+        "pipx uninstall ruff"
+      ]
+    },
+    "statusBarItems": [
+      {
+        "id": "python.interpreter",
+        "text": "${config:python.interpreter}",
+        "tooltip": "Python interpreter used by Run",
+        "command": "python.selectVenv",
+        "when": "editorLangId == python",
+        "alignment": "right"
+      }
+    ],
+    "memoryBudgetMb": 600
+  }
+}

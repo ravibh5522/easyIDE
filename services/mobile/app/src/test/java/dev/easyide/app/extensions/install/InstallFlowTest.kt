@@ -78,18 +78,25 @@ class InstallFlowTest {
         assertTrue(File(pkg.directory.parentFile, "1.0.0").isDirectory) // previous version retained
     }
 
-    @Test fun `zip slip, symlinks, sandbox install steps and bad manifests are refused`() = runTest {
+    @Test fun `zip slip, symlinks and bad manifests are refused`() = runTest {
         val s = Setup(tmp.newFolder("files"))
         val slip = s.installer.stageArchive { ByteArrayInputStream(zip("../evil" to "x", "package.json" to manifest("a"))) }
         assertTrue(slip is StageResult.Rejected)
         val bad = s.installer.stageArchive { ByteArrayInputStream(zip("package.json" to "{")) }
         assertTrue(bad is StageResult.Rejected)
-        val steps = """, "easyide": { "capabilities": ["sandbox.install"], "sandbox": { "install": [ { "id": "i", "title": "t", "run": "true" } ] } }"""
-        val sandbox = s.installer.stageArchive { ByteArrayInputStream(zip("package.json" to manifest("tool", easyide = steps))) }
-        assertTrue(sandbox is StageResult.Rejected)
         val symlink = zip("package.json" to manifest("ln"), "link" to "target").also(::markSymlink)
         assertTrue(s.installer.stageArchive { ByteArrayInputStream(symlink) } is StageResult.Rejected)
         assertEquals(0, s.paths.extensionStagingDir.listFiles()!!.size)
+    }
+
+    @Test fun `sandbox install steps are staged for review, not run`() = runTest {
+        val s = Setup(tmp.newFolder("files"))
+        val steps = """, "easyide": { "capabilities": ["sandbox.install"], "sandbox": { "install": [ { "id": "i", "title": "t", "run": "touch /tmp/ran" } ] } }"""
+        val staged = s.installer.stageArchive { ByteArrayInputStream(zip("package.json" to manifest("tool", easyide = steps))) }
+        assertTrue(staged is StageResult.Staged)
+        val d = (staged as StageResult.Staged).pkg.descriptor
+        assertEquals(listOf("touch /tmp/ran"), d.contributes.sandbox!!.install.map { it.run.source })
+        s.installer.discard(staged.pkg)
     }
 
     @Test fun `folder copies obey the same rules`() = runTest {
