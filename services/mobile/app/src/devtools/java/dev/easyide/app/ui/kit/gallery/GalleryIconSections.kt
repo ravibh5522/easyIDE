@@ -25,7 +25,6 @@ import dev.easyide.app.ui.icons.WORK_GLYPHS
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 private val SHEET_ICON = 32.dp
 private val CELL_WIDTH = 112.dp
@@ -58,7 +57,7 @@ private fun GlyphGrid(glyphs: List<EiGlyph>) {
         for (glyph in glyphs) {
             Column(Modifier.width(CELL_WIDTH), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
                 GlyphImage(glyph, SHEET_ICON, Kit.colors.plainText)
-                BasicText(glyph.name, style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = Kit.colors.textMuted))
+                BasicText(glyph.name, style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
             }
         }
     }

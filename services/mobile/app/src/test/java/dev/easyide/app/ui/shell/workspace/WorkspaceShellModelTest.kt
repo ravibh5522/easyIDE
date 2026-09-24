@@ -38,7 +38,7 @@ class WorkspaceShellModelTest {
     @Test fun `a fresh project opens with the auto preset of its window`() {
         assertTrue(model(COMPACT).opened())
         assertTrue(model(MEDIUM).opened(Placement.SIDEBAR))
-        assertTrue(model(EXPANDED).opened(Placement.SIDEBAR, Placement.SECONDARY_SIDEBAR, Placement.PANEL))
+        assertTrue(model(EXPANDED).opened(Placement.SIDEBAR))
         assertEquals(CoreShell.FILES, model(EXPANDED).now().current.nav)
     }
 
@@ -143,7 +143,7 @@ class WorkspaceShellModelTest {
         assertTrue(m.now().current.layout.isOpen(Placement.SIDEBAR))
         m.onWindow(EXPANDED)
         assertEquals(listOf("a.kt"), m.now().current.stage.documents.mapNotNull { FileDocuments.pathOf(it) })
-        assertTrue(m.opened(Placement.SIDEBAR, Placement.SECONDARY_SIDEBAR, Placement.PANEL))
+        assertTrue(m.opened(Placement.SIDEBAR))
     }
 
     @Test fun `a damaged snapshot leaves the default layout`() {

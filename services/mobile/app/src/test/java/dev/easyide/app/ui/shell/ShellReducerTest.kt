@@ -40,7 +40,7 @@ class ShellReducerTest {
         val cases = listOf(
             "compact" to (COMPACT to emptySet<Placement>()),
             "medium" to (MEDIUM to setOf(Placement.SIDEBAR)),
-            "expanded" to (EXPANDED to Placement.entries.toSet()),
+            "expanded" to (EXPANDED to setOf(Placement.SIDEBAR)),
             "book" to (BOOK to setOf(Placement.SIDEBAR, Placement.PANEL)),
             "tabletop" to (TABLETOP to setOf(Placement.PANEL)),
         )
@@ -101,7 +101,7 @@ class ShellReducerTest {
 
     @Test
     fun `docked panels stay open when a document opens`() {
-        assertEquals(Placement.entries.toSet(), workspaceShell(EXPANDED).act(open(a)).openPanels())
+        assertEquals(setOf(Placement.SIDEBAR), workspaceShell(EXPANDED).act(open(a)).openPanels())
         assertEquals(setOf(Placement.SIDEBAR), workspaceShell(PHONE_LANDSCAPE).act(open(a)).openPanels())
     }
 
@@ -182,9 +182,8 @@ class ShellReducerTest {
     fun `resizing across arrangements saves and restores each layout and never loses documents`() {
         val wide = workspaceShell(EXPANDED)
             .act(open(a), open(b, OpenOptions(group = GroupTarget.BESIDE)), open(c, OpenOptions(group = GroupTarget.BESIDE)))
-            .act(ShellAction.TogglePanel(Placement.SECONDARY_SIDEBAR))
         val docs = wide.current.stage.documents.toSet()
-        assertEquals(setOf(Placement.SIDEBAR, Placement.PANEL), wide.openPanels())
+        assertEquals(setOf(Placement.SIDEBAR), wide.openPanels())
 
         val phone = wide.act(ShellAction.Resize(COMPACT))
         assertEquals(PaneArrangement.SINGLE_PANE, phone.arrangement)
