@@ -5,7 +5,6 @@ import dev.easyide.app.session.BackupRef
 import dev.easyide.app.session.DiskState
 import dev.easyide.app.session.ExternalChangeDetector
 import dev.easyide.app.session.ExternalState
-import dev.easyide.app.session.LayoutSnapshot
 import dev.easyide.app.session.SessionStore
 import dev.easyide.app.session.StoredSession
 import dev.easyide.app.session.TabSnapshot
@@ -25,7 +24,7 @@ internal class RestoredSession(
     val tabs: List<RestoredTab>,
     val activePath: String?,
     val expandedDirs: Set<String>,
-    val layout: LayoutSnapshot?,
+    val shell: String?,
 ) {
     /** Tabs that come back holding edits the disk does not have. */
     val unsavedCount: Int get() = tabs.count { it.tab.isDirty }
@@ -57,7 +56,7 @@ internal class SessionRestore(
             tabs = tabs,
             activePath = snapshot.activePath?.takeIf { active -> tabs.any { it.tab.relativePath == active } },
             expandedDirs = if (restoreTabs) snapshot.expandedDirs.toSet() else emptySet(),
-            layout = snapshot.layout,
+            shell = snapshot.shell,
         )
     }
 

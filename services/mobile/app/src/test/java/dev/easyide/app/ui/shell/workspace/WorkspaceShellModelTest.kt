@@ -193,4 +193,12 @@ class WorkspaceShellModelTest {
         m.open(AppDocuments.settingsPage("git"))
         assertTrue(m.snapshot() != first)
     }
+
+    @Test fun `a page that finished closes itself`() {
+        val m = model(EXPANDED)
+        m.open(AppDocuments.extensionPage("easyide.python"))
+        m.closeActive()
+        assertTrue(m.now().current.stage.documents.isEmpty())
+        m.closeActive()
+    }
 }

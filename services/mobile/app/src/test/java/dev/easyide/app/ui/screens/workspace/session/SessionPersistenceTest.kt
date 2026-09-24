@@ -7,7 +7,6 @@ import dev.easyide.app.session.Hashes
 import dev.easyide.app.session.SessionStore
 import dev.easyide.app.ui.screens.workspace.EditorSelections
 import dev.easyide.app.ui.screens.workspace.EditorTab
-import dev.easyide.app.ui.screens.workspace.WorkspaceLayoutHolder
 import dev.easyide.app.ui.screens.workspace.WorkspaceUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +31,7 @@ class SessionPersistenceTest {
     private val logged = mutableListOf<String>()
     private val state = MutableStateFlow(WorkspaceUiState())
     private val persistence by lazy {
-        SessionPersistence("p", state, selections, scrolls, WorkspaceLayoutHolder(), store, Dispatchers.Unconfined, { 42L }, LogSink { level, _, msg -> if (level >= LogLevel.WARN) logged += msg })
+        SessionPersistence("p", state, selections, scrolls, { null }, store, Dispatchers.Unconfined, { 42L }, LogSink { level, _, msg -> if (level >= LogLevel.WARN) logged += msg })
     }
 
     private fun tab(path: String, content: String, saved: String = content) = EditorTab(path, path.substringAfterLast('/'), content, saved)
