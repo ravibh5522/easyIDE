@@ -136,6 +136,7 @@ fun WorkspaceScreen(
 
     var menu by remember { mutableStateOf<NodeMenu?>(null) }
     var prompt by remember { mutableStateOf<PendingPrompt?>(null) }
+    var inlineEdit by remember { mutableStateOf<InlineEdit?>(null) }
     var paletteOpen by rememberSaveable { mutableStateOf(false) }
     // What Go to File's `>` prefix hands over to the palette.
     var paletteQuery by remember { mutableStateOf("") }
@@ -157,6 +158,9 @@ fun WorkspaceScreen(
     val dirtyTabs = uiState.openTabs.filter { it.isDirty }
     val requestClose: () -> Unit = {
         if (dirtyTabs.isEmpty()) onCloseProject() else prompt = PendingPrompt.CloseWithUnsaved(dirtyTabs)
+    }
+    val revealFolder: (FileNode) -> Unit = { folder ->
+        if (folder.relativePath !in uiState.expandedDirs) callbacks.onDirectoryToggled(folder)
     }
     val requestCloseTab: (String) -> Unit = { path ->
         val tab = uiState.openTabs.find { it.relativePath == path }
@@ -230,8 +234,20 @@ fun WorkspaceScreen(
         WorkspaceActions(
             onNodeMenu = { node, at -> menu = NodeMenu(node, at) },
             documents = DocumentOpener(model::open, stageActions::openBeside),
-            onNewFile = { prompt = PendingPrompt.NewFile("") },
-            onNewFolder = { prompt = PendingPrompt.NewFolder("") },
+            onNewFile = { inlineEdit = InlineEdit.NewFile("") },
+            onNewFolder = { inlineEdit = InlineEdit.NewFolder("") },
+            inline = InlineEditSpec(
+                edit = inlineEdit,
+                onCommit = { edit, name ->
+                    inlineEdit = null
+                    when (edit) {
+                        is InlineEdit.NewFile -> callbacks.onCreateFile(edit.parentDir, name)
+                        is InlineEdit.NewFolder -> callbacks.onCreateFolder(edit.parentDir, name)
+                        is InlineEdit.Rename -> callbacks.onRename(edit.node, name)
+                    }
+                },
+                onCancel = { inlineEdit = null },
+            ),
             onRenameTerminal = { id, title -> prompt = PendingPrompt.RenameTerminal(id, title) },
             closeFile = requestCloseTab,
             onTerminalKey = { e -> dispatcher.dispatch(e, terminalFocused = true, commands, keyContext) },
@@ -345,9 +361,10 @@ fun WorkspaceScreen(
                 menu = null
                 when (action) {
                     FileAction.OPEN_BESIDE -> stageActions.openFileBeside(node)
-                    FileAction.NEW_FILE -> prompt = PendingPrompt.NewFile(node.relativePath)
-                    FileAction.NEW_FOLDER -> prompt = PendingPrompt.NewFolder(node.relativePath)
-                    FileAction.RENAME -> prompt = PendingPrompt.Rename(node)
+                    // The row appears among the folder's children, so the folder has to be open.
+                    FileAction.NEW_FILE -> { revealFolder(node); inlineEdit = InlineEdit.NewFile(node.relativePath) }
+                    FileAction.NEW_FOLDER -> { revealFolder(node); inlineEdit = InlineEdit.NewFolder(node.relativePath) }
+                    FileAction.RENAME -> inlineEdit = InlineEdit.Rename(node)
                     FileAction.DELETE -> prompt = PendingPrompt.Delete(node)
                     FileAction.COPY -> callbacks.onCopyToClipboard(node, false)
                     FileAction.CUT -> callbacks.onCopyToClipboard(node, true)

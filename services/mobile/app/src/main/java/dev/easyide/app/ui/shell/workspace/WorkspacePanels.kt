@@ -59,6 +59,7 @@ object WorkspacePanels {
             onNewFile = env.actions.onNewFile,
             onNewFolder = env.actions.onNewFolder,
             onRefresh = env.callbacks.onRefreshTree,
+            inline = env.actions.inline,
             modifier = modifier.fillMaxSize(),
         )
     }

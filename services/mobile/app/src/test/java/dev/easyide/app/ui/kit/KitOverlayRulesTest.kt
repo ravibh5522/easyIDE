@@ -77,6 +77,13 @@ class KitOverlayRulesTest {
         assertEquals(IntOffset(0, 150), menuPosition(IntRect(-20, 100, 20, 150), window, popup))
     }
 
+    @Test fun `a menu opened by a press sits at the press point, flipping up near the bottom`() {
+        val pressed = IntRect(androidx.compose.ui.unit.IntOffset(300, 400), IntSize.Zero)
+        assertEquals(IntOffset(300, 400), menuPosition(pressed, window, popup))
+        val low = IntRect(androidx.compose.ui.unit.IntOffset(300, 700), IntSize.Zero)
+        assertEquals(IntOffset(300, 400), menuPosition(low, window, popup))
+    }
+
     @Test fun `a menu taller than the space above and below is pinned to the top edge`() {
         assertEquals(0, menuPosition(IntRect(0, 100, 50, 150), window, IntSize(200, 790)).y)
     }

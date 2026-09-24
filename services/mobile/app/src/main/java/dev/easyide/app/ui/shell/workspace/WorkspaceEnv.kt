@@ -7,6 +7,7 @@ import com.termux.terminal.TerminalSession
 import dev.easyide.app.ui.commands.CommandRegistry
 import dev.easyide.app.ui.screens.workspace.EditorSelections
 import dev.easyide.app.ui.screens.workspace.GitPanelState
+import dev.easyide.app.ui.screens.workspace.InlineEditSpec
 import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
 import dev.easyide.app.ui.screens.workspace.WorkspaceCallbacks
 import dev.easyide.app.ui.screens.workspace.WorkspaceEditing
@@ -28,6 +29,8 @@ class WorkspaceActions(
     val documents: DocumentOpener,
     val onNewFile: () -> Unit,
     val onNewFolder: () -> Unit,
+    /** The name being typed into the tree (new file or folder, rename), and what ends it. */
+    val inline: InlineEditSpec,
     val onRenameTerminal: (id: String, title: String) -> Unit,
     /** Close a file document with the unsaved-changes guard, not the raw view model close. */
     val closeFile: (path: String) -> Unit,

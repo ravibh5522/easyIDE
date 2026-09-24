@@ -116,7 +116,7 @@ internal fun FileTreeRow(
 
 /** One thin vertical rule per ancestor level, as VS Code draws nesting. */
 @Composable
-private fun IndentGuides(depth: Int) {
+internal fun IndentGuides(depth: Int) {
     val colors = Kit.colors
     val space = Kit.space
     // Half the chevron glyph past the base inset, so each guide sits under its parent's chevron rather than beside it.
