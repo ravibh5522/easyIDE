@@ -16,8 +16,8 @@ class AppRegistries(val documents: DocumentRegistry, val containers: ContainerRe
 
 /**
  * The document types of app scope (screens.md section 1): a settings page, an extension page, a
- * project page. Titles are one word per kind: the page draws its own header with the subject's
- * name, so a tab or a compact title bar never needs a lookup that could go stale.
+ * project page. The type's title is one word per kind: it is what a tab shows until the renderer
+ * supplies the subject's own name (`DocumentRenderer.Title`), and what stays when the subject is gone.
  */
 object AppDocuments {
     const val SETTINGS = "easyide.settings"
@@ -27,6 +27,13 @@ object AppDocuments {
     fun settingsPage(category: String? = null): DocumentUri = requireNotNull(DocumentUri.easyide("settings", category))
     fun extensionPage(id: String): DocumentUri = requireNotNull(DocumentUri.easyide("extension", id))
     fun projectPage(id: String): DocumentUri = requireNotNull(DocumentUri.easyide("project", id))
+
+    /** The subject of `easyide://<page>/<subject>`: null for any other page or for none. */
+    private fun subjectOf(uri: DocumentUri, page: String): String? = uri.takeIf { it.scheme == "easyide" && it.authority == page }?.segments?.singleOrNull()
+
+    fun projectIdOf(uri: DocumentUri?): String? = uri?.let { subjectOf(it, "project") }
+    fun extensionIdOf(uri: DocumentUri?): String? = uri?.let { subjectOf(it, "extension") }
+    fun settingsCategoryOf(uri: DocumentUri?): String? = uri?.let { subjectOf(it, "settings") }
 
     private fun type(id: String, page: String, icon: String, title: String) =
         DocumentType(id, UriPattern("easyide", page), { title }, { IconRef(icon) }, supportsSplit = false)

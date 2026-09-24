@@ -1,10 +1,12 @@
 package dev.easyide.app.ui.screens.settings
 
+import dev.easyide.app.ui.shell.ContainerRegistry
 import dev.easyide.app.ui.shell.ContainerSpec
 import dev.easyide.app.ui.shell.CoreShell
 import dev.easyide.app.ui.shell.NavEnv
 import dev.easyide.app.ui.shell.NavItem
 import dev.easyide.app.ui.shell.NavPrefs
+import dev.easyide.app.ui.shell.NavRegistry
 import dev.easyide.app.ui.shell.Placement
 import dev.easyide.app.ui.shell.ShellScope
 import kotlinx.serialization.json.JsonObject
@@ -25,13 +27,15 @@ data class LayoutCatalog(val navigation: List<LayoutNavEntry>, val containers: L
     companion object {
         private val EVERYTHING = NavEnv(holds = { true }, resolves = { true })
 
-        fun core(): LayoutCatalog = LayoutCatalog(
+        fun core(): LayoutCatalog = of(CoreShell.navigation(), CoreShell.containers())
+
+        /** Everything [navigation] and [containers] hold, per scope, with the extension that added each. */
+        fun of(navigation: NavRegistry, containers: ContainerRegistry): LayoutCatalog = LayoutCatalog(
             navigation = ShellScope.entries.flatMap { scope ->
-                CoreShell.navigation().visible(scope, NavPrefs(), EVERYTHING).map { entry(it, scope, pack = null) }
+                navigation.visible(scope, NavPrefs(), EVERYTHING).map { entry(it, scope, navigation.packOf(it.id)) }
             },
-            containers = CoreShell.containers().let { registry ->
-                ShellScope.entries.flatMap { scope -> Placement.entries.flatMap { registry.inPlacement(it, scope) } }
-            }.distinctBy { it.id }.map { entry(it, pack = null) },
+            containers = ShellScope.entries.flatMap { scope -> Placement.entries.flatMap { containers.inPlacement(it, scope) } }
+                .distinctBy { it.id }.map { entry(it, containers.packOf(it.id)) },
         )
 
         fun entry(item: NavItem, scope: ShellScope, pack: String?) = LayoutNavEntry(item.id, item.title, scope, pack)

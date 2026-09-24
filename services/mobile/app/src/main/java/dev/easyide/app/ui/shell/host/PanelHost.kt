@@ -20,13 +20,13 @@ import dev.easyide.app.ui.kit.kitTag
 /**
  * The primary panel: the surface a container draws its list on. Docked on a wide window (the
  * caller sizes it) and the whole first screen on a phone. A container nobody registered a renderer
- * for (an extension that went away) shows a message instead of an empty column. Bindings that span
- * the window bring their own insets; a plain panel keeps clear of the status and navigation bars.
+ * for (an extension that went away) shows a message instead of an empty column. The panel keeps clear
+ * of the status and navigation bars; it draws its own title row, so the host adds none.
  */
 @Composable
 fun PanelHost(containerId: String?, panels: PanelRendererRegistry, modifier: Modifier = Modifier) {
     val binding = containerId?.let(panels::binding)
-    val inset = if (binding?.spansWindow == true) Modifier else Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical))
+    val inset = Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical))
     Box(modifier.kitTag("panel").background(Kit.colors.panel).then(inset).focusGroup()) {
         if (binding != null) {
             binding.renderer.Render(Modifier)

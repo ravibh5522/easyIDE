@@ -7,7 +7,6 @@ class HomeCallbacks(
     val onQueryChanged: (String) -> Unit,
     val onSortChanged: (ProjectSort) -> Unit,
     val onSelect: (String) -> Unit,
-    val onCloseDetail: () -> Unit,
     val onResumed: () -> Unit,
     /** [withTerminal] reveals the terminal on arrival instead of leaving the workspace as the user last had it. */
     val onOpenProject: (ProjectListItem, withTerminal: Boolean) -> Unit,

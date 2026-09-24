@@ -69,6 +69,11 @@ class ShellViewModel(
 
     val navBadges = source.badges
 
+    private val toasts = MutableStateFlow(ToastQueue())
+
+    /** The toast on screen, or null. */
+    val toast: StateFlow<String?> = toasts.map { it.current }.stateIn(scope, SharingStarted.Eagerly, null)
+
     val navItems: StateFlow<List<NavItem>> =
         combine(source.contributions, navSettings) { contributions, nav ->
             val registry = contributions.fold(registries.navigation) { r, c -> r.register(c.item, Origin.Extension(c.extensionId)).registry }
@@ -135,6 +140,10 @@ class ShellViewModel(
     fun keep(uri: DocumentUri) = dispatch(ShellAction.Keep(0, uri))
 
     fun close(uri: DocumentUri) = dispatch(ShellAction.Close(0, uri))
+
+    fun notify(text: String) = toasts.update { it.show(text) }
+
+    fun toastDismissed() = toasts.update { it.dismissed() }
 
     fun togglePanel(placement: Placement) = dispatch(ShellAction.TogglePanel(placement))
 

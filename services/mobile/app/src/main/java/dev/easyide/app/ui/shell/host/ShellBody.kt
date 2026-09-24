@@ -18,7 +18,7 @@ import dev.easyide.app.ui.shell.ShellState
  * Panel and stage side by side, per size class (layout-spec.md sections 3 and 5). On a phone the
  * panel is the first screen and a document is a page pushed over it; on a wider window the primary
  * panel docks at a width the user can drag (a closed panel leaves the stage the whole window).
- * A binding that spans the window (the pre-shell screens) takes it all, with no stage.
+ * The stage is told which default content the panel's container offers for an empty stage.
  */
 @Composable
 fun ShellBody(
@@ -26,15 +26,15 @@ fun ShellBody(
     containers: ContainerRegistry,
     panels: PanelRendererRegistry,
     onResizePanel: (Float?) -> Unit,
-    stage: @Composable (Modifier) -> Unit,
+    stage: @Composable (Modifier, PanelRenderer?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val layout = state.current.layout
     val container = containers.active(Placement.SIDEBAR, layout.container(Placement.SIDEBAR), ShellScope.APP)?.id
-    val spans = container?.let { panels.binding(it)?.spansWindow } == true
+    val idle = container?.let { panels.binding(it)?.stageDefault }
     when {
-        spans || (state.compact && !state.pushed) -> PanelHost(container, panels, modifier.fillMaxSize())
-        state.compact -> stage(modifier.fillMaxSize())
+        state.compact && !state.pushed -> PanelHost(container, panels, modifier.fillMaxSize())
+        state.compact -> stage(modifier.fillMaxSize(), idle)
         else -> BoxWithConstraints(modifier.fillMaxSize()) {
             val available = maxWidth.value
             Row(Modifier.fillMaxSize()) {
@@ -43,7 +43,7 @@ fun ShellBody(
                     PanelHost(container, panels, Modifier.width(width.dp).fillMaxHeight())
                     PaneSplitter(width, PanelSizing.limits, PanelSizing.ceiling(available), onResizePanel, { onResizePanel(null) })
                 }
-                stage(Modifier.weight(1f).fillMaxHeight())
+                stage(Modifier.weight(1f).fillMaxHeight(), idle)
             }
         }
     }

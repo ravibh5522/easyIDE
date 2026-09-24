@@ -127,6 +127,20 @@ class ShellViewModelTest {
         assertEquals(CoreShell.HOME, shell.state.value!!.current.nav)
     }
 
+    @Test fun `notifications show one at a time and move on when dismissed`() = runTest {
+        val shell = ready(COMPACT)
+        shell.notify("a")
+        shell.notify("b")
+        runCurrent()
+        assertEquals("a", shell.toast.value)
+        shell.toastDismissed()
+        runCurrent()
+        assertEquals("b", shell.toast.value)
+        shell.toastDismissed()
+        runCurrent()
+        assertNull(shell.toast.value)
+    }
+
     @Test fun `Back from Home on a wide window is left to the system`() = runTest {
         val shell = ready(EXPANDED)
         assertEquals(BackStep.SYSTEM, shell.back())

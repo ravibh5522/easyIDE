@@ -23,6 +23,10 @@ object ShellTokens {
     /** The primary panel never takes more than this share of the window (layout-spec.md section 4.3: 200dp to 45%). */
     const val PANEL_MAX_FRACTION = 0.45f
 
+    /** How long a toast stays (identity.md 10: 3 s), and how many wait behind the one shown. */
+    const val TOAST_MS = 3000L
+    const val TOAST_QUEUE_MAX = 4
+
     /** Writes of the shell snapshot collapse into one after this quiet period. */
     const val SAVE_DEBOUNCE_MS = 400L
 }

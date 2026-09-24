@@ -65,7 +65,6 @@ class HomeViewModel(
         val query: String = "",
         val sort: ProjectSort = ProjectSort.RECENT,
         val selectedId: String? = null,
-        val detailOpen: Boolean = false,
         val dialog: HomeDialog? = null,
         val dialogFailure: HomeFailure? = null,
         val busy: HomeBusy? = null,
@@ -114,7 +113,6 @@ class HomeViewModel(
                     .firstOrNull { id -> environments.any { it.id == id } },
                 query = local.query,
                 sort = local.sort,
-                detailOpen = local.detailOpen,
                 dialog = local.dialog,
                 dialogFailure = local.dialogFailure,
                 busy = local.busy,
@@ -169,9 +167,7 @@ class HomeViewModel(
 
     fun onSortChanged(sort: ProjectSort) = ui.update { it.copy(sort = sort) }
 
-    fun onSelect(projectId: String) = ui.update { it.copy(selectedId = projectId, detailOpen = true) }
-
-    fun onCloseDetail() = ui.update { it.copy(detailOpen = false) }
+    fun onSelect(projectId: String) = ui.update { it.copy(selectedId = projectId) }
 
     /** Home came back into view: git state may have changed in the workspace or the terminal. */
     fun onResumed() {
@@ -223,7 +219,7 @@ class HomeViewModel(
         gitService.release(rootOf(projectId))
         projectManager.delete(projectId, deleteFiles = true).getOrThrow()
         meta.update { it - projectId }
-        ui.update { if (it.selectedId == projectId) it.copy(selectedId = null, detailOpen = false) else it }
+        ui.update { if (it.selectedId == projectId) it.copy(selectedId = null) else it }
         HomeMessage.Deleted(project.name)
     }
 

@@ -111,3 +111,7 @@ internal fun List<ExtensionRow>.byId(id: String): ExtensionRow? = firstOrNull { 
 /** The Extension Log lines written by [id], newest first as the ring keeps them. */
 internal fun logFor(log: List<TimedLogEntry>, id: String): List<TimedLogEntry> =
     log.filter { it.entry.extensionId?.value == id }
+
+/** The display name of extension [id] (its id while it is not loaded), or null when it is not installed. */
+internal fun ExtensionsUiState.extensionName(id: String?): String? =
+    rows.byId(id ?: return null)?.let { it.loaded?.descriptor?.displayName ?: it.id }

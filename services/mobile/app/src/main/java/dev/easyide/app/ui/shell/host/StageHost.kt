@@ -34,7 +34,8 @@ class StageCallbacks(
 /**
  * The main stage with its one editor group. On a wide window that is a tab strip over the active
  * document; on a phone it is the document alone as a titled page whose back arrow steps Back
- * (to the list, or to the previous page of the same document). More groups arrive with R3/R6.
+ * (to the list, or to the previous page of the same document). With nothing open, [idle] (the active
+ * container's default content) fills the stage, else a hint. More groups arrive with R3/R6.
  */
 @Composable
 fun StageHost(
@@ -43,19 +44,22 @@ fun StageHost(
     renderers: DocumentRendererRegistry,
     callbacks: StageCallbacks,
     modifier: Modifier = Modifier,
+    idle: PanelRenderer? = null,
 ) {
     val group = state.current.stage.activeGroup
     val active = group.activeTab?.uri
     val body: @Composable (Modifier) -> Unit = { m ->
         if (active != null) {
             DocumentBody(active, documents, renderers, { callbacks.onClose(active) }, m)
+        } else if (idle != null) {
+            idle.Render(m)
         } else {
             KitEmptyState(EmptyArt.Prompt, stringResource(R.string.shell_stage_empty), m)
         }
     }
     if (state.compact) {
         KitScaffold(
-            title = active?.let { documents.resolve(it).title(it) }.orEmpty(),
+            title = active?.let { renderers.titleOf(documents, it) }.orEmpty(),
             modifier = modifier.kitTag("stage").focusGroup(),
             onBack = callbacks.onBack,
         ) { inset -> body(Modifier.padding(inset)) }
@@ -65,7 +69,7 @@ fun StageHost(
         if (group.tabs.isNotEmpty()) {
             DocumentStrip(
                 group,
-                titleOf = { documents.resolve(it.uri).title(it.uri) },
+                titleOf = { renderers.titleOf(documents, it.uri) },
                 onActivate = { callbacks.onActivate(it.uri) },
                 onKeep = { callbacks.onKeep(it.uri) },
                 onClose = { callbacks.onClose(it.uri) },

@@ -65,6 +65,9 @@ class NavRegistry private constructor(private val entries: List<Entry>) {
 
     fun byId(id: String): NavItem? = entries.firstOrNull { it.item.id == id }?.item
 
+    /** The extension that contributed [id], or null for a core item or an unknown id. */
+    fun packOf(id: String): String? = entries.firstOrNull { it.item.id == id }?.origin?.extensionId
+
     /**
      * The items to show in [scope], in display order. An item is dropped when its scope, `when`
      * clause or target says so, or the user hid it, except that hiding can never empty the surface.

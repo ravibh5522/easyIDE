@@ -88,9 +88,13 @@ fun AppNavHost(
                         onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
                         onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
                     ),
+                    shell.registries,
                 )
             }
-            ShellHost(shell, remember(deps) { AppRenderers.panels(deps) }, remember { AppRenderers.documents() })
+            ShellHost(
+                shell, remember(deps) { AppRenderers.panels(deps) }, remember(deps) { AppRenderers.documents(deps) },
+                dialogs = { AppRenderers.Dialogs(deps) },
+            )
         }
 
         composable(

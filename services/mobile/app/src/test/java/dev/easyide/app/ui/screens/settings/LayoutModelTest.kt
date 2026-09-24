@@ -1,7 +1,13 @@
 package dev.easyide.app.ui.screens.settings
 
+import dev.easyide.app.ui.shell.ContainerSpec
 import dev.easyide.app.ui.shell.CoreShell
+import dev.easyide.app.ui.shell.IconRef
+import dev.easyide.app.ui.shell.NavItem
+import dev.easyide.app.ui.shell.NavTarget
+import dev.easyide.app.ui.shell.Origin
 import dev.easyide.app.ui.shell.Placement
+import dev.easyide.app.ui.shell.ScopeFilter
 import dev.easyide.app.ui.shell.ShellScope
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -61,5 +67,19 @@ class LayoutModelTest {
         assertEquals(catalog.containers.map { it.id }.distinct(), catalog.containers.map { it.id })
         assertTrue(catalog.containers.any { it.id == CoreShell.EXPLORER && Placement.SIDEBAR in it.allowed })
         assertTrue(catalog.navigation.all { it.pack == null } && catalog.containers.all { it.pack == null })
+    }
+
+    @Test fun `a catalog built from registries names the pack of every contributed entry`() {
+        val docker = ContainerSpec("acme.docker.panel", "Docker", IconRef("x"), Placement.SIDEBAR, ScopeFilter.APP)
+        val nav = NavItem("acme.docker.nav", "Docker", IconRef("x"), NavTarget.Container(docker.id), 100, ScopeFilter.APP)
+        val containers = CoreShell.containers().register(docker, Origin.Extension("acme.docker")).registry
+        val navigation = CoreShell.navigation().register(nav, Origin.Extension("acme.docker")).registry
+
+        val catalog = LayoutCatalog.of(navigation, containers)
+
+        assertEquals("acme.docker", catalog.containers.single { it.id == docker.id }.pack)
+        assertEquals("acme.docker", catalog.navigation.single { it.id == nav.id }.pack)
+        assertEquals(null, catalog.containers.single { it.id == CoreShell.EXPLORER }.pack)
+        assertEquals(LayoutCatalog.core().containers, catalog.containers - catalog.containers.filter { it.pack != null }.toSet())
     }
 }

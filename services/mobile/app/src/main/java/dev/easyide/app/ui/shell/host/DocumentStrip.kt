@@ -57,7 +57,7 @@ import dev.easyide.app.ui.theme.IconSize
 @Composable
 fun DocumentStrip(
     group: EditorGroup,
-    titleOf: (Tab) -> String,
+    titleOf: @Composable (Tab) -> String,
     onActivate: (Tab) -> Unit,
     onKeep: (Tab) -> Unit,
     onClose: (Tab) -> Unit,

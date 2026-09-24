@@ -61,6 +61,9 @@ class ContainerRegistry private constructor(private val entries: List<Entry>) {
 
     fun byId(id: String): ContainerSpec? = entries.firstOrNull { it.spec.id == id }?.spec
 
+    /** The extension that contributed [id], or null for a core container or an unknown id. */
+    fun packOf(id: String): String? = entries.firstOrNull { it.spec.id == id }?.origin?.extensionId
+
     /** The placement [spec] shows in: the user's override when it is allowed, else its own. */
     fun placementOf(spec: ContainerSpec, prefs: ContainerPrefs = ContainerPrefs()): Placement =
         prefs.placement[spec.id]?.takeIf { it in spec.allowed } ?: spec.placement

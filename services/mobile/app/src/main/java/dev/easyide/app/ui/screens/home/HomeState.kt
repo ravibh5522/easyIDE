@@ -70,8 +70,6 @@ data class HomeUiState(
     val suggestedEnvironmentId: String? = null,
     val query: String = "",
     val sort: ProjectSort = ProjectSort.RECENT,
-    /** Compact widths show the detail as its own screen instead of a pane. */
-    val detailOpen: Boolean = false,
     val dialog: HomeDialog? = null,
     val dialogFailure: HomeFailure? = null,
     val busy: HomeBusy? = null,

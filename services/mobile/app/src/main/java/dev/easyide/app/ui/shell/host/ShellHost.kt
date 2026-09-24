@@ -9,6 +9,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.KeyEventType
@@ -32,7 +33,8 @@ import dev.easyide.app.ui.shell.nav.NavSurfaceState
  * The app-scope shell: navigation surface, primary panel and stage, driven by [shell]. It draws
  * nothing until the shell has restored and fitted itself to this window, so a wide window never
  * flashes the phone layout. Back is handled here through the single rule in `BackNavigation`; the
- * system takes it back (and the app leaves) only when the shell has nothing left to do.
+ * system takes it back (and the app leaves) only when the shell has nothing left to do. [dialogs] is
+ * where dialogs that belong to no one panel are mounted, once (Home's, the extensions').
  */
 @Composable
 fun ShellHost(
@@ -40,6 +42,7 @@ fun ShellHost(
     panels: PanelRendererRegistry,
     renderers: DocumentRendererRegistry,
     modifier: Modifier = Modifier,
+    dialogs: @Composable () -> Unit = {},
 ) {
     val window = LocalWindowSize.current
     LaunchedEffect(window) { shell.onWindow(window) }
@@ -49,8 +52,9 @@ fun ShellHost(
     val items by shell.navItems.collectAsStateWithLifecycle()
     val settings by shell.navSettings.collectAsStateWithLifecycle()
     val badges by shell.navBadges.collectAsStateWithLifecycle()
+    val toast by shell.toast.collectAsStateWithLifecycle()
     val focus = remember { FocusRequester() }
-    val actions = remember(shell) { ShellActions(open = { shell.open(it) }, goTo = shell::goTo, back = { shell.back() }) }
+    val actions = remember(shell) { ShellActions(open = { shell.open(it) }, goTo = shell::goTo, back = { shell.back() }, notify = shell::notify) }
     val keymap = LocalKeymap.current
 
     val handlesBack = remember(state) { BackNavigation.back(state).step != BackStep.SYSTEM }
@@ -78,13 +82,16 @@ fun ShellHost(
             },
         ) {
             AdaptiveScaffold(placement, nav = { NavSurface(surface, shell::selectNav) }) { area ->
-                ShellBody(
-                    state, shell.registries.containers, panels,
-                    onResizePanel = { shell.resizePane(Pane.EXPLORER, it) },
-                    stage = { m -> StageHost(state, shell.registries.documents, renderers, callbacks, m) },
-                    modifier = area,
-                )
+                Box(area) {
+                    ShellBody(
+                        state, shell.registries.containers, panels,
+                        onResizePanel = { shell.resizePane(Pane.EXPLORER, it) },
+                        stage = { m, idle -> StageHost(state, shell.registries.documents, renderers, callbacks, m, idle) },
+                    )
+                    ToastHost(toast, shell::toastDismissed, Modifier.align(Alignment.BottomCenter))
+                }
             }
+            dialogs()
         }
     }
 }

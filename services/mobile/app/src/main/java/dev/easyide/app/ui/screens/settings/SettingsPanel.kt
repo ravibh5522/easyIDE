@@ -4,6 +4,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,9 +32,10 @@ import dev.easyide.app.ui.kit.Tone
 
 /**
  * The list side of Settings (screens.md 5): safe-mode banner, search, the layer control, then the
- * categories, or the matching settings across categories while a query is typed. Selecting a
- * category, or a result, reports its id through [onSelect] and the shell opens
- * `easyide://settings/<id>`; a result also marks its row on the page. Panels list, the stage shows.
+ * categories, or the matching settings across categories while a query is typed, under its own title
+ * row (the host adds no header). Selecting a category, or a result, reports its id through
+ * [onSelect] and the shell opens `easyide://settings/<id>`; a result also marks its row on the
+ * page. Panels list, the stage shows.
  */
 @Composable
 fun SettingsPanel(
@@ -53,6 +57,11 @@ fun SettingsPanel(
     }
 
     Column(modifier.verticalScroll(rememberScrollState()).padding(bottom = Kit.space.xxl)) {
+        BasicText(
+            stringResource(R.string.nav_settings),
+            Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.m).semantics { heading() },
+            style = Kit.type.titleMedium.copy(color = Kit.colors.plainText),
+        )
         system.safeMode?.let { reason ->
             KitBanner(
                 text = stringResource(R.string.safe_mode_banner_text, stringResource(safeModeReasonRes(reason))),
