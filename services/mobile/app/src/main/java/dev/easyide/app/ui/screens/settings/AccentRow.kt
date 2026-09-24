@@ -13,8 +13,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Restore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,8 +33,6 @@ import dev.easyide.app.R
 import dev.easyide.app.data.settings.AppearanceSettingsSchema
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitField
-import dev.easyide.app.ui.kit.KitIconButton
-import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.Tone
 import dev.easyide.app.ui.props.AccentChoice
@@ -57,19 +53,15 @@ internal fun AccentRow(ctx: SettingsContext) {
     val colors = Kit.colors
     val ink = colors.plainText
 
-    KitRow(
+    SettingLine(
         title = setting.title.resolve(),
-        subtitle = setting.description.resolve(),
-        leading = { ModifiedDot(state.modifiedHere) },
-        trailing = {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
-                if (state.modifiedHere && state.editable) KitIconButton(Icons.Filled.Restore, stringResource(R.string.setting_reset), { ctx.actions.reset(setting, ctx.language) })
-                ValueText(current)
-            }
-        },
-        enabled = state.editable,
+        description = setting.description.resolve(),
         id = "setting:${setting.key}",
-    )
+        modified = state.modifiedHere,
+        enabled = state.editable,
+    ) {
+        WithReset(state.modifiedHere && state.editable, { ctx.actions.reset(setting, ctx.language) }) { ValueText(current) }
+    }
     state.block?.let { RowNote(stringResource(R.string.setting_not_in_layer)) }
     RowBlock {
         FlowRow(Modifier.selectableGroup(), Arrangement.spacedBy(Kit.space.s), Arrangement.spacedBy(Kit.space.s)) {

@@ -8,6 +8,7 @@
     <string name="settings_category_advanced">Advanced</string>
 
     <string name="settings_page_unknown">No settings page named %1$s.</string>
+    <string name="settings_results_title">Results</string>
     <string name="settings_search_prompt">Type in the search box. Filters: @modified, @ext:id, @lang:id.</string>
     <string name="settings_search_empty">No settings match.</string>
     <string name="settings_search_clear">Clear search</string>

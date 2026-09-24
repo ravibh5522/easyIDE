@@ -1,13 +1,15 @@
 package dev.easyide.app.ui.screens.settings
 
 import android.os.Build
+import kotlin.math.floor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,8 +19,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
@@ -31,6 +31,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -40,8 +42,6 @@ import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.ui.kit.Kit
-import dev.easyide.app.ui.kit.KitIconButton
-import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.cropCorners
 import dev.easyide.app.ui.theme.Accent
 import dev.easyide.app.ui.theme.EditorColors
@@ -74,28 +74,41 @@ fun ThemePickerRow(snapshot: SettingsSnapshot, contributed: List<ContributedThem
         ?: contributed.firstOrNull { it.ref != null && it.ref == selection }
     val modified = snapshot.isSetIn(setting, LayerId.USER) || snapshot.isSetIn(SettingsSchema.colorTheme, LayerId.USER)
 
-    KitRow(
+    SettingLine(
         title = setting.title.resolve(),
-        subtitle = setting.description.resolve(),
-        leading = { ModifiedDot(modified) },
-        trailing = { if (modified) KitIconButton(Icons.Filled.Restore, stringResource(R.string.setting_reset), actions::resetTheme) },
+        description = setting.description.resolve(),
         id = "setting:${setting.key}",
-    )
-    Column(Modifier.padding(start = Kit.space.l, end = Kit.space.l, bottom = Kit.space.m)) {
+        modified = modified,
+    ) { if (modified) ResetButton(actions::resetTheme) }
+    RowBlock {
         ThemeCardGrid(snapshot[setting].takeIf { activeCard == null }, actions::selectBuiltInTheme) { stringResource(setting.label(it)) }
         if (contributed.isNotEmpty()) {
             BasicText(
                 stringResource(R.string.theme_picker_extension_themes),
-                Modifier.padding(top = Kit.space.l),
+                Modifier.padding(top = Kit.space.m, bottom = Kit.space.s),
                 style = Kit.text.caption.copy(color = Kit.colors.textMuted),
             )
-            FlowRow(
-                Modifier.padding(top = Kit.space.s).fillMaxWidth().selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(Kit.space.m),
-                verticalArrangement = Arrangement.spacedBy(Kit.space.m),
-            ) {
-                contributed.forEach { card ->
-                    ThemeCard(card.colors, card.label, card == activeCard) { actions.selectContributedTheme(card.label) }
+            CardGrid(contributed) { card, modifier ->
+                ThemeCard(card.colors, card.label, card == activeCard, modifier) { actions.selectContributedTheme(card.label) }
+            }
+        }
+    }
+}
+
+/** How many cards of at least [card] width fit in [width] with [gap] between them; one at the least. */
+internal fun themeColumns(width: Dp, card: Dp, gap: Dp): Int = maxOf(1, floor((width + gap) / (card + gap)).toInt())
+
+/** Equal-width cards in as many columns as fit, every row starting at the same edge; a short last row leaves its cells empty. */
+@Composable
+private fun <T> CardGrid(items: List<T>, card: @Composable (T, Modifier) -> Unit) {
+    val gap = Kit.space.m
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val columns = themeColumns(maxWidth, SettingsMetrics.themeCard, gap)
+        Column(Modifier.selectableGroup(), Arrangement.spacedBy(gap)) {
+            items.chunked(columns).forEach { line ->
+                Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(gap)) {
+                    line.forEach { card(it, Modifier.weight(1f)) }
+                    repeat(columns - line.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
@@ -115,22 +128,15 @@ private fun ThemeCardGrid(selected: ThemeMode?, onSelect: (ThemeMode) -> Unit, l
     val previews = remember(systemInDark, dynamicAccent) {
         ThemeMode.entries.associateWith { themeTokensFor(it, systemInDark, dynamicAccent).toEditorColors() }
     }
-    FlowRow(
-        Modifier.fillMaxWidth().selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(Kit.space.m),
-        verticalArrangement = Arrangement.spacedBy(Kit.space.m),
-    ) {
-        ThemeMode.entries.forEach { mode -> ThemeCard(previews.getValue(mode), label(mode), mode == selected) { onSelect(mode) } }
-    }
+    CardGrid(ThemeMode.entries) { mode, modifier -> ThemeCard(previews.getValue(mode), label(mode), mode == selected, modifier) { onSelect(mode) } }
 }
 
 @Composable
-private fun ThemeCard(colors: EditorColors, label: String, selected: Boolean, onClick: () -> Unit) {
+private fun ThemeCard(colors: EditorColors, label: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val chrome = Kit.colors
     val shape = RoundedCornerShape(Kit.radius.m)
     Column(
-        Modifier
-            .width(SettingsMetrics.themeCard)
+        modifier
             .clip(shape)
             .border(if (selected) Kit.marker else Kit.hairline, if (selected) chrome.accent else chrome.panelBorder, shape)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
@@ -141,6 +147,8 @@ private fun ThemeCard(colors: EditorColors, label: String, selected: Boolean, on
             label,
             Modifier.padding(horizontal = Kit.space.s, vertical = Kit.space.s),
             style = Kit.text.caption.copy(color = if (selected) chrome.accent else chrome.plainText),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

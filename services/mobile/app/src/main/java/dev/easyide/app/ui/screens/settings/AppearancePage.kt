@@ -1,7 +1,7 @@
 package dev.easyide.app.ui.screens.settings
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +13,6 @@ import dev.easyide.app.R
 import dev.easyide.app.data.settings.AppearanceSettingsSchema
 import dev.easyide.app.data.settings.Setting
 import dev.easyide.app.data.settings.SettingsSchema
-import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
@@ -32,15 +31,15 @@ internal fun AppearancePage(env: PageEnv) {
     val ctx = env.ctx
     var confirming by rememberSaveable { mutableStateOf(false) }
     AppearancePreview()
-    KitSection(stringResource(R.string.appearance_theme_section)) {
+    KitSection(stringResource(R.string.appearance_theme_section), collapsible = true) {
         SettingRowFor(SettingsSchema.themeMode, env)
     }
-    KitSection(stringResource(R.string.appearance_accent_section)) { AccentRow(ctx) }
-    KitSection(stringResource(R.string.appearance_shape_section)) { InlineRows(ctx, SHAPE_ROWS) }
-    KitSection(stringResource(R.string.appearance_motion_section)) { InlineRows(ctx, MOTION_ROWS) }
-    KitSection(stringResource(R.string.appearance_interface_section)) { InlineRows(ctx, INTERFACE_ROWS) }
-    CategoryRows(pageSettings(SettingsCategory.APPEARANCE, env.settings).filter { it !in HANDLED }, env)
-    Row(Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.l)) {
+    KitSection(stringResource(R.string.appearance_accent_section), collapsible = true) { AccentRow(ctx) }
+    InlineSection(R.string.appearance_shape_section, ctx, SHAPE_ROWS)
+    InlineSection(R.string.appearance_motion_section, ctx, MOTION_ROWS)
+    InlineSection(R.string.appearance_interface_section, ctx, INTERFACE_ROWS)
+    CategoryRows(pageSettings(SettingsCategory.APPEARANCE, env.settings).filter { it !in HANDLED }, env, stringResource(R.string.appearance_customizations_section))
+    Row(Modifier.pageGutter()) {
         KitButton(stringResource(R.string.appearance_reset), { confirming = true }, style = KitButtonStyle.Secondary)
     }
     if (confirming) {
@@ -59,8 +58,10 @@ internal fun AppearancePage(env: PageEnv) {
 }
 
 @Composable
-private fun InlineRows(ctx: SettingsContext, rows: List<Setting<*>>) {
-    rows.forEach { SettingRow(it, ctx, inlineChoice = true) }
+private fun InlineSection(@StringRes title: Int, ctx: SettingsContext, rows: List<Setting<*>>) {
+    KitSection(stringResource(title), count = rows.size, collapsible = true) {
+        rows.forEach { SettingRow(it, ctx, inlineChoice = true) }
+    }
 }
 
 private val SHAPE_ROWS: List<Setting<*>> = with(AppearanceSettingsSchema) { listOf(density, corners, uiScale, fontPairing, chromeContrast) }

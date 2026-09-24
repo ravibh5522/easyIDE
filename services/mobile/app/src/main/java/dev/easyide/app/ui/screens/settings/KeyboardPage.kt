@@ -1,8 +1,8 @@
 package dev.easyide.app.ui.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
@@ -39,6 +39,16 @@ import dev.easyide.app.ui.kit.Tone
 @Composable
 internal fun KeyboardPage(viewModel: SettingsViewModel) {
     val state by viewModel.keybindings.state.collectAsStateWithLifecycle()
+    KeyboardContent(state, viewModel.keybindings::add, viewModel.keybindings::remove, viewModel::openKeybindingsJson)
+}
+
+@Composable
+internal fun KeyboardContent(
+    state: KeybindingsScreenState?,
+    onAdd: (key: String, command: String, whenText: String?) -> Unit,
+    onRemove: (EffectiveBinding) -> Unit,
+    onEditJson: () -> Unit,
+) {
     var adding by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
     var conflictsOnly by rememberSaveable { mutableStateOf(false) }
@@ -51,41 +61,44 @@ internal fun KeyboardPage(viewModel: SettingsViewModel) {
         (!conflictsOnly || b in inConflict) &&
             (query.isBlank() || b.binding.command.contains(query, ignoreCase = true) || b.keyText.contains(query, ignoreCase = true))
     }
-    val gutter = Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.l)
 
-    KitField(query, { query = it; shown = BINDINGS_PAGE }, gutter, hint = stringResource(R.string.keys_search_hint))
-    Row(gutter, Arrangement.spacedBy(Kit.space.s), Alignment.CenterVertically) {
+    KitField(query, { query = it; shown = BINDINGS_PAGE }, Modifier.pageGutter(), hint = stringResource(R.string.keys_search_hint))
+    // Wraps rather than clipping: at a large font the third action would otherwise leave the window.
+    FlowRow(Modifier.pageGutter(), Arrangement.spacedBy(Kit.space.s), Arrangement.spacedBy(Kit.space.xs), itemVerticalAlignment = Alignment.CenterVertically) {
         KitTag(stringResource(R.string.keys_conflicts, conflicts.size), tone = if (conflicts.isEmpty()) Tone.Neutral else Tone.Danger, selected = conflictsOnly, onClick = { conflictsOnly = !conflictsOnly })
         KitButton(stringResource(R.string.keys_add), { adding = true }, style = KitButtonStyle.Secondary, enabled = state != null)
-        KitButton(stringResource(R.string.keys_edit_json), viewModel::openKeybindingsJson, style = KitButtonStyle.Ghost)
+        KitButton(stringResource(R.string.keys_edit_json), onEditJson, style = KitButtonStyle.Ghost)
     }
     if (conflictsOnly && conflicts.isNotEmpty()) {
-        KitSection(stringResource(R.string.keys_conflicts_section)) { conflicts.forEach { ConflictRow(it) } }
+        KitSection(stringResource(R.string.keys_conflicts_section), count = conflicts.size, collapsible = true) { conflicts.forEach { ConflictRow(it) } }
     }
     if (matching.isEmpty()) {
         KitEmptyState(EmptyArt.Search, stringResource(R.string.keys_none))
     } else {
-        KitSection(null) {
-            matching.take(shown).forEach { b -> BindingRow(b, b in inConflict) { viewModel.keybindings.remove(b) } }
+        KitSection(stringResource(R.string.settings_keyboard_shortcuts), count = matching.size, collapsible = true) {
+            matching.take(shown).forEach { b -> BindingRow(b, b in inConflict) { onRemove(b) } }
         }
         if (matching.size > shown) {
-            Row(gutter) { KitButton(stringResource(R.string.keys_show_more, matching.size - shown), { shown += BINDINGS_PAGE }, style = KitButtonStyle.Ghost) }
+            Row(Modifier.pageGutter()) { KitButton(stringResource(R.string.keys_show_more, matching.size - shown), { shown += BINDINGS_PAGE }, style = KitButtonStyle.Ghost) }
         }
     }
-    if (adding) AddBindingDialog(state?.commands.orEmpty(), viewModel.keybindings::add) { adding = false }
+    if (adding) AddBindingDialog(state?.commands.orEmpty(), onAdd) { adding = false }
 }
 
 @Composable
 private fun BindingRow(b: EffectiveBinding, conflicting: Boolean, onRemove: () -> Unit) {
     val details = listOfNotNull(sourceLabel(b), b.conditionText?.let { stringResource(R.string.keys_when, it) })
+    // A phone has no room for the key beside a full command id: the key moves to the description line.
+    val narrow = LocalRowLayout.current.narrow
     KitRow(
         title = b.binding.command,
-        subtitle = details.joinToString(" - "),
+        subtitle = (if (narrow) listOf(b.keyText) + details else details).joinToString(" - "),
         mono = true,
+        secondLine = true,
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
                 if (conflicting) KitTag(stringResource(R.string.keys_conflict_tag), tone = Tone.Danger)
-                KitTag(b.keyText)
+                if (!narrow) KitTag(b.keyText)
                 KitIconButton(
                     Icons.Filled.Delete,
                     stringResource(if (b.source == BindingSource.USER) R.string.keys_remove else R.string.keys_remove_default),

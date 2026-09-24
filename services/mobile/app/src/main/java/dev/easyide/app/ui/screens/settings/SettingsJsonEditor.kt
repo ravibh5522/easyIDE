@@ -66,7 +66,7 @@ fun SettingsJsonEditor(
             modifier = Modifier.imePadding(),
         ) { padding ->
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding)) {
-                if (state.saveFailed) BodyText(stringResource(R.string.settings_json_save_failed), Modifier.padding(Kit.space.l), Tone.Danger)
+                if (state.saveFailed) BodyText(stringResource(R.string.settings_json_save_failed), Modifier.pageGutter(), Tone.Danger)
                 JsonTextArea(field) { next ->
                     field = next
                     if (next.text != state.text) onTextChanged(next.text)
@@ -95,7 +95,7 @@ private fun JsonTextArea(value: TextFieldValue, onChange: (TextFieldValue) -> Un
         cursorBrush = SolidColor(colors.cursor),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Kit.space.l, vertical = Kit.space.s)
+            .padding(horizontal = Kit.control.hPad, vertical = Kit.space.s)
             .background(colors.background, shape)
             .border(Kit.hairline, colors.panelBorder, shape)
             .padding(Kit.space.m),
@@ -106,7 +106,7 @@ private fun JsonTextArea(value: TextFieldValue, onChange: (TextFieldValue) -> Un
 @Composable
 private fun SuggestionRow(suggestions: List<JsonSuggestion>, onPick: (JsonSuggestion) -> Unit) {
     Row(
-        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = Kit.space.l, vertical = Kit.space.xs),
+        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs),
         horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
     ) {
         suggestions.forEach { s -> KitTag(if (s.detail != null) "${s.label}  ${s.detail}" else s.label, onClick = { onPick(s) }) }
@@ -116,10 +116,10 @@ private fun SuggestionRow(suggestions: List<JsonSuggestion>, onPick: (JsonSugges
 @Composable
 private fun DiagnosticList(text: String, diagnostics: List<SettingsDiagnostic>) {
     if (diagnostics.isEmpty()) {
-        BodyText(stringResource(R.string.settings_json_no_problems), Modifier.padding(Kit.space.l))
+        BodyText(stringResource(R.string.settings_json_no_problems), Modifier.pageGutter())
         return
     }
-    Column(Modifier.fillMaxWidth().padding(horizontal = Kit.space.l, vertical = Kit.space.s), Arrangement.spacedBy(Kit.space.xxs)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = Kit.space.s), Arrangement.spacedBy(Kit.space.xxs)) {
         diagnostics.forEach { d ->
             val line = d.offset?.let { Jsonc.lineOf(text, it) }
             val message = diagnosticText(d)

@@ -26,7 +26,7 @@ internal fun AdvancedPage(viewModel: SettingsViewModel, ui: SettingsUiState) {
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(BUNDLE_MIME)) { uri -> uri?.let(viewModel::onExport) }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(viewModel::onImportPicked) }
 
-    KitSection(stringResource(R.string.settings_profiles_title)) {
+    KitSection(stringResource(R.string.settings_profiles_title), collapsible = true) {
         KitRow(
             title = stringResource(R.string.setting_profile_title),
             subtitle = stringResource(R.string.setting_profile_desc),
@@ -35,13 +35,13 @@ internal fun AdvancedPage(viewModel: SettingsViewModel, ui: SettingsUiState) {
             id = "settings-action:profiles",
         )
     }
-    KitSection(stringResource(R.string.settings_files_section)) {
+    KitSection(stringResource(R.string.settings_files_section), count = FILE_ACTIONS, collapsible = true) {
         KitRow(stringResource(R.string.settings_edit_json), onClick = viewModel::openJson, id = "settings-action:json")
         KitRow(stringResource(R.string.settings_edit_keybindings), onClick = viewModel::openKeybindingsJson, id = "settings-action:keybindings-json")
         KitRow(stringResource(R.string.settings_export), onClick = { exportLauncher.launch(BUNDLE_NAME.format(LocalDate.now())) }, id = "settings-action:export")
         KitRow(stringResource(R.string.settings_import), onClick = { importLauncher.launch(arrayOf(BUNDLE_MIME)) }, id = "settings-action:import")
     }
-    KitSection(stringResource(R.string.settings_reset_section)) {
+    KitSection(stringResource(R.string.settings_reset_section), collapsible = true) {
         KitRow(
             title = stringResource(R.string.settings_reset_all_title),
             subtitle = stringResource(R.string.settings_reset_all_desc),
@@ -63,6 +63,9 @@ internal fun AdvancedPage(viewModel: SettingsViewModel, ui: SettingsUiState) {
     }
     if (showReset) ResetAllDialog(stringResource(layerLabel(ui.tab.layer)), viewModel::resetAll) { showReset = false }
 }
+
+/** Edit settings.json, edit keybindings.json, export, import. */
+private const val FILE_ACTIONS = 4
 
 private const val BUNDLE_MIME = "application/zip"
 private const val BUNDLE_NAME = "easyide-settings-%s.zip"

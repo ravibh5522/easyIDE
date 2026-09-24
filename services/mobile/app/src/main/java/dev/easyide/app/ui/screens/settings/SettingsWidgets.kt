@@ -2,16 +2,14 @@ package dev.easyide.app.ui.screens.settings
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -29,20 +27,21 @@ import dev.easyide.app.R
 import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitField
+import dev.easyide.app.ui.kit.rowTextEdge
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.Tone
 
 /** Geometry of the small marks this package draws; everything else comes from `Kit.space` and `Kit.control`. */
 internal object SettingsMetrics {
-    /** The modified dot. */
-    val dot = 8.dp
-
-    /** [dev.easyide.app.ui.kit.KitRow]'s leading slot, so a note under a row lines up with the row's text. */
-    val leadingSlot = 20.dp
+    /** The modified dot, drawn in the row gutter (the row padding is wider than the dot). */
+    val dot = 6.dp
 
     val stepperValue = 40.dp
 
-    /** A theme card's width in the picker grid. */
+    /** A short control shares its title's line only in a row this wide (in text-size terms); narrower, it stacks under the title. */
+    val inlineRowMin = 280.dp
+
+    /** The narrowest a theme card may get; the grid fits as many equal columns as this allows. */
     val themeCard = 152.dp
 
     /** Side of an accent swatch. */
@@ -55,12 +54,19 @@ internal fun ValueText(text: String, modifier: Modifier = Modifier) {
     BasicText(text, modifier, style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted), maxLines = 1)
 }
 
-/** A row's leading mark: a dot in the accent while this layer holds a value, blank otherwise so titles stay aligned. */
+/**
+ * Draws [content] and, while this layer holds a value, a dot in the accent centred in the start
+ * gutter of the row. The gutter is the row padding, so the dot moves no text and titles stay aligned.
+ */
 @Composable
-internal fun ModifiedDot(modified: Boolean) {
-    if (!modified) return
-    val color = Kit.colors.accent
-    Canvas(Modifier.size(SettingsMetrics.dot).clearAndSetSemantics { }) { drawCircle(color) }
+internal fun ModifiedGutter(modified: Boolean, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Box(modifier, contentAlignment = Alignment.CenterStart) {
+        content()
+        if (!modified) return@Box
+        val color = Kit.colors.accent
+        val edge = (Kit.control.hPad - SettingsMetrics.dot) / 2
+        Canvas(Modifier.padding(start = edge).size(SettingsMetrics.dot).clearAndSetSemantics { }) { drawCircle(color) }
+    }
 }
 
 /** A paragraph inside a dialog or a page; [tone] Neutral is body text, any other tone colours it. */
@@ -74,21 +80,18 @@ internal fun BodyText(text: String, modifier: Modifier = Modifier, tone: Tone = 
 /** A line under a row, aligned with the row's text: the layer note, the invalid note, why it is read-only. */
 @Composable
 internal fun RowNote(text: String, tone: Tone = Tone.Neutral, modifier: Modifier = Modifier, mono: Boolean = false) {
-    val space = Kit.space
     BasicText(
         text,
-        modifier.fillMaxWidth().padding(start = space.l + SettingsMetrics.leadingSlot + space.m, end = space.l, bottom = space.s),
+        modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad).padding(bottom = Kit.space.s),
         style = (if (mono) Kit.text.monoSmall else Kit.text.caption).copy(color = tone.content(Kit.colors)),
     )
 }
 
-/** A control that needs the row's width (a text field, a choice list), set under the row at its text edge. */
+/** A control that needs the row's width (a choice list, a swatch grid), set under the row at its text edge; [underLeading] follows a row that has an icon slot. */
 @Composable
-internal fun RowBlock(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    val space = Kit.space
-    Column(
-        modifier.fillMaxWidth().padding(start = space.l + SettingsMetrics.leadingSlot + space.m, end = space.l, bottom = space.m),
-    ) { content() }
+internal fun RowBlock(modifier: Modifier = Modifier, underLeading: Boolean = false, content: @Composable () -> Unit) {
+    val start = rowTextEdge(Kit.control.hPad, Kit.control.indent, 0, false, underLeading, Kit.space.xs)
+    Column(modifier.fillMaxWidth().padding(start = start, end = Kit.control.hPad, bottom = Kit.space.m)) { content() }
 }
 
 @Composable
@@ -141,16 +144,3 @@ fun layerLabel(layer: LayerId): Int = when (layer) {
     LayerId.PROJECT -> R.string.settings_layer_project
 }
 
-/** Keeps rows readable instead of stretching across a wide tablet. Kept for the diagnostics screen, which still uses it. */
-fun Modifier.contentWidth(): Modifier = this.fillMaxWidth().widthIn(max = MAX_CONTENT_WIDTH)
-
-private val MAX_CONTENT_WIDTH = 720.dp
-
-/** The scrolling column every page sits in: sections stacked with a gutter at the bottom. */
-@Composable
-internal fun PageColumn(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Column(
-        modifier.verticalScroll(rememberScrollState()).padding(bottom = Kit.space.xxl),
-        verticalArrangement = Arrangement.spacedBy(Kit.space.none),
-    ) { content() }
-}

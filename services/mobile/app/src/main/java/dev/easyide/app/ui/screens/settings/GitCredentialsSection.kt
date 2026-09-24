@@ -1,6 +1,5 @@
 package dev.easyide.app.ui.screens.settings
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
@@ -9,11 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
-import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
@@ -41,7 +38,7 @@ fun GitCredentialsSection(
     var adding by rememberSaveable { mutableStateOf(false) }
     var forgetting by remember { mutableStateOf<String?>(null) }
 
-    KitSection(stringResource(R.string.git_credentials_title)) {
+    KitSection(stringResource(R.string.git_credentials_title), count = entries.size, collapsible = true) {
         if (entries.isEmpty()) KitEmptyState(EmptyArt.Prompt, stringResource(R.string.git_credentials_empty))
         entries.forEach { entry ->
             KitRow(
@@ -54,9 +51,7 @@ fun GitCredentialsSection(
             )
         }
     }
-    Column(Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s)) {
-        KitButton(stringResource(R.string.git_credentials_add), { adding = true }, style = KitButtonStyle.Secondary)
-    }
+    KitButton(stringResource(R.string.git_credentials_add), { adding = true }, Modifier.pageGutter(), style = KitButtonStyle.Secondary)
 
     if (adding) GitCredentialDialog(initialHost = "", onSave = onSave, onDismiss = { adding = false })
     forgetting?.let { host ->
