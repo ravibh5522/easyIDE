@@ -109,14 +109,16 @@ data class EditorGroup(
     }
 
     /**
-     * Closes what [scope] selects relative to [key]. THIS closes even a pinned tab; the bulk scopes
-     * leave pinned tabs alone, like VS Code, so "Close all" cannot take away what the user pinned.
+     * The tabs [scope] selects relative to [key], in tab order. THIS names even a pinned tab; the bulk
+     * scopes leave pinned tabs alone, like VS Code, so "Close all" cannot take away what the user pinned.
+     * A caller that closes through something else (a file's buffer) takes the list and closes each itself.
      */
-    fun close(key: DocumentUri, scope: CloseScope): EditorGroup {
+    fun closing(key: DocumentUri, scope: CloseScope): List<DocumentUri> {
         val doomed = TabOrder.closeSet(keys.map { it.toString() }, key.toString(), scope).toSet()
-        return tabs.filter { it.key.toString() in doomed && (scope == CloseScope.THIS || it.state != TabState.PINNED) }
-            .fold(this) { g, t -> g.close(t.key) }
+        return tabs.filter { it.key.toString() in doomed && (scope == CloseScope.THIS || it.state != TabState.PINNED) }.map { it.key }
     }
+
+    fun close(key: DocumentUri, scope: CloseScope): EditorGroup = closing(key, scope).fold(this) { g, k -> g.close(k) }
 
     /** PREVIEW to KEPT ("Keep open"); other states are unchanged. */
     fun keep(key: DocumentUri): EditorGroup =

@@ -117,6 +117,17 @@ object CommandIds {
      */
     val EDITING: Set<String> = setOf(UNDO, REDO, FIND, REPLACE, FIND_NEXT, FIND_PREVIOUS, GO_TO_LINE, QUICK_OPEN)
 
+    /**
+     * The stage's own commands (open beside, split, close a group, move a document). Like [EDITING] they
+     * are palette commands and keybinding targets that a manifest cannot name yet.
+     */
+    const val OPEN_TO_SIDE = "explorer.openToSide"
+    const val SPLIT_EDITOR = "workbench.action.splitEditor"
+    const val CLOSE_GROUP = "easyide.workspace.closeEditorGroup"
+    const val MOVE_EDITOR_TO_NEXT_GROUP = "workbench.action.moveEditorToNextGroup"
+
+    val STAGE: Set<String> = setOf(OPEN_TO_SIDE, SPLIT_EDITOR, CLOSE_GROUP, MOVE_EDITOR_TO_NEXT_GROUP)
+
     /** Undo and redo, which a focused text field of an overlay (find, palette) must keep for itself. */
     val HISTORY: Set<String> = setOf(UNDO, REDO)
 
@@ -134,5 +145,5 @@ object CommandIds {
     )
 
     /** Every id a keybindings.json entry may name without an "unknown command" warning. */
-    val KNOWN: Set<String> = ALL + EDITING
+    val KNOWN: Set<String> = ALL + EDITING + STAGE
 }

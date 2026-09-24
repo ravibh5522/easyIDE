@@ -123,8 +123,8 @@ class DocumentUriTest {
         assertNull(DocumentUri.file("/../a"))
         assertEquals("preview:///workspace/README.md", DocumentUri.preview("/workspace/README.md").toString())
         assertEquals(
-            "git-diff:///workspace/a.kt?base=HEAD&target=working",
-            DocumentUri.gitDiff("/workspace/a.kt", "HEAD", "working").toString(),
+            "git-diff:///workspace/a.kt?base=HEAD&head=worktree",
+            DocumentUri.gitDiff("/workspace/a.kt", "HEAD", "worktree").toString(),
         )
         assertEquals("git-commit://abc", DocumentUri.gitCommit("abc").toString())
         assertNull(DocumentUri.gitCommit(""))

@@ -85,6 +85,14 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
     suspend fun fileDiff(projectDir: File, path: String, source: DiffSource): GitResult<FileDiff> =
         run(projectDir) { it.fileDiff(path, source) }
 
+    /** One comparison of a path between any two ends: two revisions, a revision and the index or working tree, or the index and the working tree. */
+    suspend fun compare(projectDir: File, path: String, base: DiffEnd, head: DiffEnd): GitResult<FileDiff> =
+        run(projectDir) { it.fileDiff(path, base, head) }
+
+    /** The commit [rev] names with the files it changed; a failure when [rev] resolves to nothing. */
+    suspend fun commitDetail(projectDir: File, rev: String): GitResult<GitCommitDetail> =
+        run(projectDir) { it.commitDetail(rev) ?: throw IllegalArgumentException("Unknown revision: $rev") }
+
     suspend fun stageHunk(projectDir: File, path: String, hunk: DiffHunk): GitResult<GitStatus> =
         run(projectDir) { it.stageHunk(path, hunk); it.status() }
 

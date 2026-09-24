@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.unit.IntOffset
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.ui.foundation.LocalSettings
@@ -43,10 +44,11 @@ fun FileTreePane(
     state: WorkspaceUiState,
     onFileOpened: (FileNode) -> Unit,
     onDirectoryToggled: (FileNode) -> Unit,
-    onNodeMenu: (FileNode) -> Unit,
+    onNodeMenu: (FileNode, IntOffset) -> Unit,
     onNewFile: () -> Unit,
     onNewFolder: () -> Unit,
     onRefresh: () -> Unit,
+    inline: InlineEditSpec,
     modifier: Modifier = Modifier,
 ) {
     val colors = Kit.colors
@@ -72,12 +74,14 @@ fun FileTreePane(
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             renderNodes(
                 nodes = state.tree,
+                parent = "",
                 depth = 0,
                 filter = filter,
                 state = state,
                 onFileOpened = onFileOpened,
                 onDirectoryToggled = onDirectoryToggled,
                 onNodeMenu = onNodeMenu,
+                inline = inline,
             )
         }
     }
@@ -126,37 +130,51 @@ private fun FilterMenu(
 
 /**
  * Flattens the visible tree into list items. Recursion happens here because
- * nested LazyColumns cannot measure inside one another.
+ * nested LazyColumns cannot measure inside one another. An inline edit shows as
+ * a name field first among the children of the directory it creates in, or in
+ * place of the row it renames.
  */
 private fun LazyListScope.renderNodes(
     nodes: List<FileNode>,
+    parent: String,
     depth: Int,
     filter: TreeFilter,
     state: WorkspaceUiState,
     onFileOpened: (FileNode) -> Unit,
     onDirectoryToggled: (FileNode) -> Unit,
-    onNodeMenu: (FileNode) -> Unit,
+    onNodeMenu: (FileNode, IntOffset) -> Unit,
+    inline: InlineEditSpec,
 ) {
+    val edit = inline.edit
+    if (edit != null && edit.parent == parent) {
+        item(key = "inline:$parent") { InlineNameRow(edit, depth, { inline.onCommit(edit, it) }, inline.onCancel) }
+    }
     nodes.filter(filter::shows).forEach { node ->
-        item(key = node.relativePath) {
-            FileTreeRow(
-                node = node,
-                depth = depth,
-                expanded = node.relativePath in state.expandedDirs,
-                selected = state.activeTabPath == node.relativePath,
-                onClick = { if (node.isDirectory) onDirectoryToggled(node) else onFileOpened(node) },
-                onLongClick = { onNodeMenu(node) },
-            )
+        if (edit is InlineEdit.Rename && edit.node.relativePath == node.relativePath) {
+            item(key = node.relativePath) { InlineNameRow(edit, depth, { inline.onCommit(edit, it) }, inline.onCancel) }
+        } else {
+            item(key = node.relativePath) {
+                FileTreeRow(
+                    node = node,
+                    depth = depth,
+                    expanded = node.relativePath in state.expandedDirs,
+                    selected = state.activeTabPath == node.relativePath,
+                    onClick = { if (node.isDirectory) onDirectoryToggled(node) else onFileOpened(node) },
+                    onMenu = { at -> onNodeMenu(node, at) },
+                )
+            }
         }
         if (node.isDirectory && node.relativePath in state.expandedDirs) {
             renderNodes(
                 nodes = state.childrenByDir[node.relativePath].orEmpty(),
+                parent = node.relativePath,
                 depth = depth + 1,
                 filter = filter,
                 state = state,
                 onFileOpened = onFileOpened,
                 onDirectoryToggled = onDirectoryToggled,
                 onNodeMenu = onNodeMenu,
+                inline = inline,
             )
         }
     }

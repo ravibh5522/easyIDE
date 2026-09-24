@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.easyide.app.data.settings.SettingsSchema
@@ -122,7 +123,7 @@ fun EditorPane(
     /** Carets of every tab, hoisted so extension actions can read and move them. */
     selections: EditorSelections = remember { EditorSelections() },
     /** A secondary click (mouse right button, stylus button) on the text: the `editor/context` menu. */
-    onSecondaryClick: (() -> Unit)? = null,
+    onSecondaryClick: ((IntOffset) -> Unit)? = null,
     /** The language server's semantic tokens for this document, painted over TextMate colouring. */
     semanticTokens: SemanticOverlay? = null,
     /** Scroll offsets of every tab, hoisted so a parked workspace comes back scrolled where it was. */
@@ -160,7 +161,7 @@ private fun EditableSurface(
     overlay: @Composable (EditorGeometry) -> Unit,
     interaction: EditorInteraction?,
     selections: EditorSelections,
-    onSecondaryClick: (() -> Unit)?,
+    onSecondaryClick: ((IntOffset) -> Unit)?,
     semanticTokens: SemanticOverlay?,
     scrolls: EditorScrolls,
     session: EditorSession?,

@@ -66,6 +66,8 @@ import dev.easyide.app.ui.screens.workspace.lsp.lspCommands
 import dev.easyide.app.ui.screens.workspace.session.ExternalChangeDialog
 import dev.easyide.app.ui.screens.workspace.session.WorkspaceSessionUi
 import dev.easyide.app.ui.shell.CoreShell
+import dev.easyide.app.ui.shell.DocumentOpener
+import dev.easyide.app.ui.shell.ShellAction
 import dev.easyide.app.ui.shell.host.AppRenderers
 import dev.easyide.app.ui.shell.host.ShellDeps
 import dev.easyide.app.ui.shell.host.ShellTokens
@@ -89,6 +91,7 @@ import dev.easyide.app.ui.shell.workspace.WorkspacePanels
 import dev.easyide.app.ui.shell.workspace.WorkspaceParts
 import dev.easyide.app.ui.shell.workspace.WorkspaceShell
 import dev.easyide.app.ui.shell.workspace.WorkspaceShellHost
+import dev.easyide.app.ui.shell.workspace.WorkspaceStageActions
 import dev.easyide.app.ui.shell.workspace.WorkspaceSlots
 import dev.easyide.app.ui.shell.workspace.terminalRowKey
 import dev.easyide.app.ui.shell.workspace.workspaceShellCommands
@@ -131,8 +134,9 @@ fun WorkspaceScreen(
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboardManager.current
 
-    var menuNode by remember { mutableStateOf<FileNode?>(null) }
+    var menu by remember { mutableStateOf<NodeMenu?>(null) }
     var prompt by remember { mutableStateOf<PendingPrompt?>(null) }
+    var inlineEdit by remember { mutableStateOf<InlineEdit?>(null) }
     var paletteOpen by rememberSaveable { mutableStateOf(false) }
     // What Go to File's `>` prefix hands over to the palette.
     var paletteQuery by remember { mutableStateOf("") }
@@ -155,10 +159,26 @@ fun WorkspaceScreen(
     val requestClose: () -> Unit = {
         if (dirtyTabs.isEmpty()) onCloseProject() else prompt = PendingPrompt.CloseWithUnsaved(dirtyTabs)
     }
+    val revealFolder: (FileNode) -> Unit = { folder ->
+        if (folder.relativePath !in uiState.expandedDirs) callbacks.onDirectoryToggled(folder)
+    }
     val requestCloseTab: (String) -> Unit = { path ->
         val tab = uiState.openTabs.find { it.relativePath == path }
         if (tab?.isDirty == true) prompt = PendingPrompt.CloseDirtyTab(tab) else callbacks.onTabClosed(path)
     }
+
+    val oneGroupMessage = stringResource(R.string.wstage_one_group)
+    // Rebuilt with the screen: closing a file reads the open tabs' dirty state as of now.
+    val stageActions = WorkspaceStageActions(
+        model = model,
+        openFile = callbacks.onFileOpened,
+        closeDocument = { group, uri ->
+            val path = FileDocuments.pathOf(uri)
+            if (path != null) requestCloseTab(path) else model.dispatch(ShellAction.Close(group, uri))
+        },
+        notify = { message -> scope.launch { snackbarHostState.showSnackbar(message) } },
+        oneGroupMessage = oneGroupMessage,
+    )
 
     val contributions = rememberWorkspaceContributions(extensionHost, extensions)
     val snippetLabels = PickerLabels(
@@ -181,7 +201,7 @@ fun WorkspaceScreen(
             showExtensions = { model.toggleContainer(CoreShell.EXTENSIONS_LIST) },
         ),
         extra = lspCommands(lsp) + editingCommands(uiState, editing, overlays) +
-            workspaceShellCommands(shellState, model, callbacks.onBack, requestClose) { presetsOpen = true },
+            workspaceShellCommands(shellState, model, stageActions, callbacks.onBack, requestClose) { presetsOpen = true },
     ) + contributions.commands()
     // Built-in < extension layer < keybindings.json, resolved once in AppContainer.
     val keymap = LocalKeymap.current
@@ -212,9 +232,22 @@ fun WorkspaceScreen(
     val env = WorkspaceEnv(
         projectName, uiState, callbacks, gitState, gitCallbacks, lsp, decorations, selections, session, editing, contributions, commands, extensionHost,
         WorkspaceActions(
-            onNodeMenu = { menuNode = it },
-            onNewFile = { prompt = PendingPrompt.NewFile("") },
-            onNewFolder = { prompt = PendingPrompt.NewFolder("") },
+            onNodeMenu = { node, at -> menu = NodeMenu(node, at) },
+            documents = DocumentOpener(model::open, stageActions::openBeside),
+            onNewFile = { inlineEdit = InlineEdit.NewFile("") },
+            onNewFolder = { inlineEdit = InlineEdit.NewFolder("") },
+            inline = InlineEditSpec(
+                edit = inlineEdit,
+                onCommit = { edit, name ->
+                    inlineEdit = null
+                    when (edit) {
+                        is InlineEdit.NewFile -> callbacks.onCreateFile(edit.parentDir, name)
+                        is InlineEdit.NewFolder -> callbacks.onCreateFolder(edit.parentDir, name)
+                        is InlineEdit.Rename -> callbacks.onRename(edit.node, name)
+                    }
+                },
+                onCancel = { inlineEdit = null },
+            ),
             onRenameTerminal = { id, title -> prompt = PendingPrompt.RenameTerminal(id, title) },
             closeFile = requestCloseTab,
             onTerminalKey = { e -> dispatcher.dispatch(e, terminalFocused = true, commands, keyContext) },
@@ -316,20 +349,22 @@ fun WorkspaceScreen(
             .focusable(),
     ) {
         CompositionLocalProvider(LocalWorkspaceEnv provides env) {
-            WorkspaceShell(model, parts, WorkspaceNavState(navItems, navSettings, navBadges), slots, host, chrome)
+            WorkspaceShell(model, parts, WorkspaceNavState(navItems, navSettings, navBadges), slots, host, stageActions, chrome)
             WorkspaceEffects(model, env)
         }
 
         FileContextMenu(
-            node = menuNode,
+            menu = menu,
             canPaste = uiState.clipboard != null,
-            onDismiss = { menuNode = null },
+            onDismiss = { menu = null },
             onAction = { action, node ->
-                menuNode = null
+                menu = null
                 when (action) {
-                    FileAction.NEW_FILE -> prompt = PendingPrompt.NewFile(node.relativePath)
-                    FileAction.NEW_FOLDER -> prompt = PendingPrompt.NewFolder(node.relativePath)
-                    FileAction.RENAME -> prompt = PendingPrompt.Rename(node)
+                    FileAction.OPEN_BESIDE -> stageActions.openFileBeside(node)
+                    // The row appears among the folder's children, so the folder has to be open.
+                    FileAction.NEW_FILE -> { revealFolder(node); inlineEdit = InlineEdit.NewFile(node.relativePath) }
+                    FileAction.NEW_FOLDER -> { revealFolder(node); inlineEdit = InlineEdit.NewFolder(node.relativePath) }
+                    FileAction.RENAME -> inlineEdit = InlineEdit.Rename(node)
                     FileAction.DELETE -> prompt = PendingPrompt.Delete(node)
                     FileAction.COPY -> callbacks.onCopyToClipboard(node, false)
                     FileAction.CUT -> callbacks.onCopyToClipboard(node, true)
@@ -341,7 +376,7 @@ fun WorkspaceScreen(
                 }
             },
             extensionEntries = contributions::explorerMenu,
-            onExtensionEntry = { entry, node -> menuNode = null; contributions.runOnNode(entry, node) },
+            onExtensionEntry = { entry, node -> menu = null; contributions.runOnNode(entry, node) },
         )
 
         ExtensionEffects(extensionHost, extensions, ShellStageAccess(shellState, model), hardwareKeyboard, windowSize, inputMode, terminalFocus, editorFocus, snackbarHostState)

@@ -35,14 +35,15 @@ object AppDocuments {
     fun extensionIdOf(uri: DocumentUri?): String? = uri?.let { subjectOf(it, "extension") }
     fun settingsCategoryOf(uri: DocumentUri?): String? = uri?.let { subjectOf(it, "settings") }
 
-    private fun type(id: String, page: String, icon: String, title: String) =
-        DocumentType(id, UriPattern("easyide", page), { title }, { IconRef(icon) }, supportsSplit = false)
+    /** A project page is the one page tied to the list beside it, so only it stays out of a split. */
+    private fun type(id: String, page: String, icon: String, title: String, splittable: Boolean = true) =
+        DocumentType(id, UriPattern("easyide", page), { title }, { IconRef(icon) }, supportsSplit = splittable)
 
     fun registries(text: (Int) -> String): AppRegistries {
         val types = listOf(
             type(SETTINGS, "settings", "settings", text(R.string.shell_type_settings)),
             type(EXTENSION, "extension", "extensions", text(R.string.shell_type_extension)),
-            type(PROJECT, "project", "home", text(R.string.shell_type_project)),
+            type(PROJECT, "project", "home", text(R.string.shell_type_project), splittable = false),
         )
         val documents = types.fold(DocumentRegistry.EMPTY) { r, t -> r.register(t, Origin.Core).registry }
         return AppRegistries(documents, CoreShell.containers(), CoreShell.navigation())

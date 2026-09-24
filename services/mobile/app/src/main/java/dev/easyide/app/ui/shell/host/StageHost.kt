@@ -37,6 +37,8 @@ class StageCallbacks(
     val onSplit: (() -> Unit)? = null,
     val onUnsplit: ((Int) -> Unit)? = null,
     val isDirty: (DocumentUri) -> Boolean = { false },
+    /** A tab's menu entry ([TabMenuPlan]); null where the stage has no tab menu (app scope). */
+    val onTabAction: ((group: Int, uri: DocumentUri, action: TabAction) -> Unit)? = null,
 )
 
 /**
@@ -72,7 +74,7 @@ fun StageHost(
     val group: @Composable (Int, Modifier) -> Unit = { i, m ->
         val canSplit = i == stage.active && stage.groups.size < state.groupCapacity
         StageGroup(
-            GroupView(stage.groups[i], i, i == stage.active, state.compact, stage.groups.size > 1, stage.axis),
+            GroupView(stage.groups[i], i, i == stage.active, state.compact, stage.groups.size, stage.axis, state.groupCapacity),
             documents, renderers, idle, emptyTitle, GroupCallbacks(callbacks, i, canSplit),
             if (i == stage.active) trailing else ({}), m,
         )

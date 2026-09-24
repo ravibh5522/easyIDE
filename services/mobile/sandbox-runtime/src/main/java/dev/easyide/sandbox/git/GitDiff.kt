@@ -53,6 +53,17 @@ enum class DiffSource {
     UNSTAGED,
 }
 
+/**
+ * One end of a comparison: a revision (branch, tag, commit, `HEAD~2`), the index, the working tree, or
+ * nothing (the parent of a root commit). [DiffSource] is the two pairs the source-control panel uses.
+ */
+sealed interface DiffEnd {
+    data class Rev(val name: String) : DiffEnd
+    data object Index : DiffEnd
+    data object Worktree : DiffEnd
+    data object Empty : DiffEnd
+}
+
 sealed interface FileDiff {
     val path: String
 

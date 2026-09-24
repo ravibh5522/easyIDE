@@ -77,6 +77,8 @@ fun KitField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     trailing: (@Composable () -> Unit)? = null,
+    /** Applied to the text input itself (focus, key events), where [modifier] applies to the whole field. */
+    inputModifier: Modifier = Modifier,
 ) {
     val colors = Kit.colors
     val interaction = remember { MutableInteractionSource() }
@@ -93,7 +95,7 @@ fun KitField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth().semantics {
+            modifier = Modifier.fillMaxWidth().then(inputModifier).semantics {
                 if (label != null) contentDescription = label
                 if (!error.isNullOrEmpty()) error(error)
             },

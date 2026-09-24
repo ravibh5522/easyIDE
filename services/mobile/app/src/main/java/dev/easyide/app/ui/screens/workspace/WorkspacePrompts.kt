@@ -5,11 +5,8 @@ import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
 import dev.easyide.sandbox.files.FileNode
 
-/** Which naming dialog is open, if any. */
+/** Which dialog is open, if any. Names for files and folders are typed into the tree ([InlineEdit]), not asked for here. */
 internal sealed interface PendingPrompt {
-    data class NewFile(val parentDir: String) : PendingPrompt
-    data class NewFolder(val parentDir: String) : PendingPrompt
-    data class Rename(val node: FileNode) : PendingPrompt
     data class Delete(val node: FileNode) : PendingPrompt
     data class RenameTerminal(val tabId: String, val currentTitle: String) : PendingPrompt
     data class CloseDirtyTab(val tab: EditorTab) : PendingPrompt
@@ -25,30 +22,6 @@ internal fun PromptDialogs(
 ) {
     when (prompt) {
         null -> Unit
-
-        is PendingPrompt.NewFile -> NameInputDialog(
-            title = stringResource(R.string.wp_new_file),
-            initialValue = "",
-            confirmLabel = stringResource(R.string.wp_create),
-            onConfirm = { name -> callbacks.onCreateFile(prompt.parentDir, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.NewFolder -> NameInputDialog(
-            title = stringResource(R.string.wp_new_folder),
-            initialValue = "",
-            confirmLabel = stringResource(R.string.wp_create),
-            onConfirm = { name -> callbacks.onCreateFolder(prompt.parentDir, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.Rename -> NameInputDialog(
-            title = stringResource(R.string.wp_rename),
-            initialValue = prompt.node.name,
-            confirmLabel = stringResource(R.string.wp_rename),
-            onConfirm = { name -> callbacks.onRename(prompt.node, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
 
         is PendingPrompt.Delete -> ConfirmDeleteDialog(
             node = prompt.node,

@@ -143,12 +143,7 @@
     <string name="git_confirm_discard_hunk_body">This block of changes in %1$s is reverted in the file. This cannot be undone.</string>
 
     <!-- Diff -->
-    <string name="git_diff_close">Close diff</string>
     <string name="git_diff_open_file">Open in editor</string>
-    <string name="git_diff_staged">Staged</string>
-    <string name="git_diff_unstaged">Unstaged</string>
-    <string name="git_diff_stage_file">Stage file</string>
-    <string name="git_diff_unstage_file">Unstage file</string>
     <string name="git_diff_stats">+%1$d -%2$d</string>
     <string name="git_diff_empty">No line changes to show.</string>
     <string name="git_diff_binary">Binary file: contents are not shown.</string>

@@ -2,6 +2,7 @@ package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.KeyEvent
@@ -9,10 +10,12 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.isCtrlPressed
-import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.unit.IntOffset
+import dev.easyide.app.ui.kit.kitPressPoint
+import dev.easyide.app.ui.kit.rememberPressPoint
 import dev.easyide.app.ui.screens.workspace.edit.TextState
 import kotlinx.coroutines.flow.StateFlow
 
@@ -113,15 +116,10 @@ internal fun Modifier.editorPointer(
 }
 
 /**
- * Reports a secondary-button press (mouse right click, stylus side button) without
- * consuming it, so selection and the text toolbar keep working for primary input.
+ * Reports a secondary-button press (mouse right click, stylus side button) with its window position,
+ * without consuming it, so selection and the text toolbar keep working for primary input and the
+ * context menu opens where the pointer is.
  */
-internal fun Modifier.secondaryClicks(onSecondaryClick: (() -> Unit)?): Modifier =
-    if (onSecondaryClick == null) this else pointerInput(onSecondaryClick) {
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitPointerEvent(PointerEventPass.Initial)
-                if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) onSecondaryClick()
-            }
-        }
-    }
+@Composable
+internal fun Modifier.secondaryClicks(onSecondaryClick: ((IntOffset) -> Unit)?): Modifier =
+    if (onSecondaryClick == null) this else kitPressPoint(rememberPressPoint(), onSecondaryClick, consume = false)

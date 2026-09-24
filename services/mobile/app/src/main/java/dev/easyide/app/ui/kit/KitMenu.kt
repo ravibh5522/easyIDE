@@ -79,18 +79,22 @@ internal fun menuPosition(anchor: IntRect, window: IntSize, popup: IntSize): Int
     return IntOffset(x, y)
 }
 
-private object MenuPlacement : PopupPositionProvider {
+/** Under the parent by default; under [at] (window coordinates, see [PressPoint]) when the menu belongs to a press. */
+private class MenuPlacement(private val at: IntOffset?) : PopupPositionProvider {
     override fun calculatePosition(anchorBounds: IntRect, windowSize: IntSize, layoutDirection: LayoutDirection, popupContentSize: IntSize) =
-        menuPosition(anchorBounds, windowSize, popupContentSize)
+        menuPosition(if (at == null) anchorBounds else IntRect(at, IntSize.Zero), windowSize, popupContentSize)
 }
 
-/** Place it inside the anchor's parent [Box], as with any popup: it opens under that parent. Back and outside taps dismiss. */
+/**
+ * Place it inside the anchor's parent [Box], as with any popup: it opens under that parent, or under [at]
+ * when the menu answers a press. Back and outside taps dismiss.
+ */
 @Composable
-fun KitMenu(expanded: Boolean, onDismiss: () -> Unit, items: List<KitMenuItem>, modifier: Modifier = Modifier) {
+fun KitMenu(expanded: Boolean, onDismiss: () -> Unit, items: List<KitMenuItem>, modifier: Modifier = Modifier, at: IntOffset? = null) {
     if (!expanded) return
     val colors = Kit.colors
     val shape = RoundedCornerShape(Kit.radius.m)
-    Popup(MenuPlacement, onDismiss, PopupProperties(focusable = true)) {
+    Popup(remember(at) { MenuPlacement(at) }, onDismiss, PopupProperties(focusable = true)) {
         Column(
             modifier = modifier.kitTag("menu")
                 .width(IntrinsicSize.Max)

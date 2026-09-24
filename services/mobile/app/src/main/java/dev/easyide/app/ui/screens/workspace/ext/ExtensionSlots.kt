@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -107,10 +108,10 @@ private fun ActionButton(entry: MenuEntry, onRun: (MenuEntry) -> Unit) {
     }
 }
 
-/** A menu of contributed entries in sections (a divider between groups of [sections]). */
+/** A menu of contributed entries in sections (a divider between groups of [sections]), under [at] when it answers a press. */
 @Composable
-fun ContributedMenu(expanded: Boolean, sections: List<List<MenuEntry>>, onRun: (MenuEntry) -> Unit, onDismiss: () -> Unit) {
-    KitMenu(expanded, onDismiss, contributedItems(sections, onRun))
+fun ContributedMenu(expanded: Boolean, sections: List<List<MenuEntry>>, onRun: (MenuEntry) -> Unit, at: IntOffset? = null, onDismiss: () -> Unit) {
+    KitMenu(expanded, onDismiss, contributedItems(sections, onRun), at = at)
 }
 
 /** One action per entry, a divider between sections; a disabled entry stays visible but inert. */

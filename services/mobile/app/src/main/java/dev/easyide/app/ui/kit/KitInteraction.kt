@@ -1,7 +1,9 @@
 package dev.easyide.app.ui.kit
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -29,14 +31,18 @@ import dev.easyide.app.ui.theme.EasyIdeFonts
  * Makes a surface tappable with the kit's states (kit.md 3.1): pressed is the overlay tone, hover
  * (pointer) a neutral wash, keyboard focus a 2dp accent ring drawn over the content, inset so a
  * clipping parent never trims it. States are read while drawing, so a press does not recompose.
- * Ripple is off on purpose: the tone step is the feedback (identity: no stock widgets).
+ * Ripple is off on purpose: the tone step is the feedback (identity: no stock widgets). A [onLongClick] adds the long press
+ * (a menu of the pressed thing) and [onDoubleClick] the double tap (keep a preview open) beside the tap.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun Modifier.kitPressable(
     onClick: () -> Unit,
     enabled: Boolean = true,
     role: Role = Role.Button,
     shape: Shape = RectangleShape,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
 ): Modifier {
     val colors = Kit.colors
     val source = remember { MutableInteractionSource() }
@@ -50,7 +56,13 @@ internal fun Modifier.kitPressable(
             if (pressed.value) drawRect(colors.overlay) else if (hovered.value) drawRect(hoverFill)
         }
         .hoverable(source, enabled)
-        .clickable(interactionSource = source, indication = null, enabled = enabled, role = role, onClick = onClick)
+        .then(
+            if (onLongClick == null && onDoubleClick == null) {
+                Modifier.clickable(interactionSource = source, indication = null, enabled = enabled, role = role, onClick = onClick)
+            } else {
+                Modifier.combinedClickable(interactionSource = source, indication = null, enabled = enabled, role = role, onClick = onClick, onLongClick = onLongClick, onDoubleClick = onDoubleClick)
+            },
+        )
         .drawWithContent {
             drawContent()
             if (!focused.value) return@drawWithContent

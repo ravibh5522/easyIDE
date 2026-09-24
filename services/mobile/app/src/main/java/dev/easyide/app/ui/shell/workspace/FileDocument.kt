@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.unit.IntOffset
 import dev.easyide.app.ui.screens.workspace.EditorPane
 import dev.easyide.app.ui.screens.workspace.ext.ContributedMenu
 import dev.easyide.app.ui.screens.workspace.ext.sections
@@ -30,7 +31,8 @@ private fun FileEditor(uri: DocumentUri, modifier: Modifier) {
     val env = LocalWorkspaceEnv.current
     val path = FileDocuments.pathOf(uri) ?: return
     val overlays by env.lsp.semanticTokens.overlays.collectAsState()
-    var menuOpen by remember { mutableStateOf(false) }
+    // Where the pointer was pressed, so the context menu opens under it; null while closed.
+    var menuAt by remember { mutableStateOf<IntOffset?>(null) }
     Column(modifier) {
         // Find works on the workspace's active tab, so only that document carries the bar.
         if (env.editing.find.isOpen && env.ui.activeTabPath == path) FindBar(env.editing.find, onFieldFocusChanged = env.actions.onFindFieldFocus)
@@ -44,15 +46,16 @@ private fun FileEditor(uri: DocumentUri, modifier: Modifier) {
                 interaction = env.lsp,
                 selections = env.selections,
                 scrolls = env.session.scrolls,
-                onSecondaryClick = { menuOpen = true },
+                onSecondaryClick = { menuAt = it },
                 semanticTokens = overlays[path],
                 session = env.editing.session,
             )
             ContributedMenu(
-                expanded = menuOpen,
+                expanded = menuAt != null,
                 sections = env.contributions.menu(MenuIds.EDITOR_CONTEXT, env.commands).sections(),
                 onRun = { env.contributions.run(it) },
-                onDismiss = { menuOpen = false },
+                onDismiss = { menuAt = null },
+                at = menuAt,
             )
         }
     }

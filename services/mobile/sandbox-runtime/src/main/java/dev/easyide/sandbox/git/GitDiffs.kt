@@ -7,7 +7,9 @@ import org.eclipse.jgit.dircache.DirCacheEntry
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.FileMode
+import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.ObjectReader
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
@@ -21,15 +23,21 @@ import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
 import java.time.Instant
 
+/** [source]'s pair of ends: HEAD against the index, or the index against the working tree. */
+fun GitRepository.fileDiff(path: String, source: DiffSource): FileDiff = when (source) {
+    DiffSource.STAGED -> fileDiff(path, DiffEnd.Rev(Constants.HEAD), DiffEnd.Index)
+    DiffSource.UNSTAGED -> fileDiff(path, DiffEnd.Index, DiffEnd.Worktree)
+}
+
 /**
- * The unified diff of one path, parsed into hunks.
+ * The unified diff of one path between two ends, parsed into hunks.
  *
  * The size guard is JGit's own binary threshold: past
  * [GitDiffLimits.MAX_TEXT_BYTES] it reports "Binary files differ" without
  * reading the content, so a huge file is never pulled into memory. That marker
  * is then told apart from a real binary by measuring the sides.
  */
-fun GitRepository.fileDiff(path: String, source: DiffSource): FileDiff {
+fun GitRepository.fileDiff(path: String, base: DiffEnd, head: DiffEnd): FileDiff {
     val out = ByteArrayOutputStream()
     var largest = 0L
     DiffFormatter(out).use { formatter ->
@@ -39,12 +47,8 @@ fun GitRepository.fileDiff(path: String, source: DiffSource): FileDiff {
         formatter.pathFilter = PathFilter.create(path)
         formatter.setBinaryFileThreshold(GitDiffLimits.MAX_TEXT_BYTES.toInt())
         repository.newObjectReader().use { reader ->
-            val (before, after) = when (source) {
-                DiffSource.STAGED -> headIterator(reader) to DirCacheIterator(repository.readDirCache())
-                DiffSource.UNSTAGED -> DirCacheIterator(repository.readDirCache()) to FileTreeIterator(repository)
-            }
-            val entries = formatter.scan(before, after)
-            entries.forEach { largest = maxOf(largest, sizeOf(it, source, path, reader)) }
+            val entries = formatter.scan(iteratorFor(base, reader), iteratorFor(head, reader))
+            entries.forEach { largest = maxOf(largest, sizeOf(it, head, path, reader)) }
             formatter.format(entries)
         }
     }
@@ -56,22 +60,27 @@ fun GitRepository.fileDiff(path: String, source: DiffSource): FileDiff {
     }
 }
 
-private fun GitRepository.headIterator(reader: org.eclipse.jgit.lib.ObjectReader): AbstractTreeIterator {
-    val tree = repository.resolve("${Constants.HEAD}^{tree}") ?: return EmptyTreeIterator()
-    return CanonicalTreeParser(null, reader, tree)
+/** An unborn HEAD is the empty tree (a first commit compares against nothing); any other unknown name is the caller's mistake. */
+internal fun GitRepository.iteratorFor(end: DiffEnd, reader: ObjectReader): AbstractTreeIterator = when (end) {
+    DiffEnd.Index -> DirCacheIterator(repository.readDirCache())
+    DiffEnd.Worktree -> FileTreeIterator(repository)
+    DiffEnd.Empty -> EmptyTreeIterator()
+    is DiffEnd.Rev -> {
+        val tree = repository.resolve("${end.name}^{tree}")
+        when {
+            tree != null -> CanonicalTreeParser(null, reader, tree)
+            end.name == Constants.HEAD -> EmptyTreeIterator()
+            else -> throw IllegalArgumentException("Unknown revision: ${end.name}")
+        }
+    }
 }
 
-private fun GitRepository.sizeOf(
-    entry: DiffEntry,
-    source: DiffSource,
-    path: String,
-    reader: org.eclipse.jgit.lib.ObjectReader,
-): Long {
-    fun blob(id: org.eclipse.jgit.lib.AbbreviatedObjectId): Long {
+private fun GitRepository.sizeOf(entry: DiffEntry, head: DiffEnd, path: String, reader: ObjectReader): Long {
+    fun blob(id: AbbreviatedObjectId): Long {
         val full = id.toObjectId()?.takeIf { it != ObjectId.zeroId() } ?: return 0L
         return reader.getObjectSize(full, Constants.OBJ_BLOB)
     }
-    val newSide = if (source == DiffSource.STAGED) blob(entry.newId) else File(workTree, path).length()
+    val newSide = if (head == DiffEnd.Worktree) File(workTree, path).length() else blob(entry.newId)
     return maxOf(blob(entry.oldId), newSide)
 }
 
