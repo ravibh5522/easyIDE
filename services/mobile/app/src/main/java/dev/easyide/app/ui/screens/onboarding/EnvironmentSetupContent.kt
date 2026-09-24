@@ -34,7 +34,7 @@ fun EnvironmentSetupContent(
     onChooseAnother: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Kit.space.l)) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Kit.space.m)) {
         when (val stage = state.stage) {
             SetupStage.Choosing -> Choosing(state, onImageSelected, onInstall)
             is SetupStage.Installing -> InstallingView(stage, onCancel)
@@ -46,7 +46,7 @@ fun EnvironmentSetupContent(
 
 @Composable
 private fun Choosing(state: EnvironmentSetupState, onImageSelected: (String) -> Unit, onInstall: () -> Unit) {
-    val gutter = Modifier.padding(horizontal = Kit.space.l)
+    val gutter = Modifier.padding(horizontal = Kit.control.hPad)
     ProseText(stringResource(R.string.setup_choose_body), gutter, muted = true)
     KitSection(stringResource(R.string.setup_presets_header), Modifier.selectableGroup()) {
         state.images.forEach { image ->
@@ -65,7 +65,7 @@ private fun Choosing(state: EnvironmentSetupState, onImageSelected: (String) -> 
 @Composable
 private fun Failed(stage: SetupStage.Failed, onRetry: () -> Unit, onChooseAnother: () -> Unit) {
     val failure = stage.failure
-    val gutter = Modifier.padding(horizontal = Kit.space.l)
+    val gutter = Modifier.padding(horizontal = Kit.control.hPad)
     Column(gutter, verticalArrangement = Arrangement.spacedBy(Kit.space.s)) {
         KitBanner(stringResource(failure.kind.title), tone = Tone.Danger)
         ProseText(stringResource(failure.kind.advice))

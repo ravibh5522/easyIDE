@@ -1,7 +1,6 @@
 package dev.easyide.app.ui.screens.extensions
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
@@ -15,7 +14,7 @@ import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitEmptyState
-import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.kit.KitTwoColumnRow
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.Tone
@@ -36,26 +35,19 @@ internal fun CapabilitiesTab(row: ExtensionRow, actions: PageActions) {
         return
     }
     val note = stringResource(if (builtIn) R.string.extui_capabilities_builtin else R.string.extui_capabilities_revoke_note)
-    KitSection(stringResource(R.string.ext_capabilities), description = note) {
+    KitSection(stringResource(R.string.ext_capabilities), description = note, count = lines.size, collapsible = true) {
         lines.forEach { line ->
-            Column {
-                KitRow(
-                    title = line.id,
-                    mono = true,
-                    id = "capability-row",
-                    trailing = { CapabilityAction(line, actions) },
-                )
-                BasicText(
-                    capabilityPrompt(line.id, row.pkg.envId),
-                    Modifier.padding(start = Kit.space.l, end = Kit.space.l, bottom = Kit.space.s),
-                    style = Kit.text.body.copy(color = Kit.colors.textMuted),
-                )
-            }
+            KitTwoColumnRow(
+                title = line.id,
+                description = capabilityPrompt(line.id, row.pkg.envId),
+                id = "capability-row",
+                control = { CapabilityAction(line, actions) },
+            )
         }
     }
     BasicText(
         stringResource(R.string.ext_install_not_isolated),
-        Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.s),
+        Modifier.padding(start = Kit.control.hPad, end = Kit.control.hPad, top = Kit.space.s),
         style = Kit.text.caption.copy(color = Kit.colors.textMuted),
     )
 }

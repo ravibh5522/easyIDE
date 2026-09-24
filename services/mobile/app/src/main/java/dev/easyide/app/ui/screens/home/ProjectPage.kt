@@ -77,13 +77,15 @@ fun ProjectPage(
 @Composable
 private fun ProjectPageBody(item: ProjectListItem, state: HomeUiState, callbacks: HomeCallbacks, nowMs: Long) {
     val space = Kit.space
+    val gutter = Kit.control.hPad
+    val compact = LocalWindowSize.current.width.isCompact
     val actions = rememberProjectActions(callbacks)(item)
     val onStop = rememberStopRequest(callbacks)
     var menuOpen by remember { mutableStateOf(false) }
     val sessions = state.running.filter { it.projectId == item.project.id }
 
     Row(
-        Modifier.fillMaxWidth().padding(start = space.l, end = space.xs, top = space.l),
+        Modifier.fillMaxWidth().padding(start = gutter, end = space.xs, top = space.m),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(space.m),
     ) {
@@ -93,7 +95,7 @@ private fun ProjectPageBody(item: ProjectListItem, state: HomeUiState, callbacks
                 item.project.name,
                 Modifier.semantics { heading() },
                 style = Kit.text.display.copy(color = Kit.colors.plainText),
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             MonoText(item.locationLabel())
@@ -103,26 +105,29 @@ private fun ProjectPageBody(item: ProjectListItem, state: HomeUiState, callbacks
             KitMenu(menuOpen, { menuOpen = false }, projectMenuItems(actions))
         }
     }
-    Row(Modifier.fillMaxWidth().padding(horizontal = space.l, vertical = space.m), horizontalArrangement = Arrangement.spacedBy(space.s)) {
+    // One line of actions: shared out across a phone's width, the size of their labels on a wide page.
+    Row(Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = space.m), horizontalArrangement = Arrangement.spacedBy(space.s)) {
+        val share = if (compact) Modifier.weight(1f) else Modifier
         KitButton(
             stringResource(R.string.home_page_open),
             { callbacks.onOpenProject(item, false) },
-            Modifier.weight(1f).kitTag(HomeMetrics.PROJECT_OPEN_ID),
+            share.kitTag(HomeMetrics.PROJECT_OPEN_ID),
             icon = Icons.Filled.FolderOpen,
         )
         KitButton(
             stringResource(R.string.home_page_open_terminal),
             { callbacks.onOpenProject(item, true) },
-            Modifier.weight(1f),
+            share,
             style = KitButtonStyle.Secondary,
             icon = Icons.Filled.Terminal,
         )
     }
-    ProjectDetailsSection(item, state.projectsIn(item.project.environmentId), nowMs)
+    ProjectDetailsSection(item, nowMs)
     RecentFilesSection(state.recentFilesOf(item.project.id), nowMs)
     RunningSection(
         title = stringResource(R.string.home_page_section_sessions),
         items = sessions,
+        flat = false,
         onAttach = { attachRunning(state, callbacks, it) },
         onStop = onStop,
     )

@@ -45,7 +45,7 @@ fun InstallLinuxScreen(
             onInstall = setup::install,
             onCancel = setup::cancel,
             onChooseAnother = setup::backToChoosing,
-            modifier = Modifier.padding(vertical = Kit.space.l),
+            modifier = Modifier.padding(vertical = Kit.space.m),
         )
     }
 }

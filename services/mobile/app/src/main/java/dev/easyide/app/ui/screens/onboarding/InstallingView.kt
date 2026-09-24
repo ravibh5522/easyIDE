@@ -38,7 +38,7 @@ internal fun InstallingView(stage: SetupStage.Installing, onCancel: () -> Unit) 
     val phase = installPhaseText(stage.event)
     val space = Kit.space
     val description = stringResource(R.string.setup_progress_description, phase)
-    Column(Modifier.padding(horizontal = space.l), verticalArrangement = Arrangement.spacedBy(space.m)) {
+    Column(Modifier.padding(horizontal = Kit.control.hPad), verticalArrangement = Arrangement.spacedBy(space.m)) {
         BasicText(
             stringResource(R.string.setup_installing_title, stage.imageLabel),
             style = Kit.text.heading.copy(color = Kit.colors.plainText),

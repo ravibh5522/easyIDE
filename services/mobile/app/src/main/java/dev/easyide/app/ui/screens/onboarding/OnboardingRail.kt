@@ -36,9 +36,9 @@ internal fun OnboardingRail(
     install: InstallSummary?,
     modifier: Modifier = Modifier,
 ) {
-    val gutter = Modifier.padding(horizontal = Kit.space.l)
+    val gutter = Modifier.padding(horizontal = Kit.control.hPad)
     Column(
-        modifier.verticalScroll(rememberScrollState()).padding(vertical = Kit.space.xl),
+        modifier.verticalScroll(rememberScrollState()).padding(vertical = Kit.space.l),
         verticalArrangement = Arrangement.spacedBy(Kit.space.m),
     ) {
         Mark(blinking = current == OnboardingStep.WELCOME, modifier = gutter)

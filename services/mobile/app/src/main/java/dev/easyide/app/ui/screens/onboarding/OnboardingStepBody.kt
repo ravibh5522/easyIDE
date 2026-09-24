@@ -87,7 +87,7 @@ internal fun Mark(blinking: Boolean, modifier: Modifier = Modifier) {
 
 @Composable
 internal fun WelcomeBody(showMark: Boolean, alreadyTyped: Boolean, onTyped: () -> Unit) {
-    Column(Modifier.padding(Kit.space.l), verticalArrangement = Arrangement.spacedBy(Kit.space.m)) {
+    Column(Modifier.padding(horizontal = Kit.control.hPad), verticalArrangement = Arrangement.spacedBy(Kit.space.m)) {
         if (showMark) Mark(blinking = true)
         StepTitle(R.string.onboarding_title, alreadyTyped, onTyped)
         ProseText(stringResource(R.string.onboarding_body))
@@ -106,7 +106,7 @@ internal fun PermissionBody(
     alreadyTyped: Boolean,
     onTyped: () -> Unit,
 ) {
-    Column(Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.l), verticalArrangement = Arrangement.spacedBy(Kit.space.m)) {
+    Column(Modifier.padding(horizontal = Kit.control.hPad), verticalArrangement = Arrangement.spacedBy(Kit.space.m)) {
         StepTitle(title, alreadyTyped, onTyped)
         ProseText(stringResource(body))
     }
@@ -115,7 +115,7 @@ internal fun PermissionBody(
 
 @Composable
 internal fun DoneBody(status: DeviceStatus, environmentReady: Boolean, alreadyTyped: Boolean, onTyped: () -> Unit) {
-    Column(Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.l)) {
+    Column(Modifier.padding(horizontal = Kit.control.hPad)) {
         StepTitle(R.string.onboarding_done_title, alreadyTyped, onTyped)
     }
     KitSection(null) {
@@ -125,7 +125,7 @@ internal fun DoneBody(status: DeviceStatus, environmentReady: Boolean, alreadyTy
         }
         StatusRow(environmentReady, stringResource(if (environmentReady) R.string.onboarding_done_linux_on else R.string.onboarding_done_linux_off))
     }
-    ProseText(stringResource(R.string.onboarding_done_settings_note), Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.m), muted = true)
+    ProseText(stringResource(R.string.onboarding_done_settings_note), Modifier.padding(horizontal = Kit.control.hPad, vertical = Kit.space.m), muted = true)
 }
 
 @Composable

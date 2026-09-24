@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,19 +12,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import dev.easyide.app.R
-import kotlinx.coroutines.delay
+import dev.easyide.app.ui.components.SkeletonBar
 import dev.easyide.app.ui.kit.EmptyArt
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitAction
-import dev.easyide.app.ui.kit.KitChoice
 import dev.easyide.app.ui.kit.KitEmptyState
-import dev.easyide.app.ui.kit.KitField
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.Sweep
-import dev.easyide.app.ui.components.SkeletonBar
+import kotlinx.coroutines.delay
 
 /** Every way a search or sort of the list can be reported and every way out of an empty list. */
 internal class ProjectsActions(
@@ -36,17 +31,15 @@ internal class ProjectsActions(
     val actionsFor: (ProjectListItem) -> ProjectMenuActions,
 )
 
-private val SEARCH_KEYBOARD = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, imeAction = ImeAction.Search)
-
 /**
- * All projects: search, sort, and rows. With none at all it is the first-run state (one command);
- * with a search that matches none it says so and offers to clear it. Loading shows two static bars.
+ * All projects, in the side panel form (rows directly on the panel): a header with the count,
+ * search and sort on one line, then one row per project. With none at all it is the first-run state
+ * (one command); with a search that matches none it says so and offers to clear it. Loading shows two
+ * static bars.
  */
 @Composable
 internal fun ProjectsSection(state: HomeUiState, nowMs: Long, selectedId: String?, actions: ProjectsActions) {
-    val space = Kit.space
-    val sortLabels = ProjectSort.entries.associateWith { it.label() }
-    KitSection(stringResource(R.string.home_section_projects)) {
+    KitSection(stringResource(R.string.home_section_projects), count = state.projectCount.takeIf { !state.isLoading }, flat = true, collapsible = true) {
         when {
             state.isLoading -> ProjectsSkeleton()
             state.projectCount == 0 -> KitEmptyState(
@@ -55,15 +48,7 @@ internal fun ProjectsSection(state: HomeUiState, nowMs: Long, selectedId: String
                 action = KitAction(stringResource(R.string.home_new_project), actions.onNewProject),
             )
             else -> {
-                Column(Modifier.padding(space.m), verticalArrangement = Arrangement.spacedBy(space.s)) {
-                    KitField(
-                        value = state.query,
-                        onValueChange = actions.onQueryChanged,
-                        hint = stringResource(R.string.home_search_hint),
-                        keyboard = SEARCH_KEYBOARD,
-                    )
-                    KitChoice(ProjectSort.entries, state.sort, { sortLabels.getValue(it) }, actions.onSortChanged)
-                }
+                SearchSortLine(state.query, state.sort, actions.onQueryChanged, actions.onSortChanged)
                 if (state.visible.isEmpty()) {
                     KitEmptyState(
                         art = EmptyArt.Search,
@@ -85,13 +70,20 @@ internal fun ProjectsSection(state: HomeUiState, nowMs: Long, selectedId: String
     }
 }
 
+/**
+ * The stage's summary of the projects: the most recently opened few, on the same rows as the panel,
+ * for a window where the panel is not beside the stage. Nothing while loading or when there are none.
+ */
 @Composable
-private fun ProjectSort.label(): String = stringResource(
-    when (this) {
-        ProjectSort.RECENT -> R.string.home_sort_recent
-        ProjectSort.NAME -> R.string.home_sort_name
-    },
-)
+internal fun ProjectsSummary(state: HomeUiState, nowMs: Long, actions: ProjectsActions) {
+    if (state.isLoading || state.projectCount == 0) return
+    val recent = remember(state.all) { state.all.searchedAndSorted("", ProjectSort.RECENT).take(HomeMetrics.SUMMARY_PROJECTS) }
+    KitSection(stringResource(R.string.home_section_projects), count = state.projectCount, collapsible = true) {
+        recent.forEach { item ->
+            ProjectRow(item, nowMs, selected = false, onClick = { actions.onOpenPage(item.project.id) }, actions = actions.actionsFor(item))
+        }
+    }
+}
 
 /** Two static bars where the rows will land, and nothing at all for the first 300ms (identity.md 10). */
 @Composable
@@ -103,7 +95,7 @@ private fun ProjectsSkeleton() {
     }
     if (!shown) return
     val bar = Kit.colors.panelBorder
-    Column(Modifier.padding(Kit.space.l), verticalArrangement = Arrangement.spacedBy(Kit.space.s)) {
+    Column(Modifier.padding(Kit.control.hPad), verticalArrangement = Arrangement.spacedBy(Kit.space.s)) {
         SkeletonBar(bar, Kit.space.l, Modifier.fillMaxWidth(HomeMetrics.SKELETON_TITLE_FRACTION))
         SkeletonBar(bar, Kit.space.m, Modifier.fillMaxWidth(HomeMetrics.SKELETON_SUBTITLE_FRACTION))
     }

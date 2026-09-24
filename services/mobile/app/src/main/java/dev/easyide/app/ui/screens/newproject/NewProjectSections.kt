@@ -104,7 +104,7 @@ internal fun NewEnvironmentForm(
     onBackendSelected: (SandboxBackend) -> Unit,
     onImageSelected: (String) -> Unit,
 ) {
-    val gutter = Modifier.padding(start = Kit.space.l, end = Kit.space.l, top = Kit.space.l)
+    val gutter = Modifier.padding(start = Kit.control.hPad, end = Kit.control.hPad, top = Kit.space.m)
     KitField(
         value = uiState.newEnvironmentLabel,
         onValueChange = onNewEnvironmentLabelChanged,

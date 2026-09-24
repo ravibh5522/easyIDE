@@ -73,7 +73,7 @@ internal class StepPaneSpec(
     val onTyped: (OnboardingStep) -> Unit,
 )
 
-/** The step card (crop corners, scrolls if it must) above the actions pinned in the thumb zone. */
+/** The step card (crop corners, scrolls if it must) at the top of its pane, above the actions pinned in the thumb zone. */
 @Composable
 private fun StepPane(
     step: OnboardingStep,
@@ -84,14 +84,14 @@ private fun StepPane(
     modifier: Modifier,
 ) {
     Column(modifier) {
-        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = if (centered) Alignment.Center else Alignment.TopStart) {
-            Column(Modifier.widthIn(max = Kit.contentMax).fillMaxWidth().verticalScroll(rememberScrollState()).padding(Kit.space.l).cropCorners()) {
+        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = if (centered) Alignment.TopCenter else Alignment.TopStart) {
+            Column(Modifier.widthIn(max = Kit.contentMax).fillMaxWidth().verticalScroll(rememberScrollState()).padding(vertical = Kit.space.m).cropCorners()) {
                 Crossfade(step, animationSpec = tween(Kit.motion.standardMs), label = "onboarding-step") { current ->
-                    Column(Modifier.padding(bottom = Kit.space.l)) { body(current) }
+                    Column(Modifier.padding(bottom = Kit.space.m)) { body(current) }
                 }
             }
         }
-        StepActions(spec.buttons, spec.onButton, Modifier.padding(inset).padding(Kit.space.l))
+        StepActions(spec.buttons, spec.onButton, Modifier.padding(inset).padding(horizontal = Kit.control.hPad, vertical = Kit.space.m))
     }
 }
 

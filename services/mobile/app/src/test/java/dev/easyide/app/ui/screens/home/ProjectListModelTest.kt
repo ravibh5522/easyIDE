@@ -81,4 +81,10 @@ class ProjectListModelTest {
         // A shorter max age, as used when returning to Home.
         assertFalse(ProjectMetaPolicy.isFresh(meta(1_000), project, 1_000 + ProjectMetaPolicy.RESUME_REFRESH_AFTER_MS, ProjectMetaPolicy.RESUME_REFRESH_AFTER_MS))
     }
+
+    @Test fun `a path splits into its file name and its folder`() {
+        assertEquals("HomePanel.kt" to "app/src/ui", "app/src/ui/HomePanel.kt".fileNameAndFolder())
+        assertEquals("README.md" to "", "README.md".fileNameAndFolder())
+        assertEquals("" to "dir", "dir/".fileNameAndFolder())
+    }
 }

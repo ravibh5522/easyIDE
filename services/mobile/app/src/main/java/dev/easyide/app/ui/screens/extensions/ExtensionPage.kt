@@ -1,10 +1,5 @@
 package dev.easyide.app.ui.screens.extensions
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -16,26 +11,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.EmptyArt
-import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitDialog
 import dev.easyide.app.ui.kit.KitEmptyState
-import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.kit.Tone
 import dev.easyide.extensions.manifest.Source
-
-private const val TAB_DETAILS = 0
-private const val TAB_CONTRIBUTIONS = 1
-private const val TAB_CAPABILITIES = 2
-private const val TAB_LOG = 3
-private const val TAB_VERSIONS = 4
 
 /**
  * The extension document `easyide://extension/<id>` (screens.md 4), scaffold-free content for the
  * shell to host: header with the enable switch, then Details, Contributions, Capabilities, Log and
  * Versions. [onOpenTarget] receives a shell target string, such as `easyide://settings/extensions#<id>`,
  * for the shell to open (null hides the link); [onClosed] is the action of the "not installed" state (the id may be
- * stale after an uninstall or a restore). Mount [ExtensionsDialogs] once beside it.
+ * stale after an uninstall or a restore). Mount [ExtensionsDialogs] once beside it. This binds the view
+ * model; what is drawn is [ExtensionPageContent].
  */
 @Composable
 fun ExtensionPage(id: String, viewModel: ExtensionsViewModel, onOpenTarget: ((String) -> Unit)?, onClosed: () -> Unit, modifier: Modifier = Modifier) {
@@ -62,23 +50,7 @@ fun ExtensionPage(id: String, viewModel: ExtensionsViewModel, onOpenTarget: ((St
         onGrant = { capability, granted -> viewModel.setGranted(row, capability, granted) },
         onOpenTarget = onOpenTarget,
     )
-    val labels = listOf(R.string.extui_tab_details, R.string.extui_tab_contributions, R.string.extui_tab_capabilities, R.string.extui_tab_log, R.string.extui_tab_versions)
-
-    LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Kit.space.l)) {
-        item { PageHeader(row, item, revokedReason, updateTo, actions) }
-        item { KitTabs(labels.map { stringResource(it) }, tab, { tab = it }, Modifier.padding(top = Kit.space.m)) }
-        item {
-            Column {
-                when (tab) {
-                    TAB_DETAILS -> DetailsTab(row, row.contributions, actions)
-                    TAB_CONTRIBUTIONS -> ContributionsTab(row, actions)
-                    TAB_CAPABILITIES -> CapabilitiesTab(row, actions)
-                    TAB_LOG -> LogSection(logFor(state.log, id), showId = false, onClear = null)
-                    TAB_VERSIONS -> VersionsTab(row, item, updateTo, actions)
-                }
-            }
-        }
-    }
+    ExtensionPageContent(PageModel(row, item, revokedReason, updateTo, logFor(state.log, id)), tab, { tab = it }, actions, modifier)
 
     if (confirmUninstall) {
         KitDialog(

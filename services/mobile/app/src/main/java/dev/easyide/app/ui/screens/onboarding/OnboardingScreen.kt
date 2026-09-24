@@ -117,7 +117,7 @@ private fun StepBody(
             typed, onTyped,
         )
         OnboardingStep.ENVIRONMENT -> {
-            Column(Modifier.padding(Kit.space.l)) { StepTitle(R.string.onboarding_environment_title, typed, onTyped) }
+            Column(Modifier.padding(horizontal = Kit.control.hPad)) { StepTitle(R.string.onboarding_environment_title, typed, onTyped) }
             EnvironmentSetupContent(
                 state = setupState,
                 onImageSelected = setup::onImageSelected,

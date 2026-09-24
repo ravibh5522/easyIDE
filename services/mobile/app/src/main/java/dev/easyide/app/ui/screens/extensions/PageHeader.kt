@@ -2,15 +2,18 @@ package dev.easyide.app.ui.screens.extensions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitAction
@@ -40,28 +43,39 @@ internal class PageActions(
 )
 
 /**
- * Name, mono id and version, source and state tags, the description, what needs attention
- * (revoked, an update), the enable switch, and the destructive action last.
+ * The compact header: name with the destructive action at its end, then `id@version` in mono with the
+ * source and state tags on one line, the description, what needs attention (revoked, an update), and
+ * the enable switch as one row.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun PageHeader(row: ExtensionRow, item: ExtensionListItem, revokedReason: String?, updateTo: String?, actions: PageActions) {
     val space = Kit.space
-    Column(Modifier.padding(start = space.l, end = space.l, top = space.l), verticalArrangement = Arrangement.spacedBy(space.s)) {
-        BasicText(item.name, Modifier.semantics { heading() }, style = Kit.text.display.copy(color = Kit.colors.plainText))
-        BasicText("${item.id}  ${item.version}", style = Kit.text.mono.copy(color = Kit.colors.textMuted))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(space.xs), verticalArrangement = Arrangement.spacedBy(space.xs)) {
+    val gutter = Kit.control.hPad
+    Column(Modifier.padding(start = gutter, end = gutter, top = space.m), verticalArrangement = Arrangement.spacedBy(space.xs)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(space.s)) {
+            BasicText(
+                item.name,
+                Modifier.weight(1f).semantics { heading() },
+                style = Kit.text.display.copy(color = Kit.colors.plainText),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (item.source != Source.BUILT_IN) KitButton(stringResource(R.string.ext_uninstall), actions.onUninstall, style = KitButtonStyle.Danger)
+        }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(space.s), verticalArrangement = Arrangement.spacedBy(space.xs), itemVerticalAlignment = Alignment.CenterVertically) {
+            BasicText("${item.id}@${item.version}", style = Kit.text.mono.copy(color = Kit.colors.textMuted))
             KitTag(sourceTag(item.source))
             item.tags.forEach { KitTag(tagText(it), tone = it.tone) }
         }
         item.description?.let { BasicText(it, style = Kit.text.body.copy(color = Kit.colors.plainText)) }
         BasicText(stateLabel(row), style = Kit.text.caption.copy(color = Kit.colors.textMuted))
     }
-    revokedReason?.let { KitBanner(stringResource(R.string.ext_revoked_reason, it), Modifier.padding(top = space.m), Tone.Danger) }
+    revokedReason?.let { KitBanner(stringResource(R.string.ext_revoked_reason, it), Modifier.padding(top = space.s), Tone.Danger) }
     if (updateTo != null && actions.onUpdate != null) {
         KitBanner(
             stringResource(R.string.reg_update_available, updateTo),
-            Modifier.padding(top = space.m),
+            Modifier.padding(top = space.s),
             Tone.Info,
             KitAction(stringResource(R.string.extui_update), actions.onUpdate),
         )
@@ -74,11 +88,6 @@ internal fun PageHeader(row: ExtensionRow, item: ExtensionListItem, revokedReaso
                 id = "extension-enabled",
                 trailing = { KitToggle(item.enabled, onCheckedChange = null) },
             )
-        }
-    }
-    if (item.source != Source.BUILT_IN) {
-        Column(Modifier.padding(start = space.l, end = space.l, top = space.m)) {
-            KitButton(stringResource(R.string.ext_uninstall), actions.onUninstall, style = KitButtonStyle.Danger)
         }
     }
 }

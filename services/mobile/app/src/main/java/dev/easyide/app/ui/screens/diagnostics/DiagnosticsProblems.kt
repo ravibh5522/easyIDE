@@ -34,7 +34,7 @@ internal fun LazyListScope.problemsSection(crash: CrashSummary?, problems: List<
             crash?.let { CrashRow(it) }
             if (problems.isNotEmpty()) {
                 KitRow(stringResource(R.string.diag_last_errors))
-                Column(Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s), verticalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
+                Column(Modifier.padding(horizontal = Kit.control.hPad, vertical = Kit.space.s), verticalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
                     problems.forEach { ProblemLine(it) }
                 }
             }
@@ -52,7 +52,7 @@ private fun CrashRow(crash: CrashSummary) {
             { KitTag(stringResource(R.string.diag_last_crash_new), tone = Tone.Warning) }
         } else null,
     )
-    MonoText(crash.headline, Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s), tone = Tone.Danger, maxLines = LOG_LINE_MAX_LINES)
+    MonoText(crash.headline, Modifier.padding(horizontal = Kit.control.hPad, vertical = Kit.space.s), tone = Tone.Danger, maxLines = LOG_LINE_MAX_LINES)
 }
 
 @Composable
@@ -63,7 +63,7 @@ private fun ProblemLine(line: LogLine) {
 internal fun LazyListScope.logsSection(enabled: Boolean, actions: DiagnosticsActions) {
     item(key = "logs") {
         KitSection(stringResource(R.string.diag_section_logs)) {
-            ProseText(stringResource(R.string.diag_logs_body), Modifier.padding(Kit.space.l), muted = true)
+            ProseText(stringResource(R.string.diag_logs_body), Modifier.padding(Kit.control.hPad), muted = true)
             ActionRow {
                 KitButton(stringResource(R.string.diag_share), actions.onShare, enabled = enabled)
                 KitButton(stringResource(R.string.diag_export), actions.onExport, style = KitButtonStyle.Secondary, enabled = enabled)
