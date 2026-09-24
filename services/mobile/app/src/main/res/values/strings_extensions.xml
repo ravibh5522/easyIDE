@@ -11,8 +11,8 @@
     <string name="setting_key_rows_active_desc">A key row id, or auto for the first row that applies to the file.</string>
 
     <string name="key_row_terminal_title">Terminal</string>
-    <string name="command_insert_snippet">Insert Snippet</string>
-    <string name="command_run_task">Run Task</string>
+    <string name="command_insert_snippet">Insert snippet</string>
+    <string name="command_run_task">Run task</string>
     <string name="command_show_extensions">Extensions</string>
 
     <string name="ext_manage_title">Manage extensions</string>

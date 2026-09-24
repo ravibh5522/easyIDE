@@ -31,7 +31,7 @@ import dev.easyide.sandbox.model.EnvironmentState
 @Composable
 internal fun SandboxPage(viewModel: SettingsViewModel, ui: SettingsUiState) {
     if (ui.environments.isEmpty()) {
-        KitEmptyState(EmptyArt.Prompt, stringResource(R.string.settings_environments_empty))
+        KitEmptyState(EmptyArt.Environment, stringResource(R.string.settings_environments_empty))
         return
     }
     KitSection(stringResource(R.string.settings_sandbox_section)) {

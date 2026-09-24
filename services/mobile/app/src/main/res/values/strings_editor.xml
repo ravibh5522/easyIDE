@@ -8,10 +8,10 @@
     <string name="command_redo">Redo</string>
     <string name="command_find">Find</string>
     <string name="command_replace">Replace</string>
-    <string name="command_find_next">Find Next</string>
-    <string name="command_find_previous">Find Previous</string>
-    <string name="command_go_to_line">Go to Line</string>
-    <string name="command_quick_open">Go to File</string>
+    <string name="command_find_next">Find next</string>
+    <string name="command_find_previous">Find previous</string>
+    <string name="command_go_to_line">Go to line</string>
+    <string name="command_quick_open">Go to file</string>
 
     <string name="find_hint">Find</string>
     <string name="find_replace_hint">Replace with</string>

@@ -20,6 +20,13 @@ enum class EmptyArt(@StringRes internal val text: Int) {
     Prompt(R.string.kit_art_prompt),
     Search(R.string.kit_art_search),
     Offline(R.string.kit_art_offline),
+    Projects(R.string.kit_art_projects),
+    Environment(R.string.kit_art_environment),
+    Extensions(R.string.kit_art_extensions),
+    Problems(R.string.kit_art_problems),
+    Git(R.string.kit_art_git),
+    Terminal(R.string.kit_art_terminal),
+    Editor(R.string.kit_art_editor),
 }
 
 /**

@@ -50,7 +50,7 @@ internal fun ProjectsSection(state: HomeUiState, nowMs: Long, selectedId: String
         when {
             state.isLoading -> ProjectsSkeleton()
             state.projectCount == 0 -> KitEmptyState(
-                art = EmptyArt.Prompt,
+                art = EmptyArt.Projects,
                 message = stringResource(R.string.home_projects_empty),
                 action = KitAction(stringResource(R.string.home_new_project), actions.onNewProject),
             )

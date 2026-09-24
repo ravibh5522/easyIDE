@@ -38,7 +38,7 @@ internal fun ContributionsTab(row: ExtensionRow, actions: PageActions) {
     var open by rememberSaveable { mutableStateOf<String?>(null) }
     val groups = groupContributions(row.contributions)
     if (groups.isEmpty()) {
-        KitEmptyState(EmptyArt.Prompt, stringResource(R.string.ext_contributions_none))
+        KitEmptyState(EmptyArt.Extensions, stringResource(R.string.ext_contributions_none))
     } else {
         KitSection(stringResource(R.string.ext_contributions)) {
             groups.forEach { (group, lines) ->

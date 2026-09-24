@@ -24,9 +24,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.termux.view.TerminalView
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.ui.kit.EmptyArt
 import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitMenu
 import dev.easyide.app.ui.kit.KitMenuItem
@@ -80,7 +83,10 @@ fun TerminalPane(
             onInstallLinux = onInstallLinux,
         )
 
-        if (tab == null) return@Column
+        if (tab == null) {
+            KitEmptyState(EmptyArt.Terminal, stringResource(R.string.terminal_empty), action = KitAction(stringResource(R.string.terminal_new), onNewTab))
+            return@Column
+        }
 
         EasyTerminalView(
             tab = tab,
