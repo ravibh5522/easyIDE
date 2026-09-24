@@ -11,6 +11,9 @@ fun interface ProjectCloner {
     suspend fun clone(url: String, targetDir: File, environmentId: String): GitResult<String>
 }
 
+/** Files read for one project; [files] is null while the scan runs, so a page can tell "loading" from "none". */
+data class RecentScan(val projectId: String, val files: List<RecentFile>?)
+
 /** A modal the user is in the middle of. Held by the ViewModel so it survives rotation. */
 sealed interface HomeDialog {
     data class Rename(val projectId: String) : HomeDialog
@@ -56,8 +59,12 @@ data class HomeUiState(
     /** Every project, unfiltered and unsorted: dialogs address a project regardless of the search box. */
     val all: List<ProjectListItem> = emptyList(),
     val selected: ProjectListItem? = null,
-    /** The selected project's recently changed files; null while they are being read. */
-    val recentFiles: List<RecentFile>? = null,
+    /** The project Home offers to continue, and its newest file. */
+    val resume: ProjectListItem? = null,
+    val resumeScan: RecentScan? = null,
+    /** Recently changed files of the focused project (the selected one, or the one whose page is open). */
+    val recent: RecentScan? = null,
+    val running: List<RunningItem> = emptyList(),
     val environments: List<SandboxEnvironment> = emptyList(),
     /** The environment new imports and clones should default to. */
     val suggestedEnvironmentId: String? = null,
@@ -77,6 +84,14 @@ data class HomeUiState(
     val projectNames: Map<String, String> get() = all.associate { it.project.id to it.project.name }
 
     fun find(projectId: String): ProjectListItem? = all.find { it.project.id == projectId }
+
+    /** Null while the scan of [projectId] is unfinished or belongs to another project. */
+    fun recentFilesOf(projectId: String): List<RecentFile>? = recent?.takeIf { it.projectId == projectId }?.files
+
+    val resumeFile: RecentFile? get() = resumeScan?.takeIf { it.projectId == resume?.project?.id }?.files?.firstOrNull()
+
+    /** Projects using each environment, for the Environment section. */
+    fun projectsIn(environmentId: String): Int = all.count { it.project.environmentId == environmentId }
 
     val readyEnvironments: List<SandboxEnvironment>
         get() = environments.filter { it.state == EnvironmentState.READY }

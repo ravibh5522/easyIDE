@@ -24,4 +24,10 @@ class HomeCallbacks(
     val changeEnvironment: (projectId: String, environmentId: String) -> Unit,
     val importFolder: (treeUri: String, name: String, environmentId: String) -> Unit,
     val clone: (CloneUrl, name: String, environmentId: String) -> Unit,
+    /** A tap on a project row: the shell opens `easyide://project/<id>`; before that, the row is just selected. */
+    val onOpenProjectPage: (projectId: String) -> Unit = onSelect,
+    /** Opens another document by its `easyide://` address, as plain text (the Environment rows use settings). */
+    val onOpenDocument: (uri: String) -> Unit = { onOpenSettings() },
+    /** Stop on a Running row; null hides the button, because nothing is wired to stop with. */
+    val onStop: ((RunningId) -> Unit)? = null,
 )

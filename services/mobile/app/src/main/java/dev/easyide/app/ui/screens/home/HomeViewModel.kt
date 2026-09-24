@@ -8,7 +8,6 @@ import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.SandboxError
 import dev.easyide.sandbox.external.ExternalFolderSync
 import dev.easyide.sandbox.files.ProjectFiles
-import dev.easyide.sandbox.files.RecentFile
 import dev.easyide.sandbox.files.RecentFiles
 import dev.easyide.sandbox.git.GitCredentials
 import dev.easyide.sandbox.git.GitResult
@@ -52,6 +51,7 @@ class HomeViewModel(
     private val externalFolderSync: ExternalFolderSync,
     private val cloner: ProjectCloner,
     private val defaultEnvironmentId: Flow<String?>,
+    private val running: RunningSource,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val clock: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
@@ -72,7 +72,12 @@ class HomeViewModel(
         val message: HomeMessage? = null,
     )
 
-    private data class Core(val state: HomeUiState, val selectedKey: Pair<String, Long>?)
+    /** A project and the time it was last opened: the scan of its files is redone when either changes. */
+    private data class ScanKey(val projectId: String, val openedAt: Long)
+
+    private fun ProjectListItem.scanKey() = ScanKey(project.id, project.lastOpenedAtEpochMs)
+
+    private data class Core(val state: HomeUiState, val focusKey: ScanKey?, val resumeKey: ScanKey?)
 
     private val core: Flow<Core> = combine(
         projectManager.projects,
@@ -92,6 +97,9 @@ class HomeViewModel(
         }
         val visible = items.searchedAndSorted(local.query, local.sort)
         val selected = selectionIn(visible, local.selectedId)
+        // A project page names its project even when the search box hides it from the list.
+        val focus = items.find { it.project.id == local.selectedId } ?: selected
+        val resume = items.resumeTarget()
         val ready = environments.filter { it.state == EnvironmentState.READY }
         Core(
             state = HomeUiState(
@@ -100,6 +108,7 @@ class HomeViewModel(
                 visible = visible,
                 all = items,
                 selected = selected,
+                resume = resume,
                 environments = environments,
                 suggestedEnvironmentId = listOfNotNull(defaultId, ready.firstOrNull()?.id, environments.firstOrNull()?.id)
                     .firstOrNull { id -> environments.any { it.id == id } },
@@ -111,23 +120,37 @@ class HomeViewModel(
                 busy = local.busy,
                 message = local.message,
             ),
-            selectedKey = selected?.let { it.project.id to it.project.lastOpenedAtEpochMs },
+            focusKey = focus?.scanKey(),
+            resumeKey = resume?.scanKey(),
         )
     }
 
-    /** Re-read when the selection or its last-opened time changes, or Home is resumed. */
-    private val recentFiles: Flow<List<RecentFile>?> = combine(
-        core.map { it.selectedKey }.distinctUntilChanged(),
+    /** Re-read when the project or its last-opened time changes, or Home is resumed. */
+    private fun recentFilesOf(key: Flow<ScanKey?>, limit: Int): Flow<RecentScan?> = combine(
+        key.distinctUntilChanged(),
         refreshTick,
-    ) { key, _ -> key?.first }.flatMapLatest { id ->
+    ) { k, _ -> k?.projectId }.flatMapLatest { id ->
         flow {
-            emit(null)
-            if (id != null) emit(withContext(ioDispatcher) { RecentFiles.scan(projectFiles.projectRoot(id), ProjectMetaPolicy.RECENT_FILE_LIMIT) })
+            emit(id?.let { RecentScan(it, null) })
+            if (id != null) emit(RecentScan(id, withContext(ioDispatcher) { RecentFiles.scan(projectFiles.projectRoot(id), limit) }))
         }
     }
 
-    val uiState: StateFlow<HomeUiState> = combine(core, recentFiles) { c, recent ->
-        c.state.copy(recentFiles = recent)
+    private val runningItems: Flow<List<RunningItem>> = combine(
+        running.liveProjectIds,
+        running.servers,
+        projectManager.projects,
+        environmentManager.environments,
+        RunningAssembly::assemble,
+    )
+
+    val uiState: StateFlow<HomeUiState> = combine(
+        core,
+        recentFilesOf(core.map { it.focusKey }, ProjectMetaPolicy.RECENT_FILE_LIMIT),
+        recentFilesOf(core.map { it.resumeKey }, RESUME_FILE_LIMIT),
+        runningItems,
+    ) { c, recent, resumeScan, live ->
+        c.state.copy(recent = recent, resumeScan = resumeScan, running = live)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS),
@@ -160,6 +183,13 @@ class HomeViewModel(
 
     fun onProjectOpened(projectId: String) {
         viewModelScope.launch { projectManager.markOpened(projectId) }
+    }
+
+    /** Stop on a Running row. Installs cannot be cancelled from here: their screen owns them. */
+    fun onStop(id: RunningId) = when (id) {
+        is RunningId.Session -> running.stopSession(id.projectId)
+        is RunningId.Server -> running.stopServer(id.key)
+        is RunningId.Install -> Unit
     }
 
     fun onMessageShown() = ui.update { it.copy(message = null) }
@@ -300,6 +330,7 @@ class HomeViewModel(
 
     private companion object {
         const val SUBSCRIPTION_TIMEOUT_MS = 5_000L
+        const val RESUME_FILE_LIMIT = 1
         const val SOURCE_DIR = "src"
     }
 }

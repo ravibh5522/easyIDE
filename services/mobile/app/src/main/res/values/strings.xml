@@ -13,8 +13,6 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_create">Create</string>
 
-    <string name="home_empty_title">No projects yet</string>
-    <string name="home_empty_body">Create a project to get a workspace and a Linux sandbox to run it in.</string>
     <string name="home_new_project">New project</string>
     <string name="home_environment_missing">Environment missing</string>
 

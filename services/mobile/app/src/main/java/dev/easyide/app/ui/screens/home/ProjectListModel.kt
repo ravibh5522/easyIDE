@@ -89,3 +89,26 @@ object ProjectMetaPolicy {
             meta.loadedAtEpochMs >= project.lastOpenedAtEpochMs &&
             nowMs - meta.loadedAtEpochMs < maxAgeMs
 }
+
+/** The project Home offers to continue: the one opened most recently, whatever the search box says. */
+fun List<ProjectListItem>.resumeTarget(): ProjectListItem? = searchedAndSorted("", ProjectSort.RECENT).firstOrNull()
+
+/** Branch as Home prints it: a trailing `*` when the working tree differs from HEAD, as prompts do. */
+fun GitSummary.branchLabel(): String = if (isDirty) "$branch*" else branch
+
+/** Whether the name typed to confirm a delete is the project's name; case and edge spaces do not count. */
+fun deleteConfirmed(typed: String, projectName: String): Boolean =
+    typed.trim().equals(projectName.trim(), ignoreCase = true)
+
+enum class SizeUnit { MB, GB }
+
+data class ProcessSize(val value: Double, val unit: SizeUnit)
+
+private const val KB_PER_MB = 1024.0
+private const val MB_PER_GB = 1024.0
+
+/** A process's resident size in the unit that keeps the number short: whole MB up to a gigabyte, then GB. */
+fun processSize(kb: Long): ProcessSize {
+    val mb = kb / KB_PER_MB
+    return if (mb >= MB_PER_GB) ProcessSize(mb / MB_PER_GB, SizeUnit.GB) else ProcessSize(mb, SizeUnit.MB)
+}

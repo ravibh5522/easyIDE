@@ -23,13 +23,13 @@ Design: [arch.md](arch.md). Design accepted by the owner on 2026-09-24 (ADR 0025
 | `ShellState`, registries (navigation, container, document) | in-progress | pure engine done and unit-tested in `ui/shell` (state and reducer, nav/container/document registries with ordering, collision and user-override rules, layout presets, snapshot); not wired into any screen |
 | `NavSurface` (bottom bar / rail), `PanelHost`, `StageHost` (1 group) | not-started | |
 | Document URIs + open/preview/pin/history | in-progress | `DocumentUri`, `DocumentRegistry` (open-with, placeholder), `EditorGroup`/`EditorStage` (preview, pin, MRU, history, 1-4 groups) done and tested; no UI (`StageHost`) yet |
-| Home "Now" page + project page | not-started | needs session registry (ADR-D) for Running |
+| Home "Now" page + project page | in-progress | built on the kit in `ui/screens/home`: `HomePanel` (resume hero, Running, Environment, Projects with search/sort/row menu), `HomeNowPage` (stage), `ProjectPage`, all Home dialogs on `KitDialog`/`KitField`; the old `HomeScreen` is now a thin host of them until the shell swaps adapters. Running reads the workspace registry (one row per live workspace, not per terminal), LSP statuses with RSS, and provisioning environments (no percentage source, so an indeterminate sweep). Compile, JVM logic tests and R8 release build only; not seen on a device. Open: per-terminal and agent rows, install percentage, environment size, last commits on the page, cursor blink cap |
 | Extensions on the shell (list + extension page + install flow) | not-started | |
 | Settings on the shell (categories + pages + Appearance + Layout) | not-started | |
 | Back behaviour + app-scope restore | in-progress | `BackNavigation` (section 11 steps) and the versioned `ShellSnapshot` (section 12, golden JSON tests) done; not connected to `BackHandler` or storage |
 | **R2 Flows and dialogs** | | |
 | Onboarding, New project, Install Linux on the kit | not-started | baseline profile regen |
-| 22 non-workspace dialogs to `KitDialog`; banners; toasts | not-started | |
+| 22 non-workspace dialogs to `KitDialog`; banners; toasts | in-progress | Home's six dialogs (rename, duplicate, delete with typed name, change environment, clone, import) plus the Install Linux and stop-session prompts are on `KitDialog`; Home confirmations are an inline `KitBanner` (no toast primitive yet); Settings and Extensions dialogs open |
 | **R3 Workspace shell** | | |
 | Editor groups (1-4), document switcher / tab strip | not-started | |
 | Panels: Files, Search, Source control, Problems, Outline, Terminal | not-started | |
