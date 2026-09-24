@@ -40,7 +40,7 @@ class ExtensionsGoldenTest {
 
     private val panelActions = PanelActions(
         onSelect = {}, onEnabled = { _, _ -> }, browse = BrowseActions({}, {}, {}), onRefresh = {}, onExitSafeMode = {},
-        onClearLog = {}, onPickFile = {}, onPickFolder = {}, onCreate = {},
+        onClearLog = {}, onPickFile = {}, onPickFolder = {}, onSamples = {}, onCreate = {},
     )
 
     private val pageActions = PageActions({}, {}, {}, null, { _, _ -> }, { _, _ -> }, { _, _ -> }, {})
