@@ -29,7 +29,6 @@ import dev.easyide.app.ui.screens.workspace.ProjectNotFound
 import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
 import dev.easyide.app.ui.screens.workspace.files.LocalIgnoreIndex
-import dev.easyide.app.ui.shell.CoreShell
 import dev.easyide.app.ui.shell.host.AppRenderers
 import dev.easyide.app.ui.shell.host.ShellDeps
 import dev.easyide.app.ui.shell.host.ShellExits
@@ -79,18 +78,7 @@ fun AppNavHost(
         }
 
         composable(Destination.Home.route) {
-            val deps = remember(container, viewModelFactory) {
-                ShellDeps(
-                    container, viewModelFactory,
-                    ShellExits(
-                        onOpenProject = { id, withTerminal -> navController.navigate(Destination.Workspace.routeFor(id, withTerminal)) },
-                        onNewProject = { navController.navigate(Destination.NewProject.route) },
-                        onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
-                        onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
-                    ),
-                    shell.registries,
-                )
-            }
+            val deps = rememberShellDeps(container, viewModelFactory, navController, shell)
             ShellHost(
                 shell, remember(deps) { AppRenderers.panels(deps) }, remember(deps) { AppRenderers.documents(deps) },
                 dialogs = { AppRenderers.Dialogs(deps) },
@@ -144,8 +132,8 @@ fun AppNavHost(
                 session = workspaceViewModel.sessionUi,
                 onCloseProject = { container.workspaces.close(projectId) },
                 editing = workspaceViewModel.editing,
-                onOpenExtensions = { shell.goTo(CoreShell.EXTENSIONS); navController.popBackStack(Destination.Home.route, inclusive = false) },
-                onOpenSettings = { shell.goTo(CoreShell.SETTINGS); navController.popBackStack(Destination.Home.route, inclusive = false) },
+                shell = shell,
+                deps = rememberShellDeps(container, viewModelFactory, navController, shell),
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
                     onCommit = workspaceViewModel::commitGit,
@@ -229,4 +217,24 @@ fun AppNavHost(
             )
         }
     }
+}
+
+/** What the shell's panels and pages draw on, and the routes they leave for: the same for Home and for a workspace, whose Settings and Extensions pages are the app shell's. */
+@Composable
+private fun rememberShellDeps(
+    container: AppContainer,
+    viewModelFactory: AppViewModelFactory,
+    navController: NavHostController,
+    shell: ShellViewModel,
+): ShellDeps = remember(container, viewModelFactory, navController, shell) {
+    ShellDeps(
+        container, viewModelFactory,
+        ShellExits(
+            onOpenProject = { id, withTerminal -> navController.navigate(Destination.Workspace.routeFor(id, withTerminal)) },
+            onNewProject = { navController.navigate(Destination.NewProject.route) },
+            onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
+            onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
+        ),
+        shell.registries,
+    )
 }
