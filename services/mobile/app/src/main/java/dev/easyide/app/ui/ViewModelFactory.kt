@@ -22,7 +22,6 @@ import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
 import dev.easyide.app.ui.shell.host.AppDocuments
 import dev.easyide.app.ui.shell.host.ShellViewModel
-import dev.easyide.app.ui.shell.nav.NoNavItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -112,9 +111,11 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
             ShellViewModel::class.java -> ShellViewModel(
                 storage = container.shellState,
                 registries = AppDocuments.registries(container.appContext::getString),
-                source = NoNavItems,
+                source = container.extensions.navSource,
                 settings = container.settingsStore.snapshot.map(ShellSettingsSchema::navSettings),
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
+                extensions = container.extensions.shell,
+                runCommand = { id -> container.extensions.runtime.run(id) },
             )
 
             else -> error("Unknown ViewModel: ${modelClass.name}")

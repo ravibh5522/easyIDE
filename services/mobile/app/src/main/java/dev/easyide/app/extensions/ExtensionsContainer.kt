@@ -17,7 +17,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import dev.easyide.app.extensions.adapters.ContributedKeybindings
 import dev.easyide.app.extensions.adapters.ContributedServers
+import dev.easyide.app.extensions.adapters.ExtNavSource
 import dev.easyide.app.extensions.adapters.ExtensionLanguages
+import dev.easyide.app.extensions.adapters.ShellContributions
 import dev.easyide.app.extensions.adapters.SnippetCatalog
 import dev.easyide.app.extensions.dev.DevLoop
 import dev.easyide.app.extensions.host.AppHostPort
@@ -40,7 +42,9 @@ import dev.easyide.extensions.AppApi
 import dev.easyide.extwasm.host.HostInfo
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeyBinding
+import dev.easyide.app.ui.props.ShellSettingsSchema
 import dev.easyide.app.ui.screens.workspace.TerminalKeyboard
+import dev.easyide.app.ui.shell.ext.ExtShell
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.app.ui.theme.ThemeTokens
 import dev.easyide.extensions.ExtensionPolicy
@@ -60,6 +64,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -133,6 +139,22 @@ class ExtensionsContainer(
         io = io,
     )
 
+    /**
+     * What extensions contribute to the shell now: containers, navigation, documents, openers, presets and the views of
+     * each, for the packs the user has not switched off (`shell.extensions.contribute`). The registry already reflects
+     * enablement, safe mode, the environment and the `ui.contribute` grant.
+     */
+    val shell: StateFlow<ExtShell> = combine(
+        runtime.contributions.snapshot,
+        settingsStore.snapshot.map(ShellSettingsSchema::extensionsOff).distinctUntilChanged(),
+    ) { snapshot, off -> ShellContributions.of(snapshot, off) }.stateIn(scope, SharingStarted.Eagerly, ExtShell.EMPTY)
+
+    /** The data, fetch loops and events of extension views. */
+    val viewData = ExtViewData(runtime, host, shell, log, scope)
+
+    /** The shell's source of extension navigation items and their badges. */
+    val navSource = ExtNavSource(shell, runtime.contextKeys.snapshot, viewData.hub.values, scope)
+
     val installer = LocalInstaller(
         paths, state, inventory,
         ManifestParser(ManifestSchema.validator, ParseOptions(locale = Locale.getDefault(), builtInCommands = CommandIds.ALL)),
@@ -178,6 +200,7 @@ class ExtensionsContainer(
         if (!started.compareAndSet(false, true)) return
         runtime.start()
         wasm.start()
+        wasm.ui.onViewData = { viewId, update -> viewData.provide(shell.value, viewId, update) }
         TextMateHighlighter.onSlowGrammar = { scopeName ->
             log.append(LogEntry(null, LogLevel.WARN, "grammar $scopeName exceeded ${ExtensionPolicy.GRAMMAR_LINE_TIME_LIMIT_MS} ms on a line; the rest of that file stays plain"))
         }

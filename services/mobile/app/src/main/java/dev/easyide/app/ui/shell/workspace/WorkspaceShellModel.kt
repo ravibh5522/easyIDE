@@ -10,6 +10,7 @@ import dev.easyide.app.ui.shell.ShellScope
 import dev.easyide.app.ui.shell.ContainerRegistry
 import dev.easyide.app.ui.shell.DocumentRegistry
 import dev.easyide.app.ui.shell.DocumentUri
+import dev.easyide.app.ui.shell.LayoutPreset
 import dev.easyide.app.ui.shell.NavItem
 import dev.easyide.app.ui.shell.NavTarget
 import dev.easyide.app.ui.shell.OpenOptions
@@ -39,11 +40,22 @@ import kotlinx.coroutines.flow.update
  * snapshot that arrives before the window waits for it; one that arrives after replaces the
  * defaults in place, keeping the documents the screen has opened meanwhile.
  */
-class WorkspaceShellModel(
-    val documents: DocumentRegistry,
-    val containers: ContainerRegistry,
-    private val env: ShellEnv = ShellEnv(documents::resolve),
-) {
+class WorkspaceShellModel(documents: DocumentRegistry, containers: ContainerRegistry) {
+    /** What the model resolves against: the registries, and the presets extensions offer. They change as extensions come and go. */
+    class Registries(val documents: DocumentRegistry, val containers: ContainerRegistry, val presets: List<LayoutPreset> = emptyList())
+
+    private val registries = MutableStateFlow(Registries(documents, containers))
+    val registryState: StateFlow<Registries> = registries.asStateFlow()
+    val documents: DocumentRegistry get() = registries.value.documents
+    val containers: ContainerRegistry get() = registries.value.containers
+
+    /** Replaces the registries (a pack was enabled, disabled or updated). Open documents of a type that went away show as unavailable until it returns. */
+    fun setRegistries(documents: DocumentRegistry, containers: ContainerRegistry, presets: List<LayoutPreset>) {
+        registries.value = Registries(documents, containers, presets)
+    }
+
+    private fun env() = registries.value.let { r -> ShellEnv({ r.documents.resolve(it) }, r.presets) }
+
     private val mutable = MutableStateFlow<ShellState?>(null)
     val state: StateFlow<ShellState?> = mutable.asStateFlow()
     private var pending: String? = null
@@ -82,7 +94,7 @@ class WorkspaceShellModel(
     }
 
     fun dispatch(action: ShellAction) {
-        mutable.update { s -> s?.let { ShellReducer.reduce(it, action, env) } }
+        mutable.update { s -> s?.let { ShellReducer.reduce(it, action, env()) } }
     }
 
     fun open(uri: DocumentUri, options: OpenOptions = OpenOptions()) = dispatch(ShellAction.Open(uri, options))

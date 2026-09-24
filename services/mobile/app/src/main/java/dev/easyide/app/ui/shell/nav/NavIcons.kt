@@ -17,7 +17,11 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import dev.easyide.app.extensions.adapters.ShellContributions
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.shell.ext.ExtIcons
 import dev.easyide.app.ui.shell.IconRef
 
 /**
@@ -48,4 +52,9 @@ object NavIcons {
     val more: ImageVector = Icons.Filled.MoreHoriz
 
     fun of(ref: IconRef): ImageVector = TABLE[ref.name] ?: FALLBACK
+
+    /** [of], except that a pack's own SVG (`ext:` names) is drawn by [ExtIcons] once it has been read. */
+    @Composable
+    fun icon(ref: IconRef): ImageVector =
+        if (ref.name.startsWith(ShellContributions.EXT_ICON_PREFIX)) ExtIcons.of(ref, Kit.colors.plainText) else of(ref)
 }

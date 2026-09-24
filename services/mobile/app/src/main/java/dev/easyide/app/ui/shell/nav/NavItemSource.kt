@@ -16,6 +16,9 @@ interface NavItemSource {
     val contributions: StateFlow<List<NavContribution>>
     val badges: StateFlow<Map<String, NavBadgeValue>>
     fun holds(condition: String): Boolean
+
+    /** The command ids an extension item may run (`target.command`); the shell drops an item naming any other. */
+    val commands: Set<String> get() = emptySet()
 }
 
 /** No extension contributes anything, so a conditional item never shows (nothing can satisfy its clause). */

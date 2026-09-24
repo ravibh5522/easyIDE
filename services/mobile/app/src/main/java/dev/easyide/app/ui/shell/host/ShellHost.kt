@@ -53,6 +53,7 @@ fun ShellHost(
     val state = shell.state.collectAsStateWithLifecycle().value ?: return
     if (state.window != window) return
 
+    val registries by shell.effective.collectAsStateWithLifecycle()
     val items by shell.navItems.collectAsStateWithLifecycle()
     val settings by shell.navSettings.collectAsStateWithLifecycle()
     val badges by shell.navBadges.collectAsStateWithLifecycle()
@@ -91,9 +92,9 @@ fun ShellHost(
             AdaptiveScaffold(placement, nav = { NavSurface(surface, shell::selectNav) }) { area ->
                 Box(area) {
                     ShellBody(
-                        state, shell.registries.containers, panels,
+                        state, registries.containers, panels,
                         onResizePanel = { shell.resizePane(Pane.EXPLORER, it) },
-                        stage = { m, idle -> StageHost(state, shell.registries.documents, renderers, callbacks, m, idle) },
+                        stage = { m, idle -> StageHost(state, registries.documents, renderers, callbacks, m, idle) },
                     )
                     ToastHost(toast, shell::toastDismissed, Modifier.align(Alignment.BottomCenter))
                 }

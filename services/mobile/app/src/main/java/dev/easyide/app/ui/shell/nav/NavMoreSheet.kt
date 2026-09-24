@@ -26,7 +26,7 @@ internal fun NavMoreSheet(items: List<NavItem>, active: String?, onSelect: (NavI
                     id = "nav-more-${item.id}",
                     selected = item.id == active,
                     onClick = { onSelect(item) },
-                    leading = { Image(NavIcons.of(item.icon), null, Modifier, colorFilter = ColorFilter.tint(Kit.colors.activityIcon)) },
+                    leading = { Image(NavIcons.icon(item.icon), null, Modifier, colorFilter = ColorFilter.tint(Kit.colors.activityIcon)) },
                 )
             }
         }
