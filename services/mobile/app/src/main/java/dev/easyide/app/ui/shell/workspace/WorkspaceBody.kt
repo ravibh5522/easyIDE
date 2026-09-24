@@ -6,10 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -173,7 +178,9 @@ private fun Center(v: BodyView, modifier: Modifier) {
 /** The stage: the language servers' install notice above the groups. */
 @Composable
 private fun Stage(v: BodyView, modifier: Modifier) {
-    Column(modifier) {
+    // The inset is taken here, above the notice: the document strip pads for it too, and would
+    // otherwise leave a status-bar-sized gap below a notice that is drawn under the system bar.
+    Column(modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))) {
         v.slots.notice()
         StageHost(v.state, v.parts.documents, v.parts.renderers, v.stageCallbacks, Modifier.weight(1f), v.slots.idle, v.slots.emptyTitle, v.slots.trailing)
     }

@@ -79,11 +79,15 @@ object LayoutPresets {
 
     val BUILT_IN = listOf(FOCUS, CLASSIC, WORKBENCH, TERMINAL_FIRST, BOOK, TABLETOP)
 
-    /** What `auto` means for an arrangement. */
+    /**
+     * What `auto` means for an arrangement. A landscape tablet is FULL yet only about 1150dp wide:
+     * three docked panels would leave the editor barely 600dp, so `auto` stays on two and the
+     * workbench is an explicit choice.
+     */
     fun auto(arrangement: PaneArrangement): LayoutPreset = when (arrangement) {
         PaneArrangement.SINGLE_PANE -> FOCUS
         PaneArrangement.ONE_SIDE -> CLASSIC
-        PaneArrangement.FULL -> WORKBENCH
+        PaneArrangement.FULL -> CLASSIC
         PaneArrangement.BOOK -> BOOK
         PaneArrangement.TABLETOP -> TABLETOP
     }

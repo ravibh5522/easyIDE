@@ -31,6 +31,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 
 /** Underline is the editor-tab look; Segmented is a joined outlined control for a few values. */
 enum class TabStyle { Underline, Segmented }
@@ -97,7 +98,7 @@ private fun UnderlineTabs(labels: List<String>, selected: Int, onSelect: (Int) -
                     .padding(horizontal = inset),
                 contentAlignment = Alignment.Center,
             ) {
-                BasicText(label, style = Kit.type.labelLarge.copy(color = if (on) colors.tabActiveText else colors.tabInactiveText))
+                BasicText(label, style = Kit.type.labelLarge.copy(color = if (on) colors.tabActiveText else colors.tabInactiveText), maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -128,7 +129,7 @@ private fun SegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -
                 contentAlignment = Alignment.Center,
             ) {
                 val weight = if (on) FontWeight.Medium else FontWeight.Normal
-                BasicText(label, style = Kit.type.labelLarge.copy(color = if (on) colors.accent else colors.plainText, fontWeight = weight))
+                BasicText(label, style = Kit.type.labelLarge.copy(color = if (on) colors.accent else colors.plainText, fontWeight = weight), maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
             }
         }
     }
