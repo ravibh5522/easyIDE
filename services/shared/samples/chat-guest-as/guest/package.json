@@ -1,0 +1,6 @@
+{
+  "name": "sample-chat-guest",
+  "private": true,
+  "type": "module",
+  "devDependencies": { "assemblyscript": "0.28.20" }
+}

@@ -37,3 +37,4 @@ Lightweight ADRs (Architecture Decision Records) for major, hard-to-reverse choi
 | [0026](0026-identity-ui-kit-and-properties.md) | Identity ("Block"), UI kit as the only widget layer, and appearance properties (amends 0019) | Accepted |
 | [0023](0023-workspace-session-lifetime.md) | Workspace session lifetime: an app-scoped registry parks projects; a hot-exit snapshot survives the process | Accepted |
 | [0022](0022-editing-workflows-history-find-quick-open.md) | Editing workflows: patch history at the workspace's content choke point, decoration-painted find, one picker shell | Accepted |
+| [0027](0027-extension-view-schema.md) | Extension views: a fixed declarative view schema (`viewSchema: 1`) drawn by the app's kit | Accepted |

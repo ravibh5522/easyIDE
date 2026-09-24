@@ -1,0 +1,19 @@
+{
+  "viewSchema": 1,
+  "state": { "images": [], "error": "", "query": "" },
+  "root": {
+    "type": "column",
+    "children": [
+      { "type": "banner", "value": "{error}", "tone": "warning", "when": "error" },
+      { "type": "search", "hint": "Filter images", "bind": "query" },
+      {
+        "type": "table", "bind": "images", "key": "id",
+        "columns": [
+          { "title": "Image", "field": "name", "weight": 2, "mono": true },
+          { "title": "Size", "field": "size" }
+        ],
+        "empty": { "type": "emptyState", "message": "No images." }
+      }
+    ]
+  }
+}

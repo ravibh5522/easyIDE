@@ -1,0 +1,23 @@
+{
+  "viewSchema": 1,
+  "state": { "rooms": [{ "name": "general" }, { "name": "ideas" }, { "name": "todo" }] },
+  "root": {
+    "type": "column",
+    "children": [
+      {
+        "type": "list", "bind": "rooms", "key": "name",
+        "item": {
+          "type": "row", "padding": "s", "align": "center", "gap": "s", "open": "ext://easyide.sample-chat/room/{name}",
+          "children": [{ "type": "text", "value": "# {name}", "role": "body", "weight": 1 }]
+        }
+      },
+      {
+        "type": "row", "padding": "m",
+        "children": [{
+          "type": "field", "bind": "newRoom", "hint": "New room, then Done", "weight": 1,
+          "open": "ext://easyide.sample-chat/room/{value}"
+        }]
+      }
+    ]
+  }
+}

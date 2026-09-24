@@ -1,0 +1,28 @@
+{
+  "viewSchema": 1,
+  "state": { "sessions": [], "error": "" },
+  "root": {
+    "type": "column",
+    "children": [
+      { "type": "banner", "value": "{error}", "tone": "warning", "when": "error" },
+      { "type": "row", "padding": "m", "children": [{ "type": "button", "label": "New session", "style": "primary", "icon": "add", "action": "easyide.sample-agents.newSession" }] },
+      {
+        "type": "list", "bind": "sessions", "key": "id",
+        "item": {
+          "type": "row", "padding": "s", "align": "center", "gap": "s", "open": "ext://easyide.sample-agents/session/{id}",
+          "children": [
+            {
+              "type": "column", "weight": 1,
+              "children": [
+                { "type": "text", "value": "{title}", "role": "body", "maxLines": 1 },
+                { "type": "text", "value": "{last}", "role": "caption", "maxLines": 1 }
+              ]
+            },
+            { "type": "tag", "value": "{count|count}" }
+          ]
+        },
+        "empty": { "type": "emptyState", "message": "No sessions yet." }
+      }
+    ]
+  }
+}

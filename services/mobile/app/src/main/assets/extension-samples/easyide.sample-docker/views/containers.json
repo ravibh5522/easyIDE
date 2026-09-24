@@ -1,0 +1,36 @@
+{
+  "viewSchema": 1,
+  "state": { "containers": [], "runningCount": 0, "error": "", "query": "" },
+  "root": {
+    "type": "column",
+    "children": [
+      { "type": "banner", "value": "{error}", "tone": "warning", "when": "error" },
+      { "type": "search", "hint": "Filter containers", "bind": "query" },
+      {
+        "type": "list", "bind": "containers", "key": "id", "query": "query", "filterFields": ["name", "image"],
+        "item": {
+          "type": "row", "align": "center", "gap": "s", "padding": "s", "open": "ext://easyide.sample-docker/container/{id}",
+          "children": [
+            { "type": "statusDot", "tone": "success", "label": "running", "when": "state == running" },
+            { "type": "statusDot", "tone": "neutral", "label": "not running", "when": "state != running" },
+            {
+              "type": "column", "weight": 1,
+              "children": [
+                { "type": "text", "value": "{name}", "role": "body", "maxLines": 1 },
+                { "type": "text", "value": "{image}  {status}", "role": "caption", "maxLines": 1 }
+              ]
+            },
+            { "type": "iconButton", "icon": "restart", "label": "Restart {name}", "when": "state == running", "action": "easyide.sample-docker.restart", "args": { "id": "{id}" } },
+            {
+              "type": "iconButton", "icon": "stop", "label": "Stop {name}", "when": "state == running",
+              "action": "easyide.sample-docker.stop", "args": { "id": "{id}" },
+              "confirm": { "title": "Stop {name}?", "body": "The container stops. Its data is kept." }
+            },
+            { "type": "iconButton", "icon": "play", "label": "Start {name}", "when": "state != running", "action": "easyide.sample-docker.start", "args": { "id": "{id}" } }
+          ]
+        },
+        "empty": { "type": "emptyState", "message": "No containers. Start one with docker run and it shows here." }
+      }
+    ]
+  }
+}
