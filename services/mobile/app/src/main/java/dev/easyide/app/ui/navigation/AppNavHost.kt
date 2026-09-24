@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -19,22 +20,21 @@ import dev.easyide.app.ui.devtools.devToolsRoutes
 import dev.easyide.app.ui.foundation.NavTransitions
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsScreen
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
-import dev.easyide.app.ui.screens.extensions.ExtensionsScreen
-import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
-import dev.easyide.app.ui.screens.home.HomeCallbacks
-import dev.easyide.app.ui.screens.home.HomeScreen
-import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectScreen
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
 import dev.easyide.app.ui.screens.onboarding.InstallLinuxScreen
 import dev.easyide.app.ui.screens.onboarding.OnboardingScreen
 import dev.easyide.app.ui.screens.settings.ProjectSettingsScope
-import dev.easyide.app.ui.screens.settings.SettingsScreen
-import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.ProjectNotFound
 import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
 import dev.easyide.app.ui.screens.workspace.files.LocalIgnoreIndex
+import dev.easyide.app.ui.shell.CoreShell
+import dev.easyide.app.ui.shell.host.AppRenderers
+import dev.easyide.app.ui.shell.host.ShellDeps
+import dev.easyide.app.ui.shell.host.ShellExits
+import dev.easyide.app.ui.shell.host.ShellHost
+import dev.easyide.app.ui.shell.host.ShellViewModel
 
 /**
  * Top-level nav graph. Home is the stack root; everything else is one level
@@ -46,6 +46,7 @@ fun AppNavHost(
     motionEnabled: Boolean,
     container: AppContainer,
     viewModelFactory: AppViewModelFactory,
+    shell: ShellViewModel,
     onOnboardingComplete: () -> Unit,
     navController: NavHostController = rememberNavController(),
 ) {
@@ -78,37 +79,18 @@ fun AppNavHost(
         }
 
         composable(Destination.Home.route) {
-            val viewModel: HomeViewModel = appViewModel(viewModelFactory)
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-            HomeScreen(
-                uiState = uiState,
-                externalFolderSync = container.externalFolderSync,
-                callbacks = HomeCallbacks(
-                    onQueryChanged = viewModel::onQueryChanged,
-                    onSortChanged = viewModel::onSortChanged,
-                    onSelect = viewModel::onSelect,
-                    onCloseDetail = viewModel::onCloseDetail,
-                    onResumed = viewModel::onResumed,
-                    onOpenProject = { item, withTerminal ->
-                        viewModel.onProjectOpened(item.project.id)
-                        navController.navigate(Destination.Workspace.routeFor(item.project.id, withTerminal))
-                    },
-                    onNewProject = { navController.navigate(Destination.NewProject.route) },
-                    onOpenSettings = { navController.navigate(Destination.Settings.route) },
-                    onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
-                    onDialog = viewModel::onDialog,
-                    onFolderPicked = viewModel::onFolderPicked,
-                    onFolderPickFailed = viewModel::onFolderPickFailed,
-                    onMessageShown = viewModel::onMessageShown,
-                    rename = viewModel::rename,
-                    duplicate = viewModel::duplicate,
-                    delete = viewModel::delete,
-                    changeEnvironment = viewModel::changeEnvironment,
-                    importFolder = viewModel::importFolder,
-                    clone = viewModel::clone,
-                ),
-            )
+            val deps = remember(container, viewModelFactory) {
+                ShellDeps(
+                    container, viewModelFactory,
+                    ShellExits(
+                        onOpenProject = { id, withTerminal -> navController.navigate(Destination.Workspace.routeFor(id, withTerminal)) },
+                        onNewProject = { navController.navigate(Destination.NewProject.route) },
+                        onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
+                        onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
+                    ),
+                )
+            }
+            ShellHost(shell, remember(deps) { AppRenderers.panels(deps) }, remember { AppRenderers.documents() })
         }
 
         composable(
@@ -158,8 +140,8 @@ fun AppNavHost(
                 session = workspaceViewModel.sessionUi,
                 onCloseProject = { container.workspaces.close(projectId) },
                 editing = workspaceViewModel.editing,
-                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
-                onOpenSettings = { navController.navigate(Destination.Settings.route) },
+                onOpenExtensions = { shell.goTo(CoreShell.EXTENSIONS); navController.popBackStack(Destination.Home.route, inclusive = false) },
+                onOpenSettings = { shell.goTo(CoreShell.SETTINGS); navController.popBackStack(Destination.Home.route, inclusive = false) },
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
                     onCommit = workspaceViewModel::commitGit,
@@ -202,17 +184,6 @@ fun AppNavHost(
             }
         }
 
-        composable(Destination.Settings.route) {
-            val viewModel: SettingsViewModel = appViewModel(viewModelFactory)
-            SettingsScreen(
-                viewModel = viewModel,
-                externalFolderSync = container.externalFolderSync,
-                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
-                onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
-                onBack = { navController.popBackStack() },
-            )
-        }
-
         composable(Destination.Diagnostics.route) {
             val viewModel: DiagnosticsViewModel = appViewModel(viewModelFactory)
             DiagnosticsScreen(
@@ -223,11 +194,6 @@ fun AppNavHost(
         }
 
         devToolsRoutes(navController)
-
-        composable(Destination.Extensions.route) {
-            val viewModel: ExtensionsViewModel = appViewModel(viewModelFactory)
-            ExtensionsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
-        }
 
         composable(Destination.NewProject.route) {
             val viewModel: NewProjectViewModel = appViewModel(viewModelFactory)

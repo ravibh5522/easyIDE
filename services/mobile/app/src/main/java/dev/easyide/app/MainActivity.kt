@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -31,6 +32,7 @@ import dev.easyide.app.ui.foundation.SettingsEditor
 import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.foundation.currentWindowSize
 import dev.easyide.app.ui.navigation.AppNavHost
+import dev.easyide.app.ui.shell.host.ShellViewModel
 import dev.easyide.app.ui.theme.EasyIdeTheme
 import dev.easyide.app.ui.theme.FileIcons
 import dev.easyide.app.ui.theme.LocalFileIcons
@@ -45,6 +47,8 @@ import kotlinx.coroutines.withTimeoutOrNull
  * has to look them up itself.
  */
 class MainActivity : ComponentActivity() {
+
+    private val shellViewModel: ShellViewModel by viewModels { AppViewModelFactory((application as EasyIdeApplication).container) }
 
     // Main-thread only: written from composition, read by the splash's
     // per-frame keep-on-screen check.
@@ -118,6 +122,7 @@ class MainActivity : ComponentActivity() {
                                 motionEnabled = LocalMotionEnabled.current,
                                 container = container,
                                 viewModelFactory = factory,
+                                shell = shellViewModel,
                                 onOnboardingComplete = {
                                     lifecycleScope.launch {
                                         container.uiPreferences.setOnboardingComplete(true)

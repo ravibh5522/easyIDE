@@ -2,7 +2,9 @@ package dev.easyide.app.ui.shell
 
 import dev.easyide.app.ui.foundation.WindowSize
 import dev.easyide.app.ui.screens.workspace.layout.CloseScope
+import dev.easyide.app.ui.screens.workspace.layout.Pane
 import dev.easyide.app.ui.screens.workspace.layout.PaneArrangement
+import dev.easyide.app.ui.screens.workspace.layout.with
 
 /** A container of a navigation item's target, resolved by the host: which placement it shows in. */
 data class ContainerRef(val placement: Placement, val id: String)
@@ -13,6 +15,9 @@ sealed interface ShellAction {
     /** A navigation item with a container target was tapped. Command targets never reach the reducer. */
     data class SelectNav(val navId: String, val container: ContainerRef) : ShellAction
     data class TogglePanel(val placement: Placement) : ShellAction
+
+    /** A dragged pane edge; a null [size] forgets the drag so the pane follows its default again. */
+    data class ResizePane(val pane: Pane, val size: Float?) : ShellAction
 
     data class Open(val uri: DocumentUri, val options: OpenOptions = OpenOptions()) : ShellAction
     data class Close(val group: Int, val key: DocumentUri) : ShellAction
@@ -43,6 +48,7 @@ object ShellReducer {
             is ShellAction.Resize -> resize(state, action.window, env)
             is ShellAction.SelectNav -> selectNav(state, action, env)
             is ShellAction.TogglePanel -> onLayout(state) { it.toggle(action.placement, state.rule) }
+            is ShellAction.ResizePane -> onLayout(state) { it.copy(sizes = it.sizes.with(action.pane, action.size)) }
             is ShellAction.Open -> open(state, action.uri, action.options, env)
             is ShellAction.Close -> onStage(state) { it.close(action.group, action.key) }
             is ShellAction.CloseMany -> onStage(state) { it.close(action.group, action.key, action.scope) }

@@ -69,6 +69,7 @@ class DocumentUri private constructor(
         private val EASYIDE_PAGES = mapOf(
             "settings" to 0..1,
             "extension" to 1..1,
+            "project" to 1..1,
             "keybindings" to 0..0,
             "language-servers" to 0..0,
             "diagnostics" to 0..0,

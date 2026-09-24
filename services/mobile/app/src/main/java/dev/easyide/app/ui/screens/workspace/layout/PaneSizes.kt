@@ -54,7 +54,8 @@ fun PaneSizes.of(pane: Pane, default: Float): Float = when (pane) {
     Pane.RIGHT -> right
 } ?: default
 
-fun PaneSizes.with(pane: Pane, size: Float): PaneSizes = when (pane) {
+/** [size] null forgets the stored size, so the pane follows its default again. */
+fun PaneSizes.with(pane: Pane, size: Float?): PaneSizes = when (pane) {
     Pane.EXPLORER -> copy(explorer = size)
     Pane.BOTTOM -> copy(bottom = size)
     Pane.RIGHT -> copy(right = size)
