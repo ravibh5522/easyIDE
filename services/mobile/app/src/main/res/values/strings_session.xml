@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workspace sessions: parking, restore, hot-exit, external file changes, and the
+     workspace.* settings. Kept apart from strings.xml so the feature merges as one unit. -->
+<resources>
+    <string name="settings_category_workspace">Workspace</string>
+
+    <string name="setting_restore_open_tabs_title">Restore open tabs</string>
+    <string name="setting_restore_open_tabs_desc">Reopen the tabs, cursors, scroll positions and explorer folders a project had when you last left it. Unsaved edits are always restored, whatever this says.</string>
+    <string name="setting_open_last_project_title">Open last project on launch</string>
+    <string name="setting_open_last_project_desc">Start straight in the project you used last instead of the project list.</string>
+    <string name="setting_max_parked_title">Projects kept running in the background</string>
+    <string name="setting_max_parked_desc">Leaving a project keeps its terminals and open files alive so it is exactly as you left it when you come back. Beyond this many, the one you left longest ago is ended (its unsaved edits are backed up first). 0 ends a project as soon as you leave it.</string>
+
+    <string name="session_close_project">Close project</string>
+    <plurals name="session_restored_unsaved">
+        <item quantity="one">Restored %d unsaved file</item>
+        <item quantity="other">Restored %d unsaved files</item>
+    </plurals>
+
+    <string name="session_reloaded">Reloaded %1$s: it changed on disk</string>
+    <string name="session_gone">%1$s was deleted on disk</string>
+    <string name="session_save_blocked">%1$s changed on disk. Keep your version or use the disk version before saving.</string>
+    <string name="session_notice_gone">Deleted or unreadable as text on disk. Saving recreates it.</string>
+    <string name="session_notice_conflict">Changed on disk while you had unsaved edits. Saving is blocked until you choose.</string>
+
+    <string name="session_conflict_title">%1$s changed on disk</string>
+    <string name="session_conflict_body">You have unsaved edits and the file was changed outside the editor. Keeping your version overwrites the disk version when you save.</string>
+    <string name="session_conflict_keep_mine">Keep mine</string>
+    <string name="session_conflict_use_disk">Use disk version</string>
+    <string name="session_conflict_later">Decide later</string>
+
+</resources>

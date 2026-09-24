@@ -6,11 +6,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.easyide.app.AppContainer
+import dev.easyide.app.data.settings.WorkspaceSettingsSchema
+import dev.easyide.app.diagnostics.Cleanup
+import dev.easyide.app.diagnostics.DiagnosticsCollector
+import dev.easyide.app.diagnostics.StorageLocations
+import dev.easyide.app.diagnostics.readUname
+import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
 import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
+import kotlinx.coroutines.Job
+import java.io.File
+import kotlinx.coroutines.flow.first
 
 /**
  * Bridges the manually-wired [AppContainer] into ViewModel construction.
@@ -55,19 +64,41 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 environmentManager = container.environmentManager,
             )
 
+            DiagnosticsViewModel::class.java -> DiagnosticsViewModel(
+                collector = DiagnosticsCollector(
+                    build = container.buildInfo,
+                    uname = ::readUname,
+                    paths = container.paths,
+                    environments = container.environmentManager.environments,
+                    nativeLibraryDir = File(container.appContext.applicationInfo.nativeLibraryDir),
+                    storage = StorageLocations(logs = container.logDir, sessionBackups = container.sessionsDir),
+                    appLog = container.appLog,
+                    crashReports = container.crashReports,
+                ),
+                appLog = container.appLog,
+                crashReports = container.crashReports,
+                cleanup = Cleanup(container.paths, container.appLog, container.crashReports),
+                resolver = container.appContext.contentResolver,
+            )
+
             else -> error("Unknown ViewModel: ${modelClass.name}")
         } as T
 }
 
 /**
  * Workspace needs its project id at construction, which the shared factory
- * cannot supply - each project gets its own instance, keyed by id so switching
- * projects does not reuse another project's open tabs.
+ * cannot supply - each project gets its own instance, made by the app-scoped
+ * [dev.easyide.app.session.WorkspaceRegistry] (one per project id, so switching
+ * projects does not reuse another project's open tabs).
+ *
+ * [settled] is the project's previous session while it is still saving on its
+ * way out; the new one restores only after it.
  */
 class WorkspaceViewModelFactory(
     private val container: AppContainer,
     private val projectId: String,
     private val environmentId: String,
+    private val settled: Job?,
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -87,6 +118,10 @@ class WorkspaceViewModelFactory(
             imageProvider = container::imageFor,
             lspRuntime = container.lsp,
             extensions = container.extensions,
+            sessionStore = container.sessionStore,
+            restoreOpenTabs = { container.settingsStore.snapshot.first()[WorkspaceSettingsSchema.restoreOpenTabs] },
+            settled = settled,
+            log = container.appLog,
         ) as T
     }
 }

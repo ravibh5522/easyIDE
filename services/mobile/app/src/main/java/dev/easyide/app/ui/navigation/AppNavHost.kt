@@ -4,16 +4,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.easyide.app.AppContainer
 import dev.easyide.app.ui.AppViewModelFactory
-import dev.easyide.app.ui.WorkspaceViewModelFactory
 import dev.easyide.app.ui.appViewModel
 import dev.easyide.app.ui.foundation.NavTransitions
+import dev.easyide.app.ui.screens.diagnostics.DiagnosticsScreen
+import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
 import dev.easyide.app.ui.screens.extensions.ExtensionsScreen
 import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeScreen
@@ -27,7 +27,6 @@ import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.ProjectNotFound
 import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
-import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
 
 /**
  * Top-level nav graph. Home is the stack root; everything else is one level
@@ -43,6 +42,8 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
 ) {
     val transitions = NavTransitions(motionEnabled)
+    LaunchRedirect(container, navController, startAtOnboarding)
+    CrashRecovery(container, navController, startAtOnboarding)
 
     NavHost(
         navController = navController,
@@ -94,10 +95,9 @@ fun AppNavHost(
                 ProjectNotFound(onBackHome = { navController.popBackStack(Destination.Home.route, inclusive = false) })
             } else {
             val environmentId = project.environmentId
-            val workspaceViewModel: WorkspaceViewModel = viewModel(
-                key = projectId,
-                factory = WorkspaceViewModelFactory(container, projectId, environmentId),
-            )
+            val workspaceViewModel = rememberWorkspace(container, projectId, environmentId) {
+                navController.popBackStack(Destination.Home.route, inclusive = false)
+            }
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
 
@@ -111,6 +111,8 @@ fun AppNavHost(
                 extensionHost = workspaceViewModel.extensionHost,
                 extensions = container.extensions,
                 selections = workspaceViewModel.selections,
+                session = workspaceViewModel.sessionUi,
+                onCloseProject = { container.workspaces.close(projectId) },
                 onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
@@ -158,8 +160,14 @@ fun AppNavHost(
                 viewModel = viewModel,
                 externalFolderSync = container.externalFolderSync,
                 onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
+                onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
                 onBack = { navController.popBackStack() },
             )
+        }
+
+        composable(Destination.Diagnostics.route) {
+            val viewModel: DiagnosticsViewModel = appViewModel(viewModelFactory)
+            DiagnosticsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
 
         composable(Destination.Extensions.route) {

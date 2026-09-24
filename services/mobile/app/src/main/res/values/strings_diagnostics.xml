@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Diagnostics screen and the crash-recovery dialog. Kept apart from strings.xml so the
+     reliability work's strings are reviewed and merged as one unit. -->
+<resources>
+    <string name="diag_title">Diagnostics</string>
+    <string name="diag_settings_entry_title">Diagnostics</string>
+    <string name="diag_settings_entry_desc">Sandbox, disk usage, recent errors and logs you can export.</string>
+    <string name="diag_refresh">Refresh</string>
+    <string name="diag_loading">Collecting diagnostics</string>
+    <string name="diag_unknown">Unknown</string>
+
+    <!-- Sandbox -->
+    <string name="diag_section_sandbox">Sandbox</string>
+    <string name="diag_sandbox_empty">No environments yet.</string>
+    <string name="diag_env_backend">Backend</string>
+    <string name="diag_env_state">State</string>
+    <string name="diag_env_image">Image</string>
+    <string name="diag_env_rootfs">Root filesystem</string>
+    <string name="diag_env_checksum">Image checksum</string>
+    <string name="diag_env_disk">Disk usage</string>
+    <string name="diag_backend_proot">proot</string>
+    <string name="diag_backend_chroot">chroot (root)</string>
+    <string name="diag_state_not_provisioned">Not set up yet</string>
+    <string name="diag_state_provisioning">Setting up</string>
+    <string name="diag_state_ready">Ready</string>
+    <string name="diag_state_failed">Setup failed</string>
+    <string name="diag_checksum_not_checked">Archive present, not checked yet</string>
+    <string name="diag_checksum_checking">Checking</string>
+    <string name="diag_checksum_verified">Verified: the archive matches the pinned SHA-256</string>
+    <string name="diag_checksum_mismatch">The archive does not match the pinned SHA-256</string>
+    <string name="diag_checksum_archive_removed">Archive no longer on disk. The root filesystem was unpacked from a download checked against the pinned SHA-256, and it cannot be checked again.</string>
+    <string name="diag_checksum_no_pinned">This image has no pinned root filesystem for this device\'s CPU</string>
+    <string name="diag_verify_checksum">Verify checksum</string>
+    <string name="diag_clear_caches">Clear caches</string>
+
+    <!-- Runtime -->
+    <string name="diag_section_runtime">Runtime</string>
+    <string name="diag_runtime_proot">proot</string>
+    <string name="diag_runtime_proot_path">proot binary</string>
+    <string name="diag_runtime_kernel">Kernel</string>
+    <string name="diag_runtime_arch">Architecture</string>
+    <string name="diag_runtime_abis">Supported ABIs</string>
+    <string name="diag_proot_unavailable">Unavailable: %1$s</string>
+    <string name="diag_proot_missing">the binary is missing</string>
+    <string name="diag_proot_timed_out">it did not answer within a few seconds</string>
+    <string name="diag_proot_exit_code">it failed to run (%1$s)</string>
+    <string name="diag_proot_no_output">it printed no version</string>
+    <string name="diag_proot_start_failed">it could not be started (%1$s)</string>
+
+    <!-- App -->
+    <string name="diag_section_app">App</string>
+    <string name="diag_app_version">Version</string>
+    <string name="diag_app_build">Build</string>
+    <string name="diag_app_device">Device</string>
+    <string name="diag_app_android">Android</string>
+    <string name="diag_app_version_value">%1$s (%2$d)</string>
+    <string name="diag_app_device_value">%1$s %2$s</string>
+    <string name="diag_app_android_value">API level %1$d</string>
+
+    <!-- Storage -->
+    <string name="diag_section_storage">Storage</string>
+    <string name="diag_storage_environments">Environments</string>
+    <string name="diag_storage_images">Downloaded images</string>
+    <string name="diag_storage_projects">Projects</string>
+    <string name="diag_storage_extensions">Extensions</string>
+    <string name="diag_storage_logs">Logs and crash reports</string>
+    <string name="diag_storage_sessions">Session backups</string>
+    <string name="diag_storage_total">Total</string>
+    <string name="diag_storage_delete_images">Delete downloaded images</string>
+    <string name="diag_storage_clear_logs">Clear logs</string>
+
+    <!-- Cleanup confirmation -->
+    <string name="diag_confirm_title_caches">Clear caches for %1$s?</string>
+    <string name="diag_confirm_title_images">Delete downloaded images?</string>
+    <string name="diag_confirm_title_logs">Clear logs?</string>
+    <string name="diag_confirm_body_caches">Removes downloaded packages, package lists and temporary files from this environment, freeing %1$s. Run apt update before installing packages again. Your projects and installed software are not touched.</string>
+    <string name="diag_confirm_body_images">Removes the downloaded root filesystem archives, freeing %1$s. They are only needed to create new environments and are downloaded again when you do. Existing environments keep working.</string>
+    <string name="diag_confirm_body_logs">Removes the app log and crash reports you have already seen, freeing %1$s.</string>
+    <string name="diag_confirm_action">Free %1$s</string>
+    <string name="diag_confirm_nothing">Nothing to free</string>
+
+    <!-- Recent problems -->
+    <string name="diag_section_problems">Recent problems</string>
+    <string name="diag_problems_none">No warnings or errors logged.</string>
+    <string name="diag_last_crash">Last crash</string>
+    <string name="diag_last_crash_new">Not reviewed yet</string>
+    <string name="diag_last_errors">Latest warnings and errors</string>
+
+    <!-- Logs -->
+    <string name="diag_section_logs">Logs</string>
+    <string name="diag_logs_body">The log holds the most recent app, sandbox, language server and extension messages, with stack traces of crashes. It stays on this device until you export or share it.</string>
+    <string name="diag_export">Export to file</string>
+    <string name="diag_share">Share</string>
+    <string name="diag_export_file_name">easyide-diagnostics-%1$s.txt</string>
+    <string name="diag_share_subject">easyIDE diagnostics</string>
+    <string name="diag_share_chooser">Share diagnostics</string>
+
+    <!-- Messages -->
+    <string name="diag_msg_cleanup_done">Freed %1$s</string>
+    <string name="diag_msg_cleanup_partial">Freed %1$s; %2$d items could not be removed</string>
+    <string name="diag_msg_cleanup_failed">Could not clear that data</string>
+    <string name="diag_msg_verify_failed">Could not read the image archive</string>
+    <string name="diag_msg_export_done">Diagnostics exported</string>
+    <string name="diag_msg_export_failed">Could not write the file</string>
+
+    <!-- Crash recovery -->
+    <string name="diag_crash_title">The app closed unexpectedly</string>
+    <string name="diag_crash_body">easyIDE stopped after an error. A report was saved on this device; share it if you would like it looked at.</string>
+    <string name="diag_crash_reopen">Reopen last project</string>
+    <string name="diag_crash_share">Share log</string>
+    <string name="diag_crash_dismiss">Dismiss</string>
+</resources>

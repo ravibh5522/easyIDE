@@ -69,6 +69,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     externalFolderSync: ExternalFolderSync,
     onOpenExtensions: () -> Unit,
+    onOpenDiagnostics: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -195,6 +196,15 @@ fun SettingsScreen(
             }
             // Storage and environments are device-wide, not layered settings; hidden while searching.
             if (!filter.isActive && uiState.tab is LayerTab.User) storageAndEnvironments(uiState, viewModel, externalFolderSync)
+            if (!filter.isActive) {
+                item(key = DIAGNOSTICS_KEY) {
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.diag_settings_entry_title)) },
+                        supportingContent = { Text(stringResource(R.string.diag_settings_entry_desc)) },
+                        modifier = Modifier.contentWidth().clickable(onClick = onOpenDiagnostics),
+                    )
+                }
+            }
         }
     }
 
@@ -347,5 +357,6 @@ private fun trustStateRes(s: TrustState): Int = when (s) {
 }
 
 private const val MANAGE_EXTENSIONS_KEY = "extensions.manage"
+private const val DIAGNOSTICS_KEY = "diagnostics.open"
 private const val BUNDLE_MIME = "application/zip"
 private const val BUNDLE_NAME = "easyide-settings-%s.zip"

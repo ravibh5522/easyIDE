@@ -19,6 +19,20 @@ import dev.easyide.app.data.settings.SafeModeState
 import dev.easyide.app.data.settings.SettingsDirWatcher
 import dev.easyide.app.data.settings.SettingsRegistry
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.SettingsSnapshot
+import dev.easyide.app.data.settings.WorkspaceSettingsSchema
+import dev.easyide.app.diagnostics.AppLog
+import dev.easyide.app.diagnostics.BuildInfo
+import dev.easyide.app.diagnostics.ExtensionLogBridge
+import dev.easyide.app.diagnostics.LspStatusBridge
+import dev.easyide.app.diagnostics.readBuildInfo
+import dev.easyide.app.diagnostics.CrashReports
+import dev.easyide.app.session.SessionStore
+import dev.easyide.app.session.WorkspaceRegistry
+import dev.easyide.app.ui.WorkspaceViewModelFactory
+import dev.easyide.app.ui.screens.workspace.session.WorkspaceHandle
+import dev.easyide.sandbox.service.SandboxKeepAlive
+import dev.easyide.sandbox.service.SessionHost
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.data.settings.SettingsTransfer
@@ -46,6 +60,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -133,7 +151,7 @@ class AppContainer(context: Context) {
 
     val gitCredentials = GitCredentials(appContext)
 
-    private val paths = SandboxPaths(appContext.filesDir)
+    val paths = SandboxPaths(appContext.filesDir)
 
     private val store: SandboxStore = SandboxStore.create(appContext.filesDir, applicationScope)
 
@@ -199,6 +217,70 @@ class AppContainer(context: Context) {
         lsp.servers.register(extensions.languageServers)
     }
 
+    /** The app's own log file and the crash reports written by the uncaught-exception handler. */
+    val logDir = File(appContext.filesDir, LOG_DIR)
+
+    val appLog = AppLog(logDir)
+
+    val crashReports = CrashReports(File(appContext.filesDir, CRASH_DIR))
+
+    val buildInfo: BuildInfo = readBuildInfo(appContext)
+
+    /** Hot-exit snapshots and unsaved-buffer backups, one directory per project. */
+    val sessionsDir = File(appContext.filesDir, SESSIONS_DIR)
+
+    val sessionStore = SessionStore(sessionsDir)
+
+    init {
+        // Subsystems that own a log port are read through their public state, never edited.
+        ExtensionLogBridge.start(extensions.log.entries, appLog, applicationScope)
+        LspStatusBridge.start(lsp.manager, appLog, applicationScope)
+    }
+
+    /** The user layer only (the `workspace.*` settings are global), kept as a value for the registry's synchronous reads. */
+    private val globalSettings = settingsStore.snapshot.stateIn(applicationScope, SharingStarted.Eagerly, SettingsSnapshot.DEFAULTS)
+
+    /**
+     * The live workspaces of the process, parked or on screen (decision 0023). Main-confined
+     * like every UI owner: workspace view models are created and cleared on the main thread.
+     */
+    val workspaces = WorkspaceRegistry<WorkspaceHandle>(
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
+        clock = System::currentTimeMillis,
+        parkLimit = { globalSettings.value[WorkspaceSettingsSchema.maxParkedProjects] },
+        open = { projectId, environmentId, settled ->
+            WorkspaceHandle.open(WorkspaceViewModelFactory(this, projectId, environmentId, settled))
+        },
+    )
+
+    init {
+        // Sessions keep the app process at foreground priority; the notification's "Stop all" ends them.
+        val keepAliveHost = SessionHost { workspaces.endAll() }
+        applicationScope.launch(Dispatchers.Main) {
+            workspaces.liveIds.collect { SandboxKeepAlive.update(appContext, it.size, keepAliveHost) }
+        }
+        // A deleted project takes its live session and stored session with it. Compared between
+        // emissions, never against an empty list on its own: the store reports an unreadable file as
+        // "no projects", and that must not erase every user's saved work.
+        applicationScope.launch(Dispatchers.Main) {
+            var known: Set<String>? = null
+            projectManager.projects.collect { list ->
+                val ids = list.mapTo(HashSet()) { it.id }
+                val previous = known
+                known = ids
+                val gone = when {
+                    previous != null -> previous - ids
+                    ids.isEmpty() -> emptySet()
+                    else -> withContext(Dispatchers.IO) { sessionStore.storedIds() } - ids
+                }
+                gone.forEach { id ->
+                    workspaces.close(id)
+                    withContext(Dispatchers.IO) { sessionStore.clear(id) }
+                }
+            }
+        }
+    }
+
     /**
      * The keymap: built-ins, then the enabled extensions' keybindings, then the active
      * profile's keybindings.json (whose `-command` entries can remove either), plus its
@@ -228,6 +310,9 @@ class AppContainer(context: Context) {
 
     private companion object {
         const val LOG_TAG = "Settings"
+        const val LOG_DIR = "logs"
+        const val CRASH_DIR = "crashes"
+        const val SESSIONS_DIR = "sessions"
         const val USER_DIR = "user"
         const val PROFILES_DIR = "profiles"
         const val KEYBINDINGS_FILE = "keybindings.json"

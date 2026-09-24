@@ -45,6 +45,7 @@ enum class SettingCategory(@StringRes val title: Int) {
     TERMINAL(R.string.settings_category_terminal),
     LANGUAGE_SERVERS(R.string.settings_category_language_servers),
     EXTENSIONS(R.string.settings_category_extensions),
+    WORKSPACE(R.string.settings_category_workspace),
 }
 
 /** Where a setting is listed: a built-in category, or one contributed `configuration` section. */

@@ -7,7 +7,7 @@ IDs match [arch.md](arch.md).
 | Component | Status | Notes |
 |---|---|---|
 | **Phase 0 — safety** | | |
-| S1 Back guard + no silent pty/buffer loss | done | unsaved-changes guard on back/rail; session survival still needs ADR-D. built + unit tests; not run on device |
+| S1 Back guard + no silent pty/buffer loss | done | superseded by ADR-D: leaving parks the workspace (shells and buffers stay alive), the unsaved-changes guard now protects the explicit Close project button. built + unit tests; not run on device |
 | S2 Dirty-tab close confirm, 48dp hit area | done | built + unit tests; not run on device |
 | S3 Project-not-found state | done | plus PS7 (second HomeViewModel removed). built + unit tests; not run on device |
 | S4 IME insets + `adjustResize` | done | built + unit tests; not run on device |
@@ -28,7 +28,7 @@ IDs match [arch.md](arch.md).
 | ADR-A Visual identity | done | [0019](../decision/0019-visual-identity.md) (Proposed: accent pending owner confirmation); iris accent, Geist/Geist Mono OFL-1.1 verified from vercel/geist-font v1.7.2 |
 | ADR-B Editor engine | done | [0018](../decision/0018-editor-engine-and-decorations.md); decoration layers landed on the current editor |
 | ADR-C Settings schema + theme import | not-started | |
-| ADR-D Workspace session lifetime | not-started | |
+| ADR-D Workspace session lifetime | done | [0023](../decision/0023-workspace-session-lifetime.md): app-scoped `WorkspaceRegistry` keyed by project id (park / re-attach / explicit close), park limit setting `workspace.maxParkedProjects`, LRU eviction with a backup under `onTrimMemory`. JVM tests of the policy and registry; not run on a device |
 | Unified `EasyIdeColors` + spacing/radius/elevation tokens | done | `ThemeTokens`/`ColorToken` -> ColorScheme + EditorColors; Light/Dark/AMOLED/HC dark+light; `Spacing`/`Radius`/`Elevation`/`Stroke`/`IconSize`/`ControlSize`; WCAG test; VS Code key map + pure mapper (file loading next wave). Chrome, tabs, tree, key row, SCM, Home, Settings tokenised; accent tab bar, tree pill, current line + active number, themed cursor/selection, Home/SCM skeletons, theme preview cards. Built + unit tests; not run on device |
 | UI + mono fonts, dense type scale | done | Geist 400/500/600 + Geist Mono 400/700 (editor, terminal), 11/12/13/15/20/28 scale. Not seen on device |
 | Terminal palette from tokens (incl. light) | done | `TerminalTheme` writes ANSI-16 + fg/bg/cursor into Termux's default scheme, resets live emulators once per palette change. Not run on device |
@@ -54,10 +54,11 @@ IDs match [arch.md](arch.md).
 | **Phase 3 — features** | | |
 | Git remote UI, identity, diff view | not-started | backend exists |
 | Claude Code install + pane + key handling | not-started | |
-| tmux sessions owned by foreground service | not-started | |
-| Session restore + hot-exit | not-started | |
+| Foreground service keep-alive for live workspaces | done | `SandboxKeepAlive` starts `SandboxForegroundService` with the first live workspace and stops it with the last; notification shows the count and offers Stop all; not sticky; Android 15 dataSync timeout handled. Not run on a device |
+| tmux sessions owned by foreground service | not-started | deliberately not built: tmux dies with the app process (children of it), needs tmux in every rootfs, and adds nothing over park + snapshot; see 0023 sec 9 |
+| Session restore + hot-exit | done | S6, S8. Versioned snapshot + atomic dirty-buffer backups per project (2 s timer, park/evict, `onStop`), restore with conflict handling and a "Restored N unsaved files" notice, `workspace.restoreOpenTabs` / `workspace.openLastProjectOnLaunch`; external-change reload / conflict dialog for open buffers, rename-follow for files and folders. Read-only tabs (binary, truncated) are not re-checked. JVM tests; process-death restore not run on a device |
 | LSP (Python first) | not-started | |
-| Diagnostics screen + local logs | not-started | |
+| Diagnostics screen + local logs | done | Settings > Diagnostics: sandbox per environment (backend, state, rootfs version, on-demand image checksum, disk use, clear package caches), proot version, uname/ABI, app/device, storage table with cleanup (symlink-safe), recent errors, export via SAF and share sheet. File-backed size-capped log (2 x 256 KiB), uncaught-exception handler writing crash reports, recovery dialog on next launch (reopen last project / share log). Extension log and LSP server state are bridged through their public ports; full LSP session lines need a one-line `LspRuntime.logSink` change (not made: extension-owned path). Not run on a device |
 | Accessibility pass | not-started | |
 | **Hygiene** | | |
 | Stale Theia wording in README / ui-shell / design-system docs | not-started | |

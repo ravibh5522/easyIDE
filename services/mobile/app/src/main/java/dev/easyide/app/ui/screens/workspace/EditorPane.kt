@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -87,6 +86,9 @@ import dev.easyide.app.ui.screens.workspace.decor.gutterDecorations
 import dev.easyide.app.ui.screens.workspace.decor.gutterTaps
 import dev.easyide.app.ui.screens.workspace.decor.rememberGutterPainters
 import dev.easyide.app.ui.screens.workspace.decor.textDecorations
+import dev.easyide.app.ui.screens.workspace.session.EditorScrolls
+import dev.easyide.app.ui.screens.workspace.session.ExternalStateNotice
+import dev.easyide.app.ui.screens.workspace.session.rememberEditorScrollStates
 
 /**
  * The code surface. Three modes, picked by what the tab holds:
@@ -116,6 +118,8 @@ fun EditorPane(
     selections: EditorSelections = remember { EditorSelections() },
     /** A secondary click (mouse right button, stylus button) on the text: the `editor/context` menu. */
     onSecondaryClick: (() -> Unit)? = null,
+    /** Scroll offsets of every tab, hoisted so a parked workspace comes back scrolled where it was. */
+    scrolls: EditorScrolls = remember { EditorScrolls() },
 ) {
     val colors = editorColors
 
@@ -126,10 +130,11 @@ fun EditorPane(
 
     Column(modifier = modifier.fillMaxSize().background(colors.background)) {
         tab.notice?.let { NoticeBar(it) }
+        ExternalStateNotice(tab.externalState)
 
         when {
             tab.isMarkdown && tab.showPreview -> MarkdownPreview(tab.content)
-            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction, selections, onSecondaryClick)
+            tab.editable -> EditableSurface(tab, onContentChanged, decorations, onGutterTap, overlay, interaction, selections, onSecondaryClick, scrolls)
             else -> ReadOnlySurface(tab, interaction)
         }
     }
@@ -145,10 +150,12 @@ private fun EditableSurface(
     interaction: EditorInteraction?,
     selections: EditorSelections,
     onSecondaryClick: (() -> Unit)?,
+    scrolls: EditorScrolls,
 ) {
     val colors = editorColors
-    val verticalScroll = rememberScrollState()
-    val horizontalScroll = rememberScrollState()
+    val scrollStates = rememberEditorScrollStates(tab.relativePath, scrolls)
+    val verticalScroll = scrollStates.vertical
+    val horizontalScroll = scrollStates.horizontal
 
     val totalLines = LineCount.of(tab.content)
     val lineNumbers = remember(totalLines) { (1..totalLines).joinToString("\n") }
@@ -488,7 +495,7 @@ private fun rememberHighlightTransformation(
 
 /** Explains why a file is read-only or truncated, instead of behaving oddly in silence. */
 @Composable
-private fun NoticeBar(text: String) {
+internal fun NoticeBar(text: String) {
     val colors = editorColors
     Text(
         text = text,
