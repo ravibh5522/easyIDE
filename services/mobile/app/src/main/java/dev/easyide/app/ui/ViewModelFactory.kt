@@ -14,6 +14,7 @@ import dev.easyide.app.diagnostics.readUname
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
 import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeViewModel
+import dev.easyide.app.ui.screens.home.LiveRunningSource
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
 import dev.easyide.app.ui.screens.onboarding.EnvironmentSetupViewModel
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
@@ -40,6 +41,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 externalFolderSync = container.externalFolderSync,
                 cloner = container.gitRemote::clone,
                 defaultEnvironmentId = container.uiPreferences.defaultEnvironmentId,
+                running = LiveRunningSource(container.workspaces, container.lsp.manager),
             )
 
             EnvironmentSetupViewModel::class.java -> EnvironmentSetupViewModel(
