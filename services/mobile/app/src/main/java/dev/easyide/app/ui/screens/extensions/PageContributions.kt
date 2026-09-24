@@ -26,7 +26,6 @@ import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.KitToggle
 import dev.easyide.app.ui.kit.PromptGlyph
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 
 /**
  * The Contributions tab: what the extension adds, read from the runtime's contribution registry,
@@ -48,7 +47,7 @@ internal fun ContributionsTab(row: ExtensionRow, actions: PageActions) {
                     onClick = { open = if (expanded) null else group.name },
                     leading = { if (expanded) PromptGlyph(color = Kit.colors.accent) },
                     id = "contribution-group",
-                    trailing = { BasicText(lines.size.toString(), style = Kit.type.bodySmall.kitMono().copy(color = Kit.colors.textMuted)) },
+                    trailing = { BasicText(lines.size.toString(), style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted)) },
                 )
                 if (expanded) lines.forEach { ContributionLine(it, actions) }
             }

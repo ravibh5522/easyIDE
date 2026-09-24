@@ -86,7 +86,7 @@ fun FlowFrame(
                 BasicText(
                     title,
                     Modifier.weight(1f).semantics { heading() },
-                    style = Kit.type.headlineMedium.copy(color = colors.plainText),
+                    style = Kit.text.display.copy(color = colors.plainText),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -1,6 +1,7 @@
 package dev.easyide.app.ui.props
 
 import androidx.compose.runtime.Immutable
+import dev.easyide.app.ui.foundation.WidthClass
 
 /*
  * The design properties of docs/ui-redesign/properties.md as values. Every choice carries an
@@ -8,7 +9,28 @@ import androidx.compose.runtime.Immutable
  * constants in release builds, so `name` and `ordinal` never reach a file.
  */
 
-enum class Density(val id: String) { COMPACT("compact"), COMFORTABLE("comfortable"), SPACIOUS("spacious") }
+/** Resolved row and control density. [DENSE] is the old `compact` step, made VS Code sized (density.md). */
+enum class Density(val id: String) {
+    DENSE("dense"), COMFORTABLE("comfortable"), SPACIOUS("spacious");
+
+    companion object {
+        /** What `appearance.density = auto` resolves to: a phone keeps finger-sized rows, a tablet is dense. */
+        fun forWidth(width: WidthClass): Density = if (width.isCompact) COMFORTABLE else DENSE
+    }
+}
+
+/**
+ * What the user picked for `appearance.density`: a fixed step, or [AUTO] which follows the width
+ * class. Stored by [id]; `compact` (the pre-density.md spelling of [DENSE]) still decodes.
+ */
+enum class DensityPref(val id: String, val density: Density?) {
+    AUTO("auto", null), DENSE("dense", Density.DENSE), COMFORTABLE("comfortable", Density.COMFORTABLE), SPACIOUS("spacious", Density.SPACIOUS);
+
+    companion object {
+        const val LEGACY_COMPACT = "compact"
+        val entriesById: Map<String, DensityPref> = entries.associateBy { it.id } + (LEGACY_COMPACT to DENSE)
+    }
+}
 
 enum class Corners(val id: String) { SHARP("sharp"), SOFT("soft"), ROUND("round") }
 
@@ -77,7 +99,8 @@ sealed interface AccentChoice {
 @Immutable
 data class Appearance(
     val accent: AccentChoice = AccentChoice.Theme,
-    val density: Density = Density.COMFORTABLE,
+    /** Null is `auto`: [Density.forWidth] of the window. */
+    val density: Density? = null,
     val corners: Corners = Corners.SOFT,
     /** Percent, 85 to 130: scales dp and sp together. */
     val uiScalePercent: Int = UI_SCALE_DEFAULT,

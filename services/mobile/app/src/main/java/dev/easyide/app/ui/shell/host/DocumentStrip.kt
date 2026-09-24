@@ -52,15 +52,14 @@ import dev.easyide.app.ui.kit.kitTag
 import dev.easyide.app.ui.shell.EditorGroup
 import dev.easyide.app.ui.shell.Tab
 import dev.easyide.app.ui.shell.TabState
-import dev.easyide.app.ui.theme.IconSize
 
 /**
  * The tab strip of one editor group on a wide window: a scrolling row of document tabs, then the group's
  * [trailing] actions, which stay put while the tabs scroll. The preview tab is italic (the next preview
  * replaces it); a tap activates a tab, a double tap keeps a preview, a long press or right click opens
- * the tab's menu, the cross closes, and a document
- * with unsaved changes says so in the close button's name. The strip is at least the touch floor tall so
- * the cross is a real target on a tablet.
+ * the tab's menu, the cross closes, and a document with unsaved changes says so in the close button's
+ * name. A tab is `tabHeight` tall and its cross a `hitBox` square; the touch region beyond that is the
+ * theme's touch floor.
  */
 @Composable
 fun DocumentStrip(
@@ -106,7 +105,7 @@ private fun StripTab(
     val flags = source.collectFlags()
     val press = rememberPressPoint()
     Row(
-        Modifier.height(maxOf(Kit.control.tab, Kit.metrics.touchFloor)).kitTag("doc-tab")
+        Modifier.height(Kit.control.tabHeight).kitTag("doc-tab")
             .background(if (selected) colors.tabActive else colors.tabInactive)
             .underline(selected)
             .kitPressPoint(press, onSecondary = onMenu?.let { menu -> { at -> menu(tab, at) } })
@@ -118,24 +117,24 @@ private fun StripTab(
             )
             .kitFocusRing(flags.focused, RectangleShape)
             .semantics { this.selected = selected }
-            .padding(start = Kit.space.m),
+            .padding(start = Kit.control.hPad),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicText(
             title,
-            style = Kit.type.labelLarge.copy(
+            style = Kit.text.title.copy(
                 color = if (selected) colors.tabActiveText else colors.tabInactiveText,
                 fontStyle = if (tab.state == TabState.PREVIEW) FontStyle.Italic else FontStyle.Normal,
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Box(Modifier.size(Kit.metrics.touchFloor).kitPressable({ onClose(tab) }), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(Kit.control.hitBox).kitPressable({ onClose(tab) }), contentAlignment = Alignment.Center) {
             val closeLabel = stringResource(if (dirty) R.string.wshell_tab_dirty_close else R.string.shell_document_close, title)
             if (dirty) {
                 Box(Modifier.size(Kit.space.s).background(colors.plainText, CircleShape).semantics { contentDescription = closeLabel })
             } else {
-                Image(Icons.Filled.Close, closeLabel, Modifier.size(IconSize.s), colorFilter = ColorFilter.tint(colors.textMuted))
+                Image(Icons.Filled.Close, closeLabel, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(colors.textMuted))
             }
         }
     }

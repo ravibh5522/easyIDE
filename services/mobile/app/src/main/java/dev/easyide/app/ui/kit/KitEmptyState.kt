@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import dev.easyide.app.R
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /** Box-drawing pictures for empty states; each is at most five lines (identity.md 10). */
 enum class EmptyArt(@StringRes internal val text: Int) {
@@ -40,10 +39,10 @@ fun KitEmptyState(
             BasicText(
                 stringResource(art.text),
                 Modifier.clearAndSetSemantics { },
-                style = Kit.type.bodySmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textDisabled),
+                style = Kit.text.monoSmall.copy(color = colors.textDisabled),
             )
         }
-        BasicText(message, style = Kit.type.bodyMedium.copy(color = colors.textMuted))
+        BasicText(message, style = Kit.text.body.copy(color = colors.textMuted))
         if (action != null) {
             Row(
                 Modifier.kitTouchFloor().kitTag("empty-action").kitPressable(action.onClick).padding(horizontal = space.xs),
@@ -51,7 +50,7 @@ fun KitEmptyState(
                 horizontalArrangement = Arrangement.spacedBy(space.s),
             ) {
                 if (Kit.feel.motif.drawsSupporting) PromptGlyph(color = colors.accent)
-                BasicText(action.label, style = Kit.type.labelLarge.copy(color = colors.accent))
+                BasicText(action.label, style = Kit.text.title.copy(color = colors.accent))
             }
         }
     }

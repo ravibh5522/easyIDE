@@ -94,7 +94,7 @@ internal fun SignatureContent(ui: SignatureUi) {
         if (ui.help.signatures.size > 1) {
             BasicText(
                 stringResource(R.string.lsp_signature_count, ui.help.activeSignature + 1, ui.help.signatures.size),
-                style = Kit.type.labelSmall.copy(color = colors.textMuted),
+                style = Kit.text.label.copy(color = colors.textMuted),
             )
         }
         param?.documentation?.let { LspMarkdownView(it.asMarkdown(), null, null) }
@@ -124,8 +124,8 @@ internal fun CodeActionContent(ui: CodeActionMenuUi, controller: WorkspaceLspCon
                     colorFilter = ColorFilter.tint(if (a.isPreferred && enabled) colors.decorations.lightbulb else colors.textMuted),
                 )
                 Column {
-                    BasicText(a.title, style = Kit.type.bodySmall.copy(color = if (enabled) colors.plainText else colors.textDisabled))
-                    a.disabledReason?.let { BasicText(it, style = Kit.type.labelSmall.copy(color = colors.textDisabled)) }
+                    BasicText(a.title, style = Kit.text.caption.copy(color = if (enabled) colors.plainText else colors.textDisabled))
+                    a.disabledReason?.let { BasicText(it, style = Kit.text.label.copy(color = colors.textDisabled)) }
                 }
             }
         }
@@ -149,7 +149,7 @@ internal fun CodeLensContent(ui: CodeLensMenuUi, controller: WorkspaceLspControl
                 Image(LspIcons.codeLens, null, Modifier.size(LspUiMetrics.kindIconSize), colorFilter = ColorFilter.tint(colors.decorations.codeLens))
                 BasicText(
                     lens.title ?: stringResource(R.string.lsp_code_lens_unresolved),
-                    style = Kit.type.bodySmall.copy(color = if (lens.title != null) colors.plainText else colors.textMuted),
+                    style = Kit.text.caption.copy(color = if (lens.title != null) colors.plainText else colors.textMuted),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

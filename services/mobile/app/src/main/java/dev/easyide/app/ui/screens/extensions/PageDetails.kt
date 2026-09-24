@@ -16,7 +16,6 @@ import dev.easyide.app.ui.kit.KitBanner
 import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.app.ui.theme.IconSize
 import dev.easyide.extensions.manifest.InstallScope
 
@@ -25,7 +24,7 @@ import dev.easyide.extensions.manifest.InstallScope
 private fun FactRow(label: String, value: String) {
     KitRow(
         title = label,
-        trailing = { BasicText(value, style = Kit.type.bodySmall.kitMono().copy(color = Kit.colors.textMuted)) },
+        trailing = { BasicText(value, style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted)) },
     )
 }
 

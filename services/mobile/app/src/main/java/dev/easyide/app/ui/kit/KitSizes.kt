@@ -3,23 +3,33 @@ package dev.easyide.app.ui.kit
 import androidx.compose.ui.unit.dp
 
 /**
- * Fixed sizes of the input primitives that no appearance property changes. Spacing, radius and
- * row heights come from `Kit.space/radius/control`; what is here is the geometry of one control
- * (a button's face, a tag, a toggle glyph), always drawn inside a 44dp hit box.
+ * Fixed sizes of the input primitives that no appearance property changes. Spacing, radius, row
+ * heights and control heights come from `Kit.space/radius/control`; what is here is the geometry
+ * of one control (a toggle glyph, a twistie slot) or a column rule.
  */
 internal object KitSizes {
-    /** Visible height of a button; the hit box stays at the touch floor. */
-    val button = 40.dp
-
     /** Buttons of a dialog on compact width, where they sit under a thumb. */
     val buttonLarge = 48.dp
-
-    val tag = 20.dp
 
     /** Check box and radio side, and the switch track height. */
     val glyph = 20.dp
     val switchWidth = 36.dp
     val switchThumb = 14.dp
+
+    /** Fixed leading columns of a row (U-DEN-02): the disclosure twistie, then the icon slot. */
+    val twistieSlot = 16.dp
+    val leadingSlot = 20.dp
+
+    /** A description narrower than this is dropped instead of showing a stub of ellipsis. */
+    val descriptionMin = 40.dp
+
+    /** Below this width a two-column settings row stacks its control under its label. */
+    val twoColumnStackBelow = 480.dp
+
+    /** The label column of a two-column row is this share of the row, clamped to the two bounds. */
+    const val LABEL_COLUMN_SHARE = 0.45f
+    val labelColumnMin = 160.dp
+    val labelColumnMax = 360.dp
 
     val dialogMaxWidth = 480.dp
     val menuMinWidth = 180.dp

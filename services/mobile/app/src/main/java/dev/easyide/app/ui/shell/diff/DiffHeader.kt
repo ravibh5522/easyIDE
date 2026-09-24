@@ -20,7 +20,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /** Where the reader is among the hunks, and how to move: a null step means there is no hunk that way. */
 class HunkNav(val position: Int, val count: Int, val onPrevious: (() -> Unit)?, val onNext: (() -> Unit)?)
@@ -41,14 +40,14 @@ fun SideLabel.text(): String = when (this) {
 @Composable
 internal fun DiffHeader(subject: DiffSubject, stats: Pair<Int, Int>?, nav: HunkNav?, onOpenFile: (() -> Unit)?) {
     val colors = Kit.colors
-    val mono = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted)
+    val mono = Kit.text.monoSmall.copy(color = colors.textMuted)
     val directory = subject.path.substringBeforeLast('/', "")
     Column(Modifier.fillMaxWidth().background(colors.panel)) {
         Row(Modifier.padding(start = Kit.space.m, end = Kit.space.s), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f).padding(vertical = Kit.space.xs)) {
                 BasicText(
                     subject.path.substringAfterLast('/'),
-                    style = Kit.type.titleSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.plainText),
+                    style = Kit.text.mono.copy(color = colors.plainText),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -69,7 +68,7 @@ private fun HunkControls(nav: HunkNav) {
     if (nav.count > 0) {
         BasicText(
             stringResource(R.string.shell_diff_hunk_position, maxOf(nav.position, 0) + 1, nav.count),
-            style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = Kit.colors.textMuted),
+            style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted),
         )
     }
     KitIconButton(Icons.Filled.KeyboardArrowDown, stringResource(R.string.shell_diff_next_hunk), { nav.onNext?.invoke() }, enabled = nav.onNext != null)

@@ -82,7 +82,7 @@ fun OverlaysSection() {
     ) {
         BasicText(
             stringResource(if (demo == DialogDemo.Long) R.string.gallery_dialog_long_body else R.string.gallery_long_body),
-            style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText),
+            style = Kit.text.body.copy(color = Kit.colors.plainText),
         )
     }
 }
@@ -102,7 +102,7 @@ fun MotifsSection() {
         for (tone in listOf(Tone.Accent, Tone.Danger)) {
             Sample(stringResource(TONE_LABELS.first { it.first == tone }.second)) {
                 Box(Modifier.fillMaxWidth().height(CORNERS_BOX).cropCorners(tone).padding(Kit.space.m), contentAlignment = Alignment.CenterStart) {
-                    BasicText(stringResource(R.string.gallery_crop_corners), style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText))
+                    BasicText(stringResource(R.string.gallery_crop_corners), style = Kit.text.body.copy(color = Kit.colors.plainText))
                 }
             }
         }

@@ -22,7 +22,6 @@ import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.screens.workspace.git.GitUi
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.sandbox.git.DiffHunk
 
 /** What the list needs to draw one diff: the laid-out [model], its [paint], and the hunk actions if the provider allows any. */
@@ -62,7 +61,7 @@ private fun HunkHeader(hunk: DiffHunk, spec: DiffListSpec) {
         BasicText(
             hunk.header,
             Modifier.weight(1f),
-            style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted),
+            style = Kit.text.monoSmall.copy(color = colors.textMuted),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

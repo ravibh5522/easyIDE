@@ -73,14 +73,14 @@ fun KitButton(
     val paint = buttonPaint(style, enabled, Kit.colors)
     val interaction = remember { MutableInteractionSource() }
     val flags = interaction.collectFlags()
-    val height = if (large) KitSizes.buttonLarge else KitSizes.button
+    val height = if (large) KitSizes.buttonLarge else Kit.control.buttonHeight
     val shape = RoundedCornerShape(Kit.metrics.radiusFor(Kit.radius.s, height))
     val loadingText = stringResource(R.string.kitin_loading)
 
     Box(
         modifier = modifier
             .kitTag("button")
-            .kitTouchFloor()
+            .kitHitSlop()
             .clickable(interaction, null, enabled = enabled && !loading, role = Role.Button, onClick = onClick)
             .semantics { if (loading) stateDescription = loadingText },
         contentAlignment = Alignment.Center,
@@ -93,7 +93,7 @@ fun KitButton(
                 .then(if (paint.border != null) Modifier.border(Kit.hairline, paint.border, shape) else Modifier)
                 .kitStateLayer(flags, enabled && !loading, paint.content)
                 .kitFocusRing(flags.focused, shape)
-                .padding(horizontal = Kit.space.l),
+                .padding(horizontal = Kit.control.hPad),
             contentAlignment = Alignment.Center,
         ) {
             Row(
@@ -102,7 +102,7 @@ fun KitButton(
                 horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
             ) {
                 icon?.let { Image(it, null, Modifier.size(IconSize.s), colorFilter = ColorFilter.tint(paint.content)) }
-                BasicText(text, style = Kit.type.labelLarge.copy(color = paint.content), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                BasicText(text, style = Kit.text.title.copy(color = paint.content), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             if (loading) Sweep(paint.content)
         }

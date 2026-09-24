@@ -61,7 +61,7 @@ internal fun MarkdownBlockView(block: MarkdownBlock) {
 
         is MarkdownBlock.Paragraph -> BasicText(
             text = block.text,
-            style = Kit.type.bodyMedium.copy(color = colors.plainText),
+            style = Kit.text.body.copy(color = colors.plainText),
             modifier = Modifier.padding(vertical = space.xs),
         )
 
@@ -79,7 +79,7 @@ internal fun MarkdownBlockView(block: MarkdownBlock) {
             )
             BasicText(
                 text = block.text,
-                style = Kit.type.bodyMedium.copy(color = colors.gutterText),
+                style = Kit.text.body.copy(color = colors.gutterText),
             )
         }
 
@@ -104,7 +104,7 @@ internal fun MarkdownBlockView(block: MarkdownBlock) {
                     } else {
                         language
                     },
-                    style = Kit.type.labelSmall.copy(color = colors.gutterText),
+                    style = Kit.text.label.copy(color = colors.gutterText),
                     modifier = Modifier.padding(start = space.m, top = space.s),
                 )
             }
@@ -140,19 +140,19 @@ private fun BulletRow(marker: String, text: AnnotatedString) {
     Row(modifier = Modifier.padding(vertical = Kit.space.xxs)) {
         BasicText(
             text = marker,
-            style = Kit.type.bodyMedium.copy(color = colors.gutterText),
+            style = Kit.text.body.copy(color = colors.gutterText),
             modifier = Modifier.padding(start = Kit.space.s, end = Kit.space.s),
         )
-        BasicText(text = text, style = Kit.type.bodyMedium.copy(color = colors.plainText))
+        BasicText(text = text, style = Kit.text.body.copy(color = colors.plainText))
     }
 }
 
 @Composable
 private fun headingStyle(level: Int) = when (level) {
-    1 -> Kit.type.headlineSmall
-    2 -> Kit.type.titleLarge
-    3 -> Kit.type.titleMedium
-    else -> Kit.type.titleSmall
+    1 -> Kit.text.display
+    2 -> Kit.text.display
+    3 -> Kit.text.heading
+    else -> Kit.text.title
 }
 
 private const val BULLET = "•"

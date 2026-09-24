@@ -51,7 +51,7 @@ fun <T> KitChoice(
             val shape = RoundedCornerShape(Kit.radius.xs)
             Row(
                 modifier = Modifier.fillMaxWidth()
-                    .heightIn(min = Kit.metrics.touchFloor)
+                    .heightIn(min = Kit.control.rowHeight)
                     .selectable(i == at, interaction, null, role = Role.RadioButton, onClick = { onSelect(option) })
                     .kitStateLayer(flags, true, Kit.colors.plainText)
                     .kitFocusRing(flags.focused, shape)
@@ -60,7 +60,7 @@ fun <T> KitChoice(
                 horizontalArrangement = Arrangement.spacedBy(Kit.space.m),
             ) {
                 KitToggle(i == at, null, kind = ToggleKind.Radio)
-                BasicText(labels[i], style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText))
+                BasicText(labels[i], style = Kit.text.body.copy(color = Kit.colors.plainText))
             }
         }
     }

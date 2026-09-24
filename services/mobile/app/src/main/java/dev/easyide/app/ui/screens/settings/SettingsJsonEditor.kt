@@ -91,7 +91,7 @@ private fun JsonTextArea(value: TextFieldValue, onChange: (TextFieldValue) -> Un
     BasicTextField(
         value = value,
         onValueChange = onChange,
-        textStyle = monoStyle(Kit.type.bodySmall).copy(color = colors.plainText),
+        textStyle = Kit.text.monoSmall.copy(color = colors.plainText),
         cursorBrush = SolidColor(colors.cursor),
         modifier = Modifier
             .fillMaxWidth()

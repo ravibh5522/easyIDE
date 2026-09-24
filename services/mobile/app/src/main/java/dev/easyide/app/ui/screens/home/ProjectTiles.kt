@@ -30,6 +30,6 @@ internal fun ProjectMonogram(name: String, size: Dp, modifier: Modifier = Modifi
             .clearAndSetSemantics { },
         contentAlignment = Alignment.Center,
     ) {
-        BasicText(monogramLetters(name), style = Kit.type.titleSmall.copy(color = Kit.colors.plainText))
+        BasicText(monogramLetters(name), style = Kit.text.title.copy(color = Kit.colors.plainText))
     }
 }

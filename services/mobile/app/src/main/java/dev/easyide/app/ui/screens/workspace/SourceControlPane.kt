@@ -52,7 +52,6 @@ import dev.easyide.app.ui.screens.workspace.git.ScmCommitBox
 import dev.easyide.app.ui.screens.workspace.git.ScmHeader
 import dev.easyide.app.ui.screens.workspace.git.StashSheet
 import dev.easyide.app.ui.screens.workspace.git.commitGraph
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.GitColors
 import dev.easyide.sandbox.git.DiffSource
 import dev.easyide.sandbox.git.GitChange

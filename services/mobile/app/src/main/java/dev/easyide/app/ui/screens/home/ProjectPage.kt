@@ -92,7 +92,7 @@ private fun ProjectPageBody(item: ProjectListItem, state: HomeUiState, callbacks
             BasicText(
                 item.project.name,
                 Modifier.semantics { heading() },
-                style = Kit.type.headlineMedium.copy(color = Kit.colors.plainText),
+                style = Kit.text.display.copy(color = Kit.colors.plainText),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )

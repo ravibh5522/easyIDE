@@ -36,7 +36,6 @@ import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitTabs
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.lsp.protocol.DiagnosticSeverity
 
 /**
@@ -54,6 +53,7 @@ fun LspSidePanel(controller: WorkspaceLspController, panel: LspPanel, modifier: 
                 selected = panels.indexOf(panel),
                 onSelect = { controller.showPanel(panels[it]) },
                 modifier = Modifier.weight(1f),
+                height = Kit.control.panelTabHeight,
             )
             KitIconButton(Icons.Filled.Close, stringResource(R.string.lsp_panel_close), { controller.showPanel(null) })
         }
@@ -123,7 +123,7 @@ private fun ReferencesPanel(controller: WorkspaceLspController) {
     BasicText(
         stringResource(R.string.lsp_references_title, refs.symbol, refs.groups.sumOf { it.rows.size }),
         Modifier.padding(Kit.space.s),
-        style = Kit.type.labelMedium.copy(color = colors.textMuted),
+        style = Kit.text.caption.copy(color = colors.textMuted),
     )
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         for (group in refs.groups) {
@@ -132,7 +132,7 @@ private fun ReferencesPanel(controller: WorkspaceLspController) {
                 KitRow(
                     title = row.preview,
                     mono = true,
-                    trailing = { BasicText("${row.location.range.start.line + 1}", style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted)) },
+                    trailing = { BasicText("${row.location.range.start.line + 1}", style = Kit.text.monoSmall.copy(color = colors.textMuted)) },
                     onClick = { controller.navigate(row.location) },
                 )
             }
@@ -170,8 +170,8 @@ private fun LazyListScope.fileHeader(label: String, count: Int) {
             modifier = Modifier.fillMaxWidth().background(colors.raised).padding(horizontal = Kit.space.s, vertical = Kit.space.xs),
             horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
         ) {
-            BasicText(label, Modifier.weight(1f), style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            BasicText(count.toString(), style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted))
+            BasicText(label, Modifier.weight(1f), style = Kit.text.monoSmall.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            BasicText(count.toString(), style = Kit.text.monoSmall.copy(color = colors.textMuted))
         }
     }
 }

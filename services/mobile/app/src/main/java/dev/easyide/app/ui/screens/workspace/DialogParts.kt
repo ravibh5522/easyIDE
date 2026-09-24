@@ -24,12 +24,12 @@ internal fun DialogHeading(text: String, modifier: Modifier = Modifier) {
     BasicText(
         text,
         modifier.padding(top = Kit.space.m, bottom = Kit.space.xs).semantics { heading() },
-        style = Kit.type.labelLarge.copy(color = Kit.colors.plainText),
+        style = Kit.text.title.copy(color = Kit.colors.plainText),
     )
 }
 
 @Composable
 internal fun DialogText(text: String, modifier: Modifier = Modifier, muted: Boolean = false) {
     val color = if (muted) Kit.colors.textMuted else Kit.colors.plainText
-    BasicText(text, modifier, style = Kit.type.bodyMedium.copy(color = color))
+    BasicText(text, modifier, style = Kit.text.body.copy(color = color))
 }

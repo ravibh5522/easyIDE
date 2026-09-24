@@ -15,7 +15,6 @@ import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.Tone
 import dev.easyide.app.ui.kit.kitGroupSeparator
-import dev.easyide.app.ui.theme.sectionHeader
 
 /**
  * One labelled specimen in a section's group: a muted caption above the primitive in one state,
@@ -28,7 +27,7 @@ fun Sample(label: String, content: @Composable ColumnScope.() -> Unit) {
         Modifier.fillMaxWidth().kitGroupSeparator(space.l).padding(horizontal = space.l, vertical = space.s),
         verticalArrangement = Arrangement.spacedBy(space.xs),
     ) {
-        BasicText(label, style = Kit.type.labelMedium.copy(color = Kit.colors.textMuted))
+        BasicText(label, style = Kit.text.caption.copy(color = Kit.colors.textMuted))
         content()
     }
 }
@@ -53,7 +52,7 @@ val TONE_LABELS: List<Pair<Tone, Int>> = listOf(
 fun GalleryBlock(title: String, content: @Composable ColumnScope.() -> Unit) {
     val space = Kit.space
     Column(Modifier.fillMaxWidth().padding(start = space.l, end = space.l, top = space.l), verticalArrangement = Arrangement.spacedBy(space.s)) {
-        BasicText(title.uppercase(), Modifier.semantics { heading() }, style = Kit.type.sectionHeader.copy(color = Kit.colors.textMuted))
+        BasicText(title.uppercase(), Modifier.semantics { heading() }, style = Kit.text.label.copy(color = Kit.colors.textMuted))
         content()
     }
 }

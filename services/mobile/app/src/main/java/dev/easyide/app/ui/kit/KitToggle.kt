@@ -62,8 +62,8 @@ fun KitToggle(
 
     val target = when {
         onCheckedChange == null -> Modifier
-        kind == ToggleKind.Radio -> Modifier.kitTouchFloor().selectable(checked, interaction, null, enabled, Role.RadioButton) { change(true) }
-        else -> Modifier.kitTouchFloor().toggleable(checked, interaction, null, enabled, if (kind == ToggleKind.Switch) Role.Switch else Role.Checkbox, change)
+        kind == ToggleKind.Radio -> Modifier.kitHitSlop().selectable(checked, interaction, null, enabled, Role.RadioButton) { change(true) }
+        else -> Modifier.kitHitSlop().toggleable(checked, interaction, null, enabled, if (kind == ToggleKind.Switch) Role.Switch else Role.Checkbox, change)
     }
     Box(modifier.kitTag("toggle").then(target), Alignment.Center) {
         Canvas(

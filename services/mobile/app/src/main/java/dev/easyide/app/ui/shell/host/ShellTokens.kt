@@ -4,15 +4,12 @@ import androidx.compose.ui.unit.dp
 
 /**
  * The fixed measurements of the shell chrome, in one place (layout-spec.md section 5). Spacing,
- * radii and row heights come from `Kit.space`, `Kit.radius` and `Kit.control`; what is here is the
- * geometry no appearance property changes.
+ * radii, row, tab, rail and status heights come from `Kit.space`, `Kit.radius` and `Kit.control`
+ * (density.md 2); what is here is the geometry no appearance property changes.
  */
 object ShellTokens {
-    /** One navigation cell: the bottom bar's height and a rail cell's height. */
-    val navCell = 56.dp
-    val railWidth = 56.dp
-    val railWidthLabelled = 72.dp
-    val navIcon = 24.dp
+    /** A rail that shows labels is this much wider than the icon-only rail token. */
+    val railLabelExtra = 16.dp
 
     val badgeDot = 8.dp
     val badgeCount = 16.dp
@@ -20,8 +17,7 @@ object ShellTokens {
     /** The drag target of a pane edge (LayoutTokens.splitterGrab) is wider than the hairline it draws. */
     val splitterLine = 1.dp
 
-    /** The status strip's height (layout-spec.md section 5), and the least a truncatable name in it is squeezed to. */
-    val statusHeight = 24.dp
+    /** The least a truncatable name in the status strip is squeezed to. */
     val statusNameMin = 64.dp
 
     /** The primary panel never takes more than this share of the window (layout-spec.md section 4.3: 200dp to 45%). */

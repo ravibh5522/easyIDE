@@ -36,7 +36,6 @@ import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.KitTag
 import dev.easyide.app.ui.kit.PromptGlyph
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 import kotlinx.coroutines.delay
 
 /** The step title types itself once (identity.md 2.3), 60ms per character; reduced motion shows it whole. */
@@ -64,7 +63,7 @@ internal fun StepTitle(@StringRes title: Int, alreadyTyped: Boolean, onTyped: ()
         withStyle(SpanStyle(color = colors.plainText)) { append(text.take(shown)) }
         withStyle(SpanStyle(color = Color.Transparent)) { append(text.drop(shown)) }
     }
-    BasicText(styled, modifier.semantics { heading(); contentDescription = text }, style = Kit.type.headlineMedium)
+    BasicText(styled, modifier.semantics { heading(); contentDescription = text }, style = Kit.text.display)
 }
 
 /** The mark: the prompt glyph, the name and a block cursor that blinks only where the flow is waiting for a first tap. */
@@ -78,7 +77,7 @@ internal fun Mark(blinking: Boolean, modifier: Modifier = Modifier) {
         PromptGlyph(color = Kit.colors.plainText, height = Kit.space.xl)
         BasicText(
             stringResource(R.string.app_name),
-            style = Kit.type.headlineMedium.kitMono().copy(color = Kit.colors.plainText),
+            style = Kit.text.display.copy(fontFamily = Kit.text.mono.fontFamily, color = Kit.colors.plainText),
             maxLines = 1,
             overflow = TextOverflow.Clip,
         )

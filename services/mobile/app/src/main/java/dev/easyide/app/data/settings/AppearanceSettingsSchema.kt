@@ -5,7 +5,7 @@ import dev.easyide.app.ui.props.AccentChoice
 import dev.easyide.app.ui.props.Appearance
 import dev.easyide.app.ui.props.ChromeContrast
 import dev.easyide.app.ui.props.Corners
-import dev.easyide.app.ui.props.Density
+import dev.easyide.app.ui.props.DensityPref
 import dev.easyide.app.ui.props.FontPairing
 import dev.easyide.app.ui.props.Handedness
 import dev.easyide.app.ui.props.HapticsLevel
@@ -28,11 +28,13 @@ object AppearanceSettingsSchema {
         default = AccentChoice.THEME, scope = SettingScope.P, pattern = ACCENT_PATTERN,
     )
 
+    /** `auto` follows the width class (dense on a tablet, comfortable on a phone); `compact` is the old spelling of `dense`. */
     val density = Setting.Enum(
         "appearance.density", C, R.string.setting_density_title, R.string.setting_density_desc,
-        Density.COMFORTABLE, SettingScope.G, Density.entries,
-        { when (it) { Density.COMPACT -> R.string.density_compact; Density.COMFORTABLE -> R.string.density_comfortable; Density.SPACIOUS -> R.string.density_spacious } },
-        id = Density::id,
+        DensityPref.AUTO, SettingScope.G, DensityPref.entries,
+        { when (it) { DensityPref.AUTO -> R.string.density_auto; DensityPref.DENSE -> R.string.density_dense; DensityPref.COMFORTABLE -> R.string.density_comfortable; DensityPref.SPACIOUS -> R.string.density_spacious } },
+        aliases = { e -> SchemaValidator.stringOrNull(e)?.let(DensityPref.entriesById::get) },
+        id = DensityPref::id,
     )
 
     val corners = Setting.Enum(
@@ -110,7 +112,7 @@ object AppearanceSettingsSchema {
     /** The resolved properties. Invalid stored values were already skipped by resolution, so this never fails. */
     fun appearance(settings: SettingsSnapshot): Appearance = Appearance(
         accent = AccentChoice.parse(settings[accent]) ?: AccentChoice.Theme,
-        density = settings[density],
+        density = settings[density].density,
         corners = settings[corners],
         uiScalePercent = settings[uiScale],
         fontPairing = settings[fontPairing],

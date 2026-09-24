@@ -55,7 +55,6 @@ import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitTag
-import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.app.ui.screens.workspace.edit.SearchResult
 
 /**
@@ -124,7 +123,7 @@ private fun FindField(find: FindController, onFocusChanged: (Boolean) -> Unit, m
         focus.requestFocus()
     }
     val failed = find.result is SearchResult.InvalidPattern || find.result is SearchResult.TimedOut
-    val text = Kit.type.bodyMedium.kitMono().copy(color = colors.plainText)
+    val text = Kit.text.mono.copy(color = colors.plainText)
 
     InputFrame(modifier, failed) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
@@ -156,7 +155,7 @@ private fun FindField(find: FindController, onFocusChanged: (Boolean) -> Unit, m
         }
         BasicText(
             text = summary(find),
-            style = Kit.type.labelSmall.copy(color = if (failed) colors.error else colors.textMuted),
+            style = Kit.text.label.copy(color = if (failed) colors.error else colors.textMuted),
             modifier = Modifier.padding(start = Kit.space.s),
         )
     }
@@ -187,7 +186,7 @@ private fun Toggles(find: FindController) {
 @Composable
 private fun ReplaceRow(find: FindController) {
     val colors = Kit.colors
-    val text = Kit.type.bodyMedium.kitMono().copy(color = colors.plainText)
+    val text = Kit.text.mono.copy(color = colors.plainText)
     Row(verticalAlignment = Alignment.CenterVertically) {
         // Lines the replace field up under the find field, past the expand button.
         Box(modifier = Modifier.size(Kit.metrics.touchFloor))

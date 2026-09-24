@@ -82,8 +82,8 @@ private fun CommitMessage(subject: String, body: String) {
     Column(Modifier.fillMaxWidth().padding(Kit.space.l)) {
         SelectionContainer {
             Column {
-                BasicText(subject, style = Kit.type.titleMedium.copy(color = Kit.colors.plainText))
-                if (body.isNotEmpty()) BasicText(body, Modifier.padding(top = Kit.space.s), style = Kit.type.bodyMedium.copy(color = Kit.colors.plainText))
+                BasicText(subject, style = Kit.text.heading.copy(color = Kit.colors.plainText))
+                if (body.isNotEmpty()) BasicText(body, Modifier.padding(top = Kit.space.s), style = Kit.text.body.copy(color = Kit.colors.plainText))
             }
         }
     }
@@ -114,9 +114,9 @@ private fun CommitMeta(detail: GitCommitDetail, opener: DocumentOpener) {
 private fun MetaLine(label: String, value: String, mono: Boolean = false) {
     val colors = Kit.colors
     Column(Modifier.padding(vertical = Kit.space.xs)) {
-        BasicText(label, style = Kit.type.labelSmall.copy(color = colors.textMuted))
+        BasicText(label, style = Kit.text.label.copy(color = colors.textMuted))
         SelectionContainer {
-            BasicText(value, style = Kit.type.bodyMedium.copy(color = colors.plainText, fontFamily = if (mono) EasyIdeFonts.mono else Kit.type.bodyMedium.fontFamily), overflow = TextOverflow.Ellipsis)
+            BasicText(value, style = (if (mono) Kit.text.mono else Kit.text.body).copy(color = colors.plainText), overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -134,7 +134,7 @@ private fun CommitFileRow(detail: GitCommitDetail, file: GitCommitFile, opener: 
         trailing = {
             BasicText(
                 stringResource(R.string.git_diff_stats, file.added, file.removed),
-                style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = file.type.tint(colors.git)),
+                style = Kit.text.monoSmall.copy(color = file.type.tint(colors.git)),
             )
         },
     )

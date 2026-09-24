@@ -101,7 +101,7 @@ private fun PanelHeader(showRefresh: Boolean, onRefresh: () -> Unit, viewModel: 
         BasicText(
             stringResource(R.string.ext_screen_title),
             Modifier.weight(1f).semantics { heading() },
-            style = Kit.type.titleMedium.copy(color = Kit.colors.plainText),
+            style = Kit.text.heading.copy(color = Kit.colors.plainText),
         )
         if (showRefresh) KitIconButton(Icons.Filled.Refresh, stringResource(R.string.reg_refresh), onRefresh)
         Box {

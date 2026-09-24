@@ -44,7 +44,6 @@ import dev.easyide.app.ui.kit.Tone
 import dev.easyide.app.ui.screens.workspace.GitPanelState
 import dev.easyide.app.ui.screens.workspace.PanelTitleRow
 import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.IconSize
 import dev.easyide.app.ui.theme.tabular
 import dev.easyide.sandbox.git.GitRepoState
@@ -105,7 +104,7 @@ private fun Count(icon: ImageVector, description: String, n: Int) {
     val colors = Kit.colors
     Row(Modifier.semantics(mergeDescendants = true) { contentDescription = description }, verticalAlignment = Alignment.CenterVertically) {
         Image(icon, null, Modifier.size(IconSize.xs), colorFilter = ColorFilter.tint(colors.textMuted))
-        BasicText("$n", style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = colors.textMuted).tabular())
+        BasicText("$n", style = Kit.text.monoSmall.copy(color = colors.textMuted).tabular())
     }
 }
 
@@ -117,7 +116,7 @@ private fun NoRemote(onAdd: () -> Unit) {
     ) {
         BasicText(
             text = stringResource(R.string.git_no_remote),
-            style = Kit.type.labelSmall.copy(color = Kit.colors.textMuted),
+            style = Kit.text.label.copy(color = Kit.colors.textMuted),
             modifier = Modifier.weight(1f),
         )
         KitButton(stringResource(R.string.git_remote_add), onAdd, style = KitButtonStyle.Ghost)

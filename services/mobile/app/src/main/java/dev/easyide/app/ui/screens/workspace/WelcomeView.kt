@@ -26,7 +26,6 @@ import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.screens.workspace.files.FileIcon
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /**
  * What the editor area shows with no tab open: one line of guidance with the "New file" command
@@ -75,7 +74,7 @@ fun WelcomeView(
             if (shortcuts.isNotEmpty()) {
                 KitSection(stringResource(R.string.welcome_shortcuts)) {
                     shortcuts.forEach { (title, chord) ->
-                        KitRow(title, trailing = { BasicText(chord, style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = Kit.colors.plainText)) })
+                        KitRow(title, trailing = { BasicText(chord, style = Kit.text.monoSmall.copy(color = Kit.colors.plainText)) })
                     }
                 }
             }

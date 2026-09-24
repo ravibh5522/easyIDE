@@ -94,13 +94,13 @@ fun RowScope.LspStatusItems(controller: WorkspaceLspController) {
     ) {
         for ((severity, n) in listOf(DiagnosticSeverity.ERROR to counts.errors, DiagnosticSeverity.WARNING to counts.warnings)) {
             Image(LspIcons.severity(severity), null, Modifier.size(LspUiMetrics.statusIconSize), colorFilter = tint)
-            BasicText(n.toString(), style = Kit.type.labelSmall.copy(color = colors.statusBarText))
+            BasicText(n.toString(), style = Kit.text.label.copy(color = colors.statusBarText))
         }
     }
     val summary = ServerStatusKind.summary(statuses.map { it.kind }) ?: return
     BasicText(
         text = stringResource(R.string.lsp_status_item, statuses.joinToString { it.key.serverId.substringAfterLast('/') }, stringResource(summary.label())),
-        style = Kit.type.labelSmall.copy(color = if (summary.isProblem) colors.warning else colors.statusBarText),
+        style = Kit.text.label.copy(color = if (summary.isProblem) colors.warning else colors.statusBarText),
         modifier = Modifier.clickable(role = Role.Button) { listOpen = true },
     )
     if (listOpen) ServerListDialog(statuses, controller, onLog = { logOf = it }, onDismiss = { listOpen = false })

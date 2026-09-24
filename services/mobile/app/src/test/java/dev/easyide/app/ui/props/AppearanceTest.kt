@@ -1,6 +1,7 @@
 package dev.easyide.app.ui.props
 
 import dev.easyide.app.data.settings.AppearanceSettingsSchema
+import dev.easyide.app.ui.foundation.WidthClass
 import dev.easyide.app.data.settings.Setting
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.Assert.assertEquals
@@ -35,7 +36,8 @@ class AppearanceTest {
         ids(Density.entries.map { it.id }, Corners.entries.map { it.id }, FontPairing.entries.map { it.id },
             ChromeContrast.entries.map { it.id }, Motif.entries.map { it.id }, HapticsLevel.entries.map { it.id },
             ReduceMotion.entries.map { it.id }, IconStyle.entries.map { it.id }, Handedness.entries.map { it.id })
-        assertEquals(listOf("compact", "comfortable", "spacious"), Density.entries.map { it.id })
+        assertEquals(listOf("dense", "comfortable", "spacious"), Density.entries.map { it.id })
+        assertEquals(listOf("auto", "dense", "comfortable", "spacious"), DensityPref.entries.map { it.id })
         assertEquals(listOf("geist", "monoChrome", "system"), FontPairing.entries.map { it.id })
     }
 
@@ -46,6 +48,26 @@ class AppearanceTest {
         assertNull(setting.decode(JsonPrimitive("MONO_CHROME")))
         assertNull(setting.decode(JsonPrimitive("serif")))
         assertEquals(listOf("geist", "monoChrome", "system"), setting.ids)
+    }
+
+    @Test fun `density decodes its ids and the legacy compact spelling, and rejects the rest`() {
+        val setting = AppearanceSettingsSchema.density
+        assertEquals(DensityPref.DENSE, setting.decode(JsonPrimitive("compact")))
+        assertEquals(DensityPref.DENSE, setting.decode(JsonPrimitive("dense")))
+        assertEquals(DensityPref.AUTO, setting.decode(JsonPrimitive("auto")))
+        assertEquals(DensityPref.COMFORTABLE, setting.decode(JsonPrimitive("comfortable")))
+        assertEquals(DensityPref.SPACIOUS, setting.decode(JsonPrimitive("spacious")))
+        assertNull(setting.decode(JsonPrimitive("tiny")))
+        assertNull(setting.decode(JsonPrimitive("DENSE")))
+        DensityPref.entries.forEach { assertEquals(it, setting.decode(setting.encode(it))) }
+        assertEquals(JsonPrimitive("dense"), setting.encode(DensityPref.DENSE))
+    }
+
+    @Test fun `auto density resolves to no fixed step and a fixed pref to its own`() {
+        assertNull(DensityPref.AUTO.density)
+        assertEquals(Density.SPACIOUS, DensityPref.SPACIOUS.density)
+        assertEquals(Density.COMFORTABLE, Density.forWidth(WidthClass.COMPACT))
+        assertEquals(Density.DENSE, Density.forWidth(WidthClass.MEDIUM))
     }
 
     @Test fun `the accent and scale settings validate their input`() {
@@ -60,7 +82,8 @@ class AppearanceTest {
 
     @Test fun `the schema defaults are the Appearance defaults`() {
         val a = Appearance.DEFAULT
-        assertEquals(a.density, AppearanceSettingsSchema.density.default)
+        assertEquals(a.density, AppearanceSettingsSchema.density.default.density)
+        assertNull(a.density)
         assertEquals(a.corners, AppearanceSettingsSchema.corners.default)
         assertEquals(a.uiScalePercent, AppearanceSettingsSchema.uiScale.default)
         assertEquals(a.cursorBlink, AppearanceSettingsSchema.cursorBlink.default)

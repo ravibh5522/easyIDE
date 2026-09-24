@@ -121,6 +121,6 @@ private fun DiffBody(
 @Composable
 internal fun Notice(text: String, modifier: Modifier = Modifier, error: Boolean = false) {
     Box(modifier.fillMaxSize().padding(Kit.space.l), contentAlignment = Alignment.Center) {
-        BasicText(text, style = Kit.type.bodyMedium.copy(color = if (error) Kit.colors.error else Kit.colors.textMuted))
+        BasicText(text, style = Kit.text.body.copy(color = if (error) Kit.colors.error else Kit.colors.textMuted))
     }
 }

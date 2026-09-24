@@ -27,7 +27,6 @@ import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
 import dev.easyide.app.ui.shell.DocumentOpener
 import dev.easyide.app.ui.shell.DocumentUri
 import dev.easyide.app.ui.shell.diff.Comparison
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.sandbox.git.GitChange
 import dev.easyide.sandbox.git.GitChangeType
 
@@ -68,7 +67,7 @@ internal fun ChangeRow(change: GitChange, busy: Boolean, callbacks: SourceContro
                 }
                 BasicText(
                     text = change.type.letter,
-                    style = Kit.type.labelMedium.copy(fontFamily = EasyIdeFonts.mono, color = change.type.tint(colors.git)),
+                    style = Kit.text.monoSmall.copy(color = change.type.tint(colors.git)),
                 )
             }
         },

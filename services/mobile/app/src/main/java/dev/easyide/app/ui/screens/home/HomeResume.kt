@@ -40,7 +40,7 @@ internal fun ResumeSection(state: HomeUiState, nowMs: Long, selected: Boolean, o
         ) {
             BasicText(
                 item.project.name,
-                style = Kit.type.titleMedium.copy(color = Kit.colors.plainText),
+                style = Kit.text.heading.copy(color = Kit.colors.plainText),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

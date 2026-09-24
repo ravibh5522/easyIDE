@@ -31,7 +31,6 @@ import dev.easyide.app.ui.kit.KitField
 import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitToggle
 import dev.easyide.app.ui.kit.ToggleKind
-import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.app.ui.screens.workspace.DialogText
 import dev.easyide.extensions.action.MessageSeverity
 
@@ -139,7 +138,7 @@ private fun ConfirmUrlDialog(p: UiPrompt.ConfirmUrl, ui: ExtensionUiHost) {
         confirm = KitAction(stringResource(R.string.ext_open_url_confirm)) { ui.answer(p, true) },
         dismiss = KitAction(stringResource(R.string.ext_prompt_cancel)) { ui.answer(p, false) },
     ) {
-        BasicText(p.url, style = Kit.type.bodyMedium.kitMono().copy(color = Kit.colors.plainText))
+        BasicText(p.url, style = Kit.text.mono.copy(color = Kit.colors.plainText))
     }
 }
 

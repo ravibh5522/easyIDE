@@ -420,7 +420,7 @@ fun WorkspaceScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = if (compact) ShellTokens.navCell + Kit.space.m else Kit.space.xxxl),
+                .padding(bottom = if (compact) Kit.control.bottomBarHeight + Kit.space.m else Kit.space.xxxl),
         )
     }
 }

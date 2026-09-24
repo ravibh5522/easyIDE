@@ -106,7 +106,7 @@ internal fun FileTreeRow(
 
         BasicText(
             text = node.name,
-            style = Kit.type.bodySmall.copy(color = if (selected) colors.listSelectionText else colors.plainText),
+            style = Kit.text.caption.copy(color = if (selected) colors.listSelectionText else colors.plainText),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = space.s),

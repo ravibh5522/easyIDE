@@ -16,7 +16,6 @@ import dev.easyide.app.ui.kit.KitAction
 import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.shell.DocumentRegistry
 import dev.easyide.app.ui.shell.DocumentUri
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /**
  * The body of one document: its type's renderer, or the placeholder when the type is unavailable or
@@ -49,6 +48,6 @@ private fun UnavailableDocument(uri: DocumentUri, onClose: () -> Unit) {
             message = stringResource(R.string.shell_document_unavailable),
             action = KitAction(stringResource(R.string.shell_document_unavailable_close), onClose),
         )
-        BasicText(uri.toString(), Modifier.padding(horizontal = Kit.space.l), style = Kit.type.bodySmall.copy(color = Kit.colors.textMuted, fontFamily = EasyIdeFonts.mono))
+        BasicText(uri.toString(), Modifier.padding(horizontal = Kit.space.l), style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
     }
 }

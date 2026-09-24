@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
 import dev.easyide.app.data.settings.LayerId
@@ -32,7 +31,6 @@ import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitField
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /** Geometry of the small marks this package draws; everything else comes from `Kit.space` and `Kit.control`. */
 internal object SettingsMetrics {
@@ -54,11 +52,8 @@ internal object SettingsMetrics {
 /** Mono, muted: the value at the right of a row. */
 @Composable
 internal fun ValueText(text: String, modifier: Modifier = Modifier) {
-    BasicText(text, modifier, style = monoStyle(Kit.type.bodySmall).copy(color = Kit.colors.textMuted), maxLines = 1)
+    BasicText(text, modifier, style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted), maxLines = 1)
 }
-
-@Composable
-internal fun monoStyle(base: TextStyle): TextStyle = base.copy(fontFamily = EasyIdeFonts.mono)
 
 /** A row's leading mark: a dot in the accent while this layer holds a value, blank otherwise so titles stay aligned. */
 @Composable
@@ -72,7 +67,7 @@ internal fun ModifiedDot(modified: Boolean) {
 @Composable
 internal fun BodyText(text: String, modifier: Modifier = Modifier, tone: Tone = Tone.Neutral, mono: Boolean = false) {
     val colors = Kit.colors
-    val base = if (mono) monoStyle(Kit.type.bodySmall) else Kit.type.bodyMedium
+    val base = if (mono) Kit.text.monoSmall else Kit.text.body
     BasicText(text, modifier, style = base.copy(color = if (tone == Tone.Neutral) colors.plainText else tone.content(colors)))
 }
 
@@ -83,7 +78,7 @@ internal fun RowNote(text: String, tone: Tone = Tone.Neutral, modifier: Modifier
     BasicText(
         text,
         modifier.fillMaxWidth().padding(start = space.l + SettingsMetrics.leadingSlot + space.m, end = space.l, bottom = space.s),
-        style = (if (mono) monoStyle(Kit.type.bodySmall) else Kit.type.bodySmall).copy(color = tone.content(Kit.colors)),
+        style = (if (mono) Kit.text.monoSmall else Kit.text.caption).copy(color = tone.content(Kit.colors)),
     )
 }
 

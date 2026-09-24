@@ -10,6 +10,10 @@
 #   U-COL-01  Color(0x..), Color.White/Black          all of app/src/main except ui/theme, ui/kit
 #   U-KIT-COL MaterialTheme.colorScheme read          ui/kit (kit reads ThemeTokens, not M3)
 #   U-DP-01   raw N.dp literal (0.dp exempt; a named `val X = N.dp` is the token itself)  ui/kit, ui/shell
+#   U-TYP-01  Kit.type., MaterialTheme.typography, TypeScale. (the one type set is Kit.text)  all except ui/theme, ui/kit
+#   U-TYP-02  raw N.sp literal                        all except ui/theme, ui/kit/KitText.kt
+#   U-DEN-01  raw dp control height: .height/.heightIn(min =)/defaultMinSize(minHeight =)/.size(N.dp)  ui/kit, ui/shell
+#             (overlaps U-DP-01 on purpose so the density rule has its own id; a named `val X = N.dp` is exempt)
 #   U-TYP-08  string literal in Text(...) copy        ui/screens, ui/components, ui/shell, ui/kit
 #   U-MOT-01  tween(N), durationMillis = N literals   everything except ui/props/Motion.kt
 #   U-MOT-02  rememberInfiniteTransition              everything except CursorBlock
@@ -39,6 +43,7 @@ UI = "dev/easyide/app/ui/"
 THEME, KIT, SHELL = UI + "theme/", UI + "kit/", UI + "shell/"
 COPY_DIRS = (UI + "screens/", UI + "components/", SHELL, KIT)
 MOTION_TABLE = UI + "props/Motion.kt"
+KIT_TEXT = KIT + "KitText.kt"
 
 def under(path, *dirs):
     return path.startswith(dirs)
@@ -52,6 +57,11 @@ NAMED_DP = re.compile(r"^\s*(private |internal )?(const )?val \w+(: Dp)? = [\d.]
 DURATION = re.compile(r"\btween\(\s*\d|\b(durationMillis|delayMillis)\s*=\s*\d")
 LOOP = re.compile(r"\brememberInfiniteTransition\b|\brepeatable\(|\binfiniteRepeatable\(")
 FLASHY = re.compile(r"\bBrush\.\w*Gradient\(|\bblur\(")
+OLD_TYPE = re.compile(r"(?<![\w.])Kit\.type\.|(?<![\w.])MaterialTheme\.typography\b|(?<![\w.])TypeScale\.")
+RAW_SP = re.compile(r"(?<![\w.])\d+(\.\d+)?\.sp\b")
+CONTROL_DP = re.compile(
+    r"\.height\(\s*(\d+(\.\d+)?)\.dp\b|\.heightIn\(\s*min\s*=\s*(\d+(\.\d+)?)\.dp\b"
+    r"|\bdefaultMinSize\(\s*minHeight\s*=\s*(\d+(\.\d+)?)\.dp\b|\.size\(\s*(\d+(\.\d+)?)\.dp\b")
 TEXT_LIT = re.compile(r'\bText\(\s*(?:text\s*=\s*)?"((?:[^"\\]|\\.)*)"')
 TEMPLATE = re.compile(r"\$\{[^}]*\}|\$\w+")
 
@@ -87,6 +97,13 @@ for dirpath, _, files in os.walk(src):
                 add("U-KIT-COL", rel, i, line)
             if under(rel, KIT, SHELL) and not NAMED_DP.match(line) and any(float(m.group(1)) != 0 for m in DP.finditer(line)):
                 add("U-DP-01", rel, i, line)
+            if not under(rel, THEME, KIT) and OLD_TYPE.search(line):
+                add("U-TYP-01", rel, i, line)
+            if not under(rel, THEME) and rel != KIT_TEXT and RAW_SP.search(line):
+                add("U-TYP-02", rel, i, line)
+            if under(rel, KIT, SHELL) and not NAMED_DP.match(line) and any(
+                    float(next(g for g in m.groups()[::2] if g)) != 0 for m in CONTROL_DP.finditer(line)):
+                add("U-DEN-01", rel, i, line)
             if rel != MOTION_TABLE and not name.startswith("CursorBlock") and DURATION.search(line):
                 add("U-MOT-01", rel, i, line)
             if not name.startswith("CursorBlock") and LOOP.search(line):

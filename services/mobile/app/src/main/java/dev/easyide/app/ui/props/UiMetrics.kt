@@ -16,54 +16,70 @@ data class SpaceScale(
 @Immutable
 data class RadiusScale(val xs: Dp, val s: Dp, val m: Dp, val l: Dp)
 
-/** Heights and widths of repeated chrome. [row] is the tree/change row; [listRow] is the kit row by width class. */
+/**
+ * Heights and widths of repeated chrome, one table per density (density.md 2). Every row, tab, bar
+ * and field reads its size here so columns line up across panes. [hitBox] is the layout box of a
+ * small visual control (an icon button, a switch); the touch region beyond it comes from
+ * [UiMetrics.touchFloor].
+ */
 @Immutable
 data class ControlScale(
-    val row: Dp,
-    val tab: Dp,
-    val headerAction: Dp,
-    val rail: Dp,
+    val rowHeight: Dp,
+    val sectionHeaderHeight: Dp,
+    val toolbarButton: Dp,
+    val hitBox: Dp,
+    val rowIcon: Dp,
+    val railWidth: Dp,
+    val railIcon: Dp,
+    val bottomBarHeight: Dp,
+    val tabHeight: Dp,
+    val panelTabHeight: Dp,
+    val statusHeight: Dp,
+    val fieldHeight: Dp,
+    val buttonHeight: Dp,
+    val tagHeight: Dp,
+    val indent: Dp,
+    val hPad: Dp,
     val keyMinWidth: Dp,
     val keyHeight: Dp,
     val panelWidth: Dp,
-    private val listRowCompact: Dp,
-    private val listRowMedium: Dp,
-    private val listRowExpanded: Dp,
-) {
-    fun listRow(width: WidthClass): Dp = when (width) {
-        WidthClass.COMPACT -> listRowCompact
-        WidthClass.MEDIUM -> listRowMedium
-        WidthClass.EXPANDED -> listRowExpanded
-    }
-}
+)
 
 /**
  * Density, corners and scale expanded into the numbers components read (properties.md 2 and 6).
  * Components take these through [LocalMetrics] and never carry a literal that appears here.
- * [touchFloor] is a structural constant: no property lowers a hit target below it.
+ * [touchFloor] is the smallest touch region of an isolated control: 44dp on a phone, 40dp on a
+ * window wide enough to expect a keyboard or pointer (density.md 2); no property lowers it.
  */
 @Immutable
 data class UiMetrics(
     val density: Density,
+    val width: WidthClass,
     val corners: Corners,
     val fontScale: Float,
     val space: SpaceScale,
     val radius: RadiusScale,
     val control: ControlScale,
-    val touchFloor: Dp = TOUCH_FLOOR,
 ) {
+    val touchFloor: Dp get() = touchFloorFor(width)
+
     /** A corner radius that cannot exceed half the control it rounds, so a "round" setting never inverts a small tag. */
     fun radiusFor(step: Dp, controlHeight: Dp): Dp = minOf(step, controlHeight / 2)
 
     companion object {
         val TOUCH_FLOOR = 44.dp
+        val TOUCH_FLOOR_WIDE = 40.dp
+
+        fun touchFloorFor(width: WidthClass): Dp = if (width.isCompact) TOUCH_FLOOR else TOUCH_FLOOR_WIDE
 
         val DEFAULT = of(Appearance.DEFAULT)
 
-        fun of(appearance: Appearance): UiMetrics {
-            val d = appearance.density
+        /** [width] picks the density when the appearance leaves it on auto, and the touch floor. */
+        fun of(appearance: Appearance, width: WidthClass = WidthClass.COMPACT): UiMetrics {
+            val d = appearance.density ?: Density.forWidth(width)
             return UiMetrics(
                 density = d,
+                width = width,
                 corners = appearance.corners,
                 fontScale = appearance.uiScale,
                 space = spaceFor(d),
@@ -78,7 +94,7 @@ data class UiMetrics(
         private const val SNAP = 2
 
         private fun spaceFor(d: Density): SpaceScale {
-            val f = when (d) { Density.COMPACT -> 0.85f; Density.COMFORTABLE -> 1f; Density.SPACIOUS -> 1.2f }
+            val f = when (d) { Density.DENSE -> 0.85f; Density.COMFORTABLE -> 1f; Density.SPACIOUS -> 1.2f }
             return SpaceScale(
                 none = 0.dp, xxs = snap(2, f), xs = snap(4, f), s = snap(8, f), m = snap(12, f),
                 l = snap(16, f), xl = snap(24, f), xxl = snap(32, f), xxxl = snap(48, f),
@@ -92,9 +108,24 @@ data class UiMetrics(
         }
 
         private fun controlFor(d: Density): ControlScale = when (d) {
-            Density.COMPACT -> ControlScale(26.dp, 32.dp, 32.dp, 48.dp, 40.dp, 34.dp, 260.dp, 40.dp, 38.dp, 36.dp)
-            Density.COMFORTABLE -> ControlScale(28.dp, 36.dp, 32.dp, 48.dp, 40.dp, 36.dp, 280.dp, 48.dp, 44.dp, 40.dp)
-            Density.SPACIOUS -> ControlScale(34.dp, 44.dp, 36.dp, 52.dp, 44.dp, 40.dp, 300.dp, 56.dp, 52.dp, 48.dp)
+            Density.DENSE -> ControlScale(
+                rowHeight = 28.dp, sectionHeaderHeight = 26.dp, toolbarButton = 28.dp, hitBox = 32.dp, rowIcon = 16.dp,
+                railWidth = 52.dp, railIcon = 22.dp, bottomBarHeight = 56.dp, tabHeight = 34.dp, panelTabHeight = 30.dp,
+                statusHeight = 24.dp, fieldHeight = 30.dp, buttonHeight = 30.dp, tagHeight = 18.dp, indent = 12.dp, hPad = 10.dp,
+                keyMinWidth = 40.dp, keyHeight = 34.dp, panelWidth = 260.dp,
+            )
+            Density.COMFORTABLE -> ControlScale(
+                rowHeight = 36.dp, sectionHeaderHeight = 32.dp, toolbarButton = 32.dp, hitBox = 44.dp, rowIcon = 18.dp,
+                railWidth = 56.dp, railIcon = 22.dp, bottomBarHeight = 56.dp, tabHeight = 40.dp, panelTabHeight = 36.dp,
+                statusHeight = 28.dp, fieldHeight = 40.dp, buttonHeight = 40.dp, tagHeight = 20.dp, indent = 14.dp, hPad = 14.dp,
+                keyMinWidth = 40.dp, keyHeight = 36.dp, panelWidth = 280.dp,
+            )
+            Density.SPACIOUS -> ControlScale(
+                rowHeight = 44.dp, sectionHeaderHeight = 38.dp, toolbarButton = 36.dp, hitBox = 44.dp, rowIcon = 20.dp,
+                railWidth = 64.dp, railIcon = 24.dp, bottomBarHeight = 64.dp, tabHeight = 44.dp, panelTabHeight = 40.dp,
+                statusHeight = 32.dp, fieldHeight = 44.dp, buttonHeight = 44.dp, tagHeight = 22.dp, indent = 16.dp, hPad = 16.dp,
+                keyMinWidth = 44.dp, keyHeight = 40.dp, panelWidth = 300.dp,
+            )
         }
     }
 }

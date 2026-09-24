@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.screens.workspace.git.DiffRow
 import dev.easyide.app.ui.screens.workspace.git.GitUi
-import dev.easyide.app.ui.theme.EasyIdeFonts
 import dev.easyide.app.ui.theme.GitColors
 import dev.easyide.sandbox.git.DiffLineKind
 
@@ -84,7 +83,7 @@ private fun CodeText(row: DiffRow, syntax: AnnotatedString?, scroll: ScrollState
 }
 
 @Composable
-private fun codeStyle(): TextStyle = Kit.type.bodySmall.copy(fontFamily = EasyIdeFonts.mono)
+private fun codeStyle(): TextStyle = Kit.text.monoSmall
 
 private fun sign(kind: DiffLineKind) = when (kind) {
     DiffLineKind.ADDED -> "+"

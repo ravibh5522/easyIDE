@@ -32,7 +32,7 @@ class KitGalleryScreenTest {
     private fun str(@StringRes id: Int, vararg args: Any) = ApplicationProvider.getApplicationContext<Context>().getString(id, *args)
 
     private val sectionHeaders = listOf(
-        R.string.gallery_controls_title, R.string.gallery_rows_title, R.string.gallery_groups_title, R.string.gallery_banners_title,
+        R.string.gallery_controls_title, R.string.gallery_rows_title, R.string.gallery_anatomy_title, R.string.gallery_type_title, R.string.gallery_groups_title, R.string.gallery_banners_title,
         R.string.gallery_buttons_title, R.string.gallery_tags_title, R.string.gallery_fields_title, R.string.gallery_toggles_title,
         R.string.gallery_tabs_title, R.string.gallery_overlays_title, R.string.gallery_motifs_title,
     )
@@ -53,12 +53,12 @@ class KitGalleryScreenTest {
         val row = str(R.string.gallery_row_selected)
         compose.onNodeWithText(str(R.string.gallery_density_spacious)).performClick()
         scrollTo(1)
-        assertEquals(56.dp, compose.onNodeWithText(row).getBoundsInRoot().height)
-        scrollTo(0)
-        compose.onNodeWithText(str(R.string.gallery_density_compact)).performClick()
-        scrollTo(1)
-        // Compact asks for 40dp; the touch floor lifts it to 44.
         assertEquals(44.dp, compose.onNodeWithText(row).getBoundsInRoot().height)
+        scrollTo(0)
+        compose.onNodeWithText(str(R.string.gallery_density_dense)).performClick()
+        scrollTo(1)
+        // Dense rows are 28dp: the row token, no touch floor under it.
+        assertEquals(28.dp, compose.onNodeWithText(row).getBoundsInRoot().height)
     }
 
     @Test fun `font scale control grows text`() {

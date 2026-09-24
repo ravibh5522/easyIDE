@@ -193,6 +193,7 @@ private fun TerminalTabBar(
             selected = tabs.indexOf(active),
             onSelect = { onSelectTab(tabs[it].id) },
             modifier = Modifier.weight(1f),
+            height = Kit.control.panelTabHeight,
         )
         KitIconButton(Icons.Filled.Add, stringResource(R.string.terminal_new), onNewTab)
         if (active != null) {

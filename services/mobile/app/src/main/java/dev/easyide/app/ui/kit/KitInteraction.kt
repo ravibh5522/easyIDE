@@ -23,9 +23,6 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /**
  * Makes a surface tappable with the kit's states (kit.md 3.1): pressed is the overlay tone, hover
@@ -106,13 +103,3 @@ internal fun Modifier.kitStateLayer(flags: KitFlags, enabled: Boolean, color: Co
 @Composable
 internal fun Modifier.kitFocusRing(focused: Boolean, shape: Shape): Modifier =
     if (focused) border(Kit.marker, Kit.colors.focus, shape) else this
-
-/**
- * The chrome monospace at a text style's size. The typography carries no pairing, so the system
- * pairing (default family) is recognised by its family and gets the platform monospace.
- */
-@Composable
-internal fun TextStyle.kitMono(): TextStyle {
-    val system = Kit.type.bodyMedium.fontFamily == FontFamily.Default
-    return copy(fontFamily = if (system) FontFamily.Monospace else EasyIdeFonts.mono)
-}

@@ -21,7 +21,6 @@ import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitEmptyState
 import dev.easyide.app.ui.kit.KitSection
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.kit.kitMono
 import dev.easyide.extensions.action.LogLevel
 import java.text.DateFormat
 import java.util.Date
@@ -64,7 +63,7 @@ internal fun LogSection(entries: List<TimedLogEntry>, showId: Boolean, onClear: 
         Column(Modifier.padding(Kit.space.m)) {
             entries.take(LOG_LINES_SHOWN).forEach { e ->
                 val color = if (levelTone(e.entry.level) == Tone.Neutral) Kit.colors.plainText else levelTone(e.entry.level).content(Kit.colors)
-                BasicText(logLine(e, timeOf(e.atMs), showId), style = Kit.type.bodySmall.kitMono().copy(color = color))
+                BasicText(logLine(e, timeOf(e.atMs), showId), style = Kit.text.monoSmall.copy(color = color))
             }
         }
         Row(Modifier.padding(horizontal = Kit.space.s), horizontalArrangement = Arrangement.spacedBy(Kit.space.xs)) {

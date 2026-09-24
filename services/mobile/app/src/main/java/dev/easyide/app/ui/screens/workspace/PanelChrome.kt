@@ -21,14 +21,12 @@ import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.PromptGlyph
 import dev.easyide.app.ui.kit.drawsSupporting
-import dev.easyide.app.ui.theme.EasyIdeFonts
-import dev.easyide.app.ui.theme.sectionHeader
 import dev.easyide.app.ui.theme.tabular
 
-/** A dense panel row (tree, change, problem) is never shorter than the touch floor, whatever the density property says. */
+/** A panel row (tree, change, problem) is the row token tall: 28dp dense, 36dp comfortable. */
 @Composable
 @ReadOnlyComposable
-internal fun panelRowHeight(): Dp = maxOf(Kit.control.row, Kit.metrics.touchFloor)
+internal fun panelRowHeight(): Dp = Kit.control.rowHeight
 
 /**
  * The title line of a workspace panel: caps section header led by the prompt glyph, then the
@@ -38,19 +36,19 @@ internal fun panelRowHeight(): Dp = maxOf(Kit.control.row, Kit.metrics.touchFloo
 internal fun PanelTitleRow(title: String, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
     val space = Kit.space
     Row(
-        modifier.fillMaxWidth().padding(start = space.m, end = space.xs),
+        modifier.fillMaxWidth().padding(start = Kit.control.hPad, end = space.xs),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(space.xs),
     ) {
         Row(
-            Modifier.weight(1f).defaultMinSize(minHeight = Kit.metrics.touchFloor).semantics(mergeDescendants = true) { heading() },
+            Modifier.weight(1f).defaultMinSize(minHeight = Kit.control.tabHeight).semantics(mergeDescendants = true) { heading() },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space.xs),
         ) {
             if (Kit.feel.motif.drawsSupporting) PromptGlyph()
             BasicText(
                 title.uppercase(),
-                style = Kit.type.sectionHeader.copy(color = Kit.colors.textMuted),
+                style = Kit.text.label.copy(color = Kit.colors.textMuted),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -71,11 +69,11 @@ internal fun PanelGroupHeader(title: String, count: Int, modifier: Modifier = Mo
         BasicText(
             title.uppercase(),
             Modifier.weight(1f, fill = false).semantics { heading() },
-            style = Kit.type.sectionHeader.copy(color = Kit.colors.textMuted),
+            style = Kit.text.label.copy(color = Kit.colors.textMuted),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        BasicText("$count", style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = Kit.colors.textMuted).tabular())
+        BasicText("$count", style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted).tabular())
         if (bulk != null) KitButton(bulk.label, bulk.onClick, Modifier.weight(1f, fill = false), KitButtonStyle.Ghost)
     }
 }

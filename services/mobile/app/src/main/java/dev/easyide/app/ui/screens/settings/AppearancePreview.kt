@@ -72,8 +72,8 @@ private fun PreviewDialog(modifier: Modifier) {
         modifier.background(colors.overlay, shape).border(Kit.hairline, colors.panelBorder, shape).padding(Kit.space.m),
         verticalArrangement = Arrangement.spacedBy(Kit.space.s),
     ) {
-        BasicText(stringResource(R.string.appearance_preview_dialog_title), style = Kit.type.titleMedium.copy(color = colors.plainText))
-        BasicText(stringResource(R.string.appearance_preview_dialog_body), style = Kit.type.bodySmall.copy(color = colors.textMuted))
+        BasicText(stringResource(R.string.appearance_preview_dialog_title), style = Kit.text.heading.copy(color = colors.plainText))
+        BasicText(stringResource(R.string.appearance_preview_dialog_body), style = Kit.text.caption.copy(color = colors.textMuted))
         Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(Kit.space.xs, Alignment.End)) {
             KitButton(stringResource(R.string.action_cancel), {}, style = KitButtonStyle.Ghost)
             KitButton(stringResource(R.string.appearance_preview_confirm), {})
@@ -90,9 +90,9 @@ private fun PreviewEditor(modifier: Modifier) {
         modifier.background(colors.background, shape).border(Kit.hairline, colors.panelBorder, shape).padding(Kit.space.m),
         verticalArrangement = Arrangement.spacedBy(Kit.space.xs),
     ) {
-        code.forEach { BasicText(it, style = monoStyle(Kit.type.bodySmall).copy(color = colors.plainText), maxLines = 1) }
+        code.forEach { BasicText(it, style = Kit.text.monoSmall.copy(color = colors.plainText), maxLines = 1) }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            BasicText("  ", style = monoStyle(Kit.type.bodySmall))
+            BasicText("  ", style = Kit.text.monoSmall)
             CursorBlock(style = CursorStyle.Blinking)
         }
     }

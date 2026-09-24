@@ -101,7 +101,7 @@ fun BottomPanel(
             )
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            KitTabs(tabs.map { it.title }, tabs.indexOfFirst { it.id == spec.active }.coerceAtLeast(0), { actions.onSelect(tabs[it].id) }, Modifier.weight(1f))
+            KitTabs(tabs.map { it.title }, tabs.indexOfFirst { it.id == spec.active }.coerceAtLeast(0), { actions.onSelect(tabs[it].id) }, Modifier.weight(1f), height = Kit.control.panelTabHeight)
             KitIconButton(Icons.Filled.Close, stringResource(R.string.wshell_bottom_close), actions.onClose)
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {

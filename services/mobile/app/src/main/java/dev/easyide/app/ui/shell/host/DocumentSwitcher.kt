@@ -79,8 +79,8 @@ internal fun DocumentSwitcher(
                     .padding(horizontal = Kit.space.m),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                BasicText(title, Modifier.weight(1f, fill = false), style = Kit.type.titleSmall.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (group.tabs.size > 1) BasicText(" ${group.tabs.size}", style = Kit.type.labelMedium.copy(color = colors.textMuted))
+                BasicText(title, Modifier.weight(1f, fill = false), style = Kit.text.title.copy(color = colors.plainText), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (group.tabs.size > 1) BasicText(" ${group.tabs.size}", style = Kit.text.caption.copy(color = colors.textMuted))
                 if (group.tabs.isNotEmpty()) Image(Icons.Filled.ExpandMore, null, Modifier.size(IconSize.m), colorFilter = ColorFilter.tint(colors.textMuted))
             }
             KitMenu(

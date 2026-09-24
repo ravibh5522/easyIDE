@@ -58,6 +58,8 @@ private fun GalleryPage(config: GalleryConfig, onConfig: (GalleryConfig) -> Unit
         LazyColumn(Modifier.kitTag("gallery-list"), list, contentPadding = PaddingValues(bottom = insets.calculateBottomPadding() + Kit.space.xxl)) {
             item(key = "controls") { GalleryControls(config, onConfig) }
             item(key = "rows") { RowsSection() }
+            item(key = "anatomy") { AnatomySection(config) }
+            item(key = "type") { TypeSection(config) }
             item(key = "groups") { GroupsSection() }
             item(key = "feedback") { FeedbackSection() }
             item(key = "buttons") { ButtonsSection() }

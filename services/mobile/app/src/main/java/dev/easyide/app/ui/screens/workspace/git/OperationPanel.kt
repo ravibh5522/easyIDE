@@ -25,7 +25,6 @@ import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.Tone
-import dev.easyide.app.ui.theme.EasyIdeFonts
 
 /**
  * Progress and result of the last fetch/pull/push: git's own output as it
@@ -53,7 +52,7 @@ internal fun OperationPanel(
         Row(Modifier.padding(start = Kit.space.m), verticalAlignment = Alignment.CenterVertically) {
             BasicText(
                 text = title,
-                style = Kit.type.labelLarge.copy(color = if (operation.status == OperationStatus.FAILED) colors.error else colors.plainText),
+                style = Kit.text.title.copy(color = if (operation.status == OperationStatus.FAILED) colors.error else colors.plainText),
                 modifier = Modifier.weight(1f),
             )
             if (running) {
@@ -83,7 +82,7 @@ private fun OutputLines(lines: List<String>) {
         modifier = Modifier.fillMaxWidth().heightIn(max = GitUi.outputMaxHeight).padding(horizontal = Kit.space.m, vertical = Kit.space.xs),
     ) {
         itemsIndexed(lines) { _, line ->
-            BasicText(line, style = Kit.type.labelSmall.copy(fontFamily = EasyIdeFonts.mono, color = Kit.colors.textMuted))
+            BasicText(line, style = Kit.text.monoSmall.copy(color = Kit.colors.textMuted))
         }
     }
 }

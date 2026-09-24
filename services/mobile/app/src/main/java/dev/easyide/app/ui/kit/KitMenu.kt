@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import dev.easyide.app.ui.theme.IconSize
 
 /** One entry of a [KitMenu]. A menu lists actions on an object; a value chooser is a sheet, not a menu (U-CMP-07). */
 sealed interface KitMenuItem {
@@ -127,7 +126,7 @@ private fun MenuRow(item: KitMenuItem.Action, onClick: () -> Unit) {
     val flags = interaction.collectFlags()
     Row(
         modifier = Modifier.fillMaxWidth()
-            .heightIn(min = Kit.metrics.touchFloor)
+            .heightIn(min = Kit.control.rowHeight)
             .clickable(interaction, null, enabled = item.enabled, role = Role.Button, onClick = onClick)
             .semantics { item.checked?.let { toggleableState = ToggleableState(it) } }
             .kitStateLayer(flags, item.enabled, tint)
@@ -136,9 +135,9 @@ private fun MenuRow(item: KitMenuItem.Action, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
     ) {
-        item.icon?.let { Image(it, null, Modifier.size(IconSize.l), colorFilter = ColorFilter.tint(tint)) }
-        BasicText(item.label, Modifier.weight(1f), style = Kit.type.bodyMedium.copy(color = tint), maxLines = 1, overflow = TextOverflow.Ellipsis)
-        item.hint?.let { BasicText(it, style = Kit.type.labelSmall.kitMono().copy(color = colors.textMuted)) }
-        if (item.checked == true) Image(Icons.Filled.Check, null, Modifier.size(IconSize.l), colorFilter = ColorFilter.tint(colors.accent))
+        item.icon?.let { Image(it, null, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(tint)) }
+        BasicText(item.label, Modifier.weight(1f), style = Kit.text.body.copy(color = tint), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        item.hint?.let { BasicText(it, style = Kit.text.monoSmall.copy(color = colors.textMuted)) }
+        if (item.checked == true) Image(Icons.Filled.Check, null, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(colors.accent))
     }
 }
