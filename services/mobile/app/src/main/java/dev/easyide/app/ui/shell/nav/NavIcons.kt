@@ -1,13 +1,16 @@
 package dev.easyide.app.ui.shell.nav
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Difference
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -35,6 +38,9 @@ object NavIcons {
         "outline" to Icons.Filled.AccountTree,
         "output" to Icons.Filled.Description,
         "warning" to Icons.Filled.Warning,
+        "commands" to Icons.Filled.Keyboard,
+        "back" to Icons.AutoMirrored.Filled.ArrowBack,
+        "close" to Icons.Filled.Close,
     )
 
     private val FALLBACK = Icons.Filled.Widgets

@@ -36,6 +36,9 @@ object NavRules {
         NavPosition.BOTTOM -> NavPlacement.BOTTOM
     }
 
+    /** The bottom bar steps aside while the software keyboard is up: the input dock takes its place (shell-model.md 9). A rail never does. */
+    fun barShown(placement: NavPlacement, keyboardUp: Boolean): Boolean = placement != NavPlacement.BOTTOM || !keyboardUp
+
     /** Auto labels the bottom bar always (it is thumb-reached and has room) and a rail only when the window is expanded. */
     fun showLabels(labels: NavLabels, placement: NavPlacement, width: WidthClass): Boolean = when (labels) {
         NavLabels.ALWAYS -> true
