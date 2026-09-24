@@ -12,10 +12,11 @@
         android:scaleY="0.8"
         android:translateX="-1.6">
         <path
-            android:fillColor="@color/icon_ink"
+            android:fillColor="@color/splash_ink"
             android:pathData="M26,28 L52,54 L26,80 L26,68 L40,54 L26,40 Z" />
         <path
-            android:fillColor="@color/icon_accent"
+            android:name="block"
+            android:fillColor="@color/splash_accent"
             android:pathData="M62,34 h24 v40 h-24 Z" />
     </group>
 </vector>

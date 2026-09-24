@@ -15,7 +15,7 @@
             android:fillColor="@color/icon_ink"
             android:pathData="M26,28 L52,54 L26,80 L26,68 L40,54 L26,40 Z" />
         <path
-            android:fillColor="@color/icon_accent"
+            android:fillColor="@color/icon_ink"
             android:pathData="M62,34 h24 v40 h-24 Z" />
     </group>
 </vector>

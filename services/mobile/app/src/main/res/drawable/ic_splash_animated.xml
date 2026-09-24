@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The splash mark whose block blinks once: on, one hard off step, on again (identity.md 11).
+  Steps are 1ms animators, not fades. With animations removed the drawable rests on its last
+  state, the solid block.
+-->
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_splash_mark">
+    <target android:name="block">
+        <set>
+            <objectAnimator
+                android:propertyName="fillAlpha"
+                android:valueFrom="1"
+                android:valueTo="0"
+                android:startOffset="250"
+                android:duration="1" />
+            <objectAnimator
+                android:propertyName="fillAlpha"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:startOffset="780"
+                android:duration="1" />
+        </set>
+    </target>
+</animated-vector>

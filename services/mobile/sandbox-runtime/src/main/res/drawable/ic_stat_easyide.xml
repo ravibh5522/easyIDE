@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar mark: the app icon's chevron and block as one white mask (the system tints it). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <group
+        android:translateX="-24"
+        android:translateY="-22">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M26,28 L52,54 L26,80 L26,68 L40,54 L26,40 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M62,34 h24 v40 h-24 Z" />
+    </group>
+</vector>
