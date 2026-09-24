@@ -14,12 +14,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
-import dev.easyide.app.ui.theme.IconSize
 
 /**
  * A glyph-only action. [contentDescription] is required and has no default: an icon button
- * without a name is unusable with a screen reader. The hit box is the touch floor; the visible
- * hover square is the header-action size.
+ * without a name is unusable with a screen reader. The drawn hover square is the toolbar button
+ * size (28dp dense), the layout box the hit box token and the touch region the touch floor.
  */
 @Composable
 fun KitIconButton(
@@ -39,19 +38,19 @@ fun KitIconButton(
     Box(
         modifier = modifier
             .kitTag("icon-button")
-            .kitTouchFloor()
+            .kitHitSlop()
             .clickable(interaction, null, enabled = enabled, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Box(
             modifier = Modifier
-                .size(Kit.control.headerAction)
+                .size(Kit.control.toolbarButton)
                 .clip(shape)
                 .kitStateLayer(flags, enabled, tint)
                 .kitFocusRing(flags.focused, shape),
             contentAlignment = Alignment.Center,
         ) {
-            Image(icon, contentDescription, Modifier.size(IconSize.l), colorFilter = ColorFilter.tint(tint))
+            Image(icon, contentDescription, Modifier.size(Kit.control.rowIcon), colorFilter = ColorFilter.tint(tint))
         }
     }
 }

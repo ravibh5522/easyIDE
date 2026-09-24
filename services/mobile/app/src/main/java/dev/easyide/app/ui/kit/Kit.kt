@@ -1,8 +1,6 @@
 package dev.easyide.app.ui.kit
 
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
@@ -33,7 +31,7 @@ object Kit {
     val radius: RadiusScale @Composable @ReadOnlyComposable get() = LocalMetrics.current.radius
     val control: ControlScale @Composable @ReadOnlyComposable get() = LocalMetrics.current.control
     val colors: EditorColors @Composable @ReadOnlyComposable get() = editorColors
-    val type: Typography @Composable @ReadOnlyComposable get() = MaterialTheme.typography
+    val text: KitText @Composable @ReadOnlyComposable get() = LocalKitText.current
     val motion: Motion @Composable @ReadOnlyComposable get() = LocalMotion.current
     val feel: Feel @Composable @ReadOnlyComposable get() = LocalFeel.current
 
@@ -47,11 +45,28 @@ object Kit {
     val marker: Dp = 2.dp
 }
 
-/** Guarantees the hit box is at least the touch floor (44dp), however small the visible control is. */
+/**
+ * The hit box of an isolated control (a button, a dialog action): at least the touch floor,
+ * 44dp on a phone and 40dp on a window wide enough for a pointer (density.md 2), however small the
+ * visible control is. Controls inside dense rows and toolbars use [kitHitSlop] instead.
+ */
 @Composable
 fun Modifier.kitTouchFloor(): Modifier {
     val floor = Kit.metrics.touchFloor
     return defaultMinSize(minWidth = floor, minHeight = floor)
+}
+
+/**
+ * The layout box of a small visual control in a dense row or toolbar (an icon button, a switch):
+ * [dev.easyide.app.ui.props.ControlScale.hitBox], 32dp dense and 44dp otherwise. The drawn size
+ * does not change. The touch region grows beyond this box to the touch floor through
+ * [TouchFloorConfiguration], which the theme installs, so a 28dp button in a 28dp row is still
+ * reachable at 40dp without making the row taller. Put it before `clickable` so the click covers it.
+ */
+@Composable
+fun Modifier.kitHitSlop(): Modifier {
+    val box = Kit.control.hitBox
+    return defaultMinSize(minWidth = box, minHeight = box)
 }
 
 /** A stable id for tests and on-device checks; derived from the component's role, not its text. */

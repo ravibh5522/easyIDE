@@ -42,7 +42,7 @@ internal fun tagPaint(tone: Tone, selected: Boolean, colors: EditorColors): TagP
 
 /**
  * A short mono label: a status, a version, an option. With [onClick] it is a toggle chip and its
- * hit box grows to the touch floor while the drawn chip stays [KitSizes.tag] tall.
+ * hit box grows to the hit box token while the drawn chip stays `tagHeight` tall.
  */
 @Composable
 fun KitTag(
@@ -56,15 +56,16 @@ fun KitTag(
     val paint = tagPaint(tone, selected, Kit.colors)
     val interaction = remember { MutableInteractionSource() }
     val flags = interaction.collectFlags()
-    val shape = RoundedCornerShape(Kit.metrics.radiusFor(Kit.radius.xs, KitSizes.tag))
+    val height = Kit.control.tagHeight
+    val shape = RoundedCornerShape(Kit.metrics.radiusFor(Kit.radius.xs, height))
     val hit = if (onClick == null) modifier else {
-        modifier.kitTouchFloor().clickable(interaction, null, role = Role.Button, onClick = onClick).semantics { this.selected = selected }
+        modifier.kitHitSlop().clickable(interaction, null, role = Role.Button, onClick = onClick).semantics { this.selected = selected }
     }
 
     Box(hit.kitTag("tag"), contentAlignment = Alignment.Center) {
         Row(
             modifier = Modifier
-                .defaultMinSize(minHeight = KitSizes.tag)
+                .defaultMinSize(minHeight = height)
                 .clip(shape)
                 .background(paint.fill)
                 .border(Kit.hairline, paint.border, shape)
@@ -75,7 +76,7 @@ fun KitTag(
             horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
         ) {
             icon?.let { Image(it, null, Modifier.size(IconSize.xs), colorFilter = ColorFilter.tint(paint.content)) }
-            BasicText(text, style = Kit.type.labelSmall.kitMono().copy(color = paint.content), maxLines = 1)
+            BasicText(text, style = Kit.text.monoSmall.copy(color = paint.content), maxLines = 1)
         }
     }
 }

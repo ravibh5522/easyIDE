@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
@@ -82,12 +83,12 @@ fun KitField(
     val interaction = remember { MutableInteractionSource() }
     val edge = fieldEdge(enabled, interaction.collectFlags().focused, error)
     val shape = RoundedCornerShape(Kit.radius.s)
-    val base = Kit.type.bodyMedium.let { if (mono) it.kitMono() else it }
+    val base = if (mono) Kit.text.mono else Kit.text.body
     val text = base.copy(color = if (enabled) colors.plainText else colors.textDisabled)
 
     Column(modifier.kitTag("field")) {
         if (label != null) {
-            BasicText(label, style = Kit.type.labelSmall.copy(color = colors.textMuted))
+            BasicText(label, style = Kit.text.caption.copy(color = colors.textMuted))
             Spacer(Modifier.height(Kit.space.xs))
         }
         BasicTextField(
@@ -109,18 +110,18 @@ fun KitField(
             decorationBox = { inner ->
                 Row(
                     modifier = Modifier
-                        .heightIn(min = Kit.metrics.touchFloor)
+                        .heightIn(min = Kit.control.fieldHeight)
                         .clip(shape)
                         .background(colors.background)
                         .border(if (edge.isRing()) Kit.marker else Kit.hairline, edge.color(colors), shape),
                     verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
                 ) {
-                    Box(Modifier.weight(1f).padding(horizontal = Kit.space.m, vertical = Kit.space.s), Alignment.CenterStart) {
+                    Box(Modifier.weight(1f).padding(horizontal = Kit.control.hPad, vertical = Kit.space.xs), Alignment.CenterStart) {
                         if (value.isEmpty() && hint != null) BasicText(hint, style = text.copy(color = colors.textMuted))
                         inner()
                     }
                     if (fieldShowsClear(value, enabled, readOnly, singleLine)) {
-                        KitIconButton(Icons.Filled.Close, stringResource(R.string.kitin_clear), { onValueChange("") })
+                        KitIconButton(Icons.Filled.Close, stringResource(R.string.kitin_clear), { onValueChange("") }, Modifier.size(Kit.control.fieldHeight))
                     }
                     trailing?.invoke()
                 }
@@ -129,7 +130,7 @@ fun KitField(
         if (!error.isNullOrEmpty()) {
             BasicText(
                 text = error,
-                style = Kit.type.bodySmall.copy(color = colors.error),
+                style = Kit.text.caption.copy(color = colors.error),
                 modifier = Modifier
                     .padding(top = Kit.space.xs)
                     .semantics { liveRegion = LiveRegionMode.Polite }

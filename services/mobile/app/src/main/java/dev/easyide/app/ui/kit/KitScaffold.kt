@@ -34,7 +34,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import dev.easyide.app.R
-import dev.easyide.app.ui.foundation.WidthClass
 
 /**
  * A page frame: title bar (back, title, actions), an optional banner, and the content column
@@ -55,7 +54,7 @@ fun KitScaffold(
     val colors = Kit.colors
     val space = Kit.space
     val hairline = Kit.hairline
-    val barHeight = rowMinHeight(Kit.control, WidthClass.COMPACT, Kit.metrics.touchFloor)
+    val barHeight = Kit.control.tabHeight
     val sides = WindowInsetsSides.Horizontal
     Column(modifier.fillMaxSize().background(colors.background)) {
         Row(
@@ -71,7 +70,7 @@ fun KitScaffold(
         ) {
             if (onBack != null) {
                 Box(
-                    Modifier.kitTouchFloor().kitTag("scaffold-back").kitPressable(onBack),
+                    Modifier.kitHitSlop().kitTag("scaffold-back").kitPressable(onBack),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.kit_back), tint = colors.plainText)
@@ -80,7 +79,7 @@ fun KitScaffold(
             BasicText(
                 title,
                 Modifier.weight(1f).padding(start = if (onBack == null) space.m else space.none).semantics { heading() },
-                style = Kit.type.headlineMedium.copy(color = colors.plainText),
+                style = Kit.text.display.copy(color = colors.plainText),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

@@ -56,6 +56,6 @@ fun KitStepper(steps: Int, current: Int, modifier: Modifier = Modifier) {
                 }
             }
         }
-        BasicText(stepCounter(current, steps), Modifier.padding(start = Kit.space.s), style = Kit.type.labelSmall.kitMono().copy(color = colors.textMuted))
+        BasicText(stepCounter(current, steps), Modifier.padding(start = Kit.space.s), style = Kit.text.monoSmall.copy(color = colors.textMuted))
     }
 }

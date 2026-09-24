@@ -1,5 +1,6 @@
 package dev.easyide.app.ui.kit
 
+import androidx.compose.foundation.layout.FlowRow
 import android.view.Gravity
 import android.view.ViewGroup
 import androidx.compose.foundation.background
@@ -7,7 +8,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -87,10 +87,16 @@ fun KitDialog(
                 .padding(Kit.space.l),
             verticalArrangement = Arrangement.spacedBy(Kit.space.m),
         ) {
-            BasicText(title, Modifier.semantics { heading() }, style = Kit.type.titleMedium.copy(color = colors.plainText))
+            BasicText(title, Modifier.semantics { heading() }, style = Kit.text.heading.copy(color = colors.plainText))
             Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), content = content)
             if (actions.isNotEmpty()) {
-                Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(Kit.space.s, Alignment.End)) {
+                // A button keeps the width of its label: when the row is full the next one wraps to a line
+                // of its own instead of being cut to "Dis..." (U-DEN-05).
+                FlowRow(
+                    Modifier.fillMaxWidth(),
+                    Arrangement.spacedBy(Kit.space.s, Alignment.End),
+                    Arrangement.spacedBy(Kit.space.s),
+                ) {
                     actions.forEach { (action, style) ->
                         KitButton(action.label, action.onClick, Modifier.then(if (sheet) Modifier.weight(1f) else Modifier), style, large = sheet)
                     }
