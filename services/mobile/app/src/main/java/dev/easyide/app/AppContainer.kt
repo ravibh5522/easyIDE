@@ -10,6 +10,7 @@ import dev.easyide.app.ui.screens.workspace.git.AppForeground
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
+import dev.easyide.app.data.ShellStateStore
 import dev.easyide.app.data.preferencesStore
 import dev.easyide.app.data.settings.DataStoreUserLayer
 import dev.easyide.app.data.settings.FileKeybindings
@@ -41,6 +42,7 @@ import dev.easyide.app.ui.screens.workspace.session.WorkspaceHandle
 import dev.easyide.sandbox.service.SandboxKeepAlive
 import dev.easyide.sandbox.service.SessionHost
 import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.data.settings.ShellSettingsSchema
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.data.settings.SettingsTransfer
 import dev.easyide.app.ui.commands.CommandIds
@@ -97,6 +99,9 @@ class AppContainer(context: Context) {
 
     val uiPreferences: UiPreferences = UiPreferences(appContext)
 
+    /** The app-scope shell snapshot: last destination and its selection. */
+    val shellState: ShellStateStore = ShellStateStore(appContext)
+
     private val defaultUserLayer = DataStoreUserLayer(appContext.preferencesStore)
 
     private val userDir = File(appContext.filesDir, USER_DIR)
@@ -104,7 +109,7 @@ class AppContainer(context: Context) {
     private val defaultKeybindings = FileKeybindings(PlainFileIo(File(userDir, KEYBINDINGS_FILE), Dispatchers.IO))
 
     /** Built-in settings now; the extension runtime adds `configuration` contributions at runtime. */
-    val settingsRegistry = SettingsRegistry(SettingsSchema.all)
+    val settingsRegistry = SettingsRegistry(SettingsSchema.all + ShellSettingsSchema.all)
 
     val profileManager = ProfileManager(
         defaultUser = defaultUserLayer,

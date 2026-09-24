@@ -10,6 +10,7 @@ import dev.easyide.app.data.settings.WorkspaceSettingsSchema
 import dev.easyide.app.diagnostics.Cleanup
 import dev.easyide.app.diagnostics.DiagnosticsCollector
 import dev.easyide.app.diagnostics.StorageLocations
+import dev.easyide.app.data.settings.ShellSettingsSchema
 import dev.easyide.app.diagnostics.readUname
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
 import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
@@ -18,6 +19,13 @@ import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
 import dev.easyide.app.ui.screens.onboarding.EnvironmentSetupViewModel
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
+import dev.easyide.app.ui.shell.host.AppDocuments
+import dev.easyide.app.ui.shell.host.ShellViewModel
+import dev.easyide.app.ui.shell.nav.NoNavItems
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.Job
 import java.io.File
 import kotlinx.coroutines.flow.first
@@ -97,6 +105,14 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 crashReports = container.crashReports,
                 cleanup = Cleanup(container.paths, container.appLog, container.crashReports),
                 resolver = container.appContext.contentResolver,
+            )
+
+            ShellViewModel::class.java -> ShellViewModel(
+                storage = container.shellState,
+                registries = AppDocuments.registries(container.appContext::getString),
+                source = NoNavItems,
+                settings = container.settingsStore.snapshot.map(ShellSettingsSchema::navSettings),
+                scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
             )
 
             else -> error("Unknown ViewModel: ${modelClass.name}")
