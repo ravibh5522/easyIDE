@@ -30,11 +30,14 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.collectFlags
 import dev.easyide.app.ui.kit.kitFocusRing
 import dev.easyide.app.ui.kit.kitMarker
+import dev.easyide.app.ui.kit.kitPressPoint
 import dev.easyide.app.ui.kit.kitStateLayer
+import dev.easyide.app.ui.kit.rememberPressPoint
 import dev.easyide.app.ui.screens.workspace.files.FileIcon
 import dev.easyide.app.ui.theme.IconSize
 import dev.easyide.app.ui.theme.rememberThemedFileIcon
@@ -49,13 +52,15 @@ internal fun FileTreeRow(
     expanded: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
+    onMenu: (IntOffset) -> Unit,
 ) {
     val colors = Kit.colors
     val space = Kit.space
     val muted = ColorFilter.tint(colors.textMuted)
     val interaction = remember { MutableInteractionSource() }
     val flags = interaction.collectFlags()
+    // A long press and a right click both open the row's menu, under the finger or pointer.
+    val press = rememberPressPoint()
 
     Row(
         modifier = Modifier
@@ -68,7 +73,8 @@ internal fun FileTreeRow(
             .kitStateLayer(flags, true, colors.plainText)
             .kitFocusRing(flags.focused, RectangleShape)
             .semantics { this.selected = selected }
-            .combinedClickable(interactionSource = interaction, indication = null, onClick = onClick, onLongClick = onLongClick)
+            .kitPressPoint(press, onSecondary = onMenu)
+            .combinedClickable(interactionSource = interaction, indication = null, onClick = onClick, onLongClick = { onMenu(press.at) })
             .padding(end = space.s),
         verticalAlignment = Alignment.CenterVertically,
     ) {

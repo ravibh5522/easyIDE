@@ -95,4 +95,21 @@ class KeymapTest {
         assertEquals(CommandIds.GO_TO_REFERENCES, keymap.commandFor(KeyChord(KeyEvent.KEYCODE_F12, shift = true), terminalFocused = false))
         assertTrue(CommandIds.KNOWN.containsAll(Keymap.DEFAULT.bindings.map { it.command }))
     }
+
+    @Test
+    fun stageChordsAreInTheTableAndStayOutOfTheTerminal() {
+        assertEquals(CommandIds.SPLIT_EDITOR, keymap.commandFor(ctrl(KeyEvent.KEYCODE_BACKSLASH), terminalFocused = false))
+        assertEquals(CommandIds.OPEN_TO_SIDE, keymap.commandFor(ctrl(KeyEvent.KEYCODE_ENTER), terminalFocused = false))
+        assertNull(keymap.commandFor(ctrl(KeyEvent.KEYCODE_BACKSLASH), terminalFocused = true))
+        assertNull(keymap.commandFor(ctrl(KeyEvent.KEYCODE_ENTER), terminalFocused = true))
+        // Ctrl+K Ctrl+Right, VS Code's chord for moving an editor to the next group.
+        val prefix = ctrl(KeyEvent.KEYCODE_K)
+        assertTrue(keymap.isPrefix(prefix, terminalFocused = false))
+        assertEquals(
+            CommandIds.MOVE_EDITOR_TO_NEXT_GROUP,
+            keymap.commandFor(ctrl(KeyEvent.KEYCODE_DPAD_RIGHT), terminalFocused = false, prefix = prefix),
+        )
+        assertTrue(CommandIds.KNOWN.containsAll(CommandIds.STAGE))
+        assertTrue("the pack-facing list is unchanged", CommandIds.STAGE.none { it in CommandIds.ALL })
+    }
 }

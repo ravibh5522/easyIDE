@@ -70,6 +70,7 @@ fun WorkspaceShell(
     nav: WorkspaceNavState,
     slots: WorkspaceSlots,
     host: WorkspaceShellHost,
+    stageActions: WorkspaceStageActions,
     chrome: WorkspaceChrome,
     modifier: Modifier = Modifier,
 ) {
@@ -87,7 +88,7 @@ fun WorkspaceShell(
             notify = host.notify,
         )
     }
-    val stage = remember(model, host) { stageCallbacks(model, host) }
+    val stage = remember(model, host, stageActions) { stageCallbacks(model, host, stageActions) }
     BackHandler {
         when (model.back(BackContext(transientOpen = host.transientOpen))) {
             BackStep.CLOSE_TRANSIENT -> host.dismissTransient()
@@ -125,19 +126,17 @@ fun WorkspaceShell(
 }
 
 /** The stage's callbacks: a file document is closed and focused through the view model's buffers, everything else through the shell. */
-private fun stageCallbacks(model: WorkspaceShellModel, host: WorkspaceShellHost) = StageCallbacks(
+private fun stageCallbacks(model: WorkspaceShellModel, host: WorkspaceShellHost, stageActions: WorkspaceStageActions) = StageCallbacks(
     onBack = model::closeActive,
     onActivate = { group, uri ->
         FileDocuments.pathOf(uri)?.let(host.activateFile)
         model.dispatch(ShellAction.Activate(group, uri))
     },
     onKeep = { group, uri -> model.dispatch(ShellAction.Keep(group, uri)) },
-    onClose = { group, uri ->
-        val path = FileDocuments.pathOf(uri)
-        if (path != null) host.closeFile(path) else model.dispatch(ShellAction.Close(group, uri))
-    },
+    onClose = stageActions::close,
     onFocusGroup = { model.dispatch(ShellAction.FocusGroup(it)) },
     onSplit = { model.dispatch(ShellAction.Split) },
     onUnsplit = { model.dispatch(ShellAction.Unsplit(it)) },
     isDirty = { uri -> FileDocuments.pathOf(uri)?.let(host.isFileDirty) == true },
+    onTabAction = stageActions::onTabAction,
 )

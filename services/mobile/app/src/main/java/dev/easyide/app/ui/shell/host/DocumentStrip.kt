@@ -40,11 +40,14 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.collectFlags
 import dev.easyide.app.ui.kit.kitFocusRing
+import dev.easyide.app.ui.kit.kitPressPoint
 import dev.easyide.app.ui.kit.kitPressable
+import dev.easyide.app.ui.kit.rememberPressPoint
 import dev.easyide.app.ui.kit.kitTag
 import dev.easyide.app.ui.shell.EditorGroup
 import dev.easyide.app.ui.shell.Tab
@@ -54,7 +57,8 @@ import dev.easyide.app.ui.theme.IconSize
 /**
  * The tab strip of one editor group on a wide window: a scrolling row of document tabs, then the group's
  * [trailing] actions, which stay put while the tabs scroll. The preview tab is italic (the next preview
- * replaces it); a tap activates a tab, a double tap keeps a preview, the cross closes, and a document
+ * replaces it); a tap activates a tab, a double tap keeps a preview, a long press or right click opens
+ * the tab's menu, the cross closes, and a document
  * with unsaved changes says so in the close button's name. The strip is at least the touch floor tall so
  * the cross is a real target on a tablet.
  */
@@ -67,6 +71,8 @@ fun DocumentStrip(
     onKeep: (Tab) -> Unit,
     onClose: (Tab) -> Unit,
     modifier: Modifier = Modifier,
+    /** A long press or right click on a tab, with its window position; null leaves tabs without a menu. */
+    onMenu: ((Tab, IntOffset) -> Unit)? = null,
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
@@ -76,7 +82,7 @@ fun DocumentStrip(
     ) {
         Row(Modifier.weight(1f).horizontalScroll(rememberScrollState())) {
             group.tabs.forEach { tab ->
-                key(tab.key) { StripTab(tab, tab.key == group.active, titleOf(tab), isDirty(tab), onActivate, onKeep, onClose) }
+                key(tab.key) { StripTab(tab, tab.key == group.active, titleOf(tab), isDirty(tab), onActivate, onKeep, onClose, onMenu) }
             }
         }
         trailing()
@@ -93,15 +99,23 @@ private fun StripTab(
     onActivate: (Tab) -> Unit,
     onKeep: (Tab) -> Unit,
     onClose: (Tab) -> Unit,
+    onMenu: ((Tab, IntOffset) -> Unit)?,
 ) {
     val colors = Kit.colors
     val source = remember { MutableInteractionSource() }
     val flags = source.collectFlags()
+    val press = rememberPressPoint()
     Row(
         Modifier.height(maxOf(Kit.control.tab, Kit.metrics.touchFloor)).kitTag("doc-tab")
             .background(if (selected) colors.tabActive else colors.tabInactive)
             .underline(selected)
-            .combinedClickable(source, null, role = Role.Tab, onClick = { onActivate(tab) }, onDoubleClick = { onKeep(tab) })
+            .kitPressPoint(press, onSecondary = onMenu?.let { menu -> { at -> menu(tab, at) } })
+            .combinedClickable(
+                source, null, role = Role.Tab,
+                onClick = { onActivate(tab) },
+                onDoubleClick = { onKeep(tab) },
+                onLongClick = onMenu?.let { menu -> { menu(tab, press.at) } },
+            )
             .kitFocusRing(flags.focused, RectangleShape)
             .semantics { this.selected = selected }
             .padding(start = Kit.space.m),

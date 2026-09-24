@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import dev.easyide.app.R
 import dev.easyide.app.extensions.adapters.MenuEntry
 import dev.easyide.app.ui.kit.Kit
@@ -23,6 +24,7 @@ import dev.easyide.sandbox.files.FileNode
 
 /** What the explorer's long-press menu can do to a node. */
 enum class FileAction {
+    OPEN_BESIDE,
     NEW_FILE,
     NEW_FOLDER,
     COPY,
@@ -34,8 +36,11 @@ enum class FileAction {
     COPY_RELATIVE_PATH,
 }
 
+/** The row a menu is open for and where it was pressed, so the menu opens under the finger or pointer. */
+data class NodeMenu(val node: FileNode, val at: IntOffset)
+
 /**
- * Long-press menu for a tree node.
+ * Long-press (or right-click) menu for a tree node, opened under [NodeMenu.at].
  *
  * New file/folder appear only for directories (that is where they would be
  * created), and paste only when something is on the clipboard - a menu full of
@@ -43,7 +48,7 @@ enum class FileAction {
  */
 @Composable
 fun FileContextMenu(
-    node: FileNode?,
+    menu: NodeMenu?,
     canPaste: Boolean,
     onAction: (FileAction, FileNode) -> Unit,
     onDismiss: () -> Unit,
@@ -51,12 +56,17 @@ fun FileContextMenu(
     extensionEntries: (FileNode) -> List<MenuEntry> = { emptyList() },
     onExtensionEntry: (MenuEntry, FileNode) -> Unit = { _, _ -> },
 ) {
-    if (node == null) return
+    if (menu == null) return
+    val node = menu.node
 
     fun action(label: String, what: FileAction, danger: Boolean = false) =
         KitMenuItem.Action(label, { onAction(what, node) }, danger = danger)
 
     val items = buildList {
+        if (!node.isDirectory) {
+            add(action(stringResource(R.string.wstage_open_beside), FileAction.OPEN_BESIDE))
+            add(KitMenuItem.Divider)
+        }
         if (node.isDirectory) {
             add(action(stringResource(R.string.wp_new_file), FileAction.NEW_FILE))
             add(action(stringResource(R.string.wp_new_folder), FileAction.NEW_FOLDER))
@@ -78,7 +88,7 @@ fun FileContextMenu(
             }
         }
     }
-    KitMenu(expanded = true, onDismiss = onDismiss, items = items)
+    KitMenu(expanded = true, onDismiss = onDismiss, items = items, at = menu.at)
 }
 
 /** Shared prompt for the actions that need a name (new file/folder, rename). */
