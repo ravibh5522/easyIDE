@@ -2,7 +2,7 @@
 
 Low-level design of `tools/easyide-ext`, the author-side tool that scaffolds, validates, packages, signs, publishes, tests and live-deploys extensions.
 
-Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish`, `registry build`, `test` and `dev` in `tools/easyide-ext` (the app-side dev receiver and watcher are pending); see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
+Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish`, `registry build`, `test` and `dev` in `tools/easyide-ext`; the app side of `dev` (developer mode, `DevReloadReceiver`, `.easyide/dev/` watcher) and the in-app "Create extension" are in `:app` (`app/extensions/dev/`, `app/extensions/authoring/`); see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
 Contract (commands, flags, exit codes, index format): [sdk-reference.md#cli](../sdk-reference.md#cli), [#registry-index-format](../sdk-reference.md#registry-index-format).
 Feature area: arch.md sec 5.4 (Ecosystem: Publish, Dev loop, In-app authoring). License Apache-2.0 per ADR-G (0015).
 
@@ -350,3 +350,17 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
     `dev.easyide.app.action.DEV_RELOAD` to `dev.easyide.app.extensions.dev.DevReloadReceiver`; `--local`
     writes `<workspace>/.easyide/dev/<id>.json` (`--workspace`, default `/workspace`); `--watch` re-deploys
     on changes to non-ignored files, debounced (`CliPolicy.WATCH_DEBOUNCE_MS`).
+  - App side (2026-09-24): `DevReloadReceiver` (exported, `android:permission="android.permission.DUMP"`;
+    that only the adb shell can send it is **to verify** on a device, as is the app reading and deleting a
+    file adb pushed into its external dir on API 30+) and a `ProjectFileWatcher` on the open project's
+    `.easyide/dev/` (plus the root and `.easyide/`, so the dir is picked up once created), both acting only
+    with `extensions.developerMode` on. Requests are deleted once read; a `folder` that is absolute, uses
+    `..` or resolves outside the project (links included) is refused. Installs go through `LocalInstaller`
+    as `Source.DEV` (the LLD's `LOCAL_FOLDER_DEV`) and each reload is staged as `<version>-dev.<n>` (millis,
+    strictly increasing): the runtime caches version dirs as immutable and reloads only on an
+    `(id, version)` change, so an in-place same-version replace would not show. The previous reload is
+    retained, so rollback works. Folder installs drop the same files `package` does (the ignore rules and
+    template rendering moved to the shared `dev.easyide.extensions.authoring`, used by the CLI too).
+    Result channel stays open (issue 2): outcomes are a toast plus an Extension Log line. On API < 30 the
+    external inbox is writable by apps holding storage permission; a planted archive still needs the
+    adb broadcast and a capability change still prompts.

@@ -20,6 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
+import dev.easyide.app.extensions.dev.DevPending
+import dev.easyide.app.extensions.dev.PromptReason
 import dev.easyide.extensions.capability.Capability
 import dev.easyide.extensions.contrib.Contributions
 import dev.easyide.extensions.manifest.InstallScope
@@ -46,7 +48,7 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
         is InstallState.Review -> {
             val d = install.pkg.descriptor
             val needsEnv = d.scope == InstallScope.ENVIRONMENT
-            var envId by remember(install) { mutableStateOf(environments.firstOrNull()?.id) }
+            var envId by remember(install) { mutableStateOf(install.dev?.envId ?: environments.firstOrNull()?.id) }
             AlertDialog(
                 onDismissRequest = { viewModel.decline(install.pkg) },
                 title = { Text(stringResource(R.string.ext_install_review_title, d.displayName, d.version.toString())) },
@@ -59,6 +61,7 @@ fun InstallDialogs(install: InstallState, environments: List<SandboxEnvironment>
                             Text(stringResource(R.string.ext_install_signed, signed.registryId, signed.signedBy))
                             if (signed.fromCache) Text(stringResource(R.string.ext_install_from_cache), style = MaterialTheme.typography.bodySmall)
                         }
+                        install.dev?.let { Text(devReason(it), style = MaterialTheme.typography.bodyMedium) }
                         Text(d.id.value, style = MaterialTheme.typography.bodySmall)
                         d.description?.let { Text(it) }
                         if (install.pkg.alreadyInstalled) Text(stringResource(R.string.ext_install_already), color = MaterialTheme.colorScheme.error)
@@ -124,6 +127,15 @@ private fun InstallCommands(c: Contributions) {
             Text(s.command.joinToString(" ") { it.source } + budget, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
         }
     }
+}
+
+/** Why a developer install (`easyide-ext dev`) stopped at the sheet instead of reloading. */
+@Composable
+private fun devReason(p: DevPending): String = when (p.reason) {
+    PromptReason.FIRST_INSTALL -> stringResource(R.string.ext_dev_install_first)
+    PromptReason.REPLACES_NON_DEV -> stringResource(R.string.ext_dev_install_replaces)
+    PromptReason.CAPABILITIES_CHANGED -> stringResource(R.string.ext_dev_install_changed, p.added.sorted().joinToString().ifEmpty { "-" })
+    PromptReason.NEEDS_ENVIRONMENT -> stringResource(R.string.ext_dev_install_env)
 }
 
 /** The sdk-reference "Prompt text" of one capability. */

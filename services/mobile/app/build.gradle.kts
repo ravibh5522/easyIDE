@@ -113,6 +113,39 @@ baselineProfile {
     mergeIntoMain = true
 }
 
+// The declarative extension templates, shared with `easyide-ext init`, as APK assets under
+// authoring-templates/ for "Create extension". One copy in git (services/shared); the WASM
+// templates need a toolchain and build-time guest bindings, so they stay CLI-only.
+abstract class CopyAuthoringTemplates : DefaultTask() {
+    @get:InputDirectory
+    abstract val templates: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:Inject
+    abstract val fs: FileSystemOperations
+
+    @TaskAction
+    fun copy() {
+        fs.sync {
+            from(templates) { exclude("wasm-*/**") }
+            into(outputDir.dir("authoring-templates"))
+        }
+    }
+}
+
+val copyAuthoringTemplates by tasks.registering(CopyAuthoringTemplates::class) {
+    templates.set(layout.projectDirectory.dir("../../shared/extension-templates/templates"))
+    outputDir.set(layout.buildDirectory.dir("generated/authoring-template-assets"))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyAuthoringTemplates, CopyAuthoringTemplates::outputDir)
+    }
+}
+
 dependencies {
     implementation(project(":sandbox-runtime"))
     implementation(project(":extensions"))

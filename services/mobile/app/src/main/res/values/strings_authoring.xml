@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Extension authoring: developer mode, dev reload, Create extension (docs/extension-sdk/lld/cli.md, author-guide.md). -->
+<resources>
+    <string name="setting_developer_mode_title">Developer mode</string>
+    <string name="setting_developer_mode_desc">Accept developer installs from easyide-ext dev: pushed over adb, or requested from the open project with dev --local. Reloads with the same capabilities install without asking.</string>
+
+    <string name="ext_source_dev">developer, unsigned</string>
+    <string name="ext_dev_install_first">Developer install: first install of this extension.</string>
+    <string name="ext_dev_install_replaces">Developer install: replaces the installed non-developer copy.</string>
+    <string name="ext_dev_install_changed">Developer install: capabilities changed since the last approval (%1$s new).</string>
+    <string name="ext_dev_install_env">Developer install: choose the environment.</string>
+
+    <string name="create_ext_action">Create extension…</string>
+    <string name="create_ext_title">Create extension</string>
+    <string name="create_ext_template">Template</string>
+    <string name="create_ext_template_theme">Colour theme</string>
+    <string name="create_ext_template_snippets">Snippets</string>
+    <string name="create_ext_template_language_pack">Language (grammar)</string>
+    <string name="create_ext_template_lsp_pack">Language server</string>
+    <string name="create_ext_template_toolbar_command">Toolbar command</string>
+    <string name="create_ext_wasm_note">WASM templates (Rust, AssemblyScript) need a toolchain: use easyide-ext init in a terminal.</string>
+    <string name="create_ext_publisher">Publisher</string>
+    <string name="create_ext_name">Name</string>
+    <string name="create_ext_display_name">Display name (optional)</string>
+    <string name="create_ext_id_hint">Lowercase letters, digits and -; the id is publisher.name.</string>
+    <string name="create_ext_project">Create in project</string>
+    <string name="create_ext_no_project">Create a project first: the extension is written into a project folder.</string>
+    <string name="create_ext_create">Create</string>
+    <string name="create_ext_created_title">Created %1$s</string>
+    <string name="create_ext_created_body">Written to %1$s/ in the project. Edit it there, then install it from that folder.</string>
+    <string name="create_ext_dev_hint">Developer mode is on: after installing, run easyide-ext dev --local --watch %1$s in a terminal of this project to reload on every save.</string>
+    <string name="create_ext_dev_off_hint">Turn on Settings > Extensions > Developer mode to reload it on save with easyide-ext dev --local.</string>
+    <string name="create_ext_install">Install from this folder</string>
+    <string name="create_ext_refused_title">Could not create the extension</string>
+    <string name="create_ext_refused_exists">A folder named %1$s already exists in that project and is not empty.</string>
+    <string name="create_ext_refused_id">%1$s is not a valid extension id: use lowercase letters, digits and -.</string>
+    <string name="create_ext_refused_template">The template is missing from this build (%1$s).</string>
+    <string name="create_ext_refused_io">Writing the files failed: %1$s</string>
+</resources>

@@ -97,7 +97,11 @@ class LocalInstaller(
         paths.extensionStagingDir.listFiles()?.forEach { it.deleteRecursively() }
     }
 
-    suspend fun stageArchive(open: () -> InputStream): StageResult = stage { dir ->
+    /**
+     * [adjust] runs on the unpacked tree before validation; developer installs use it to give
+     * each reload its own version (`DevReload.devVersion`). It may throw IOException.
+     */
+    suspend fun stageArchive(adjust: (File) -> Unit = {}, open: () -> InputStream): StageResult = stage(adjust) { dir ->
         val archive = File(dir.parentFile, dir.name + ARCHIVE_SUFFIX)
         try {
             open().use { unpacker.unpackZip(it, archive, dir) }
@@ -106,7 +110,7 @@ class LocalInstaller(
         }
     }
 
-    suspend fun stageFolder(root: FolderNode): StageResult = stage { dir -> unpacker.copyFolder(root, dir) }
+    suspend fun stageFolder(root: FolderNode, adjust: (File) -> Unit = {}): StageResult = stage(adjust) { dir -> unpacker.copyFolder(root, dir) }
 
     /** Drops a staged package the user declined. */
     suspend fun discard(pkg: StagedPackage) = withContext(io) { pkg.directory.deleteRecursively() }
@@ -250,11 +254,12 @@ class LocalInstaller(
         inventory.rescan()
     }
 
-    private suspend fun stage(fill: (File) -> Unit): StageResult = withContext(io) {
+    private suspend fun stage(adjust: (File) -> Unit, fill: (File) -> Unit): StageResult = withContext(io) {
         val dir = File(paths.extensionStagingDir, UUID.randomUUID().toString())
         try {
             dir.mkdirs()
             fill(dir)
+            adjust(dir)
             validate(dir).also { if (it is StageResult.Rejected) dir.deleteRecursively() }
         } catch (e: IOException) {
             // PackageRefused and plain I/O failures alike: the pick could not be staged.

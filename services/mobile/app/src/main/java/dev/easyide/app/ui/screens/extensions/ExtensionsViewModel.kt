@@ -14,6 +14,11 @@ import dev.easyide.app.extensions.adapters.UserKeyRows
 import dev.easyide.extensions.contrib.ContributionOverrides
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.extensions.TimedLogEntry
+import dev.easyide.app.data.settings.AuthoringSettingsSchema
+import dev.easyide.app.extensions.authoring.ExtensionScaffold
+import dev.easyide.app.extensions.authoring.ScaffoldResult
+import dev.easyide.app.extensions.dev.DevPending
+import dev.easyide.app.extensions.install.FileFolder
 import dev.easyide.app.extensions.install.FolderNode
 import dev.easyide.app.extensions.install.RollbackResult
 import dev.easyide.app.extensions.install.StageResult
@@ -35,20 +40,29 @@ import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SafeModeState
 import dev.easyide.extensions.manifest.ExtensionDescriptor
 import dev.easyide.extensions.manifest.ExtensionId
+import dev.easyide.extensions.action.LogEntry
+import dev.easyide.extensions.action.LogLevel
 import dev.easyide.sandbox.EnvironmentManager
+import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.model.ProjectRecord
 import dev.easyide.sandbox.model.SandboxEnvironment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.time.Instant
+import java.time.Year
 
 /**
  * One contribution as the inspector (ECO-32) lists it, with what the user may do to it:
@@ -101,8 +115,11 @@ data class ExtensionsUiState(
 sealed interface InstallState {
     data object Idle : InstallState
     data object Staging : InstallState
-    /** [registry] is set for a signed registry package: the sheet shows its registry and signer. */
-    data class Review(val pkg: StagedPackage, val registry: RegistryStaged? = null) : InstallState
+    /**
+     * [registry] is set for a signed registry package: the sheet shows its registry and signer.
+     * [dev] is set for a developer install (`easyide-ext dev`, "Create extension").
+     */
+    data class Review(val pkg: StagedPackage, val registry: RegistryStaged? = null, val dev: DevPending? = null) : InstallState
     data class Refused(val problems: List<String>) : InstallState
     data class Failed(val message: String) : InstallState
 }
@@ -128,6 +145,8 @@ class ExtensionsViewModel(
     private val settingsStore: SettingsStore,
     safeMode: SafeModeState,
     environmentManager: EnvironmentManager,
+    private val projectManager: ProjectManager,
+    private val projectRoot: (projectId: String) -> File,
 ) : ViewModel() {
 
     private val runtime = extensions.runtime
@@ -148,10 +167,29 @@ class ExtensionsViewModel(
     ) { view, records, q, installed -> BrowseState.build(view, records, q, installed, Instant.now()) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), BrowseUiState())
 
+    private val createState = MutableStateFlow<CreateState>(CreateState.Idle)
+
+    /** In-app "Create extension" (M5): the form, then what was written. */
+    val create: StateFlow<CreateState> = createState.asStateFlow()
+
+    /** Projects a template can be created in; the open one first. */
+    val projects: StateFlow<List<ProjectRecord>> = combine(projectManager.projects, extensions.dev.workspace) { list, w ->
+        list.sortedByDescending { it.id == w.projectId }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), emptyList())
+
+    val developerMode: StateFlow<Boolean> = settingsStore.snapshot.map { it[AuthoringSettingsSchema.developerMode] }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), false)
+
     init {
         // Opening the screen is a check point for extensions.autoCheckUpdates (sec 3.3); it only notifies.
         viewModelScope.launch {
             extensions.registry.refreshIfDue(settingsStore.snapshot.first()[RegistrySettingsSchema.autoCheckUpdates])
+        }
+        // A developer install waiting on its capability sheet shows once nothing else is open.
+        viewModelScope.launch {
+            combine(extensions.dev.installer.pending, installState) { p, s -> p to s }.collect { (p, s) ->
+                if (p != null && s == InstallState.Idle) installState.value = InstallState.Review(p.pkg, dev = p)
+            }
         }
     }
 
@@ -343,7 +381,11 @@ class ExtensionsViewModel(
         viewModelScope.launch {
             installState.value = try {
                 val signed = review.registry
-                if (signed != null) extensions.registry.commit(signed, envId) else extensions.installer.commit(pkg, envId)
+                when {
+                    review.dev != null -> extensions.dev.installer.approve(review.dev, envId)
+                    signed != null -> extensions.registry.commit(signed, envId)
+                    else -> extensions.installer.commit(pkg, envId)
+                }
                 InstallState.Idle
             } catch (e: IOException) {
                 extensions.installer.discard(pkg)
@@ -354,12 +396,55 @@ class ExtensionsViewModel(
 
     fun decline(pkg: StagedPackage) {
         viewModelScope.launch {
+            extensions.dev.installer.decline(pkg)
             extensions.installer.discard(pkg)
             installState.value = InstallState.Idle
         }
     }
 
     fun dismissInstall() { installState.value = InstallState.Idle }
+
+    fun openCreate() { createState.value = CreateState.Editing }
+
+    fun closeCreate() { createState.value = CreateState.Idle }
+
+    /** Writes [template] into `<project>/<name>/`, mirrored to the project's linked folder if it has one. */
+    fun createExtension(template: String, publisher: String, name: String, displayName: String, projectId: String) {
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                ExtensionScaffold.create(template, publisher, name, displayName, Year.now().value, projectRoot(projectId), ::readTemplate)
+            }
+            createState.value = when (result) {
+                is ScaffoldResult.Created -> {
+                    projectManager.mirrorPath(projectId, result.relativePath)
+                    extensions.log.append(LogEntry(ExtensionId.parse(result.id), LogLevel.INFO, "created from the $template template in ${result.relativePath}/"))
+                    CreateState.Created(result)
+                }
+                is ScaffoldResult.Refused -> CreateState.Refused(result.reason, result.detail)
+            }
+        }
+    }
+
+    /**
+     * "Install from this folder" after creating: a developer install (so `dev --local` reloads
+     * it silently) while developer mode is on, else the ordinary local install.
+     */
+    fun installCreated(created: ScaffoldResult.Created) {
+        createState.value = CreateState.Idle
+        viewModelScope.launch {
+            if (settingsStore.snapshot.first()[AuthoringSettingsSchema.developerMode]) {
+                extensions.dev.installer.fromFolder(created.dir)
+            } else {
+                stage { extensions.installer.stageFolder(withContext(Dispatchers.IO) { FileFolder.of(created.dir) }) }
+            }
+        }
+    }
+
+    private fun readTemplate(template: String, path: String): String? = try {
+        appContext.assets.open("${ExtensionScaffold.ASSET_DIR}/$template/$path").use { String(it.readBytes(), Charsets.UTF_8) }
+    } catch (e: FileNotFoundException) {
+        null
+    }
 
     private fun stage(block: suspend () -> StageResult) {
         installState.value = InstallState.Staging

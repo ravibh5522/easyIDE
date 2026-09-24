@@ -19,6 +19,7 @@ import dev.easyide.app.extensions.adapters.ContributedKeybindings
 import dev.easyide.app.extensions.adapters.ContributedServers
 import dev.easyide.app.extensions.adapters.ExtensionLanguages
 import dev.easyide.app.extensions.adapters.SnippetCatalog
+import dev.easyide.app.extensions.dev.DevLoop
 import dev.easyide.app.extensions.host.AppHostPort
 import dev.easyide.app.extensions.host.ExtensionUiHost
 import dev.easyide.app.extensions.host.UrlOpener
@@ -147,6 +148,9 @@ class ExtensionsContainer(
         notify = { id, message -> log.append(LogEntry(id, LogLevel.WARN, message)) },
     )
 
+    /** `easyide-ext dev`: adb reloads and `dev --local` requests (lld/cli.md sec 5.7). */
+    val dev = DevLoop(context, installer, inventory, settingsStore, log, { paths.projectDir(it).canonicalFile }, scope, io)
+
     /** Contributed `languageServers` for the LSP registry (registered once by the composition root). */
     val languageServers = ContributedServers.Provider(runtime, settings, log)
 
@@ -218,6 +222,7 @@ class ExtensionsContainer(
         scope.launch {
             installer.clearStaging()
             inventory.rescan()
+            dev.start()
         }
         scope.launch {
             var first = true
@@ -276,6 +281,7 @@ class ExtensionsContainer(
     fun setRuntimeScope(scope: RuntimeScope) {
         settings.setScope(scope)
         runtime.setRuntimeScope(scope)
+        dev.setScope(scope)
     }
 
     /** For the environment binds: only enabled environment packs appear in the guest. */

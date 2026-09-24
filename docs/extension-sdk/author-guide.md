@@ -2,18 +2,23 @@
 
 Zero-to-published tutorials for third-party extension authors: a theme, a snippet + key
 row pack, a language pack with a language server, and a WASM extension in Rust.
-Status: PROPOSED (2026-09-23) - nothing here runs yet; commands and fields follow
-[sdk-reference.md](sdk-reference.md) (API v0). Design background: [arch.md](arch.md).
-Rules every published extension must meet: [rules.md](rules.md) section R-EXT.
+Status: PARTLY IMPLEMENTED (2026-09-24): the CLI (`tools/easyide-ext`: `init`, `validate`,
+`test`, `package`, `keygen`, `sign`, `verify`, `dev`, `publish`, `registry build`), developer
+mode, dev reload (adb and `--local`) and the in-app **Create extension** exist; there is no
+public first-party registry yet, and the jar is not yet preinstalled in environments.
+Commands and fields follow [sdk-reference.md](sdk-reference.md) (API v0); design background:
+[arch.md](arch.md). Rules every published extension must meet: [rules.md](rules.md) section R-EXT.
 
 ## Before you start
 
 **What you need**
 
-- Java 17+ and the `easyide-ext` CLI (a jar; it is also preinstalled in every easyIDE
-  environment, so you can author entirely on the tablet in an easyIDE terminal).
-- For on-device testing from a computer: `adb`, a USB-debuggable device, and
-  **Settings > Extensions > Developer mode** (`extensions.developerMode`) switched on.
+- Java 17+ and the `easyide-ext` CLI: build it with `./gradlew jar` in `tools/easyide-ext`
+  and run `tools/easyide-ext/easyide-ext` (a `java -jar` launcher). Inside an easyIDE
+  environment, copy the jar in and run it from a terminal of your project.
+- **Settings > Extensions > Developer mode** (`extensions.developerMode`, off by default)
+  for any live reload. It is a device setting: a project cannot turn it on.
+- For reloads from a computer: `adb` and a USB-debuggable device.
 - For tutorial 4 only: a Rust toolchain with the `wasm32-unknown-unknown` target.
 
 **Three things to know about trust** - they shape what you can promise your users:
@@ -33,24 +38,55 @@ any capability.
 
 **Layers you will meet**: L1 = declarative data (tutorials 1-3), L2 = WASM (tutorial 4).
 
+## Quick start: a theme in five minutes
+
+On a computer with `adb`:
+
+```
+easyide-ext init ./night --template theme --publisher acme --name night   # scaffold
+easyide-ext validate --strict ./night                                     # schema, assets, capabilities
+easyide-ext test ./night                                                  # scenarios in test/, no device
+easyide-ext dev ./night --watch --device <serial>                         # install + reload on every save
+```
+
+Entirely on the tablet: **Extensions > + > Create extension...**, pick a template (theme,
+snippets, language, language server, toolbar command), a publisher and a name, and the
+project to write `<name>/` into; then **Install from this folder**. With developer mode on,
+run `easyide-ext dev --local --watch <name>` in a terminal of that project and every save
+reloads the extension. The WASM templates (`wasm-rust`, `wasm-assemblyscript`) need a
+toolchain, so they are CLI-only (`easyide-ext init`).
+
+**How dev reload behaves**
+
+- Over adb, `dev` pushes `<id>.easyext` to the app's dev inbox and broadcasts a reload that
+  only adb can send; `--local` writes `.easyide/dev/<id>.json` naming the folder, which the
+  app watches in the open project. Both do nothing unless developer mode is on.
+- Each reload installs as a developer extension (labelled "developer, unsigned") with its own
+  version `<version>-dev.<n>`, so what you see is always the last save; the previous reload is
+  kept and **Roll back** works.
+- The capability sheet shows on the first developer install, when it would replace a registry
+  or local copy, and whenever the declared capabilities change; otherwise reloads are silent.
+  A sheet waiting for you shows when you open **Extensions**.
+- Results (loaded, refused, waiting for approval) appear as a toast and in the **Extension
+  Log** at the bottom of the Extensions screen; `dev` itself only reports "sent". Tap an
+  extension there to see the contribution inspector: every button, row, key and setting it
+  contributes and what hides or shadows it.
+
 ## The loop every tutorial uses
 
 ```
-easyide-ext init --template <t> --publisher <you> --name <ext> ./<dir>   # scaffold
-easyide-ext validate --strict ./<dir>                                    # schema, assets, capabilities
-easyide-ext test ./<dir>                                                 # headless harness, no device
-easyide-ext dev --watch --device <serial> ./<dir>                        # live reload on a tablet
-easyide-ext package ./<dir> --out dist/                                  # deterministic .easyext + sha256
-easyide-ext publish dist/<you>.<ext>-<ver>.easyext \
-    --index-repo https://github.com/easyide/extension-index --key ~/.easyide/<you>.key
+easyide-ext init ./<dir> --template <t> --publisher <you> --name <ext>
+easyide-ext validate --strict ./<dir>
+easyide-ext test ./<dir>
+easyide-ext dev ./<dir> --watch --device <serial>          # or: --local, inside an environment
+easyide-ext package ./<dir> --out dist/                     # deterministic .easyext + sha256
+easyide-ext publish dist/<you>.<ext>-<ver>.easyext --index-repo <git url> \
+    --key ~/.easyide/keys/<you>-<keyId>.key --url <https url of the package>
 ```
 
-Exit codes: 0 ok, 1 validation/usage error, 2 I/O or network error. Add `--json` for
-machine-readable output in your own CI.
-
-Without a computer: in easyIDE, **Create extension** offers the same templates inside a
-project; **Install from folder** installs the project as a dev extension with live reload
-on save; `easyide-ext dev --local` does the same from the terminal.
+`publish` needs `--url` (where the package will be downloadable, e.g. a release asset) or
+`--package-base` (commit the package into the index repo). Exit codes: 0 ok, 1 validation or
+usage error, 2 I/O or network error. Add `--json` for machine-readable output in your own CI.
 
 ## One-time publisher setup
 
@@ -134,8 +170,9 @@ easyide-ext validate --strict ./graphite-night
 easyide-ext dev --watch --device R52T1234 ./graphite-night
 ```
 
-On the tablet: **Settings > Theme** now lists "Graphite Night (dev)". Edit a colour and
-save; the `--watch` loop repackages and the app reloads it. Check light surfaces you did
+On the tablet (developer mode on): approve the capability sheet once; **Settings > Theme**
+now lists "Graphite Night". Edit a colour and save; the `--watch` loop repackages and the
+app reloads it silently. Check light surfaces you did
 not define (dialogs, Problems panel) still read well, and try with a hardware keyboard and
 without.
 
@@ -144,7 +181,8 @@ without.
 ```
 easyide-ext package ./graphite-night --out dist/
 easyide-ext publish dist/acme.graphite-night-0.1.0.easyext \
-    --index-repo https://github.com/easyide/extension-index --key ~/.easyide/acme.key
+    --index-repo <index repo git url> --key ~/.easyide/keys/acme-<keyId>.key \
+    --url https://github.com/acme/graphite-night/releases/download/v0.1.0/acme.graphite-night-0.1.0.easyext
 ```
 
 `publish` computes the index entry, signs it, commits it to a branch and prints the PR URL.
@@ -518,7 +556,8 @@ As 1.5. Include the Rust source (or a link to it) in your README; reviewers may 
 | Server never starts | missing binary, wrong `command`, no matching `activationEvents` | run the command in the easyIDE terminal; check Extension Log |
 | Server "paused (memory)" | over `memoryBudgetMb` or global `lsp.globalMemoryBudgetMb` | measure RSS, raise your default honestly, or document the override |
 | Install rolled back | `verify` exited non-zero | run `verify` by hand in the terminal |
-| `dev --device` does nothing | developer mode off, or device not in `adb devices` | enable `extensions.developerMode`; check USB debugging |
+| `dev --device` does nothing | developer mode off, or device not in `adb devices` | enable `extensions.developerMode`; check USB debugging; read the Extension Log |
+| `dev --local` does nothing | developer mode off, no project open, or the folder is outside the project | open the project in easyIDE; keep the extension inside it |
 | WASM load refused | wrong `ext_abi_version`, missing export, WASI import | build for `wasm32-unknown-unknown`, avoid std fs/net/time |
 | WASM `E_LIMIT` / `E_TIMEOUT` | fuel, memory, message size or time exceeded | do less per call; move heavy work to a server |
 | Publish PR fails CI | hand-edited entry, non-immutable `url`, version not increasing, unused capability | re-run `package` and `publish`; bump version |
