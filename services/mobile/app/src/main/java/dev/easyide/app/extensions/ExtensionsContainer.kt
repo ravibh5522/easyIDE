@@ -32,6 +32,11 @@ import dev.easyide.app.extensions.registry.RegistryService
 import dev.easyide.app.extensions.registry.TinkEd25519
 import dev.easyide.app.extensions.registry.UrlConnectionFetcher
 import dev.easyide.app.data.settings.RegistrySettingsSchema
+import dev.easyide.app.extensions.wasm.AndroidClipboard
+import dev.easyide.app.extensions.wasm.WasmDeps
+import dev.easyide.app.extensions.wasm.WasmRuntime
+import dev.easyide.extensions.AppApi
+import dev.easyide.extwasm.host.HostInfo
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeyBinding
 import dev.easyide.app.ui.screens.workspace.TerminalKeyboard
@@ -102,8 +107,25 @@ class ExtensionsContainer(
         keyRows = listOf(TerminalKeyboard.row(context.getString(R.string.key_row_terminal_title))),
     )
 
-    val runtime = ExtensionsRuntime(
-        ports = RuntimePorts(settings, inventory, host, log, paths.extensionJournalFile),
+    /** L2: the WASM host with its ports bridged to the app (lld/wasm-host.md sec 12, 14). */
+    val wasm: WasmRuntime = WasmRuntime(
+        WasmDeps(
+            extensionsDir = paths.extensionsDir,
+            settings = settings,
+            host = host,
+            workspace = { host.workspaceBridge },
+            rootfs = paths::rootfsDir,
+            clipboard = AndroidClipboard(context),
+            log = log,
+            inventory = inventory,
+            info = HostInfo(appVersionName(), AppApi.VERSION.toString(), Locale.getDefault().toLanguageTag()),
+            scope = scope,
+            io = io,
+        ),
+    ) { runtime }
+
+    val runtime: ExtensionsRuntime = ExtensionsRuntime(
+        ports = RuntimePorts(settings, inventory, host, log, paths.extensionJournalFile, activators = listOf(wasm.activator), logic = wasm),
         scope = scope,
         builtIn = builtInContributions,
         builtInCommands = CommandIds.ALL,
@@ -151,6 +173,7 @@ class ExtensionsContainer(
     fun start() {
         if (!started.compareAndSet(false, true)) return
         runtime.start()
+        wasm.start()
         TextMateHighlighter.onSlowGrammar = { scopeName ->
             log.append(LogEntry(null, LogLevel.WARN, "grammar $scopeName exceeded ${ExtensionPolicy.GRAMMAR_LINE_TIME_LIMIT_MS} ms on a line; the rest of that file stays plain"))
         }
@@ -281,6 +304,9 @@ class ExtensionsContainer(
     } catch (e: ActivityNotFoundException) {
         false
     }
+
+    @Suppress("DEPRECATION") // the flags overload is API 33+; minSdk is 26
+    private fun appVersionName(): String = context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty()
 
     /** Changes with every install or update of the APK, so built-ins are re-unpacked exactly then. */
     private fun apkStamp(): String =

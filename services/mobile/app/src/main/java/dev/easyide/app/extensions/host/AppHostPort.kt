@@ -48,6 +48,9 @@ class AppHostPort(
 
     fun attach(workspace: WorkspaceBridge) { bridge = workspace }
 
+    /** The open workspace, for the WASM ports (editor, files, processes act only on it). */
+    val workspaceBridge: WorkspaceBridge? get() = bridge
+
     /** Detaches only if [workspace] is still the attached one (a newer screen may have replaced it). */
     fun detach(workspace: WorkspaceBridge) { if (bridge === workspace) bridge = null }
 

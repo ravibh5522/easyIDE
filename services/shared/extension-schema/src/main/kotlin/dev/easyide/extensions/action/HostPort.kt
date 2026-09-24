@@ -130,7 +130,8 @@ sealed interface CommandOutcome {
     data class Done(val value: JsonElement) : CommandOutcome
     data object Cancelled : CommandOutcome
     data object NotFound : CommandOutcome
-    data class Failed(val message: String) : CommandOutcome
+    /** [error] is the sdk-reference code the Extension Log shows (an L2 handler's own code, e.g. E_CAPABILITY). */
+    data class Failed(val message: String, val error: ActionError = ActionError.INTERNAL) : CommandOutcome
 }
 
 interface CommandPort {

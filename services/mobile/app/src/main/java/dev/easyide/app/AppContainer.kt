@@ -209,6 +209,8 @@ class AppContainer(context: Context) {
         // For the app's lifetime: a pack's servers come and go with its enablement through
         // the provider's flow, so the registration itself is never closed.
         lsp.servers.register(extensions.languageServers)
+        // WASM completion/hover providers join the LSP presenters' merge.
+        lsp.extensionProviders.register(extensions.wasm)
     }
 
     /**
