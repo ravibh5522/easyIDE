@@ -20,13 +20,13 @@ Design: [arch.md](arch.md). Design accepted by the owner on 2026-09-24 (ADR 0025
 | Kit primitives (about 20) + gallery | in-progress | all 17 primitives landed: layout/text (scaffold, section, group, row, empty state, progress) and input/action (field, button, icon button, tag, banner, dialog, tabs, toggle, menu, choice, stepper). Compile and JVM logic tests only; not seen on a device; the gallery and screenshot goldens are still open |
 | Motif drawables (cursor block, crop corners, prompt glyph, cell fill) | done | drawn, not typed (Geist Mono has no U+25AE); compiles and the logic is unit-tested, not seen on a device; the 6-cycle blink cap for Home and the 600ms reset after input are not implemented |
 | **R1 App shell** | | |
-| `ShellState`, registries (navigation, container, document) | in-progress | pure engine done and unit-tested in `ui/shell` (state and reducer, nav/container/document registries with ordering, collision and user-override rules, layout presets, snapshot); not wired into any screen |
-| `NavSurface` (bottom bar / rail), `PanelHost`, `StageHost` (1 group) | not-started | |
+| `ShellState`, registries (navigation, container, document) | done | pure engine in `ui/shell`, unit-tested; app scope is wired to it through `ShellViewModel` (`ui/shell/host`); `ShellAction.ResizePane` added for dragged panel widths; workspace scope is not wired (R3) |
+| `NavSurface` (bottom bar / rail), `PanelHost`, `StageHost` (1 group) | in-progress | built and wired for app scope: bottom bar (max 5 + More via `KitDialog`) or rail per size class and `shell.navigation.*`, badges, docked primary panel with a persisted draggable width, one-group stage (tab strip wide, titled page with back on compact), `AdaptiveScaffold` insets and IME, `ShellHost`. JVM logic tests only; not seen on a device. Open: overlay side/bottom sheets for workspace panels (R3), secondary/bottom panels, more than one group, Ctrl+Alt+n nav shortcuts |
 | Document URIs + open/preview/pin/history | in-progress | `DocumentUri`, `DocumentRegistry` (open-with, placeholder), `EditorGroup`/`EditorStage` (preview, pin, MRU, history, 1-4 groups) done and tested; no UI (`StageHost`) yet |
-| Home "Now" page + project page | not-started | needs session registry (ADR-D) for Running |
-| Extensions on the shell (list + extension page + install flow) | not-started | |
-| Settings on the shell (categories + pages + Appearance + Layout) | not-started | |
-| Back behaviour + app-scope restore | in-progress | `BackNavigation` (section 11 steps) and the versioned `ShellSnapshot` (section 12, golden JSON tests) done; not connected to `BackHandler` or storage |
+| Home "Now" page + project page | not-started | needs session registry (ADR-D) for Running; the shell hosts the pre-shell `HomeScreen` through a temporary adapter until the HOME branch lands |
+| Extensions on the shell (list + extension page + install flow) | not-started | pre-shell `ExtensionsScreen` hosted through a temporary adapter until the EXTENSIONS branch lands |
+| Settings on the shell (categories + pages + Appearance + Layout) | not-started | pre-shell `SettingsScreen` hosted through a temporary adapter until the SETTINGS branch lands; `shell.*` keys exist in `ShellSettingsSchema` (listed under Appearance until the Layout page) |
+| Back behaviour + app-scope restore | done | `BackHandler` in `ShellHost` runs `BackNavigation`; the snapshot is restored on first window and saved debounced (400 ms) in the app preferences file. Note: on a phone at Home the first Back moves focus to the bottom bar (section 11 step 5) and the second leaves the app. Not verified on a device |
 | **R2 Flows and dialogs** | | |
 | Onboarding, New project, Install Linux on the kit | not-started | baseline profile regen |
 | 22 non-workspace dialogs to `KitDialog`; banners; toasts | not-started | |
@@ -50,3 +50,12 @@ Design: [arch.md](arch.md). Design accepted by the owner on 2026-09-24 (ADR 0025
 | **Hygiene** | | |
 | ux-overhaul Pillar 4 superseded note | not-started | shell-model replaces its layout plan |
 | ADR 0019 amendment note | not-started | accent and motif |
+
+## R1 swap list (temporary adapters)
+
+The app launches into `ShellHost` with the pre-shell screens hosted as window-spanning panels (`ui/shell/host/LegacyAdapters.kt`, bound in `AppRenderers.panels`). When the sibling branches merge:
+
+1. `AppRenderers.panels`: bind `home.projects` to `HomePanel`, `settings.categories` to `SettingsPanel(selected, onSelect)`, `extensions.list` to `ExtensionsPanel` (drop `spansWindow`).
+2. `AppRenderers.documents`: bind `easyide.project` to `ProjectPage(projectId)`, `easyide.settings` to `SettingsPage(category)`, `easyide.extension` to `ExtensionPage(id)` (type ids in `AppDocuments`; pages read `LocalShellState` and call `LocalShellActions.open`).
+3. Delete `LegacyAdapters.kt` and `PanelBinding.spansWindow` (and its branch in `ShellBody` and `PanelHost`). `ShellExits` stays: it is how the shell leaves for the workspace, new project, install and diagnostics routes.
+4. Baseline profile: no selector changed (onboarding "Get started" and the first scrollable node are still Home's list on a phone).
