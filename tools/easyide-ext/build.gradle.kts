@@ -39,9 +39,16 @@ val guestAs by tasks.registering(Copy::class) {
     into(layout.buildDirectory.dir("generated/guest-as/templates/wasm-assemblyscript/guest/assembly"))
 }
 
+// Templates are shared with the app's "Create extension"; only templates/ goes into the jar.
+val templateResources by tasks.registering(Copy::class) {
+    from(shared.dir("../extension-templates")) { include("templates/**") }
+    into(layout.buildDirectory.dir("generated/templates"))
+}
+
 sourceSets.main {
     kotlin.srcDir(shared.dir("src/main/kotlin"))
     resources.srcDir(schemaResources)
+    resources.srcDir(templateResources)
     resources.srcDir(guestCrate.map { layout.buildDirectory.dir("generated/guest").get() })
     resources.srcDir(guestAs.map { layout.buildDirectory.dir("generated/guest-as").get() })
 }
