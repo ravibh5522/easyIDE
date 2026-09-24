@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -31,6 +32,8 @@ fun KitBanner(
 ) {
     val colors = Kit.colors
     val rule = tone.content(colors)
+    val haptics = rememberHaptics()
+    LaunchedEffect(text, tone) { tone.hapticEvent()?.let(haptics::play) }
     Row(
         modifier = modifier
             .kitTag("banner")

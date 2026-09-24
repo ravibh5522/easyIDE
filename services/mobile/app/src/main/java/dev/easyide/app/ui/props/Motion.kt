@@ -34,6 +34,9 @@ data class Motion(val reduce: Boolean, val blink: Boolean) {
         /** A blink pauses solid for this long after any input. */
         const val BLINK_RESET_MS = 600
 
+        /** Home and empty-state header cursors blink this many cycles, then rest solid. */
+        const val HEADER_BLINK_CYCLES = 6
+
         private val ENTER = CubicBezierEasing(0.2f, 0f, 0f, 1f)
         private val EXIT = CubicBezierEasing(0.3f, 0f, 1f, 1f)
 

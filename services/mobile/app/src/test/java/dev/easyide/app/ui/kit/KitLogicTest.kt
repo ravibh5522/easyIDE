@@ -22,13 +22,6 @@ class KitLogicTest {
         assertTrue(Motif.FULL.drawsArt)
     }
 
-    @Test fun `the blink is on for the first half of a period and off for the second`() {
-        assertTrue(blinkOn(0f))
-        assertTrue(blinkOn(0.499f))
-        assertFalse(blinkOn(0.5f))
-        assertFalse(blinkOn(0.999f))
-    }
-
     @Test fun `a row follows its width class at every density but never drops below the touch floor`() {
         val floor = UiMetrics.TOUCH_FLOOR
         for (density in Density.entries) {

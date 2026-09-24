@@ -32,11 +32,13 @@ import dev.easyide.app.R
 import dev.easyide.app.ui.components.rememberFolderPicker
 import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.kit.CursorBlock
+import dev.easyide.app.ui.kit.CursorStyle
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitBanner
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitMenu
 import dev.easyide.app.ui.kit.KitMenuItem
+import dev.easyide.app.ui.kit.MotifSurface
 import dev.easyide.app.ui.kit.Tone
 import dev.easyide.sandbox.external.ExternalFolderSync
 import kotlinx.coroutines.delay
@@ -109,7 +111,7 @@ fun HomeNowPage(state: HomeUiState, callbacks: HomeCallbacks, modifier: Modifier
     }
 }
 
-/** "easyIDE" with the block cursor after it (solid: nothing on Home blinks at idle), and the add menu. */
+/** "easyIDE" with the block cursor after it (blinks [MotifSurface.Home] cycles, then rests solid), and the add menu. */
 @Composable
 private fun HomeHeader(callbacks: HomeCallbacks, pickFolder: () -> Unit) {
     val space = Kit.space
@@ -119,7 +121,7 @@ private fun HomeHeader(callbacks: HomeCallbacks, pickFolder: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(space.xs),
     ) {
         BasicText(stringResource(R.string.app_name), style = Kit.type.headlineMedium.copy(color = Kit.colors.plainText))
-        CursorBlock()
+        CursorBlock(style = CursorStyle.Blinking, maxCycles = MotifSurface.Home.cursorCycles)
         Spacer(Modifier.weight(1f))
         HomeAddMenu(callbacks, pickFolder)
     }
