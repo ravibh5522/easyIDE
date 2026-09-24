@@ -1,7 +1,10 @@
 package dev.easyide.app
 
+import android.app.Application
 import android.content.Context
 import dev.easyide.sandbox.git.GitCredentials
+import dev.easyide.sandbox.git.GitRemote
+import dev.easyide.app.ui.screens.workspace.git.AppForeground
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
@@ -133,6 +136,9 @@ class AppContainer(context: Context) {
 
     val gitCredentials = GitCredentials(appContext)
 
+    /** Visible-or-not, for work (auto-fetch) that must not run in the background. */
+    val appForeground = AppForeground(appContext as Application)
+
     private val paths = SandboxPaths(appContext.filesDir)
 
     private val store: SandboxStore = SandboxStore.create(appContext.filesDir, applicationScope)
@@ -169,6 +175,9 @@ class AppContainer(context: Context) {
         // `extensions` below is constructed.
         guestBinds = EnvironmentExtensionBinds(paths) { envId, id -> extensions.isEnabledIn(envId, id.value) },
     )
+
+    /** Fetch/pull/push through the guest's git; tokens come from [gitCredentials] (decision 0012). */
+    val gitRemote = GitRemote(linuxEnvironment, gitCredentials, Dispatchers.IO)
 
     /** The extension platform; started by [EasyIdeApplication] before any screen exists. */
     val extensions: ExtensionsContainer = ExtensionsContainer(

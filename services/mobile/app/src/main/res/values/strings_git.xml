@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Source control: the panel, remote operations, branches, diff, stash, identity and credentials.
+     Kept apart from strings.xml so the git UI's strings are reviewed and merged as one unit. -->
+<resources>
+    <string name="git_title">Source control</string>
+    <string name="git_refresh">Refresh</string>
+    <string name="git_cancel">Cancel</string>
+    <string name="git_dismiss">Dismiss</string>
+    <string name="git_more_actions">More git actions</string>
+
+    <string name="git_not_repo_title">Not a repository</string>
+    <string name="git_not_repo_body">Initialise git here to start tracking changes.</string>
+    <string name="git_init">Initialise repository</string>
+    <string name="git_no_changes">No changes</string>
+
+    <string name="git_section_conflicts">Merge conflicts</string>
+    <string name="git_section_staged">Staged changes</string>
+    <string name="git_section_changes">Changes</string>
+    <string name="git_section_graph">Graph</string>
+    <string name="git_stage">Stage</string>
+    <string name="git_unstage">Unstage</string>
+    <string name="git_discard">Discard</string>
+    <string name="git_stage_all">Stage all</string>
+    <string name="git_unstage_all">Unstage all</string>
+
+    <string name="git_state_merging">A merge is in progress. Open each conflicted file, resolve the markers, stage it, then commit.</string>
+    <string name="git_state_rebasing">A rebase is in progress. Resolve the conflicts here, then finish it in the terminal (git rebase --continue or --abort).</string>
+    <string name="git_state_other">An unfinished git operation is holding this repository. Finish or abort it in the terminal.</string>
+
+    <!-- Commit box -->
+    <string name="git_message_hint">Message</string>
+    <string name="git_commit">Commit</string>
+    <string name="git_commit_amend">Amend last commit</string>
+    <plurals name="git_commit_files">
+        <item quantity="one">Commit %1$d file</item>
+        <item quantity="other">Commit %1$d files</item>
+    </plurals>
+    <string name="git_amend">Amend last commit</string>
+    <string name="git_amend_anyway">Amend anyway</string>
+    <string name="git_confirm_amend_title">Amend a pushed commit?</string>
+    <string name="git_confirm_amend_body">This commit is already on a remote. Amending rewrites it, so the next push has to be forced and anyone who pulled it will have to reconcile.</string>
+
+    <string name="git_identity_title">Who are you?</string>
+    <string name="git_identity_body">Git records an author name and email on every commit. Set them once; you can change them in Settings > Git.</string>
+    <string name="git_identity_name">Name</string>
+    <string name="git_identity_email">Email</string>
+    <string name="git_identity_save_global">Save for all projects and commit</string>
+    <string name="git_identity_save_project">Save for this project only and commit</string>
+    <string name="git_identity_save_failed">Could not save the identity to settings.</string>
+
+    <!-- Branch chip, sync bar, operations -->
+    <string name="git_branch_chip_cd">Current branch %1$s</string>
+    <string name="git_branches_open">Switch branch</string>
+    <plurals name="git_ahead_cd">
+        <item quantity="one">%1$d commit to push</item>
+        <item quantity="other">%1$d commits to push</item>
+    </plurals>
+    <plurals name="git_behind_cd">
+        <item quantity="one">%1$d commit to pull</item>
+        <item quantity="other">%1$d commits to pull</item>
+    </plurals>
+    <string name="git_no_remote">No remote yet. Add one to fetch, pull and push.</string>
+    <string name="git_fetch">Fetch</string>
+    <string name="git_pull">Pull</string>
+    <string name="git_push">Push</string>
+    <string name="git_publish">Publish branch</string>
+    <string name="git_force_push">Force push (with lease)</string>
+    <string name="git_op_title">%1$s: %2$s</string>
+    <string name="git_op_running">running</string>
+    <string name="git_op_succeeded">done</string>
+    <string name="git_op_failed">failed</string>
+    <string name="git_op_cancelled">cancelled</string>
+    <string name="git_add_token_for">Add a token for %1$s</string>
+
+    <string name="git_error_auth">The remote refused the credentials. Add or replace the access token for this host and try again.</string>
+    <string name="git_error_non_fast_forward">The remote has commits you do not have, so the push was rejected. Pull first, then push again.</string>
+    <string name="git_error_no_upstream">This branch does not track a remote branch yet. Publish it to set one.</string>
+    <string name="git_error_diverged">Your branch and the remote have both moved, so a fast-forward is not possible. Change the pull strategy to merge or rebase in Settings > Git, or reconcile in the terminal.</string>
+    <string name="git_error_merge_conflict">The pull produced merge conflicts. Resolve them in the files listed under Merge conflicts.</string>
+    <string name="git_error_dirty_tree">Local changes would be overwritten. Commit or stash them, then try again.</string>
+    <string name="git_error_unmerged_branch">That branch has commits that are not merged anywhere else.</string>
+    <string name="git_error_network">Could not reach the remote. Check the connection and the remote URL.</string>
+
+    <string name="git_confirm_force_title">Force push?</string>
+    <string name="git_confirm_force_body">This overwrites %1$s with your local history. It refuses if the remote has commits you have not fetched, but it can still discard commits others pushed earlier.</string>
+
+    <!-- Remotes -->
+    <string name="git_remotes_title">Remotes</string>
+    <string name="git_remote_name">Remote name</string>
+    <string name="git_remote_url">Remote URL</string>
+    <string name="git_remote_add">Add remote</string>
+    <string name="git_remove">Remove</string>
+    <string name="git_remove_remote_cd">Remove remote %1$s</string>
+    <string name="git_confirm_remove_remote_title">Remove remote %1$s?</string>
+    <string name="git_confirm_remove_remote_body">Only the reference is removed from this repository; nothing on the server changes.</string>
+
+    <!-- Branches -->
+    <string name="git_branches_local">Local branches</string>
+    <string name="git_branches_remote">Remote branches</string>
+    <string name="git_branches_empty">No branches yet. Make a first commit to create one.</string>
+    <string name="git_new_branch">New branch name</string>
+    <string name="git_branch_name">Branch name</string>
+    <string name="git_branch_from">From: %1$s</string>
+    <string name="git_branch_from_head">current commit</string>
+    <string name="git_create_branch">Create and switch</string>
+    <string name="git_branch_tracks">tracks %1$s</string>
+    <string name="git_branch_current">Current branch</string>
+    <string name="git_rename">Rename</string>
+    <string name="git_rename_branch_title">Rename %1$s</string>
+    <string name="git_rename_branch_cd">Rename branch %1$s</string>
+    <string name="git_delete">Delete</string>
+    <string name="git_delete_anyway">Delete anyway</string>
+    <string name="git_delete_branch_cd">Delete branch %1$s</string>
+    <string name="git_confirm_delete_title">Delete branch %1$s?</string>
+    <string name="git_confirm_delete_body">The branch pointer is removed. Its commits stay if another branch contains them.</string>
+    <string name="git_confirm_delete_unmerged_title">%1$s is not merged</string>
+    <string name="git_confirm_delete_unmerged_body">This branch has commits that no other branch contains. Deleting it makes them unreachable.</string>
+    <string name="git_confirm_switch_title">Uncommitted changes</string>
+    <string name="git_confirm_switch_body">Switching to %1$s could overwrite your changes. Stash them first? They stay in the stash list until you pop them.</string>
+    <string name="git_stash_and_switch">Stash and switch</string>
+
+    <!-- Stash -->
+    <string name="git_stashes_menu">Stashes (%1$d)</string>
+    <string name="git_stashes_title">Stashes</string>
+    <string name="git_stashes_empty">Nothing stashed.</string>
+    <string name="git_stash_message">Stash message (optional)</string>
+    <string name="git_stash_untracked">Include untracked files</string>
+    <string name="git_stash_push">Stash changes</string>
+    <string name="git_stash_pop">Pop</string>
+    <string name="git_stash_apply">Apply</string>
+    <string name="git_stash_drop">Drop</string>
+    <string name="git_stash_drop_cd">Drop stash %1$s</string>
+    <string name="git_confirm_drop_stash_title">Drop this stash?</string>
+    <string name="git_confirm_drop_stash_body">The stashed changes are deleted and cannot be recovered from the panel.</string>
+
+    <!-- Discard -->
+    <string name="git_confirm_discard_title">Discard changes?</string>
+    <plurals name="git_confirm_discard_body">
+        <item quantity="one">%1$d file loses its uncommitted changes. This cannot be undone.</item>
+        <item quantity="other">%1$d files lose their uncommitted changes. This cannot be undone.</item>
+    </plurals>
+    <string name="git_confirm_discard_hunk_title">Discard this hunk?</string>
+    <string name="git_confirm_discard_hunk_body">This block of changes in %1$s is reverted in the file. This cannot be undone.</string>
+
+    <!-- Diff -->
+    <string name="git_diff_close">Close diff</string>
+    <string name="git_diff_open_file">Open in editor</string>
+    <string name="git_diff_staged">Staged</string>
+    <string name="git_diff_unstaged">Unstaged</string>
+    <string name="git_diff_stage_file">Stage file</string>
+    <string name="git_diff_unstage_file">Unstage file</string>
+    <string name="git_diff_stats">+%1$d -%2$d</string>
+    <string name="git_diff_empty">No line changes to show.</string>
+    <string name="git_diff_binary">Binary file: contents are not shown.</string>
+    <string name="git_diff_too_large">This file is %1$s, too large to diff here. Open it in the editor instead.</string>
+    <string name="git_hunk_stage">Stage hunk</string>
+    <string name="git_hunk_unstage">Unstage hunk</string>
+    <string name="git_hunk_discard">Discard hunk</string>
+
+    <!-- Credentials (Settings > Git and the auth-failure fix) -->
+    <string name="git_credentials_title">Credentials</string>
+    <string name="git_credentials_empty">No access tokens saved. Add a personal access token to fetch, pull and push over HTTPS.</string>
+    <string name="git_credentials_row_detail">Username: %1$s. Token saved.</string>
+    <string name="git_credentials_add">Add token</string>
+    <string name="git_credentials_forget">Forget</string>
+    <string name="git_credentials_forget_cd">Forget the token for %1$s</string>
+    <string name="git_credentials_forget_title">Forget the token for %1$s?</string>
+    <string name="git_credentials_forget_body">The token is deleted from this device. Pushes and pulls to that host will fail until you add one again.</string>
+    <string name="git_credential_dialog_title">Add access token</string>
+    <string name="git_credential_dialog_body">The token is kept encrypted with a key that never leaves this device and is handed to git for a single command at a time. It is never shown again.</string>
+    <string name="git_credential_host">Host (for example github.com)</string>
+    <string name="git_credential_username">Username (optional)</string>
+    <string name="git_credential_username_hint">GitHub and GitLab accept any name; Bitbucket needs yours.</string>
+    <string name="git_credential_token">Personal access token</string>
+    <string name="git_credential_save">Save</string>
+    <string name="git_credential_save_failed">The token could not be saved.</string>
+
+    <!-- Settings -->
+    <string name="settings_category_git">Git</string>
+    <string name="setting_git_user_name_title">Author name</string>
+    <string name="setting_git_user_name_desc">Recorded on your commits. Leave empty to be asked at the first commit. A project can override it.</string>
+    <string name="setting_git_user_email_title">Author email</string>
+    <string name="setting_git_user_email_desc">Recorded on your commits. A project can override it.</string>
+    <string name="setting_git_pull_strategy_title">Pull strategy</string>
+    <string name="setting_git_pull_strategy_desc">How Pull combines remote commits with yours.</string>
+    <string name="git_pull_strategy_merge">Merge</string>
+    <string name="git_pull_strategy_rebase">Rebase</string>
+    <string name="git_pull_strategy_ff_only">Fast-forward only</string>
+    <string name="setting_git_auto_fetch_title">Fetch automatically</string>
+    <string name="setting_git_auto_fetch_desc">Fetch from the remote every few minutes while the app is open, to keep ahead/behind counts current. Off by default; uses data.</string>
+</resources>

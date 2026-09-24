@@ -43,6 +43,7 @@ enum class SettingCategory(@StringRes val title: Int) {
     APPEARANCE(R.string.settings_theme_section),
     EDITOR(R.string.settings_category_editor),
     TERMINAL(R.string.settings_category_terminal),
+    GIT(R.string.settings_category_git),
     LANGUAGE_SERVERS(R.string.settings_category_language_servers),
     EXTENSIONS(R.string.settings_category_extensions),
 }

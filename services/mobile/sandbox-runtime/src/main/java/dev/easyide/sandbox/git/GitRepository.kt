@@ -2,8 +2,10 @@ package dev.easyide.sandbox.git
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.BranchTrackingStatus
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
@@ -25,11 +27,14 @@ import java.io.File
  * the main thread.
  */
 class GitRepository private constructor(
-    private val git: Git,
+    internal val git: Git,
     val workTree: File,
 ) : Closeable {
 
-    private val repository: Repository get() = git.repository
+    // Internal so the branch, diff, stash and remote operations can live in
+    // their own files (see GitBranches.kt and friends) without this one
+    // growing past what can be read in a sitting.
+    internal val repository: Repository get() = git.repository
 
     /** Branch name, or a short commit id when HEAD is detached. */
     fun currentBranch(): String {
@@ -64,13 +69,35 @@ class GitRepository private constructor(
             s.untracked.forEach { add(GitChange(it, GitChangeType.UNTRACKED, staged = false)) }
         }
         val conflicting = s.conflicting.map { GitChange(it, GitChangeType.CONFLICTED, staged = false) }
+        val tracking = trackingStatus()
         return GitStatus(
             branch = currentBranch(),
             staged = staged.sortedBy { it.path },
             unstaged = unstaged.sortedBy { it.path },
             conflicting = conflicting.sortedBy { it.path },
             isClean = s.isClean,
+            upstream = tracking?.remoteTrackingBranch?.removePrefix(Constants.R_REMOTES),
+            ahead = tracking?.aheadCount ?: 0,
+            behind = tracking?.behindCount ?: 0,
+            state = repositoryState(),
+            detached = repository.fullBranch?.startsWith(Constants.R_HEADS) != true,
         )
+    }
+
+    /** Null on a detached HEAD or a branch with no upstream (never pushed, or no remote). */
+    private fun trackingStatus(): BranchTrackingStatus? {
+        val full = repository.fullBranch ?: return null
+        if (!full.startsWith(Constants.R_HEADS)) return null
+        return BranchTrackingStatus.of(repository, full.removePrefix(Constants.R_HEADS))
+    }
+
+    private fun repositoryState(): GitRepoState = when (repository.repositoryState) {
+        RepositoryState.SAFE, RepositoryState.BARE -> GitRepoState.NORMAL
+        RepositoryState.MERGING, RepositoryState.MERGING_RESOLVED -> GitRepoState.MERGING
+        RepositoryState.REBASING, RepositoryState.REBASING_REBASING, RepositoryState.REBASING_MERGE,
+        RepositoryState.REBASING_INTERACTIVE, RepositoryState.APPLY,
+        -> GitRepoState.REBASING
+        else -> GitRepoState.OTHER
     }
 
     /** Stages adds, edits and deletes alike - `add` alone misses deletions. */
@@ -113,11 +140,16 @@ class GitRepository private constructor(
     private fun isTracked(path: String): Boolean =
         repository.readDirCache().findEntry(path) >= 0
 
-    fun commit(message: String, authorName: String, authorEmail: String): String =
+    /**
+     * [amend] rewrites HEAD instead of adding a commit. It keeps the original
+     * author date and is refused by JGit on an unborn branch.
+     */
+    fun commit(message: String, authorName: String, authorEmail: String, amend: Boolean = false): String =
         git.commit()
             .setMessage(message)
             .setAuthor(authorName, authorEmail)
             .setCommitter(authorName, authorEmail)
+            .setAmend(amend)
             .call()
             .name
 
@@ -171,6 +203,20 @@ class GitRepository private constructor(
     fun originUrl(): String? =
         repository.config.getString("remote", "origin", "url")
 
+    /**
+     * The half-typed commit message, kept inside `.git` so it is per project by
+     * construction, survives the app being killed, and never appears as a
+     * change. Blank drafts delete the file rather than leave an empty one.
+     */
+    fun readDraft(): String = draftFile().takeIf { it.isFile }?.readText().orEmpty()
+
+    fun writeDraft(text: String) {
+        val file = draftFile()
+        if (text.isBlank()) file.delete() else file.writeText(text)
+    }
+
+    private fun draftFile() = File(repository.directory, DRAFT_FILE)
+
     /** False once `.git` is deleted out from under an open handle. */
     fun gitDirExists(): Boolean = repository.directory.isDirectory
 
@@ -181,6 +227,7 @@ class GitRepository private constructor(
     companion object {
         const val DETACHED = "detached"
         private const val SHORT_ID_LENGTH = 7
+        private const val DRAFT_FILE = "EASYIDE_COMMIT_DRAFT"
         private const val DEFAULT_LOG_LIMIT = 200
 
         /** Walks up from [dir] the way git does, so a subdirectory still resolves. */
@@ -205,6 +252,9 @@ class GitRepository private constructor(
     }
 }
 
+/** Whether an unfinished merge or rebase is holding the repository; the panel explains what to do next. */
+enum class GitRepoState { NORMAL, MERGING, REBASING, OTHER }
+
 enum class GitChangeType { ADDED, MODIFIED, DELETED, UNTRACKED, CONFLICTED }
 
 data class GitChange(
@@ -222,8 +272,25 @@ data class GitStatus(
     val unstaged: List<GitChange>,
     val conflicting: List<GitChange>,
     val isClean: Boolean,
+    /** Remote-tracking branch the current branch follows (`origin/main`), or null when it has none. */
+    val upstream: String? = null,
+    /** Commits on this branch the upstream lacks - what a push would send. */
+    val ahead: Int = 0,
+    /** Commits on the upstream this branch lacks - what a pull would bring. */
+    val behind: Int = 0,
+    val state: GitRepoState = GitRepoState.NORMAL,
+    /** HEAD points at a commit, not a branch: nothing to push, and new commits belong to no branch. */
+    val detached: Boolean = false,
 ) {
     val totalChanges: Int get() = staged.size + unstaged.size + conflicting.size
+
+    /**
+     * Anything a branch switch could overwrite. Untracked files do not count:
+     * checkout leaves them alone unless the target branch has the same path,
+     * in which case git itself refuses and the failure is reported as such.
+     */
+    val hasTrackedChanges: Boolean
+        get() = staged.isNotEmpty() || conflicting.isNotEmpty() || unstaged.any { it.type != GitChangeType.UNTRACKED }
 
     companion object {
         val NONE = GitStatus("", emptyList(), emptyList(), emptyList(), isClean = true)

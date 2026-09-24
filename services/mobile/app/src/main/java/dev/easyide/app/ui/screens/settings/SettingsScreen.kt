@@ -78,6 +78,7 @@ fun SettingsScreen(
     val errorDetail by viewModel.errorDetail.collectAsStateWithLifecycle()
     val importPreview by viewModel.importPreview.collectAsStateWithLifecycle()
     val jsonEditor by viewModel.jsonEditor.state.collectAsStateWithLifecycle()
+    val gitCredentials by viewModel.gitCredentialEntries.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     var query by rememberSaveable { mutableStateOf("") }
@@ -187,6 +188,16 @@ fun SettingsScreen(
                             language = filter.language,
                             actions = viewModel,
                             onEditJson = viewModel::openJson,
+                            modifier = Modifier.contentWidth(),
+                        )
+                    }
+                }
+                if (section.category == SettingCategory.GIT && uiState.tab is LayerTab.User) {
+                    item(key = GIT_CREDENTIALS_KEY) {
+                        GitCredentialsSection(
+                            entries = gitCredentials,
+                            onSave = viewModel::saveGitToken,
+                            onForget = viewModel::forgetGitHost,
                             modifier = Modifier.contentWidth(),
                         )
                     }
@@ -347,5 +358,6 @@ private fun trustStateRes(s: TrustState): Int = when (s) {
 }
 
 private const val MANAGE_EXTENSIONS_KEY = "extensions.manage"
+private const val GIT_CREDENTIALS_KEY = "git.credentials"
 private const val BUNDLE_MIME = "application/zip"
 private const val BUNDLE_NAME = "easyide-settings-%s.zip"

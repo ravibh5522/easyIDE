@@ -45,6 +45,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 environmentManager = container.environmentManager,
                 externalFolderSync = container.externalFolderSync,
                 projectManager = container.projectManager,
+                gitCredentials = container.gitCredentials,
             )
 
             ExtensionsViewModel::class.java -> ExtensionsViewModel(
@@ -84,6 +85,10 @@ class WorkspaceViewModelFactory(
             projectManager = container.projectManager,
             appContext = container.appContext,
             gitService = container.gitService,
+            gitRemote = container.gitRemote,
+            gitCredentials = container.gitCredentials,
+            settingsStore = container.settingsStore,
+            appForeground = container.appForeground.isForeground,
             imageProvider = container::imageFor,
             lspRuntime = container.lsp,
             extensions = container.extensions,
