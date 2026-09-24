@@ -87,6 +87,7 @@ class WorkspaceViewModelFactory(
             imageProvider = container::imageFor,
             lspRuntime = container.lsp,
             extensions = container.extensions,
+            uiPreferences = container.uiPreferences,
         ) as T
     }
 }

@@ -1,6 +1,7 @@
 package dev.easyide.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,6 +29,7 @@ import dev.easyide.app.ui.screens.workspace.ProjectNotFound
 import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
 import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
+import dev.easyide.app.ui.screens.workspace.files.LocalIgnoreIndex
 
 /**
  * Top-level nav graph. Home is the stack root; everything else is one level
@@ -101,7 +103,9 @@ fun AppNavHost(
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
 
+            val ignoreIndex by workspaceViewModel.editing.files.ignore.collectAsStateWithLifecycle()
             ProjectSettingsScope(container, projectId, environmentId) {
+            CompositionLocalProvider(LocalIgnoreIndex provides ignoreIndex) {
             WorkspaceScreen(
                 projectName = project.name,
                 uiState = uiState,
@@ -111,6 +115,7 @@ fun AppNavHost(
                 extensionHost = workspaceViewModel.extensionHost,
                 extensions = container.extensions,
                 selections = workspaceViewModel.selections,
+                editing = workspaceViewModel.editing,
                 onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
@@ -148,6 +153,7 @@ fun AppNavHost(
                     onBack = { navController.popBackStack() },
                 ),
             )
+            }
             }
             }
         }

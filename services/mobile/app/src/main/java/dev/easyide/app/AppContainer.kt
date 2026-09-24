@@ -209,7 +209,7 @@ class AppContainer(context: Context) {
         extensions.keybindings,
         extensions.runtime.contributions.commands.entries,
     ) { text, layer, commands ->
-        KeymapResolver.resolve(Keymap.DEFAULT + layer, KeybindingsFile.parse(text), CommandIds.ALL + commands.map { it.value.command })
+        KeymapResolver.resolve(Keymap.DEFAULT + layer, KeybindingsFile.parse(text), CommandIds.KNOWN + commands.map { it.value.command })
     }
 
     /**

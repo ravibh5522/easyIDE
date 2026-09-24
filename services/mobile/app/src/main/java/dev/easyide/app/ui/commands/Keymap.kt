@@ -132,6 +132,16 @@ class Keymap(val bindings: List<KeyBinding>) {
                 KeyBinding(ctrlShift(KeyEvent.KEYCODE_O), CommandIds.GOTO_SYMBOL, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrl(KeyEvent.KEYCODE_T), CommandIds.SHOW_ALL_SYMBOLS, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrlShift(KeyEvent.KEYCODE_M), CommandIds.SHOW_PROBLEMS, KeyFocus.ANYWHERE),
+                // Ctrl+Z/Y/F/H/G/P are shell control bytes (suspend, yank, ...): outside the terminal only.
+                KeyBinding(ctrl(KeyEvent.KEYCODE_Z), CommandIds.UNDO, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_Z), CommandIds.REDO, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_Y), CommandIds.REDO, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_F), CommandIds.FIND, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_H), CommandIds.REPLACE, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F3), CommandIds.FIND_NEXT, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F3, shift = true), CommandIds.FIND_PREVIOUS, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_G), CommandIds.GO_TO_LINE, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_P), CommandIds.QUICK_OPEN, KeyFocus.OUTSIDE_TERMINAL),
             )
         )
 

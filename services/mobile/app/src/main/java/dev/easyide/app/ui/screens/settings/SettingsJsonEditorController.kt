@@ -107,7 +107,7 @@ class SettingsJsonEditorController(
         val diagnostics = withContext(Dispatchers.Default) {
             when (document) {
                 is JsonDocument.SettingsLayer -> SettingsJsonDiagnostics.check(text, document.target.layer, store.schema.first())
-                JsonDocument.Keybindings -> KeymapResolver.resolve(Keymap.DEFAULT, KeybindingsFile.parse(text), CommandIds.ALL).diagnostics
+                JsonDocument.Keybindings -> KeymapResolver.resolve(Keymap.DEFAULT, KeybindingsFile.parse(text), CommandIds.KNOWN).diagnostics
             }
         }
         _state.update { s -> s?.takeIf { it.text == text }?.copy(diagnostics = diagnostics) ?: s }

@@ -46,6 +46,9 @@ import androidx.compose.ui.platform.LocalView
 import com.termux.view.TerminalView
 import dev.easyide.app.ui.commands.CommandPalette
 import dev.easyide.app.ui.commands.ChordDispatcher
+import dev.easyide.app.ui.commands.CommandIds
+import dev.easyide.app.ui.commands.KeyChord
+import dev.easyide.app.ui.screens.workspace.find.FindBar
 import dev.easyide.app.ui.screens.workspace.lsp.LspDialogs
 import dev.easyide.app.ui.screens.workspace.lsp.LspEditorOverlay
 import dev.easyide.app.ui.screens.workspace.lsp.LspInstallNotice
@@ -106,6 +109,7 @@ fun WorkspaceScreen(
     extensionHost: WorkspaceExtensionHost,
     extensions: ExtensionsContainer,
     selections: EditorSelections,
+    editing: WorkspaceEditing,
     onOpenExtensions: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -127,6 +131,10 @@ fun WorkspaceScreen(
 
     var sidePanel by rememberSaveable { mutableStateOf(SidePanel.EXPLORER) }
     var paletteOpen by rememberSaveable { mutableStateOf(false) }
+    // What Go to File's `>` prefix hands over to the palette.
+    var paletteQuery by remember { mutableStateOf("") }
+    val overlays = remember { EditingOverlays() }
+    val recentFiles by editing.files.recent.collectAsState()
 
     // Leaving clears the ViewModel and with it every buffer, so dirty tabs
     // must be saved or explicitly discarded first. System back and the rail's
@@ -171,7 +179,7 @@ fun WorkspaceScreen(
             runTask = { extensionHost.pickTask(taskLabels) { label, code -> taskExited.format(label, code) } },
             showExtensions = onOpenExtensions,
         ),
-        extra = lspCommands(lsp),
+        extra = lspCommands(lsp) + editingCommands(uiState, editing, overlays),
     ) + contributions.commands()
     // Built-in < extension layer < keybindings.json, resolved once in AppContainer.
     val keymap = LocalKeymap.current
@@ -212,6 +220,10 @@ fun WorkspaceScreen(
                 // well would run a command twice or steal a shell chord.
                 inputMode.onKey()
                 if (hostView.rootView.findFocus() is TerminalView) return@onPreviewKeyEvent false
+                // A find, palette or go-to-line field keeps Ctrl+Z / Ctrl+Y for its own text.
+                if ((overlays.ownsTextInput || paletteOpen) &&
+                    keymap.commandFor(KeyChord.of(event.nativeKeyEvent), terminalFocused = false, context = keyContext) in CommandIds.HISTORY
+                ) return@onPreviewKeyEvent false
                 dispatcher.dispatch(event.nativeKeyEvent, terminalFocused = false, commands, keyContext)
             }
             .trackInputMode(inputMode)
@@ -275,6 +287,8 @@ fun WorkspaceScreen(
                             HorizontalDividerLine()
 
                             LspInstallNotice(lsp)
+                            Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                            if (editing.find.isOpen) FindBar(editing.find, onFieldFocusChanged = { overlays.findFieldFocused = it })
                             Box(modifier = Modifier.fillMaxWidth().weight(1f).onFocusChanged { editorFocus = it.hasFocus }) {
                                 val activePath = uiState.activeTabPath
                                 EditorPane(
@@ -286,6 +300,15 @@ fun WorkspaceScreen(
                                     interaction = lsp,
                                     selections = selections,
                                     onSecondaryClick = { editorMenuOpen = true },
+                                    session = editing.session,
+                                    empty = {
+                                        WelcomeView(
+                                            recent = recentFiles.paths,
+                                            registry = commands,
+                                            keymap = keymap,
+                                            onOpenFile = { path -> callbacks.onFileOpened(FileNode(path.substringAfterLast('/'), path, isDirectory = false, sizeBytes = 0)) },
+                                        )
+                                    },
                                 )
                                 ContributedMenu(
                                     expanded = editorMenuOpen,
@@ -293,6 +316,7 @@ fun WorkspaceScreen(
                                     onRun = { contributions.run(it) },
                                     onDismiss = { editorMenuOpen = false },
                                 )
+                            }
                             }
                             if (uiState.activeTab?.editable == true) {
                                 if (inputMode.mode == InputModeState.TOUCH) {
@@ -393,21 +417,32 @@ fun WorkspaceScreen(
         PromptDialogs(prompt, callbacks) { prompt = null }
         LspDialogs(lsp)
 
+        // Shared by the palette and Go to File: `@` and `#` open the language servers' symbol pickers.
+        val openSymbolPicker: (Char, String) -> Boolean = { prefix, query ->
+            val scope = when (prefix) {
+                SYMBOL_PREFIX_DOCUMENT -> SymbolScope.DOCUMENT
+                SYMBOL_PREFIX_WORKSPACE -> SymbolScope.WORKSPACE
+                else -> null
+            }
+            scope?.let { lsp.navigation.openPicker(it, query) } != null
+        }
         if (paletteOpen) {
             CommandPalette(
                 registry = commands,
                 keymap = keymap,
-                onDismiss = { paletteOpen = false },
-                onPrefix = { prefix, query ->
-                    val scope = when (prefix) {
-                        SYMBOL_PREFIX_DOCUMENT -> SymbolScope.DOCUMENT
-                        SYMBOL_PREFIX_WORKSPACE -> SymbolScope.WORKSPACE
-                        else -> null
-                    }
-                    scope?.let { lsp.navigation.openPicker(it, query) } != null
-                },
+                onDismiss = { paletteOpen = false; paletteQuery = "" },
+                initialQuery = paletteQuery,
+                onPrefix = openSymbolPicker,
             )
         }
+        EditingOverlayHost(
+            overlays = overlays,
+            editing = editing,
+            uiState = uiState,
+            onOpenFile = callbacks.onFileOpened,
+            onCommands = { query -> paletteQuery = query; paletteOpen = true },
+            onPrefix = openSymbolPicker,
+        )
 
         SnackbarHost(
             hostState = snackbarHostState,

@@ -61,6 +61,26 @@ object SettingsSchema {
         max = 32,
     )
 
+    /** Read by the explorer (dot-named entries) and by Go to File; see `TreeFilter`. */
+    val explorerHideHidden = Setting.Bool(
+        key = "explorer.hideHiddenFiles",
+        category = SettingCategory.EDITOR,
+        title = R.string.setting_explorer_hide_hidden_title,
+        description = R.string.setting_explorer_hide_hidden_desc,
+        default = false,
+        scope = SettingScope.P,
+    )
+
+    /** Read by the explorer; Go to File always skips ignored files. */
+    val explorerHideIgnored = Setting.Bool(
+        key = "explorer.hideGitIgnored",
+        category = SettingCategory.EDITOR,
+        title = R.string.setting_explorer_hide_ignored_title,
+        description = R.string.setting_explorer_hide_ignored_desc,
+        default = false,
+        scope = SettingScope.P,
+    )
+
     /** Read by [SafeModeState]; the launcher shortcut and crash verdict add session-only reasons. */
     val safeMode = Setting.Bool(
         key = "extensions.safeMode",
@@ -126,7 +146,7 @@ object SettingsSchema {
     const val KEY_ROWS_AUTO = "auto"
 
     val all: List<Setting<*>> = listOf(
-        themeMode, editorFontSize, editorLineHeight, terminalFontSize, safeMode, activeProfile,
+        themeMode, editorFontSize, editorLineHeight, terminalFontSize, explorerHideHidden, explorerHideIgnored, safeMode, activeProfile,
         extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
     ) + LspSettingsSchema.all
 
