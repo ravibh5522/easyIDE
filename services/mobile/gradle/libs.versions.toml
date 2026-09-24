@@ -56,6 +56,8 @@ androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 chicory-runtime = { group = "com.dylibso.chicory", name = "runtime", version.ref = "chicory" }
+# Parser and types only: static module validation in the Apache-2.0 SDK core (0015 amendment).
+chicory-wasm = { group = "com.dylibso.chicory", name = "wasm", version.ref = "chicory" }
 # Build-time only: compiles .wat test fixtures; never on an app classpath.
 chicory-wabt = { group = "com.dylibso.chicory", name = "wabt", version.ref = "chicory" }
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }

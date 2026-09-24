@@ -5,11 +5,11 @@ import java.io.File
 import java.io.PrintStream
 import kotlin.system.exitProcess
 
-val COMMANDS: List<Command> = listOf(InitCommand, ValidateCommand, PackageCommand, KeygenCommand, SignCommand, VerifyCommand, PublishCommand, RegistryCommand)
+val COMMANDS: List<Command> = listOf(InitCommand, ValidateCommand, PackageCommand, KeygenCommand, SignCommand, VerifyCommand, PublishCommand, RegistryCommand, TestCommand)
 
 /** Not built yet; named so authors get a clear answer instead of "unknown command". */
 private val PLANNED = mapOf(
-    "test" to "M5 test harness", "dev" to "M5 dev loop",
+    "dev" to "M5 dev loop",
 )
 
 fun main(argv: Array<String>) {

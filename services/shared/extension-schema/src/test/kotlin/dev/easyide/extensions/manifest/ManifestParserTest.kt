@@ -1,5 +1,6 @@
 package dev.easyide.extensions.manifest
 
+import dev.easyide.extensions.Fixtures
 import dev.easyide.extensions.Manifests
 import dev.easyide.extensions.MemoryPackage
 import dev.easyide.extensions.action.Action
@@ -15,7 +16,7 @@ import java.util.Locale
 
 class ManifestParserTest {
     private fun fixture(name: String): PackageFiles {
-        val dir = File(checkNotNull(javaClass.getResource("/fixtures/$name")).toURI())
+        val dir = Fixtures.dir(name)
         return (PackageLayoutReader.read(dir, PackageLimits.DEFAULT) as PackageLayout.Ok).files
     }
 

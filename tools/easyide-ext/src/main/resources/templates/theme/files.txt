@@ -5,3 +5,4 @@ LICENSE
 .easyide-ext.json
 .gitignore
 themes/{{name}}-color-theme.json
+test/loads.json

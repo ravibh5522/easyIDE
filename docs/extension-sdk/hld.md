@@ -79,7 +79,7 @@ mirrors** reached by sandbox install steps, not by the app.
 |---|---|---|---|
 | `:lsp` (`services/mobile/lsp`) | Kotlin JVM library | `JsonRpcConnection`, `LspSession`, `DocumentSync`, `PathMapper` (interface), `ServerSupervisor`, `MemoryPolicy` | none (JVM-testable) |
 | `:extensions` (`services/mobile/extensions`) | Kotlin library | `ManifestParser`, `ExtensionStore`, `ContributionRegistry`, `ActivationManager`, `ActionRunner`, `WhenEvaluator`, `CapabilityTable`, `RegistryClient`, `SignatureVerifier`, `SettingsResolver` adapters | none in core packages; Android only behind ports |
-| `:ext-wasm` (`services/mobile/ext-wasm`) | Kotlin library | `WasmHost`, ABI v1 codec, limits, host-function dispatch table | none; isolates the Chicory dependency |
+| `:ext-wasm` (`services/mobile/ext-wasm`) | Kotlin library | `WasmHost`, ABI v1 codec, host-function dispatch table | isolates the Chicory **interpreter**; static validation, metering and limits moved to the Apache-2.0 `:extension-schema` with Chicory's parser only (0015 second amendment) |
 | `services/shared/extension-schema/` | JSON Schema + test vectors (Apache-2.0, ADR-G) | manifest schema, when-clause grammar vectors, index/revocation schemas | n/a |
 | `tools/easyide-ext/` | JVM CLI jar (Apache-2.0, ADR-G) | init, validate, package, sign, publish, test, dev | n/a |
 | `app/.../ui/screens/workspace/lsp/` | package in `:app` | decorations, completion popup, hover card, Problems, Outline, lightbulb | Compose |

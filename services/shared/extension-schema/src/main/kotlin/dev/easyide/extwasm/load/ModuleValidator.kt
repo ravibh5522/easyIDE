@@ -37,7 +37,7 @@ object AbiV1 {
  * can execute. Each failure names the rule so `easyide-ext validate` and the Extension Log
  * can say exactly what to fix.
  */
-internal object ModuleValidator {
+object ModuleValidator {
 
     /** @return the memory limits to instantiate with (the module's max clamped to the cap). */
     fun validate(module: WasmModule, maxMemoryPages: Int): MemoryLimits {

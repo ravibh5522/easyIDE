@@ -6,3 +6,4 @@ LICENSE
 .gitignore
 language-configuration.json
 syntaxes/{{name}}.tmLanguage.json
+test/loads.json

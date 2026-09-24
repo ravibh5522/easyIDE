@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.junit.Assert.fail
+import java.io.File
 import java.io.IOException
 
 /** Settings as a flat map (plus optional per-language values); records writes. */
@@ -74,4 +75,11 @@ object Manifests {
     /** A minimal valid manifest with [body] spliced into the top-level object. */
     fun minimal(body: String = "", name: String = "demo", publisher: String = "acme"): String =
         """{ "name": "$name", "publisher": "$publisher", "version": "1.0.0", "engines": { "easyide": "^0.3.0" }${if (body.isBlank()) "" else ", $body"} }"""
+}
+
+/** Example packages (the sdk-reference Python and theme packs); the directory comes from the build. */
+object Fixtures {
+    fun dir(name: String): File = File(checkNotNull(System.getProperty(PROPERTY)) { "$PROPERTY not set by the build" }, name)
+
+    const val PROPERTY = "easyide.fixtures"
 }

@@ -2,7 +2,7 @@
 
 Low-level design of `tools/easyide-ext`, the author-side tool that scaffolds, validates, packages, signs, publishes, tests and live-deploys extensions.
 
-Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish` and `registry build` in `tools/easyide-ext`; see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
+Status: PARTLY IMPLEMENTED (2026-09-24): `init`, `validate`, `package`, `keygen`, `sign`, `verify`, `publish`, `registry build` and `test` in `tools/easyide-ext` (`dev` not yet); see Deviations. Design context: [arch.md](../arch.md) sec 3 (Extension author persona), 5.4, 6.2, 12 (M5, M6).
 Contract (commands, flags, exit codes, index format): [sdk-reference.md#cli](../sdk-reference.md#cli), [#registry-index-format](../sdk-reference.md#registry-index-format).
 Feature area: arch.md sec 5.4 (Ecosystem: Publish, Dev loop, In-app authoring). License Apache-2.0 per ADR-G (0015).
 
@@ -319,17 +319,22 @@ CLI-only constants in one `CliPolicy` table: `watchDebounceMs`, `gitTimeoutSec`,
     `services/mobile` needs the Android SDK to configure, which authors should not need.
   - JSON is kotlinx-serialization-json (Apache-2.0), the app's tree type, not org.json (open
     issue 5 resolved).
-  - `validate` step 8 is a WebAssembly header check only: `WasmModuleLoader` and the metering pass
-    live in `:ext-wasm`, which stays under the app licence. `test` (sec 5.6) needs `ActionRunner`
-    and `WasmHost` for the same reason and is not built; see the 0015 amendment for options.
+  - `validate` step 8 runs the app's static WASM check (`WasmStaticCheck`: size, metering pass,
+    parse, ABI v1 rules) from the shared core since the 0015 second amendment.
+  - `test` runs L1 actions with the app's `ActionRunner`, capability checks and `WhenEvaluator` on a
+    recording host. `WasmHost` stays app-only, so WASM commands report "L1 only" in scenarios.
+    `visible`/`hidden` refs are evaluated over the pack's own menus, keybindings (`keybinding:<cmd>`),
+    status bar items and key rows (no cross-pack registry, no user hides). Scenarios start with
+    `envState` = `ready`. Calls are recorded as `{type, ...}` objects (`runInTerminal` with the final
+    command line, `sandboxExec` argv, `setConfig`, `showQuickPick`, `showMessage`, ...).
   - Step 4 (grammar/theme parse and role reporting) is what `ManifestParser`'s content checks do
     today; the ScopeRules role report is not implemented.
   - Built-in command ids come from `services/shared/extension-schema/builtin-commands.json`, kept
     equal to the app's `CommandIds.ALL` by a unit test, so references to app commands resolve as
     they do on device.
   - Added `verify <file.easyext> --pub <key.pub.json>`: checks a `.sig` with the app's verifier.
-  - `init` ships `theme`, `snippets`, `language-pack`, `toolbar-command`; templates have no `test/`
-    scenario until `test` exists. Dotfiles are stored as `dot-<name>` in the jar. Template
+  - `init` ships `theme`, `snippets`, `language-pack`, `toolbar-command`, each with `test/` scenarios
+    that pass as generated. Dotfiles are stored as `dot-<name>` in the jar. Template
     `LICENSE` is MIT so `validate --strict` passes out of the box; authors change it.
   - `keygen` writes `EncryptedPrivateKeyInfo` itself (PBES2 AlgorithmIdentifier + JDK cipher
     parameters) because `javax.crypto.EncryptedPrivateKeyInfo` cannot name PBES2 on JDK 17+;

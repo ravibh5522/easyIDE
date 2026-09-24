@@ -14,7 +14,8 @@ Contents, all Apache-2.0:
 - `src/main/kotlin`: the SDK core that decides whether a package is valid - JSON helpers,
   `SchemaValidator`, `ManifestParser` and its decoders, when-clause parser, capability rules,
   package layout rules, zip symlink audit, RFC 8785 canonical JSON and ed25519 signature
-  checks. Built as the `:extension-schema` Gradle module inside `services/mobile` (the app's
+  checks, registry index verification, the L1 action runner and when-clause evaluator, and
+  WASM static validation and metering (Chicory parser, Apache-2.0). Built as the `:extension-schema` Gradle module inside `services/mobile` (the app's
   `:extensions` depends on it) and compiled from source by `tools/easyide-ext`, so the app and
   the CLI (R-ENG-05) accept exactly the same packages.
 

@@ -35,7 +35,11 @@ sourceSets.main {
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
+    // Parser only, for the shared WASM static check; the interpreter never ships in the CLI.
+    implementation(libs.chicory.wasm)
     testImplementation(libs.junit)
+    // Compiles .wat test fixtures into modules.
+    testImplementation(libs.chicory.wabt)
 }
 
 application {
