@@ -11,6 +11,7 @@ import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.extensions.TimedLogEntry
 import dev.easyide.app.extensions.install.FolderNode
+import dev.easyide.app.extensions.install.RollbackResult
 import dev.easyide.app.extensions.install.StageResult
 import dev.easyide.app.extensions.install.StagedPackage
 import dev.easyide.extensions.contrib.ContributionConflict
@@ -24,6 +25,7 @@ import dev.easyide.extensions.host.LoadedExtension
 import dev.easyide.extensions.host.PackageProblem
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SafeModeState
+import dev.easyide.extensions.manifest.ExtensionDescriptor
 import dev.easyide.extensions.manifest.ExtensionId
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.model.SandboxEnvironment
@@ -54,6 +56,8 @@ data class ExtensionRow(
     val contributions: List<InspectorLine>,
     /** Conflicts this extension lost (its entries were dropped, so they are not in [contributions]). */
     val shadowed: List<ContributionConflict>,
+    /** The retained version "Roll back" flips to; null when none is kept. */
+    val rollbackTo: String? = null,
 ) {
     val key: String get() = pkg.directory.absolutePath
     val id: String get() = loaded?.descriptor?.id?.value ?: pkg.directory.parentFile?.name.orEmpty()
@@ -76,11 +80,20 @@ sealed interface InstallState {
     data class Failed(val message: String) : InstallState
 }
 
+/** A rollback (registry-and-install.md sec 10) from confirmation to its outcome. */
+sealed interface RollbackState {
+    data object Idle : RollbackState
+    data class Confirm(val row: ExtensionRow, val version: String) : RollbackState
+    /** The retained version declares [capabilities] never approved for it. */
+    data class Approve(val row: ExtensionRow, val descriptor: ExtensionDescriptor, val capabilities: Set<String>) : RollbackState
+    data class Refused(val problems: List<String>) : RollbackState
+}
+
 /**
  * The Extensions screen: installed and built-in packs with their state, the enable toggle
  * (`extensions.disabled`, whole list per layer), crash-disable clearing, safe mode exit,
- * the contribution inspector, capabilities, the Extension Log, and "Install from
- * folder / file" (ECO-02) through [dev.easyide.app.extensions.install.LocalInstaller].
+ * the contribution inspector, capabilities, the Extension Log, "Install from
+ * folder / file" (ECO-02) and rollback through [dev.easyide.app.extensions.install.LocalInstaller].
  */
 class ExtensionsViewModel(
     private val appContext: Context,
@@ -93,6 +106,8 @@ class ExtensionsViewModel(
     private val runtime = extensions.runtime
     private val installState = MutableStateFlow<InstallState>(InstallState.Idle)
     val install: StateFlow<InstallState> = installState.asStateFlow()
+    private val rollbackState = MutableStateFlow<RollbackState>(RollbackState.Idle)
+    val rollback: StateFlow<RollbackState> = rollbackState.asStateFlow()
 
     private val hosts = combine(runtime.extensions.loaded, runtime.extensions.problems, runtime.extensions.disabledReasons, runtime.activation.states) { l, p, r, a ->
         HostView(l, p, r, a)
@@ -103,9 +118,9 @@ class ExtensionsViewModel(
         runtime.contributions.snapshot,
         settingsStore.snapshot,
         combine(safeMode.active, runtime.safeMode.suspects) { a, s -> a to s },
-        combine(extensions.log.entries, environmentManager.environments) { l, e -> l to e },
-    ) { h, snapshot, settings, (safe, suspects), (log, envs) ->
-        ExtensionsUiState(rows(h, snapshot, settings), safe, suspects, log.asReversed(), envs)
+        combine(extensions.log.entries, environmentManager.environments, extensions.inventory.retained) { l, e, r -> Triple(l, e, r) },
+    ) { h, snapshot, settings, (safe, suspects), (log, envs, retained) ->
+        ExtensionsUiState(rows(h, snapshot, settings, retained), safe, suspects, log.asReversed(), envs)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS), ExtensionsUiState())
 
     private class HostView(
@@ -115,7 +130,7 @@ class ExtensionsViewModel(
         val states: Map<ExtensionId, ActivationState>,
     )
 
-    private fun rows(h: HostView, snapshot: ContributionSnapshot, settings: SettingsSnapshot): List<ExtensionRow> {
+    private fun rows(h: HostView, snapshot: ContributionSnapshot, settings: SettingsSnapshot, retained: Map<String, String>): List<ExtensionRow> {
         val disabled = settings[SettingsSchema.extensionsDisabled].toSet()
         val hidden = settings[SettingsSchema.contributionsHidden]
         val valid = h.loaded.map { l ->
@@ -127,10 +142,14 @@ class ExtensionsViewModel(
                 userEnabled = id.value !in disabled,
                 contributions = inspect(snapshot, owner, hidden),
                 shadowed = snapshot.conflicts.filter { it.loser == owner },
+                rollbackTo = retained[l.pkg.directory.absolutePath],
             )
         }
         val invalid = h.problems.map { p ->
-            ExtensionRow(p.pkg, null, p, null, null, userEnabled = true, contributions = emptyList(), shadowed = emptyList())
+            ExtensionRow(
+                p.pkg, null, p, null, null, userEnabled = true, contributions = emptyList(), shadowed = emptyList(),
+                rollbackTo = retained[p.pkg.directory.absolutePath],
+            )
         }
         return (valid + invalid).sortedWith(compareBy({ it.pkg.installedAt }, { it.id }))
     }
@@ -166,6 +185,24 @@ class ExtensionsViewModel(
     fun uninstall(row: ExtensionRow) {
         viewModelScope.launch { extensions.installer.uninstall(row.pkg) }
     }
+
+    fun requestRollback(row: ExtensionRow) {
+        row.rollbackTo?.let { rollbackState.value = RollbackState.Confirm(row, it) }
+    }
+
+    /** Rolls [row] back; [approve] is the capability set the user just approved, if any. */
+    fun confirmRollback(row: ExtensionRow, approve: Set<String> = emptySet()) {
+        rollbackState.value = RollbackState.Idle
+        viewModelScope.launch {
+            rollbackState.value = when (val r = extensions.installer.rollback(row.id, row.pkg.scope, row.pkg.envId, approve)) {
+                is RollbackResult.Done -> RollbackState.Idle
+                is RollbackResult.NeedsApproval -> RollbackState.Approve(row, r.descriptor, r.capabilities)
+                is RollbackResult.Refused -> RollbackState.Refused(r.problems)
+            }
+        }
+    }
+
+    fun dismissRollback() { rollbackState.value = RollbackState.Idle }
 
     fun clearLog() = extensions.log.clear()
 

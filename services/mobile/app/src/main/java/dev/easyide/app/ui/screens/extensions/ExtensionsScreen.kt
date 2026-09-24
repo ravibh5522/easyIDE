@@ -61,6 +61,7 @@ import java.util.Date
 fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val install by viewModel.install.collectAsStateWithLifecycle()
+    val rollback by viewModel.rollback.collectAsStateWithLifecycle()
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
     val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(viewModel::stageArchive) }
@@ -97,6 +98,7 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
                     onToggleDetails = { expanded = if (expanded == row.key) null else row.key },
                     onEnabled = { viewModel.setEnabled(row, it) },
                     onUninstall = { viewModel.uninstall(row) },
+                    onRollback = { viewModel.requestRollback(row) },
                 )
             }
             item { LogSection(state.log, viewModel::clearLog) }
@@ -104,6 +106,7 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
     }
 
     InstallDialogs(install, state.environments, viewModel)
+    RollbackDialogs(rollback, viewModel)
 }
 
 @Composable
@@ -123,7 +126,14 @@ private fun SafeModeBanner(reason: SafeModeReason, suspects: List<String>, onExi
 }
 
 @Composable
-private fun ExtensionCard(row: ExtensionRow, expanded: Boolean, onToggleDetails: () -> Unit, onEnabled: (Boolean) -> Unit, onUninstall: () -> Unit) {
+private fun ExtensionCard(
+    row: ExtensionRow,
+    expanded: Boolean,
+    onToggleDetails: () -> Unit,
+    onEnabled: (Boolean) -> Unit,
+    onUninstall: () -> Unit,
+    onRollback: () -> Unit,
+) {
     val d = row.loaded?.descriptor
     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.l).clickable(onClick = onToggleDetails)) {
         Column(modifier = Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
@@ -136,13 +146,13 @@ private fun ExtensionCard(row: ExtensionRow, expanded: Boolean, onToggleDetails:
                 if (d != null) Switch(checked = row.userEnabled, onCheckedChange = onEnabled)
             }
             d?.description?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-            if (expanded) Details(row, onUninstall)
+            if (expanded) Details(row, onUninstall, onRollback)
         }
     }
 }
 
 @Composable
-private fun Details(row: ExtensionRow, onUninstall: () -> Unit) {
+private fun Details(row: ExtensionRow, onUninstall: () -> Unit, onRollback: () -> Unit) {
     val d = row.loaded?.descriptor
     HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.s))
     row.problem?.let { p ->
@@ -168,7 +178,10 @@ private fun Details(row: ExtensionRow, onUninstall: () -> Unit) {
     }
     row.shadowed.forEach { Text(it.message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
     if (row.pkg.source != Source.BUILT_IN) {
-        TextButton(onClick = onUninstall) { Text(stringResource(R.string.ext_uninstall)) }
+        Row {
+            row.rollbackTo?.let { v -> TextButton(onClick = onRollback) { Text(stringResource(R.string.ext_rollback, v)) } }
+            TextButton(onClick = onUninstall) { Text(stringResource(R.string.ext_uninstall)) }
+        }
     }
 }
 
