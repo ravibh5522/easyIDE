@@ -1,6 +1,7 @@
 package dev.easyide.app.extensions.adapters
 
 import dev.easyide.extensions.contrib.CommandContribution
+import dev.easyide.extensions.contrib.ContributionOverrides
 import dev.easyide.extensions.contrib.ContributionRef
 import dev.easyide.extensions.contrib.ContributionSnapshot
 import dev.easyide.extensions.contrib.MenuIds
@@ -59,9 +60,10 @@ object MenuModel {
         context: ContextLookup,
         hidden: Set<String>,
         builtInEnabled: (String) -> Boolean = { true },
+        order: Map<String, List<String>> = emptyMap(),
     ): List<MenuEntry> {
         val commands = snapshot.commands.associateBy { it.value.command }
-        return snapshot.menus
+        val sorted = snapshot.menus
             .filter { it.value.menuId == menuId && it.ref.toString() !in hidden && holds(it.value.`when`, context) }
             .mapNotNull { m ->
                 val owned = commands[m.value.command] ?: return@mapNotNull null
@@ -70,7 +72,22 @@ object MenuModel {
                 Candidate(m, command, live && holds(command.enablement, context))
             }
             .sortedWith(ORDER)
+        // `workbench.contributions.order[menuId]` lists command ids (customization.md sec 6).
+        return ContributionOverrides(emptySet(), order).reorder(menuId, sorted) { it.item.ref.id }
             .map { MenuEntry(it.item.ref, it.item.owner, it.command, it.group, it.enabled) }
+    }
+
+    /**
+     * Command ids of every non-hidden entry of [menuId] in display order, ignoring `when`:
+     * the list a "move up/down" edits, whatever the current context.
+     */
+    fun orderedIds(menuId: String, snapshot: ContributionSnapshot, hidden: Set<String>, order: Map<String, List<String>>): List<String> {
+        val commands = snapshot.commands.associateBy { it.value.command }
+        val sorted = snapshot.menus
+            .filter { it.value.menuId == menuId && it.ref.toString() !in hidden }
+            .mapNotNull { m -> commands[m.value.command]?.let { Candidate(m, it.value, enabled = true) } }
+            .sortedWith(ORDER)
+        return ContributionOverrides(emptySet(), order).reorder(menuId, sorted) { it.item.ref.id }.map { it.item.ref.id }.distinct()
     }
 
     /**

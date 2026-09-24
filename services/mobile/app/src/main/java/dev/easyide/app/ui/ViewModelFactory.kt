@@ -46,6 +46,8 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 externalFolderSync = container.externalFolderSync,
                 projectManager = container.projectManager,
                 themes = container.extensions.themes,
+                contributions = container.extensions.runtime.contributions,
+                lspServers = container.lsp.servers,
             )
 
             ExtensionsViewModel::class.java -> ExtensionsViewModel(

@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -99,6 +101,7 @@ fun ExtensionsScreen(viewModel: ExtensionsViewModel, onBack: () -> Unit) {
                     onEnabled = { viewModel.setEnabled(row, it) },
                     onUninstall = { viewModel.uninstall(row) },
                     onRollback = { viewModel.requestRollback(row) },
+                    lineActions = LineActions(viewModel::setHidden, viewModel::move),
                 )
             }
             item { LogSection(state.log, viewModel::clearLog) }
@@ -125,6 +128,9 @@ private fun SafeModeBanner(reason: SafeModeReason, suspects: List<String>, onExi
     }
 }
 
+/** What the inspector can do to one contribution line. */
+private class LineActions(val setHidden: (InspectorLine, Boolean) -> Unit, val move: (InspectorLine, Int) -> Unit)
+
 @Composable
 private fun ExtensionCard(
     row: ExtensionRow,
@@ -133,6 +139,7 @@ private fun ExtensionCard(
     onEnabled: (Boolean) -> Unit,
     onUninstall: () -> Unit,
     onRollback: () -> Unit,
+    lineActions: LineActions,
 ) {
     val d = row.loaded?.descriptor
     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.l).clickable(onClick = onToggleDetails)) {
@@ -146,13 +153,13 @@ private fun ExtensionCard(
                 if (d != null) Switch(checked = row.userEnabled, onCheckedChange = onEnabled)
             }
             d?.description?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-            if (expanded) Details(row, onUninstall, onRollback)
+            if (expanded) Details(row, onUninstall, onRollback, lineActions)
         }
     }
 }
 
 @Composable
-private fun Details(row: ExtensionRow, onUninstall: () -> Unit, onRollback: () -> Unit) {
+private fun Details(row: ExtensionRow, onUninstall: () -> Unit, onRollback: () -> Unit, lineActions: LineActions) {
     val d = row.loaded?.descriptor
     HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.s))
     row.problem?.let { p ->
@@ -171,16 +178,38 @@ private fun Details(row: ExtensionRow, onUninstall: () -> Unit, onRollback: () -
     }
     Section(stringResource(R.string.ext_contributions))
     if (row.contributions.isEmpty()) Text(stringResource(R.string.ext_contributions_none))
-    row.contributions.forEach { line ->
-        Mono(line.ref)
-        line.hiddenBy?.let { Text(stringResource(R.string.ext_hidden_by, it), style = MaterialTheme.typography.bodySmall) }
-        line.conflicts.forEach { Text(it.message, style = MaterialTheme.typography.bodySmall) }
-    }
+    row.contributions.forEach { line -> ContributionLine(line, lineActions) }
     row.shadowed.forEach { Text(it.message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
     if (row.pkg.source != Source.BUILT_IN) {
         Row {
             row.rollbackTo?.let { v -> TextButton(onClick = onRollback) { Text(stringResource(R.string.ext_rollback, v)) } }
             TextButton(onClick = onUninstall) { Text(stringResource(R.string.ext_uninstall)) }
+        }
+    }
+}
+
+/** One inspector line: its ref, why it is hidden, its conflicts, and Hide/Show and Move up/down. */
+@Composable
+private fun ContributionLine(line: InspectorLine, actions: LineActions) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier.weight(1f)) {
+            Mono(line.ref)
+            line.hiddenBy?.let { Text(stringResource(R.string.ext_hidden_by, it), style = MaterialTheme.typography.bodySmall) }
+            if (!line.hideable) Text(stringResource(R.string.ext_not_hideable), style = MaterialTheme.typography.bodySmall)
+            line.conflicts.forEach { Text(it.message, style = MaterialTheme.typography.bodySmall) }
+        }
+        if (line.location != null) {
+            IconButton(onClick = { actions.move(line, -1) }, enabled = line.canMoveUp) {
+                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = stringResource(R.string.ext_move_up))
+            }
+            IconButton(onClick = { actions.move(line, 1) }, enabled = line.canMoveDown) {
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = stringResource(R.string.ext_move_down))
+            }
+        }
+        if (line.hideable || line.hidden) {
+            TextButton(onClick = { actions.setHidden(line, !line.hidden) }) {
+                Text(stringResource(if (line.hidden) R.string.ext_unhide else R.string.ext_hide))
+            }
         }
     }
 }

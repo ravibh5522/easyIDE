@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Customization UI (customization.md sec 6, 7, 10, 12, 16), in its own file so parallel work does not collide. -->
+<resources>
+    <string name="setting_contributions_order_title">Contribution order</string>
+    <string name="setting_contributions_order_desc">workbench.contributions.order: {location: [id…]} moves the listed ids to the front of a menu, statusBar.left/right or keyRows. Easier from the Extensions screen.</string>
+    <string name="setting_key_rows_layouts_title">Key row layouts</string>
+    <string name="setting_key_rows_layouts_desc">keyRows.layouts: your own key rows [{id, title, keys}]. A row with the id of an existing row replaces it.</string>
+
+    <string name="ext_hide">Hide</string>
+    <string name="ext_unhide">Show</string>
+    <string name="ext_move_up">Move up</string>
+    <string name="ext_move_down">Move down</string>
+    <string name="ext_not_hideable">Always shown, so settings can never lock you out</string>
+
+    <string name="key_row_auto">Automatic</string>
+    <string name="key_row_auto_detail">The first row whose conditions match</string>
+    <string name="key_row_user">your layout</string>
+    <string name="key_row_builtin">built-in</string>
+    <string name="key_row_missing">%1$s (not available)</string>
+    <string name="key_row_hidden">hidden</string>
+    <string name="key_row_layout_problem">keyRows.layouts row %1$d: %2$s</string>
+
+    <string name="settings_diag_bad_ref">%1$s: \"%2$s\" is not a contribution ref (kind:id or menu:menuId:command)</string>
+    <string name="settings_diag_not_hideable">%1$s: %2$s can never be hidden; the entry is ignored</string>
+    <string name="settings_diag_key_row_layout">%1$s: %2$s</string>
+    <string name="settings_diag_lsp_incomplete">lsp.servers.%1$s: needs %2$s to define a new server, so it is ignored unless a pack declares this key</string>
+    <string name="settings_diag_lsp_field">lsp.servers.%1$s: %2$s has the wrong type and is ignored</string>
+
+    <string name="settings_language_servers">Language servers</string>
+    <string name="settings_language_servers_desc">Servers from packs and your own lsp.servers entries, with problems</string>
+    <string name="settings_keyboard_shortcuts">Keyboard shortcuts</string>
+
+    <string name="lsp_screen_title">Language servers</string>
+    <string name="lsp_screen_layer">Editing the %1$s layer.</string>
+    <string name="lsp_screen_env">Pack servers of environment %1$s.</string>
+    <string name="lsp_screen_no_env">No environment yet: only custom servers are listed.</string>
+    <string name="lsp_add">Add custom server</string>
+    <string name="lsp_edit">Edit</string>
+    <string name="lsp_remove">Remove</string>
+    <string name="lsp_reset_here">Reset in this layer</string>
+    <string name="lsp_none">No language servers.</string>
+    <string name="lsp_issues">Ignored lsp.servers entries</string>
+    <string name="lsp_source_pack">From %1$s</string>
+    <string name="lsp_source_custom">Custom (lsp.servers)</string>
+    <string name="lsp_languages">Languages: %1$s</string>
+    <string name="lsp_customized">Changed by lsp.servers</string>
+    <string name="lsp_issue_no_languages">No languages: a new server needs a list of language ids.</string>
+    <string name="lsp_issue_no_command">No command: a server needs its argv.</string>
+    <string name="lsp_issue_not_declared">No enabled pack declares this server here, so its overrides do nothing.</string>
+    <string name="lsp_issue_field">%1$s has the wrong type and is ignored.</string>
+    <string name="lsp_form_key">Name</string>
+    <string name="lsp_form_languages">Languages (e.g. zig, zon)</string>
+    <string name="lsp_form_command">Command, one argument per line</string>
+    <string name="lsp_form_hint">Runs in the environment. Names may not contain /; that form addresses pack servers.</string>
+    <string name="lsp_form_invalid">Needs a name without /, at least one language and a command.</string>
+
+    <string name="keys_screen_title">Keyboard shortcuts</string>
+    <string name="keys_edit_json">Edit JSON</string>
+    <string name="keys_add">Add shortcut</string>
+    <string name="keys_search_hint">Search command or keys</string>
+    <string name="keys_conflicts">Conflicts (%1$d)</string>
+    <string name="keys_when">When: %1$s</string>
+    <string name="keys_in_conflict">Conflicts with another binding</string>
+    <string name="keys_remove">Remove shortcut</string>
+    <string name="keys_remove_default">Remove shortcut (adds a -command entry)</string>
+    <string name="keys_conflict_detail">%1$s (%2$s) wins over %3$s (%4$s)</string>
+    <string name="keys_source_builtin">Built-in</string>
+    <string name="keys_source_extension">Extension %1$s</string>
+    <string name="keys_source_user">Yours (keybindings.json)</string>
+    <string name="keys_form_key">Keys</string>
+    <string name="keys_form_key_hint">e.g. ctrl+shift+p or ctrl+k ctrl+s</string>
+    <string name="keys_form_command">Command</string>
+    <string name="keys_form_focus">Where</string>
+    <string name="keys_focus_anywhere">Anywhere</string>
+    <string name="keys_focus_outside_terminal">Outside the terminal</string>
+    <string name="keys_focus_terminal">Terminal only</string>
+
+    <string name="json_suggestions">Suggestions</string>
+</resources>

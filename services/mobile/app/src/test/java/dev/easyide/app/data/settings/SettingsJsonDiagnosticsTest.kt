@@ -31,6 +31,19 @@ class SettingsJsonDiagnosticsTest {
     }
 
     @Test
+    fun customizationValuesAreCheckedInside() {
+        assertEquals(
+            listOf(DiagnosticCode.BAD_CONTRIBUTION_REF to "workbench.contributions.hidden", DiagnosticCode.NOT_HIDEABLE to "workbench.contributions.hidden"),
+            codes("{\"workbench.contributions.hidden\": [\"nonsense\", \"view:builtin.settings\", \"keyRow:a.b\"]}", LayerId.USER),
+        )
+        assertEquals(listOf(DiagnosticCode.INVALID_VALUE to "workbench.contributions.order"), codes("{\"workbench.contributions.order\": {\"x\": 1}}", LayerId.PROJECT))
+        assertEquals(emptyList<Any>(), codes("{\"workbench.contributions.order\": {\"editor/title\": [\"a.b\"]}}", LayerId.PROJECT))
+        assertEquals(listOf(DiagnosticCode.KEY_ROW_LAYOUT to "keyRows.layouts"), codes("{\"keyRows.layouts\": [{\"id\": \"r\", \"keys\": []}]}", LayerId.USER))
+        val lsp = codes("{\"lsp.servers\": {\"mine\": {\"command\": \"zls\"}, \"acme.x/srv\": {\"enabled\": false}}}", LayerId.USER)
+        assertEquals(listOf(DiagnosticCode.LSP_SERVER_FIELD to "mine", DiagnosticCode.LSP_SERVER_INCOMPLETE to "mine"), lsp)
+    }
+
+    @Test
     fun onlyParseErrorsBlockSaving() {
         assertTrue(SettingsJsonDiagnostics.blocksSave(SettingsJsonDiagnostics.check("{", LayerId.USER, schema)))
         assertFalse(SettingsJsonDiagnostics.blocksSave(SettingsJsonDiagnostics.check("{\"editor.fontSize\": 500}", LayerId.USER, schema)))

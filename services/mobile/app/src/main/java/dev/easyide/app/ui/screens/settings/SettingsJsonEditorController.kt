@@ -1,7 +1,10 @@
 package dev.easyide.app.ui.screens.settings
 
 import dev.easyide.app.data.settings.ConfigTarget
+import dev.easyide.app.data.settings.JsonSuggestion
 import dev.easyide.app.data.settings.ProfileManager
+import dev.easyide.app.data.settings.SchemaState
+import dev.easyide.app.data.settings.SettingsJsonCompletion
 import dev.easyide.app.data.settings.SettingsDiagnostic
 import dev.easyide.app.data.settings.SettingsJsonDiagnostics
 import dev.easyide.app.data.settings.SettingsPolicy
@@ -57,6 +60,22 @@ class SettingsJsonEditorController(
 
     private var validation: Job? = null
 
+    /** The schema as of opening the buffer, for completion (it changes only when packs do). */
+    @Volatile private var schema: SchemaState? = null
+
+    /**
+     * Key and enum-value suggestions at [cursor] (LLD 16); keybindings.json gets command ids.
+     * Cheap and synchronous, so the editor calls it on every caret move.
+     */
+    fun suggest(text: String, cursor: Int): List<JsonSuggestion> {
+        val doc = _state.value?.document ?: return emptyList()
+        val s = schema ?: return emptyList()
+        return when (doc) {
+            is JsonDocument.SettingsLayer -> SettingsJsonCompletion.suggest(text, cursor, SettingsJsonCompletion.Kind.SETTINGS, s)
+            JsonDocument.Keybindings -> SettingsJsonCompletion.suggest(text, cursor, SettingsJsonCompletion.Kind.KEYBINDINGS, s, CommandIds.ALL)
+        }
+    }
+
     fun openLayer(target: ConfigTarget) = open(JsonDocument.SettingsLayer(target))
 
     fun openKeybindings() = open(JsonDocument.Keybindings)
@@ -91,8 +110,20 @@ class SettingsJsonEditorController(
         _state.value = null
     }
 
+    /**
+     * The Keyboard Shortcuts screen's edits: [transform] maps the active profile's
+     * keybindings.json text to the new text (null = the file cannot be edited that way).
+     */
+    fun editKeybindings(transform: (String) -> String?, onResult: (Boolean) -> Unit) {
+        scope.launch {
+            val next = transform(profiles.keybindings.readText())
+            onResult(next != null && profiles.keybindings.writeText(next).isSuccess)
+        }
+    }
+
     private fun open(document: JsonDocument) {
         scope.launch {
+            schema = store.schema.first()
             val text = when (document) {
                 is JsonDocument.SettingsLayer -> store.sourceFor(document.target)?.readText().orEmpty()
                 JsonDocument.Keybindings -> profiles.keybindings.readText()
