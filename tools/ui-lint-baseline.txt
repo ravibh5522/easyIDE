@@ -1,6 +1,3 @@
-U-DP-01	dev/easyide/app/ui/kit/Kit.kt	val contentMax: Dp = 640.dp
-U-DP-01	dev/easyide/app/ui/kit/Kit.kt	val hairline: Dp = 1.dp
-U-DP-01	dev/easyide/app/ui/kit/Kit.kt	val marker: Dp = 2.dp
 U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	animationSpec = infiniteRepeatable(
 U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	import androidx.compose.animation.core.rememberInfiniteTransition
 U-MOT-02	dev/easyide/app/ui/components/EmptyState.kt	rememberInfiniteTransition(label = "empty-state-pulse").animateFloat(

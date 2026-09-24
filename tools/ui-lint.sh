@@ -9,10 +9,10 @@
 # Rules (id, rule, where):
 #   U-COL-01  Color(0x..), Color.White/Black          all of app/src/main except ui/theme, ui/kit
 #   U-KIT-COL MaterialTheme.colorScheme read          ui/kit (kit reads ThemeTokens, not M3)
-#   U-DP-01   raw N.dp literal (0.dp exempt)          ui/kit, ui/shell
+#   U-DP-01   raw N.dp literal (0.dp exempt; a named `val X = N.dp` is the token itself)  ui/kit, ui/shell
 #   U-TYP-08  string literal in Text(...) copy        ui/screens, ui/components, ui/shell, ui/kit
 #   U-MOT-01  tween(N), durationMillis = N literals   everything except ui/props/Motion.kt
-#   U-MOT-02  rememberInfiniteTransition              everything except CursorBlink
+#   U-MOT-02  rememberInfiniteTransition              everything except CursorBlock
 #   U-AI-03   Brush gradients, blur(                  everything (command palette scrim excepted by baseline)
 #
 # The baseline (tools/ui-lint-baseline.txt) lists today's violations as
@@ -48,6 +48,7 @@ def under(path, *dirs):
 COLOR = re.compile(r"\bColor\(\s*0[xX]|\bColor\.(White|Black)\b")
 KIT_SCHEME = re.compile(r"MaterialTheme\.colorScheme")
 DP = re.compile(r"(?<![\w.])(\d+(\.\d+)?)\.dp\b")
+NAMED_DP = re.compile(r"^\s*(private |internal )?(const )?val \w+(: Dp)? = [\d.]+\.dp\s*$")
 DURATION = re.compile(r"\btween\(\s*\d|\b(durationMillis|delayMillis)\s*=\s*\d")
 LOOP = re.compile(r"\brememberInfiniteTransition\b|\brepeatable\(|\binfiniteRepeatable\(")
 FLASHY = re.compile(r"\bBrush\.\w*Gradient\(|\bblur\(")
@@ -84,11 +85,11 @@ for dirpath, _, files in os.walk(src):
                 add("U-COL-01", rel, i, line)
             if under(rel, KIT) and KIT_SCHEME.search(line):
                 add("U-KIT-COL", rel, i, line)
-            if under(rel, KIT, SHELL) and any(float(m.group(1)) != 0 for m in DP.finditer(line)):
+            if under(rel, KIT, SHELL) and not NAMED_DP.match(line) and any(float(m.group(1)) != 0 for m in DP.finditer(line)):
                 add("U-DP-01", rel, i, line)
-            if rel != MOTION_TABLE and DURATION.search(line):
+            if rel != MOTION_TABLE and not name.startswith("CursorBlock") and DURATION.search(line):
                 add("U-MOT-01", rel, i, line)
-            if not name.startswith("CursorBlink") and LOOP.search(line):
+            if not name.startswith("CursorBlock") and LOOP.search(line):
                 add("U-MOT-02", rel, i, line)
             if FLASHY.search(line):
                 add("U-AI-03", rel, i, line)
