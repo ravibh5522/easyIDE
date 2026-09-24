@@ -1,0 +1,58 @@
+{
+  "name": "shell",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Shell Script",
+  "description": "Shell script language server (bash-language-server) with ShellCheck diagnostics.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:shellscript"
+  ],
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(registry.npmjs.org,archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.install"
+    ],
+    "languageServers": [
+      {
+        "id": "bashls",
+        "languages": [
+          "shellscript"
+        ],
+        "command": [
+          "bash-language-server",
+          "start"
+        ],
+        "memoryBudgetMb": 150
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "base",
+          "title": "Install Node.js, npm and ShellCheck",
+          "run": "apt-get update && apt-get install -y nodejs npm shellcheck",
+          "when": "envDistro in 'debian,ubuntu'"
+        },
+        {
+          "id": "server",
+          "title": "Install bash-language-server",
+          "run": "npm install -g bash-language-server@5.6"
+        }
+      ],
+      "verify": "command -v bash-language-server && command -v shellcheck",
+      "uninstall": [
+        "npm uninstall -g bash-language-server"
+      ]
+    },
+    "memoryBudgetMb": 200
+  }
+}

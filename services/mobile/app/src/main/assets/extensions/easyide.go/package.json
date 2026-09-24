@@ -1,0 +1,110 @@
+{
+  "name": "go",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "Go",
+  "description": "Go language server (gopls): diagnostics, completion, navigation, rename, formatting; run and test the current package.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:go"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "go.run",
+        "title": "Run Package",
+        "shortTitle": "Run",
+        "category": "Go",
+        "icon": "play_arrow",
+        "enablement": "envState == ready && resourcePath"
+      },
+      {
+        "command": "go.test",
+        "title": "Test Package",
+        "shortTitle": "Test",
+        "category": "Go",
+        "enablement": "envState == ready && resourcePath"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "go.run",
+          "when": "editorLangId == go",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "go.run",
+          "when": "editorLangId == go"
+        },
+        {
+          "command": "go.test",
+          "when": "editorLangId == go"
+        }
+      ]
+    }
+  },
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.exec",
+      "sandbox.install"
+    ],
+    "actions": {
+      "go.run": {
+        "type": "runInTerminal",
+        "terminal": "Go",
+        "cwd": "${fileDirname}",
+        "command": "go run ."
+      },
+      "go.test": {
+        "type": "runInTerminal",
+        "terminal": "Go",
+        "cwd": "${fileDirname}",
+        "command": "go test ."
+      }
+    },
+    "languageServers": [
+      {
+        "id": "gopls",
+        "languages": [
+          "go"
+        ],
+        "command": [
+          "gopls"
+        ],
+        "rootMarkers": [
+          "go.work",
+          "go.mod",
+          ".git"
+        ],
+        "memoryBudgetMb": 400
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "toolchain",
+          "title": "Install Go and gopls",
+          "run": "apt-get update && apt-get install -y golang-go gopls",
+          "when": "envDistro in 'debian,ubuntu'"
+        }
+      ],
+      "verify": "command -v go && command -v gopls",
+      "uninstall": [
+        "apt-get remove -y gopls"
+      ]
+    },
+    "memoryBudgetMb": 450
+  }
+}

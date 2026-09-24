@@ -23,8 +23,10 @@ class BuiltInPacksTest {
         val ids = BuiltInPackFixtures.ids()
         assertEquals(
             listOf(
-                "easyide.core-snippets", "easyide.git-commands", "easyide.git-extras", "easyide.key-rows",
-                "easyide.project-tasks", "easyide.python", "easyide.tablet-toolbar", "easyide.themes", "easyide.toggles",
+                "easyide.core-snippets", "easyide.cpp", "easyide.git-commands", "easyide.git-extras", "easyide.go",
+                "easyide.key-rows", "easyide.markdown", "easyide.project-tasks", "easyide.python", "easyide.rust",
+                "easyide.shell", "easyide.tablet-toolbar", "easyide.themes", "easyide.toggles", "easyide.typescript",
+                "easyide.web", "easyide.yaml",
             ),
             ids,
         )

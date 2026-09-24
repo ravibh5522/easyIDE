@@ -1,0 +1,62 @@
+{
+  "name": "cpp",
+  "publisher": "easyide",
+  "version": "1.0.0",
+  "displayName": "C and C++",
+  "description": "C and C++ language server (clangd): diagnostics, completion, navigation, rename, formatting. Reads compile_commands.json when the project has one.",
+  "license": "Apache-2.0",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs"
+  ],
+  "activationEvents": [
+    "onLanguage:c",
+    "onLanguage:cpp"
+  ],
+  "easyide": {
+    "capabilities": [
+      "lsp.spawn",
+      "network(archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
+      "sandbox.install"
+    ],
+    "languageServers": [
+      {
+        "id": "clangd",
+        "languages": [
+          "c",
+          "cpp"
+        ],
+        "command": [
+          "clangd",
+          "--background-index=false"
+        ],
+        "rootMarkers": [
+          "compile_commands.json",
+          "compile_flags.txt",
+          ".clangd",
+          "CMakeLists.txt",
+          ".git"
+        ],
+        "memoryBudgetMb": 500
+      }
+    ],
+    "sandbox": {
+      "install": [
+        {
+          "id": "toolchain",
+          "title": "Install clangd and a compiler",
+          "run": "apt-get update && apt-get install -y clangd build-essential",
+          "when": "envDistro in 'debian,ubuntu'"
+        }
+      ],
+      "verify": "command -v clangd",
+      "uninstall": [
+        "apt-get remove -y clangd"
+      ]
+    },
+    "memoryBudgetMb": 550
+  }
+}
