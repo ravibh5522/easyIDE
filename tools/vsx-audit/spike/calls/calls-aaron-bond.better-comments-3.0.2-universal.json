@@ -1,0 +1,166 @@
+{
+ "summary": {
+  "totalMainThreadCalls": 21,
+  "distinctMethods": 16,
+  "msgIn": 31,
+  "msgOut": 47,
+  "bytesIn": 12503,
+  "bytesOut": 1237,
+  "byActor": {
+   "MainThreadLogger": {
+    "$registerLogger": 2
+   },
+   "MainThreadWindow": {
+    "$getInitialState": 1
+   },
+   "MainThreadCommands": {
+    "$registerCommand": 1
+   },
+   "MainThreadTerminalService": {
+    "$registerProcessSupport": 1
+   },
+   "MainThreadSearch": {
+    "$registerTextSearchProvider": 1
+   },
+   "MainThreadTask": {
+    "$registerSupportedExecutions": 2,
+    "$registerTaskSystem": 1
+   },
+   "MainThreadLanguageModelTools": {
+    "$getTools": 1
+   },
+   "MainThreadConsole": {
+    "$logExtensionHostMessage": 2
+   },
+   "MainThreadFileSystem": {
+    "$ensureActivation": 1
+   },
+   "MainThreadExtensionService": {
+    "$onWillActivateExtension": 1,
+    "$onExtensionActivationError": 1,
+    "$setPerformanceMarks": 1
+   },
+   "MainThreadDebugService": {
+    "$registerDebugTypes": 1
+   },
+   "MainThreadTelemetry": {
+    "$publicLog2": 2
+   },
+   "MainThreadStorage": {
+    "$initializeExtensionStorage": 2
+   }
+  }
+ },
+ "calls": [
+  {
+   "t": 430,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadWindow",
+   "method": "$getInitialState"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "__vsc4bc006a5-5ce4-4d03-9adf-88ffc04275af"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadTerminalService",
+   "method": "$registerProcessSupport"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadSearch",
+   "method": "$registerTextSearchProvider"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadTask",
+   "method": "$registerTaskSystem",
+   "arg0": "file"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadLanguageModelTools",
+   "method": "$getTools"
+  },
+  {
+   "t": 430,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 431,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 431,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 448,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 448,
+   "actor": "MainThreadExtensionService",
+   "method": "$onWillActivateExtension"
+  },
+  {
+   "t": 448,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugTypes"
+  },
+  {
+   "t": 457,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "activatePlugin"
+  },
+  {
+   "t": 457,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 457,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 461,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "extensionActivationTimes"
+  },
+  {
+   "t": 461,
+   "actor": "MainThreadExtensionService",
+   "method": "$onExtensionActivationError"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadExtensionService",
+   "method": "$setPerformanceMarks"
+  }
+ ]
+}

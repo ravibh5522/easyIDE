@@ -1,0 +1,5897 @@
+{
+ "summary": {
+  "totalMainThreadCalls": 974,
+  "distinctMethods": 38,
+  "msgIn": 984,
+  "msgOut": 1953,
+  "bytesIn": 95386,
+  "bytesOut": 10723,
+  "byActor": {
+   "MainThreadLogger": {
+    "$registerLogger": 4
+   },
+   "MainThreadWindow": {
+    "$getInitialState": 1
+   },
+   "MainThreadCommands": {
+    "$registerCommand": 805,
+    "$fireCommandActivationEvent": 44,
+    "$executeCommand": 45
+   },
+   "MainThreadTerminalService": {
+    "$registerProcessSupport": 1,
+    "$setEnvironmentVariableCollection": 1
+   },
+   "MainThreadSearch": {
+    "$registerTextSearchProvider": 1
+   },
+   "MainThreadTask": {
+    "$registerSupportedExecutions": 2,
+    "$registerTaskSystem": 1
+   },
+   "MainThreadLanguageModelTools": {
+    "$getTools": 1
+   },
+   "MainThreadConsole": {
+    "$logExtensionHostMessage": 4
+   },
+   "MainThreadExtensionService": {
+    "$onWillActivateExtension": 1,
+    "$onExtensionRuntimeError": 3,
+    "$onDidActivateExtension": 1,
+    "$setPerformanceMarks": 1
+   },
+   "MainThreadDebugService": {
+    "$registerDebugTypes": 1
+   },
+   "MainThreadTelemetry": {
+    "$publicLog2": 3
+   },
+   "MainThreadStorage": {
+    "$initializeExtensionStorage": 2,
+    "$registerExtensionStorageKeysToSync": 1,
+    "$setValue": 8
+   },
+   "MainThreadTextEditors": {
+    "$registerTextEditorDecorationType": 1
+   },
+   "MainThreadFileSystem": {
+    "$ensureActivation": 5,
+    "$registerFileSystemProvider": 2
+   },
+   "MainThreadSecretState": {
+    "$getPassword": 2
+   },
+   "MainThreadUrls": {
+    "$registerUriHandler": 1
+   },
+   "MainThreadLanguageFeatures": {
+    "$registerDocumentLinkProvider": 1
+   },
+   "MainThreadDocumentContentProviders": {
+    "$registerTextContentProvider": 1
+   },
+   "MainThreadWebviewViews": {
+    "$registerWebviewViewProvider": 5
+   },
+   "MainThreadWebviewPanels": {
+    "$registerSerializer": 6,
+    "$createWebviewPanel": 1,
+    "$setIconPath": 1
+   },
+   "MainThreadCustomEditors": {
+    "$registerTextEditorProvider": 1
+   },
+   "MainThreadDecorations": {
+    "$registerDecorationProvider": 1
+   },
+   "MainThreadErrors": {
+    "$onUnexpectedError": 3
+   },
+   "MainThreadTreeViews": {
+    "$registerTreeViewDataProvider": 8,
+    "$setTitle": 3
+   },
+   "MainThreadWebviews": {
+    "$setHtml": 1
+   }
+  }
+ },
+ "calls": [
+  {
+   "t": 351,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadWindow",
+   "method": "$getInitialState"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "__vscb522f746-d961-4ff1-ad06-10840b0382cc"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadTerminalService",
+   "method": "$registerProcessSupport"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadSearch",
+   "method": "$registerTextSearchProvider"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadTask",
+   "method": "$registerTaskSystem",
+   "arg0": "file"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadLanguageModelTools",
+   "method": "$getTools"
+  },
+  {
+   "t": 351,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 356,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 356,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 363,
+   "actor": "MainThreadExtensionService",
+   "method": "$onWillActivateExtension"
+  },
+  {
+   "t": 363,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugTypes"
+  },
+  {
+   "t": 523,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "activatePlugin"
+  },
+  {
+   "t": 523,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 523,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 523,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 528,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 537,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 537,
+   "actor": "MainThreadTerminalService",
+   "method": "$setEnvironmentVariableCollection",
+   "arg0": "eamodio.gitlens"
+  },
+  {
+   "t": 537,
+   "actor": "MainThreadStorage",
+   "method": "$registerExtensionStorageKeysToSync"
+  },
+  {
+   "t": 537,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 537,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 539,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 541,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 542,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.onboarding.dismiss"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadSecretState",
+   "method": "$getPassword",
+   "arg0": "eamodio.gitlens"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadUrls",
+   "method": "$registerUriHandler"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.refreshRepositoryAccess"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadLanguageFeatures",
+   "method": "$registerDocumentLinkProvider"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadFileSystem",
+   "method": "$registerFileSystemProvider"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadFileSystem",
+   "method": "$registerFileSystemProvider"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadSecretState",
+   "method": "$getPassword",
+   "arg0": "eamodio.gitlens"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.action.createPullRequest"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.action.openPullRequest"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.action.openIssue"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.action.hover.commands"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.left"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.alt+left"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.ctrl+left"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.right"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.alt+right"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.ctrl+right"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.alt+,"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.alt+."
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.alt+enter"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.ctrl+enter"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.key.escape"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.launchpad.indicator.toggle"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadDocumentContentProviders",
+   "method": "$registerTextContentProvider"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.copyAsMarkdown"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.copy"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openUrl.multi"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openUrl"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.copyUrl.multi"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.copyUrl"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openCommitOnRemote.multi"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openCommitOnRemote"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.copyRemoteCommitUrl.multi"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.copyRemoteCommitUrl"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.collapseNode"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.dismissNode"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.editNode"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.expandNode"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.loadMoreChildren"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.loadAllChildren"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.refreshNode"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.addAuthors"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.addAuthor.multi"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.addAuthor"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.addRemote"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.addPullRequestRemote"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.applyChanges"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashApply:views"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.browseRepoBeforeRevisionInNewWindow"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.browseRepoBeforeRevision"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.browseRepoAtRevisionInNewWindow"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.browseRepoAtRevision"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.cherryPick.multi"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.cherryPick"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.clearComparison"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.clearReviewed"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.closeRepository"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.createBranch:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.title.createBranch"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.createPullRequest:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.createTag"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.title.createTag"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.createWorktree"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.title.createWorktree"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.deleteBranch.multi"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.deleteBranch"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashDelete.multi:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashDelete:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashRename:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.deleteTag.multi"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.deleteTag"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pushTag.multi"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pushTag"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.deleteWorktree.multi"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.deleteWorktree"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.unlockWorktree"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.fetch:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.highlightChanges"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.highlightRevisionChanges"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.mergeBranchInto"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openBranchOnRemote.multi"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openBranchOnRemote"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openInTerminal"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openInIntegratedTerminal:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.startAgentSession"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.startAgentSessionWith"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.runTaskOnWorktree:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.resumeAgentSession"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pausedOperation.abort"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pausedOperation.continue"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pausedOperation.skip"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pausedOperation.open"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openPullRequest:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openPullRequestChanges:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openPullRequestComparison:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.draft.open"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.draft.openOnWeb"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWorktreeInNewWindow.multi:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWorktreeInNewWindow:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWorktree:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openInWorktree"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.pruneRemote:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.removeRemote:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.publishBranch:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.publishRepository"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pull"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pushWithForce"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.push"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pushToCommit"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.rebaseOntoCommit"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.rebaseOntoBranch"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainUnpushed:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.rebaseOntoUpstream"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.renameBranch"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.setUpstream:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.changeUpstream:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.resetToCommit"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.resetToTip"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.restore.file:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.restorePrevious.file:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.revealRepositoryInExplorer"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.revealWorktreeInExplorer"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.revert"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.setRemoteAsDefault:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setBranchComparisonToBranch"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setBranchComparisonToWorking"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setShowRelativeDateMarkersOff"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setShowRelativeDateMarkersOn"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setContributorsStatisticsOn"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setContributorsStatisticsOff"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.stageFile"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.stageDirectory"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.star.repository.multi:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.star.repository:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.star.branch.multi:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.star.branch:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.switchToAnotherBranch:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.switchToTag"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.switchToCommit"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.switchToBranch:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.undoCommit"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.composeCommits:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.recomposeFromCommit:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.unsetRemoteAsDefault:views"
+  },
+  {
+   "t": 629,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.unstageFile"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.unstageDirectory"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.unstar.repository.multi:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.unstar.repository:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.unstar.branch.multi:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.unstar.branch:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareWithHead"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareBranchWithHead"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareWithMergeBase"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangedFileDiffsWithMergeBase"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareWithUpstream"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareWithWorking"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareAncestryWithWorking"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareWithSelected"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.selectForCompare"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.compareFileWithSelected"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.selectFileForCompare"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangedFileDiffsIndividually"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangedFileDiffs"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChanges"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangedFileDiffsWithWorkingIndividually"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangedFileDiffsWithWorking"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.mergeChangesWithWorking"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangesWithMergeBase"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangesWithWorking"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openPreviousChangesWithWorking"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openFile"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileHistoryInGraph:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.soloTag:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.soloBranch:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangedFiles"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openOnlyChangedFiles"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openFileRevision"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openChangedFileRevisions"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setResultsCommitsFilterOff"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setResultsCommitsFilterAuthors"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setResultsFilesFilterOff"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setResultsFilesFilterOnRight"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.setResultsFilesFilterOnLeft"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.associateIssueWithBranch:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.generateChangelog:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.generateChangelogFrom:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyWorkingChangesToWorktree:views"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.drafts.copy"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.drafts.refresh"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.drafts.create"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.drafts.delete"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.drafts.setShowAvatarsOn"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.drafts.setShowAvatarsOff"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.lineHistory.copy"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.lineHistory.refresh"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.lineHistory.changeBase"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.lineHistory.setEditorFollowingOn"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.lineHistory.setEditorFollowingOff"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.lineHistory.setShowAvatarsOn"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.lineHistory.setShowAvatarsOff"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.copy"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.refresh"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.close"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.setFilesLayoutToAuto"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.setFilesLayoutToList"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.setFilesLayoutToTree"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.setShowAvatarsOn"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.pullRequest.setShowAvatarsOff"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.info"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.copy"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.refresh"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.addRepos"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.addReposFromLinked"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.convert"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.create"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.createLocal"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.openLocal"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.openLocalNewWindow"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.changeAutoAddSetting"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.delete"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.locateAllRepos"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.repo.locate"
+  },
+  {
+   "t": 630,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.repo.openInNewWindow"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.repo.open"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.repo.addToWindow"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.workspaces.repo.remove"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.branches.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.branches.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.branches.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.branches.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.branches.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.branches.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.commits.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.commits.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.commits.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.commits.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.commits.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.commits.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.contributors.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.contributors.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.contributors.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.contributors.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.contributors.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.contributors.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.fileHistory.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.fileHistory.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.fileHistory.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.fileHistory.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.fileHistory.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.launchpad.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.launchpad.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.launchpad.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.launchpad.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.launchpad.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.remotes.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.remotes.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.remotes.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.remotes.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.remotes.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.remotes.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.repositories.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.repositories.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.repositories.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.repositories.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.repositories.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.searchAndCompare.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.searchAndCompare.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.searchAndCompare.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.searchAndCompare.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.searchAndCompare.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.stashes.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.stashes.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.stashes.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.stashes.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.stashes.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.stashes.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.tags.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.tags.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.tags.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.tags.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.tags.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.tags.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.worktrees.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.worktrees.detach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.worktrees.attach"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.worktrees.visibility.hide"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.worktrees.visibility.show"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.worktrees.setAsDefault"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.branches"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.commits"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.contributors"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.fileHistory"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.launchpad"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.remotes"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.repositories"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.searchAndCompare"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.stashes"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.tags"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.worktrees"
+  },
+  {
+   "t": 631,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.refresh"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.attachAll"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.detachAll"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.resetAll"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.welcome.dismiss"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.scm.grouped.welcome.restore"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.copy"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.refresh"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.changeBase"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setCursorFollowingOn"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setCursorFollowingOff"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setEditorFollowingOn"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setEditorFollowingOff"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setModeCommits"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setModeContributors"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setRenameFollowingOn"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setRenameFollowingOff"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setShowAllBranchesOn"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setShowAllBranchesOff"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setShowMergeCommitsOn"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setShowMergeCommitsOff"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setShowAvatarsOn"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.fileHistory.setShowAvatarsOff"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 632,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.info"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.copy"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.refresh"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.setFilesLayoutToAuto"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.setFilesLayoutToList"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.setFilesLayoutToTree"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.setShowAvatarsOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.setShowAvatarsOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.error.connectIntegrations"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.launchpad.error.openLogs"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.copy"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.refresh"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setBranchesLayoutToList"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setBranchesLayoutToTree"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setSortByDiscovered"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setSortByLastFetched"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setSortByName"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setSortDescending"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setSortAscending"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setFilesLayoutToAuto"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setFilesLayoutToList"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setFilesLayoutToTree"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setAutoRefreshToOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setAutoRefreshToOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowAvatarsOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowAvatarsOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setBranchesShowBranchComparisonOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setBranchesShowBranchComparisonOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setBranchesShowStashesOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setBranchesShowStashesOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionBranchComparisonOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionBranchComparisonOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionBranchesOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionBranchesOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionCommitsOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionCommitsOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionContributorsOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionContributorsOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionRemotesOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionRemotesOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionStashesOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionStashesOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionTagsOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionTagsOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionWorktreesOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionWorktreesOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionUpstreamStatusOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionUpstreamStatusOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.repositories.setShowSectionOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.clear"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.copy"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.refresh"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.setFilesLayoutToAuto"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.setFilesLayoutToList"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.setFilesLayoutToTree"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.setShowAvatarsOn"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.setShowAvatarsOff"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.swapComparison"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.selectForCompare"
+  },
+  {
+   "t": 633,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "gitlens.graph"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showGraphPage"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showGitHealth"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showGraph"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.switchToEditorLayout"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.switchToPanelLayout"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showInCommitGraph"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showInCommitGraphView"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.refresh"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.sendFeedback"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.split"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileHistoryInGraph"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileHistoryInGraph:editor"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileHistoryInGraph:explorer"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileHistoryInGraph:scm"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFolderHistoryInGraph"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFolderHistoryInGraph:explorer"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFolderHistoryInGraph:scm"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.followTerminalOn"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.followTerminalOff"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.showTerminalWorktree"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.graph.focusTerminalWorktree"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openTerminalWorktreeInNewWindow"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "gitlens.timeline"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showTimelinePage"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.file"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.file:editor"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.file:explorer"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.file:scm"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.file:views"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.folder:explorer"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.folder:scm"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.repo:scm"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.visualizeHistory.repo:views"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.timeline.refresh"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.timeline.split"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCustomEditors",
+   "method": "$registerTextEditorProvider"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "gitlens.settings"
+  },
+  {
+   "t": 635,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.settings.refresh"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!account"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!file-annotations"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!branches-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!commits-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!contributors-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!current-line"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!file-history-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!line-history-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!remotes-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!repositories-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!search-compare-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!stashes-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!tags-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!worktrees-view"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!commit-graph"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!autolinks"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!ai"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!agents"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSettingsPage!integrations"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "gitlens.welcome"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showWelcomePage"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "gitlens.allowedSigners"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.editAllowedSigners"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadDecorations",
+   "method": "$registerDecorationProvider"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "gitlens.patchDetails"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showPatchDetailsPage"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.mcp.authCLI"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.mcp.install"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.mcp.reinstall"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.mcp.installForAllAgents"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.mcp.installForAgent"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.mcp.uninstallForAgent"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.connectAgents"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.login"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.signUp"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.logout"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.referFriend"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.gk.switchOrganization"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.manage"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.showPlans"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.reactivateProTrial"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.resendVerification"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.upgrade"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.aiAllAccess.optIn"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.hide"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.restore"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.validate"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.continueFeaturePreview"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadExtensionService",
+   "method": "$onExtensionRuntimeError"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadErrors",
+   "method": "$onUnexpectedError"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadExtensionService",
+   "method": "$onExtensionRuntimeError"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadErrors",
+   "method": "$onUnexpectedError"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadExtensionService",
+   "method": "$onExtensionRuntimeError"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadErrors",
+   "method": "$onUnexpectedError"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.drafts"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$setTitle",
+   "arg0": "gitlens.views.drafts"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.lineHistory"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.pullRequest"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.workspaces"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$setTitle",
+   "arg0": "gitlens.views.workspaces"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.fileHistory"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.launchpad"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$setTitle",
+   "arg0": "gitlens.views.launchpad"
+  },
+  {
+   "t": 638,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.repositories"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "gitlens.views.searchAndCompare"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyShaToClipboard"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWith"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainCommit"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainCommit:editor"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainCommit:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainWip"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainWip:editor"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainWip:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showCommitInView"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showInDetailsView"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showLineCommitInView"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openCommitOnRemote"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteCommitUrl"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openCommitInRemote"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileRevision"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openBlamePriorToChange"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.connectRemoteProvider"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.connectRemoteProvider:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.disconnectRemoteProvider"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.disconnectRemoteProvider:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickCommitFileDetails"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickRevisionDetails"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickRevisionDetails:editor"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickRevisionDetails:editor/title"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.revealCommitInView"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickCommitDetails"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openIssueOnRemote"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.generateChangelog"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.addAuthors"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.enable"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.purchaseCredits"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.switchProvider"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.switchProvider:scm"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.switchAIModel"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.feedback.helpful"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.feedback.helpful.chosen"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.feedback.unhelpful"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.feedback.unhelpful.chosen"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.autoRebase"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.continueRebase"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.continueRebase:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.autoRebase.undo"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.browseRepoAtRevision"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.browseRepoAtRevisionInNewWindow"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.browseRepoBeforeRevision"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.browseRepoBeforeRevisionInNewWindow"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.closeUnchangedFiles"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.cloudIntegrations.manage"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.plus.cloudIntegrations.connect"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.compareWith"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.compareHeadWith"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.compareWorkingWith"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffHeadWith"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWorkingWith"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyCurrentBranch"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToBranch"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToCommit"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToRepo"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToTag"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToComparison"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToWorkspace"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToFile"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToFileAtRevision"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyDeepLinkToLines"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyMessageToClipboard"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRelativePathToClipboard"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.createPullRequestOnRemote"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffDirectory"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffDirectoryWithHead"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openDirectoryDiff"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.openDirectoryDiffWithWorking"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffFolderWithRevision"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffFolderWithRevisionFrom"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffLineWithPrevious"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffLineWithWorking"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithNext"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithNext:editor/title"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithNext:key"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious:codelens"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious:command"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious:editor"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious:editor/title"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious:explorer"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious:key"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithPrevious:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithRevision"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithRevisionFrom"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithWorking"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithWorking:command"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithWorking:editor"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithWorking:editor/title"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithWorking:key"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.diffWithWorking:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.externalDiff"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.externalDiffAll"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainBranch"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainBranch:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainStash"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.explainStash:views"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.generateCommitMessage"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.generateCommitMessage:scm"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.generateCommitMessage"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.scm.generateCommitMessage"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.scm.ai.generateCommitMessage"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.composeCommits"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.composeCommits:scm"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ghpr.views.openOrCreateWorktree"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.gitCommands"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.branch"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.branch.create"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.branch.delete"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.branch.prune"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.branch.rename"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.branch.setMergeTarget"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.branch.setUpstream"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.checkout"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.cherryPick"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.history"
+  },
+  {
+   "t": 639,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.merge"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.rebase"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.remote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.remote.add"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.remote.prune"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.remote.remove"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.reset"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.revert"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.show"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.stash"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.stash.drop"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.stash.list"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.stash.pop"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.stash.push"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.stash.rename"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.status"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.switch"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.tag"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.tag.create"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.tag.delete"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.tag.push"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.worktree"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.worktree.copyWorkingChangesTo"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyWorkingChangesToWorktree"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.worktree.create"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.worktree.delete"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.worktree.open"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.whatsNew"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.helpCenter"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.reportIssue"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.shareFeedback"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.inviteToLiveShare"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.getKepler"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.enableDebugLogging"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.disableDebugLogging"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openAssociatedPullRequestOnRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openBranchesOnRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openBranchesOnRemote:views"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteBranchesUrl"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openBranchesInRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openBranchOnRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteBranchUrl"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openBranchInRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openChatAction"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openCurrentBranchOnRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openChangedFiles"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openComparisonOnRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteComparisonUrl"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileFromRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openRevisionFromRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileOnRemote"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteFileUrlToClipboard"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteFileUrlWithoutRange"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileOnRemoteFrom"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteFileUrlFrom"
+  },
+  {
+   "t": 640,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileInRemote"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileRevisionFrom"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openOnRemote"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openInRemote"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openPullRequestOnRemote"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemotePullRequestUrl"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openRepoOnRemote"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openRepoOnRemote:views"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteRepositoryUrl"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyRemoteRepositoryUrl:views"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openRepoInRemote"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openRevisionFile"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openRevisionFile:editor/title"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWorkingFile"
+  },
+  {
+   "t": 642,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWorkingFile:command"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWorkingFile:editor/context"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWorkingFile:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.createPatch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyPatchToClipboard"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyPatchToClipboard:scm"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.copyPatchToClipboard:views"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.applyPatchFromClipboard"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.pastePatchFromClipboard"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.createCloudPatch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.shareAsCloudPatch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openPatch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openCloudPatch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showLaunchpad"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.startReview"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.startReview.openInAgent"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.startWork"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.startWork.openInAgent"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.associateIssueWithBranch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.disableEditor"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.disableEditor:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.enableEditor"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.enableEditor:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.abort:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.continue:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.refresh"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.reopenAsInteractiveEditor:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.rebase.reopenAsTextEditor:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.recomposeBranch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.recomposeBranch:views"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.recomposeSelectedCommits"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.recomposeFromCommit"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.refreshHover"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.regenerateMarkdownDocument"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.fetchRepositories"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.pullRepositories"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.pushRepositories"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.reset"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.resolveConflicts"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.ai.resolveConflicts:views"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.resetViewsLayout"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.runPromptInAgent"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.runTaskOnWorktree"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showCommitSearch"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.searchAndCompare.searchCommits"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.sendToChat"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showCommitsInView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showLastQuickPick"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openOnlyChangedFiles"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickBranchHistory"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickRepoHistory"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFileHistory"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openFolderHistory"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickFileHistory"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.quickOpenFileHistory"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showFileHistoryInView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickRepoStatus"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showQuickStashList"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showAccountView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showBranchesView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showCommitDetailsView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showCommitsView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showContributorsView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showDraftsView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showFileHistoryView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showGraphView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showLaunchpadView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showLineHistoryView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showRemotesView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showRepositoriesView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showSearchAndCompareView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showStashesView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showTagsView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showTimelineView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showWelcomeView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showWorktreesView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showWorkspacesView"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.git.setupCommitSigning"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.startAgentSession"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashesApply"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashesApply:views"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashSave"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashSave:scm"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashSave:views"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashSave.staged:scm"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashSave.unstaged:scm"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashSave.files:scm"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.stashSave.files:views"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.switchMode"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleReviewMode"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleZenMode"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleCodeLens"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.clearFileAnnotations"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.computingFileAnnotations"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileBlame"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileBlame:codelens"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileBlame:editor"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileBlame:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileBlame:key"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileBlame:mode"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileBlame:statusbar"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileChanges"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileChanges:codelens"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileChanges:editor"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileChanges:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileChanges:mode"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileChanges:statusbar"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmap"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmap:codelens"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmap:editor"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmap:editor/title"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmap:mode"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmap:statusbar"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmapInDiffLeft"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleFileHeatmapInDiffRight"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.toggleLineBlame"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.getStarted"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.openWalkthrough"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.walkthrough.openWelcome"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.plus.upgrade"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.openHelpCenter"
+  },
+  {
+   "t": 643,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.openKepler"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.plus.signUp"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.plus.login"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.plus.reactivate"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.openCommunityVsPro"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.views.welcome.close"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.showGraph"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.showComposer"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.welcome.showLaunchpad"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.showResourceUsage"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadExtensionService",
+   "method": "$onDidActivateExtension"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "extensionActivationTimes"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadExtensionService",
+   "method": "$setPerformanceMarks"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "gitlens.views.scm.grouped.focus"
+  },
+  {
+   "t": 644,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "gitlens.views.graph.focus"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.installHooks"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.uninstallHooks"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.installHooksForAgent"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.uninstallHooksForAgent"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.openSession"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.resumeSession"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.resumeSessionInExtension"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.resumeSessionInTerminal"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.showResumeSessionPicker"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.showSessionWorktreeInGraph"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.focusSessionWorktreeInGraph"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.openSessionWorktreeInNewWindow"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.openWorktree"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.openWorktreeInNewWindow"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.switchDefaultAgent"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.openPlanFile"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.resolvePermission"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.allowPermission"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.alwaysAllowPermission"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.denyPermission"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.approvePlan"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.rejectPlan"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.archiveSession"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.copySessionId"
+  },
+  {
+   "t": 658,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "gitlens.agents.copyLastPrompt"
+  },
+  {
+   "t": 659,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 666,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 845,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 845,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 859,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 863,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 865,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 865,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "gitlens.showWelcomePage"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$createWebviewPanel"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$setIconPath",
+   "arg0": "3f900aff-2014-4f38-88df-4e3d96e9e698"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "Extension:ActionExecuted"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 877,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 881,
+   "actor": "MainThreadWebviews",
+   "method": "$setHtml",
+   "arg0": "3f900aff-2014-4f38-88df-4e3d96e9e698"
+  },
+  {
+   "t": 881,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 881,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 1097,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 1097,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 1097,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 1097,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 1640,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 3613,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  }
+ ]
+}

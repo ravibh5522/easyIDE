@@ -1,0 +1,215 @@
+{
+ "summary": {
+  "totalMainThreadCalls": 29,
+  "distinctMethods": 17,
+  "msgIn": 39,
+  "msgOut": 63,
+  "bytesIn": 14971,
+  "bytesOut": 1333,
+  "byActor": {
+   "MainThreadLogger": {
+    "$registerLogger": 3
+   },
+   "MainThreadWindow": {
+    "$getInitialState": 1
+   },
+   "MainThreadCommands": {
+    "$registerCommand": 5
+   },
+   "MainThreadTerminalService": {
+    "$registerProcessSupport": 1
+   },
+   "MainThreadSearch": {
+    "$registerTextSearchProvider": 1
+   },
+   "MainThreadTask": {
+    "$registerSupportedExecutions": 2,
+    "$registerTaskSystem": 1
+   },
+   "MainThreadLanguageModelTools": {
+    "$getTools": 1
+   },
+   "MainThreadConsole": {
+    "$logExtensionHostMessage": 3
+   },
+   "MainThreadExtensionService": {
+    "$onWillActivateExtension": 1,
+    "$onDidActivateExtension": 1,
+    "$setPerformanceMarks": 1
+   },
+   "MainThreadDebugService": {
+    "$registerDebugTypes": 1
+   },
+   "MainThreadTelemetry": {
+    "$publicLog2": 2
+   },
+   "MainThreadStorage": {
+    "$initializeExtensionStorage": 2
+   },
+   "MainThreadFileSystem": {
+    "$ensureActivation": 2
+   },
+   "MainThreadOutputService": {
+    "$register": 1
+   }
+  }
+ },
+ "calls": [
+  {
+   "t": 619,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 619,
+   "actor": "MainThreadWindow",
+   "method": "$getInitialState"
+  },
+  {
+   "t": 619,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "__vsca3997bb5-1fb3-4bcb-95d5-ae19d1a72b34"
+  },
+  {
+   "t": 619,
+   "actor": "MainThreadTerminalService",
+   "method": "$registerProcessSupport"
+  },
+  {
+   "t": 619,
+   "actor": "MainThreadSearch",
+   "method": "$registerTextSearchProvider"
+  },
+  {
+   "t": 619,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadTask",
+   "method": "$registerTaskSystem",
+   "arg0": "file"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadLanguageModelTools",
+   "method": "$getTools"
+  },
+  {
+   "t": 627,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 628,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 651,
+   "actor": "MainThreadExtensionService",
+   "method": "$onWillActivateExtension"
+  },
+  {
+   "t": 651,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugTypes"
+  },
+  {
+   "t": 697,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "activatePlugin"
+  },
+  {
+   "t": 697,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 697,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 705,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 710,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 710,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "code-runner.run"
+  },
+  {
+   "t": 710,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "code-runner.runCustomCommand"
+  },
+  {
+   "t": 710,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "code-runner.runByLanguage"
+  },
+  {
+   "t": 710,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "code-runner.stop"
+  },
+  {
+   "t": 710,
+   "actor": "MainThreadExtensionService",
+   "method": "$onDidActivateExtension"
+  },
+  {
+   "t": 711,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "extensionActivationTimes"
+  },
+  {
+   "t": 711,
+   "actor": "MainThreadExtensionService",
+   "method": "$setPerformanceMarks"
+  },
+  {
+   "t": 716,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 717,
+   "actor": "MainThreadOutputService",
+   "method": "$register",
+   "arg0": "Code"
+  },
+  {
+   "t": 717,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  }
+ ]
+}
