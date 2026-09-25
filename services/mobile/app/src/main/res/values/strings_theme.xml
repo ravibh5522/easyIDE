@@ -2,7 +2,7 @@
 <!-- Theme and colour customization strings (customization.md sec 8-9). -->
 <resources>
     <string name="setting_icon_theme_title">File icon theme</string>
-    <string name="setting_icon_theme_desc">Icons in the explorer from an installed icon theme (PNG icons; SVG icons are not shown yet).</string>
+    <string name="setting_icon_theme_desc">File and folder icons from an installed icon theme, in the explorer, quick open, search and source control.</string>
     <string name="icon_theme_builtin">Built-in icons</string>
     <string name="icon_theme_none_installed">No icon themes installed. Extensions can contribute one.</string>
     <string name="icon_theme_missing">%1$s (not installed)</string>

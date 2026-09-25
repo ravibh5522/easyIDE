@@ -1,5 +1,7 @@
 package dev.easyide.app.ui.screens.workspace.files
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Article
@@ -31,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import dev.easyide.app.ui.theme.EditorColors
+import dev.easyide.app.ui.theme.ThemedIcon
+import dev.easyide.app.ui.theme.rememberThemedFileIcon
 import dev.easyide.app.ui.theme.IconSize
 import dev.easyide.app.ui.theme.editorColors
 
@@ -39,18 +43,26 @@ import dev.easyide.app.ui.theme.editorColors
  * palette (light, dark, AMOLED, high contrast) with no colours of its own. Decorative - the
  * file name always sits next to it - so it carries no content description.
  *
+ * With an icon theme active the theme's image is drawn instead, in the theme's own colours.
  * Used by the explorer; the editor tab strip and quick open take the same composable so a file
  * looks the same wherever it is listed.
  */
 @Composable
 fun FileIcon(name: String, modifier: Modifier = Modifier, size: Dp = IconSize.s) {
-    val kind = FileKinds.of(name)
-    Icon(
-        imageVector = FileIcons.glyph(kind),
-        contentDescription = null,
-        tint = FileIcons.tint(kind, editorColors),
-        modifier = modifier.size(size),
-    )
+    // `workbench.iconTheme`: an active theme's own image replaces the built-in glyph everywhere a file is listed.
+    when (val themed = rememberThemedFileIcon(name, isDirectory = false, expanded = false, size = size)) {
+        is ThemedIcon.Ready -> Image(themed.image, null, modifier.size(size))
+        ThemedIcon.Loading -> Spacer(modifier.size(size))
+        ThemedIcon.None -> {
+            val kind = FileKinds.of(name)
+            Icon(
+                imageVector = FileIcons.glyph(kind),
+                contentDescription = null,
+                tint = FileIcons.tint(kind, editorColors),
+                modifier = modifier.size(size),
+            )
+        }
+    }
 }
 
 /** Kind -> glyph and token tint, in one table so the mapping is reviewed as a whole. */

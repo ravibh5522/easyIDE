@@ -1,0 +1,55 @@
+# Media, archives, binaries, keys, 3D and science formats. Format: see icons-code.txt.
+
+# --- images
+image pink g:image e=jpg,jpeg,jpe,jfif,pjpeg,pjp,png,apng,bmp,dib,tga,tif,tiff,webp,avif,heic,heif,jxl,jp2,j2k,jpx,pgm,ppm,pbm,pnm,xbm,xpm,pcx,ras,dds,exr,hdr,cur,ani,wbmp,jng,sgi,rgb,pic,pct,pict,emf,wmf,cgm,qoi,ktx,ktx2,astc,pvr,basis,sixel,fits,fit
+gif magenta g:play e=gif,gifv
+icon amber g:diamond e=ico,icns
+vector orange g:pen e=ai,eps,ps,cdr,emz,wmz,sk1,sk2,fh,fh10,fhc,afdesign,afpub,afphoto,gravit,vectornator,xar
+photoshop blue g:layers e=psd,psb,xcf,kra,ora,clip,csp,pdn,sai,sai2,mdp,pxz,procreate
+design magenta g:layers e=sketch,fig,figma,xd,indd,idml,penpot,rp
+camera-raw gray g:camera e=cr2,cr3,crw,nef,nrw,arw,srf,sr2,dng,raf,orf,rw2,rwl,pef,srw,x3f,3fr,mef,mos,mrw,dcr,kdc,erf,iiq
+# --- audio and video
+audio purple g:music e=mp3,m4a,aac,wma,ogg,oga,opus,mka,mpc,ra,amr,awb,3ga,mp2,spx,ac3,caf,weba,gsm,voc,m4b,m4r,tta
+audio-lossless purple g:wave e=wav,flac,aiff,aif,aifc,alac,ape,wv,au,snd,pcm,dsf,dff,bwf,w64,rf64,sd2
+midi pink g:music e=mid,midi,kar,rmi,mxl,musicxml,mscz,mscx,gp,gp3,gp4,gp5,als,flp,logicx,band,rpp,cpr,song,aup,aup3,sf2,sfz,vst,vst3
+video magenta g:film e=mp4,m4v,mov,avi,mkv,webm,wmv,flv,f4v,mpg,mpeg,mpe,3gp,3g2,ogv,ogm,m2ts,vob,rm,rmvb,asf,mxf,swf,qt,yuv,y4m,ivf,mj2,trp,tod,dv,dvr-ms,hevc,264,265
+playlist purple g:lines e=m3u,m3u8,pls,xspf,wpl,asx,cue,smil
+subtitles slate t:CC e=srt,vtt,ass,ssa,sub,sbv,idx,lrc,ttml,dfxp,smi,usf,jss,pjs,sup
+font red g:font e=ttf,otf,woff,woff2,eot,ttc,otc,fon,fnt,pfb,pfm,pfa,afm,bdf,pcf,psf,sfd,ufo,vfb,dfont,fntdata,tfm,vf,t1,otb,ttx
+# --- archives and packages
+archive amber g:archive e=zip,zipx,7z,rar,cab,arj,lzh,lha,ace,sit,sitx,zoo,pak,arc,alz,sqx,uha,bz3,pea,paq,zpaq,wim,swm,esd,dar,rz
+archive-tar orange g:archive e=tar,gz,tgz,bz2,tbz,tbz2,xz,txz,zst,tzst,lz,lzma,tlz,lz4,z,taz,br,lzo,cpio,shar,ar,pax,gzip,bzip2,tar.gz,tar.bz2,tar.xz,tar.zst,tar.lz,tar.z
+jar-package orange g:package e=jar,war,ear,jmod,nar,sar,hpi,jpi,par
+android-package green g:package e=apk,aab,aar,apks,xapk,apkm,dex,odex,vdex,art,oat
+ios-package sky g:package e=ipa,app,appex,dsym,xcarchive,tbd,swiftmodule,swiftdoc,swiftinterface,swiftsourceinfo,car,ipsw,mobileprovision,provisionprofile,p8
+linux-package red g:package e=deb,rpm,pkg,snap,flatpak,appimage,udeb,opk,ipk,xbps
+lang-package blue g:package e=whl,egg,gem,crate,nupkg,snupkg,vsix,xpi,crx,pyz,pex,rock,phar,hex,conda,oxt,bpl,dcp,dcu
+installer sky g:package e=msi,msp,msm,msu,nsis,nsi,nsh,iss,wxs,wxi,wxl,wixproj,appxbundle,appx,msix,msixbundle,appinstaller,xap,air,mst
+disk-image slate g:target e=iso,img,dmg,vhdx,vmdk,qcow,qcow2,vdi,ova,ovf,nrg,toast,cdi,isz,daa,vfd,wic,sparseimage,sparsebundle,dsk,hdd,hds,fsa
+# --- executables and binary
+executable sky g:chip e=exe,com,scr,cpl,sys,drv,ocx,efi,elf,out,axf,prx,self,xex,nro,nso,xbe,bin
+shared-library slate g:puzzle e=dll,so,dylib,lib,a,la,sl,ko,rlib,rmeta,bundle,tlb,dlm,mexw64,mexa64,mexmaci64,mexglx,mexw32,def,exp,ilk
+object-code slate t:01 e=o,ao,pch,gch,class,bc,cubin,fatbin,spv,spirv,dxbc,dxil,cso,luac,cmo,cmx,cmi,cma,cmxa,cmt,cmti,hi,hie,dyn_hi,dyn_o,ali,gcda,gcno,gcov,profraw,profdata,idb,lst,sym,dbg,debug,dwo,dwp
+binary-data slate t:01 e=dat,data,dmp,dump,mdmp,hdmp,core,coredump,minidump,crash,ips,hprof,heap,perfetto-trace,pftrace,nettrace,etl,evtx,pcap,pcapng,cap,pack,srm,nvram,rom,gba,nes,smc,sfc,gbc,nds,z64,n64,v64
+# --- security material
+certificate amber g:certificate e=crt,cer,pem,der,csr,p7b,p7c,p7s,spc,ca-bundle,cert,chain,ca,crl,cacert,pkipath,x509,req,scep,ocsp
+private-key red g:key e=key,pub,ppk,gpg,pgp,sig,kbx,age,enc,pk8,jwk,jwks
+keystore red g:lock e=p12,pfx,jks,keystore,truststore,bks,jceks,kdb,kdbx,kdbx4,keychain,keychain-db,agilekeychain,1pif,opvault,psafe3,wallet,aes,luks
+# --- 3D, CAD and games
+model-3d sky g:cube e=obj,mtl,fbx,dae,3ds,ply,stl,off,x3d,x3db,wrl,vrml,lwo,lws,lxo,ase,b3d,md2,md3,md5mesh,md5anim,ms3d,smd,ifc,amf,3mf,3dm,skp,vox,vxl,bvh,rbxm,rbxl
+blender orange g:cube e=blend,blend1,blend2,bphys
+gltf green g:cube e=gltf,glb,usd,usda,usdc,usdz,abc,vrm
+cad teal g:mesh e=dxf,dwg,dwf,step,stp,iges,igs,sldprt,sldasm,slddrw,ipt,iam,idw,f3d,f3z,catpart,catproduct,prt,x_t,x_b,sat,3dxml,brep,psm,fcstd,dgn,rvt,rfa,rte,pln,dxb,plt,hpgl
+game-engine slate g:cube e=unity,prefab,unity3d,unitypackage,asset,meta,uasset,umap,udk,upk,pck,gdextension,uproject,uplugin,vmf,vmt,vtf,bsp,wad,pk3,pk4,bank,fsb,wem,bnk
+map-data green g:map e=geotiff,gtiff,dem,hgt,las,laz,e57,ecw,sid,grd,gdb,mif
+# --- science and machine learning
+ml-model violet g:graph e=onnx,pt,pth,ckpt,safetensors,gguf,ggml,tflite,mlmodel,mlpackage,tfrecord,keras,joblib,pickle,caffemodel,prototxt
+array-data teal g:chart e=mat,npy,npz,hdf5,h5,hdf,nc,nc4,zarr,rds,rdata,rda,sav,sas7bdat,xpt,vtk,vtu,vtp,nii,dcm,dicom,nrrd,mha,mhd,lmdb
+bioinformatics green g:dna e=fasta,fa,fna,ffn,faa,frn,fastq,fq,sam,bam,cram,bai,bcf,gff,gff3,gtf,bed,bedgraph,bigwig,bw,bigbed,mol,mol2,sdf,cif,mmcif,genbank,gbk,phylip,nexus,newick,nwk,tre,aln,sto,hmm
+chemistry teal g:atom e=cml,wfn,fchk,molden,gjf
+calendar red g:calendar e=ics,ical,ifb,icalendar,vcs
+contact green g:person e=vcf,vcard,ldif,abbu
+email blue g:envelope e=eml,emlx,msg,mbox,mbx,pst,ost,oft,mht,mhtml,olm
+shortcut gray g:link e=url,webloc,lnk,pif,library-ms,searchconnector-ms,fileloc,inetloc
+torrent green g:arrow-down e=torrent,magnet,crdownload,part,partial,download
+temp-file gray g:dot e=tmp,temp,bak,backup,old,swp,swo,swn,swx,cache

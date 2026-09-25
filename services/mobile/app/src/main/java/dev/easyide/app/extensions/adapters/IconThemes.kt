@@ -12,6 +12,8 @@ data class IconAssociations(
     val file: String? = null,
     val folder: String? = null,
     val folderExpanded: String? = null,
+    val rootFolder: String? = null,
+    val rootFolderExpanded: String? = null,
     /** Lower-cased keys. */
     val fileNames: Map<String, String> = emptyMap(),
     /** Lower-cased keys, without the leading dot (`d.ts`, `ts`). */
@@ -56,6 +58,13 @@ data class IconTheme(
         return generic?.let(icons::get)
     }
 
+    /** The workspace root's image: `rootFolder`/`rootFolderExpanded`, then the generic folder. */
+    fun rootFolderIcon(expanded: Boolean, light: Boolean): String? {
+        val sections = sections(light)
+        val root = sections.firstNotNullOfOrNull { s -> if (expanded) s.rootFolderExpanded ?: s.rootFolder else s.rootFolder }
+        return root?.let(icons::get) ?: folderIcon("", expanded, light)
+    }
+
     private fun sections(light: Boolean): List<IconAssociations> = if (light && this.light != null) listOf(this.light, dark) else listOf(dark)
 
     companion object {
@@ -71,13 +80,13 @@ data class IconTheme(
 /** Reads a contributed icon theme file (JSON with comments, as VS Code accepts). */
 object IconThemeFile {
 
-    /** Image formats the app can draw; SVG needs a renderer the app does not ship (customization.md open issue 1). */
-    val SUPPORTED_EXTENSIONS = setOf("png")
+    /** Image formats the app can draw: PNG through the platform decoder, SVG through [SvgParser]'s subset. */
+    val SUPPORTED_EXTENSIONS = setOf("png", "svg")
 
     /**
      * Parses [text] of the theme file at [themeFile]; icon paths are resolved against the file's
      * directory and must stay inside [extensionRoot] (a path escaping it is dropped, like a
-     * missing file). [unsupported] receives each icon skipped for its format (SVG), once.
+     * missing file). [unsupported] receives each icon skipped for its format, once.
      *
      * @return null when the text is not a JSON object.
      */
@@ -100,6 +109,8 @@ object IconThemeFile {
         file = o.str("file"),
         folder = o.str("folder"),
         folderExpanded = o.str("folderExpanded"),
+        rootFolder = o.str("rootFolder"),
+        rootFolderExpanded = o.str("rootFolderExpanded"),
         fileNames = o.map("fileNames"),
         fileExtensions = o.map("fileExtensions").mapKeys { it.key.removePrefix(".") },
         languageIds = o.map("languageIds", lowercase = false),

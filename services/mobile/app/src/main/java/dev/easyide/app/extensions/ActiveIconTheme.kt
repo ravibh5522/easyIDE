@@ -56,7 +56,7 @@ class ActiveIconTheme(
         var skipped = 0
         val theme = IconThemeFile.parse(c.id, text, file, root) { skipped++ }
             ?: return null.also { warn("icon theme '${c.id}': ${c.file.path} is not a JSON object") }
-        if (skipped > 0) warn("icon theme '${c.id}': $skipped SVG icons skipped (PNG only)")
+        if (skipped > 0) warn("icon theme '${c.id}': $skipped icons skipped (PNG and SVG only)")
         return theme
     }
 

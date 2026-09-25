@@ -2,6 +2,7 @@ package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
@@ -21,6 +22,7 @@ import dev.easyide.app.ui.kit.kitPressPoint
 import dev.easyide.app.ui.kit.rememberPressPoint
 import dev.easyide.app.ui.screens.workspace.files.FileIcon
 import dev.easyide.app.ui.screens.workspace.git.GitStatusLetter
+import dev.easyide.app.ui.theme.ThemedIcon
 import dev.easyide.app.ui.theme.rememberThemedFileIcon
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.sandbox.git.GitChangeType
@@ -42,8 +44,8 @@ internal fun FileTreeRow(
 ) {
     val press = rememberPressPoint()
     // `workbench.iconTheme`: the theme's image replaces the built-in glyph when it has one.
-    val themed = rememberThemedFileIcon(node.name, node.isDirectory, expanded)
     val icon = Kit.control.rowIcon
+    val themed = rememberThemedFileIcon(node.name, node.isDirectory, expanded, icon)
     val colors = Kit.colors
     KitRow(
         title = node.name,
@@ -53,7 +55,8 @@ internal fun FileTreeRow(
             .kitPressPoint(press, onSecondary = onMenu),
         leading = {
             when {
-                themed != null -> Image(themed, null, Modifier.size(icon))
+                themed is ThemedIcon.Ready -> Image(themed.image, null, Modifier.size(icon))
+                themed == ThemedIcon.Loading -> Spacer(Modifier.size(icon))
                 !node.isDirectory -> FileIcon(node.name, size = icon)
                 // An open folder takes the accent, so the path to the open file is traceable.
                 else -> Image(

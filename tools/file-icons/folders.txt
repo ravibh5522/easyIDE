@@ -1,0 +1,52 @@
+# One folder kind per line: id color glyph n=folder names. Closed and open icons are generated.
+# g:- means no glyph. Names are lower-cased by the generator.
+
+plain slate g:-
+root blue g:home
+source blue g:angles n=src,source,sources,code
+main blue g:dot n=main,app,application,apps
+library indigo g:package n=lib,libs,library,libraries,pkg,packages,modules,crates
+test green g:flask n=test,tests,__tests__,__test__,spec,specs,testing,e2e,cypress,playwright
+docs sky g:book n=doc,docs,documentation,wiki,man,manual,guide,guides,tutorial,tutorials
+assets pink g:image n=asset,assets,images,image,img,imgs,icons,icon,pictures,pics
+fonts red g:font n=font,fonts,typefaces
+audio purple g:music n=audio,sounds,sound,music,sfx,voice,speech
+video magenta g:film n=video,videos,movies,clips,footage
+node-modules green g:package n=node_modules,bower_components,jspm_packages,.pnpm,.yarn,.npm,web_modules
+git orange g:git n=.git,.svn,.hg,.gitlab,.bzr
+github slate g:play n=.github,.circleci,.buildkite,.azure-pipelines,.woodpecker,.drone,workflows,actions
+vscode blue g:gear n=.vscode,.vscode-test,.vscode-server,.devcontainer,.idea,.fleet,.eclipse,.vs,.settings,.cursor
+build brown g:wrench n=build,builds,dist,out,output,target,bin,obj,release,debug,_build,.build,cmake-build-debug,cmake-build-release,cmake-build,artifacts,generated,gen,.output,.dist,.gradle,.next,.nuxt,.svelte-kit,.turbo,.angular,.vite,.parcel-cache
+config gray g:sliders n=config,configs,configuration,conf,settings,.config,setup,env,environments,environment
+scripts green g:terminal n=script,scripts,shell,sh,bash,tools,tool,cli,cmd,commands
+components teal g:cube n=component,components,widgets,widget,ui,elements,atoms,molecules,organisms,partials
+pages violet g:tag n=page,pages,screens,screen,views,view,routes,route,templates,template
+public sky g:globe n=public,static,www,wwwroot,web,webroot,htdocs,public_html,site,_site
+server cyan g:server n=server,servers,backend,back-end,api,apis,rest,graphql,grpc,rpc
+model amber g:database n=model,models,entity,entities,schema,schemas,domain,dto,dtos,types
+database amber g:database n=db,database,databases,data,dataset,datasets,migrations,migration,seeds,seeders
+notebooks amber g:notebook n=notebook,notebooks,jupyter,.ipynb_checkpoints,colab,analysis,research,experiments,experiment,explore
+hooks pink g:link n=hook,use,usehooks,listeners,observers,events,event,subscribers,emitters,signals
+plugins purple g:plug n=plugin,plugins,extension,extensions,addons,add-ons,addon,packs,mods,mod
+utils gray g:wrench n=util,utils,utility,utilities,helper,helpers,common,shared,core,base
+styles pink g:hash n=style,styles,css,scss,sass,less,stylesheet,stylesheets,theme,themes
+i18n teal g:globe n=i18n,l10n,locale,locales,lang,langs,language,languages,translations,translation
+docker sky g:container n=docker,.docker,dockerfiles,docker-compose,containers,container,podman,k8s,kubernetes,.kube
+infra slate g:cloud n=infra,infrastructure,terraform,tf,ansible,playbooks,roles,inventory,puppet,chef
+security red g:shield n=security,secure,auth,authentication,authorization,oauth,jwt,sso,saml,ldap
+logs amber g:clock n=log,logs,logging,.logs,trace,traces,tracing,telemetry,metrics,crashlytics
+tmp gray g:dot n=tmp,temp,.tmp,.temp,trash,.trash,scratch,scratchpad,sandbox,playground
+vendor brown g:package n=vendor,vendors,third_party,third-party,thirdparty,3rdparty,deps,dependencies,ext,extern
+examples green g:play n=example,examples,sample,samples,demo,demos,playgrounds,showcase,showcases,recipes
+benchmarks red g:chart n=benchmark,benchmarks,bench,perf,performance,profiling,profile,stress,load,loadtests
+android green g:phone n=android,androidapp,android-app,androidmain,mobile,mobileapp,react-native,expo,cordova,capacitor
+ios sky g:phone n=ios,iosapp,ios-app,macos,tvos,watchos,visionos,xcode,xcodeproj,xcworkspace
+languages-src cyan g:tag n=java,scala,groovy,clojure,csharp,dotnet,cs,fsharp,go,golang
+graphics purple g:shader n=shader,shaders,glsl,hlsl,materials,textures,texture,models3d,meshes,mesh
+game slate g:star n=game,games,gameplay,unity,unreal,godot,gamedev,systems,ecs,physics
+docs-site sky g:book n=website,blog,posts,post,articles,article,content,contents,news,changelog
+email teal g:envelope n=email,emails,mail,mails,mailers,mailer,notifications,notification,newsletters,messaging
+math indigo g:sigma n=math,maths,algorithms,algorithm,algos,geometry,linear-algebra,numerics,numeric,statistics
+rules gray g:regex n=rules,rule,lint,linters,linting,eslint-rules,checks,check,validators,validator
+snippets yellow g:sparkle n=snippet,snippets,macros,macro,presets,preset,boilerplates,skeletons,scaffolding,stencils
+temp-build brown g:wrench n=intermediates,cmakefiles,.cmake

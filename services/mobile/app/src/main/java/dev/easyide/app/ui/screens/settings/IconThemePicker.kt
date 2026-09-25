@@ -20,7 +20,8 @@ fun IconThemePickerRow(snapshot: SettingsSnapshot, actions: SettingActions) {
     val current = snapshot[setting]
     val choices = LocalIconThemeChoices.current
     val builtIn = IconThemeChoice("", stringResource(R.string.icon_theme_builtin))
-    val missing = current.takeIf { it.isNotEmpty() && choices.none { c -> c.id == it } }
+    // The default pack being disabled is not a lost choice: the row just shows the built-in icons.
+    val missing = current.takeIf { it.isNotEmpty() && it != ThemeSettingsSchema.DEFAULT_ICON_THEME && choices.none { c -> c.id == it } }
     val options = listOf(builtIn) + choices + listOfNotNull(missing?.let { IconThemeChoice(it, stringResource(R.string.icon_theme_missing, it)) })
     PickerRow(
         id = setting.key,
@@ -30,6 +31,8 @@ fun IconThemePickerRow(snapshot: SettingsSnapshot, actions: SettingActions) {
         selected = options.indexOfFirst { it.id == current }.coerceAtLeast(0),
         modified = snapshot.isSetIn(setting, LayerId.USER),
         onReset = { actions.reset(setting, null) },
-        onPick = { i -> options[i].id.let { if (it.isEmpty()) actions.reset(setting, null) else actions.set(setting, it, null) } },
+        // "Built-in icons" is stored as an empty id: resetting would bring the default theme back.
+        onPick = { i -> actions.set(setting, options[i].id, null) },
+        notes = { IconThemePreview() },
     )
 }

@@ -30,10 +30,16 @@ object ThemeSettingsSchema {
         accepts = { it is JsonObject }, merge = Merge.OBJECT,
     )
 
-    /** A contributed icon theme id; empty (or not installed and enabled) means the built-in icons. */
+    /** The icon theme of the built-in `easyide.file-icons` pack, selected until the user picks another. */
+    const val DEFAULT_ICON_THEME = "easyide-file-icons"
+
+    /**
+     * A contributed icon theme id; empty (an explicit choice of the built-in icons), or an id that
+     * no enabled extension provides, means the built-in icons.
+     */
     val iconTheme = Setting.Str(
         "workbench.iconTheme", SettingCategory.APPEARANCE, R.string.setting_icon_theme_title,
-        R.string.setting_icon_theme_desc, default = "", scope = SettingScope.G,
+        R.string.setting_icon_theme_desc, default = DEFAULT_ICON_THEME, scope = SettingScope.G,
     )
 
     val all: List<Setting<*>> = listOf(iconTheme, colorCustomizations, tokenColorCustomizations, semanticTokenColorCustomizations)

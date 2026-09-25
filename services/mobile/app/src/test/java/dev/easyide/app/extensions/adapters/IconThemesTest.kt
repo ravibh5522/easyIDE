@@ -76,11 +76,10 @@ class IconThemesTest {
     }
 
     @Test
-    fun svgFontAndEscapingIconsAreDropped() {
+    fun fontAndEscapingIconsAreDropped() {
         val (t, skipped) = theme()
-        assertEquals(listOf("./icons/vector.svg"), skipped)
-        // No image for the extension's own id, so the generic file icon applies.
-        assertEquals("file.png", t.fileName("x.svgext"))
+        assertEquals(emptyList<String>(), skipped)
+        assertEquals("vector.svg", t.fileName("x.svgext"))
         assertEquals("file.png", t.fileName("x.bad"))
         assertNull(t.icons["_font"])
     }
