@@ -30,8 +30,8 @@ object ThemeSettingsSchema {
         accepts = { it is JsonObject }, merge = Merge.OBJECT,
     )
 
-    /** The icon theme of the built-in `easyide.file-icons` pack, selected until the user picks another. */
-    const val DEFAULT_ICON_THEME = "easyide-file-icons"
+    /** The Material Icon Theme of the built-in `easyide.material-icons` pack, selected until the user picks another. */
+    const val DEFAULT_ICON_THEME = "material-icon-theme"
 
     /**
      * A contributed icon theme id; empty (an explicit choice of the built-in icons), or an id that
