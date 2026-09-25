@@ -1,0 +1,1024 @@
+{
+	"meta": {
+		"vscodeCommit": "0b16cb97868058754d545e5f9ced99211ccc290b",
+		"vscodeCommitDate": "2026-09-25T16:19:08+02:00",
+		"vscodeVersion": "1.140.0",
+		"generatedBy": "tools/vsx-audit/extract-vscode.mjs (typescript 5.9.3)",
+		"source": [
+			"src/vs/workbench/services/actions/common/menusExtensionPoint.ts (apiMenus)",
+			"src/vs/platform/actions/common/actions.ts (MenuId)",
+			{
+				"url": "https://code.visualstudio.com/api/references/contribution-points",
+				"rawUrl": "https://code.visualstudio.com/raw/api/references/contribution-points.md",
+				"sha256": "b2b28df97e48ca33787c735227d7638e11f476d3b94e17751e64a234f891ca3e"
+			}
+		],
+		"summary": {
+			"apiMenus": 96,
+			"proposedGated": 42,
+			"stable": 54,
+			"noSubmenus": [
+				"chat/chatSessions",
+				"chat/customizations/create",
+				"chat/customizations/item",
+				"chat/editor/inlineGutter",
+				"chat/input/status",
+				"chat/multiDiff/context",
+				"chatSessions/item/context",
+				"chatSessions/newSession",
+				"commandPalette",
+				"comments/comment/context",
+				"comments/commentThread/context",
+				"editor/context/chat",
+				"editor/inlineCompletions/actions",
+				"file/newFile",
+				"menuBar/home",
+				"statusBar/remoteIndicator",
+				"touchBar"
+			],
+			"documented": 38,
+			"stableUndocumented": [
+				"chat/input/status",
+				"debug/watch/context",
+				"editor/context/copy",
+				"issue/reporter",
+				"menuBar/edit/copy",
+				"modalEditor/editorTitle",
+				"notebook/variables/context",
+				"ports/item/context",
+				"ports/item/origin/inline",
+				"ports/item/port/inline",
+				"searchPanel/aiResults/commands",
+				"statusBar/remoteIndicator",
+				"testing/item/result",
+				"testing/message/content",
+				"testing/message/context",
+				"testing/profiles/context"
+			],
+			"menuIdStatics": 262,
+			"menuIdStaticsRef": "src/vs/platform/actions/common/actions.ts"
+		}
+	},
+	"items": [
+		{
+			"key": "agents/change/inline",
+			"menuId": "AgentsChangeInlineToolbar",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": true,
+			"description": "The Changes view inline menu in the agents window.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:573",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:332",
+			"documented": false
+		},
+		{
+			"key": "agents/changes/actions",
+			"menuId": "AgentsChangesToolbar",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": true,
+			"description": "The Changes view toolbar of the agents window.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:561",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:330",
+			"documented": false
+		},
+		{
+			"key": "agents/changes/actions/primary",
+			"menuId": "AgentsChangesPrimaryActionSubMenu",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": true,
+			"description": "The Changes view toolbar primary action submenu in the agents window.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:567",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:331",
+			"documented": false
+		},
+		{
+			"key": "chat/chatSessions",
+			"menuId": "AgentSessionsContext",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": false,
+			"description": "The Chat Sessions menu.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:499",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:321",
+			"documented": false
+		},
+		{
+			"key": "chat/contextUsage/actions",
+			"menuId": "ChatContextUsageActions",
+			"proposed": "chatParticipantAdditions",
+			"supportsSubmenus": true,
+			"description": "Actions in the chat context usage details popup.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:549",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:335",
+			"documented": false
+		},
+		{
+			"key": "chat/customizations/create",
+			"menuId": "for('AICustomizationManagementCreate')",
+			"proposed": "chatSessionCustomizationProvider",
+			"supportsSubmenus": false,
+			"description": "The create button in the Chat Customizations management editor.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:528",
+			"menuIdRef": null,
+			"documented": false
+		},
+		{
+			"key": "chat/customizations/item",
+			"menuId": "for('AICustomizationManagementEditorItem')",
+			"proposed": "chatSessionCustomizationProvider",
+			"supportsSubmenus": false,
+			"description": "The item context menu in the Chat Customizations management editor, including inline actions.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:535",
+			"menuIdRef": null,
+			"documented": false
+		},
+		{
+			"key": "chat/editor/inlineGutter",
+			"menuId": "ChatEditorInlineMenu",
+			"proposed": "contribChatEditorInlineGutterMenu",
+			"supportsSubmenus": false,
+			"description": "The inline gutter menu in the chat editor.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:542",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:305",
+			"documented": false
+		},
+		{
+			"key": "chat/input/editing/sessionTitleToolbar",
+			"menuId": "ChatEditingSessionTitleToolbar",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": true,
+			"description": "The Chat Editing widget toolbar menu for session title.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:493",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:279",
+			"documented": false
+		},
+		{
+			"key": "chat/input/editing/sessionToolbar",
+			"menuId": "ChatEditingSessionChangesToolbar",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": true,
+			"description": "The Chat Editing widget toolbar menu for session changes.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:487",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:278",
+			"documented": false
+		},
+		{
+			"key": "chat/input/status",
+			"menuId": "ChatInputStatus",
+			"proposed": null,
+			"supportsSubmenus": false,
+			"description": "The status indicator area at the rightmost end of the toolbar shown beneath the chat input",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:146",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:273",
+			"documented": false
+		},
+		{
+			"key": "chat/multiDiff/context",
+			"menuId": "ChatMultiDiffContext",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": false,
+			"description": "The Chat Multi-Diff context menu.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:521",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:303",
+			"documented": false
+		},
+		{
+			"key": "chat/newSession",
+			"menuId": "ChatNewMenu",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": true,
+			"description": "The Chat new session menu.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:555",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:294",
+			"documented": false
+		},
+		{
+			"key": "chatSessions/item/context",
+			"menuId": "SessionItemContextMenu",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": false,
+			"description": "The context menu for items in the Sessions window's session list.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:507",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:327",
+			"documented": false
+		},
+		{
+			"key": "chatSessions/newSession",
+			"menuId": "AgentSessionsCreateSubMenu",
+			"proposed": "chatSessionsProvider",
+			"supportsSubmenus": false,
+			"description": "Menu for new chat sessions.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:514",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:323",
+			"documented": false
+		},
+		{
+			"key": "commandPalette",
+			"menuId": "CommandPalette",
+			"proposed": null,
+			"supportsSubmenus": false,
+			"description": "The Command Palette",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:38",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:74",
+			"documented": true
+		},
+		{
+			"key": "comments/comment/context",
+			"menuId": "CommentActions",
+			"proposed": null,
+			"supportsSubmenus": false,
+			"description": "The contributed comment context menu, rendered as buttons below the comment editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:296",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:206",
+			"documented": true
+		},
+		{
+			"key": "comments/comment/editorActions",
+			"menuId": "CommentEditorActions",
+			"proposed": "contribCommentEditorActionsMenu",
+			"supportsSubmenus": true,
+			"description": "The contributed comment editor actions",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:261",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:199",
+			"documented": false
+		},
+		{
+			"key": "comments/comment/title",
+			"menuId": "CommentTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed comment title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:291",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:205",
+			"documented": true
+		},
+		{
+			"key": "comments/commentThread/additionalActions",
+			"menuId": "CommentThreadAdditionalActions",
+			"proposed": "contribCommentThreadAdditionalMenu",
+			"supportsSubmenus": true,
+			"description": "The contributed comment thread context menu, rendered as buttons below the comment editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:278",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:202",
+			"documented": false
+		},
+		{
+			"key": "comments/commentThread/comment/context",
+			"menuId": "CommentThreadCommentContext",
+			"proposed": "contribCommentPeekContext",
+			"supportsSubmenus": true,
+			"description": "The contributed comment context menu, rendered as a right click menu on the an individual comment in the comment thread's peek view.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:302",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:204",
+			"documented": false
+		},
+		{
+			"key": "comments/commentThread/context",
+			"menuId": "CommentThreadActions",
+			"proposed": null,
+			"supportsSubmenus": false,
+			"description": "The contributed comment thread context menu, rendered as buttons below the comment editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:272",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:201",
+			"documented": true
+		},
+		{
+			"key": "comments/commentThread/title",
+			"menuId": "CommentThreadTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed comment thread title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:267",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:200",
+			"documented": true
+		},
+		{
+			"key": "comments/commentThread/title/context",
+			"menuId": "CommentThreadTitleContext",
+			"proposed": "contribCommentPeekContext",
+			"supportsSubmenus": true,
+			"description": "The contributed comment thread title's peek context menu, rendered as a right click menu on the comment thread's peek title.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:285",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:203",
+			"documented": false
+		},
+		{
+			"key": "commentsView/commentThread/context",
+			"menuId": "CommentsViewThreadActions",
+			"proposed": "contribCommentsViewThreadMenus",
+			"supportsSubmenus": true,
+			"description": "The contributed comment thread context menu in the comments view",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:308",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:207",
+			"documented": false
+		},
+		{
+			"key": "debug/callstack/context",
+			"menuId": "DebugCallStackContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The debug callstack view context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:103",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:76",
+			"documented": true
+		},
+		{
+			"key": "debug/createConfiguration",
+			"menuId": "DebugCreateConfiguration",
+			"proposed": "contribDebugCreateConfiguration",
+			"supportsSubmenus": true,
+			"description": "The debug create configuration menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:123",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:86",
+			"documented": false
+		},
+		{
+			"key": "debug/toolBar",
+			"menuId": "DebugToolBar",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The debug toolbar menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:118",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:82",
+			"documented": true
+		},
+		{
+			"key": "debug/variables/context",
+			"menuId": "DebugVariablesContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The debug variables view context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:108",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:78",
+			"documented": true
+		},
+		{
+			"key": "debug/watch/context",
+			"menuId": "DebugWatchContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The debug watch view context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:113",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:81",
+			"documented": false
+		},
+		{
+			"key": "diffEditor/gutter/hunk",
+			"menuId": "DiffEditorHunkToolbar",
+			"proposed": "contribDiffEditorGutterToolBarMenus",
+			"supportsSubmenus": true,
+			"description": "The gutter toolbar in the diff editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:463",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:313",
+			"documented": false
+		},
+		{
+			"key": "diffEditor/gutter/selection",
+			"menuId": "DiffEditorSelectionToolbar",
+			"proposed": "contribDiffEditorGutterToolBarMenus",
+			"supportsSubmenus": true,
+			"description": "The gutter toolbar in the diff editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:469",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:314",
+			"documented": false
+		},
+		{
+			"key": "editor/content",
+			"menuId": "EditorContent",
+			"proposed": "contribEditorContentMenu",
+			"supportsSubmenus": true,
+			"description": "The prominent button in an editor, overlays its content",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:434",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:90",
+			"documented": false
+		},
+		{
+			"key": "editor/context",
+			"menuId": "EditorContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The editor context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:65",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:88",
+			"documented": true
+		},
+		{
+			"key": "editor/context/chat",
+			"menuId": "ChatTextEditorMenu",
+			"proposed": "chatParticipantPrivate",
+			"supportsSubmenus": false,
+			"description": "The Chat submenu in the text editor context menu.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:480",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:301",
+			"documented": false
+		},
+		{
+			"key": "editor/context/copy",
+			"menuId": "EditorContextCopy",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "'Copy as' submenu in the editor context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:70",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:92",
+			"documented": false
+		},
+		{
+			"key": "editor/context/share",
+			"menuId": "EditorContextShare",
+			"proposed": "contribShareMenu",
+			"supportsSubmenus": true,
+			"description": "'Share' submenu in the editor context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:75",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:94",
+			"documented": false
+		},
+		{
+			"key": "editor/inlineCompletions/actions",
+			"menuId": "InlineCompletionsActions",
+			"proposed": "inlineCompletionsAdditions",
+			"supportsSubmenus": false,
+			"description": "The actions shown when hovering on an inline completion",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:427",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:253",
+			"documented": false
+		},
+		{
+			"key": "editor/lineNumber/context",
+			"menuId": "EditorLineNumberContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed editor line number context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:440",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:91",
+			"documented": true
+		},
+		{
+			"key": "editor/title",
+			"menuId": "EditorTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The editor title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:50",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:95",
+			"documented": true
+		},
+		{
+			"key": "editor/title/context",
+			"menuId": "EditorTitleContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The editor tabs context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:92",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:102",
+			"documented": true
+		},
+		{
+			"key": "editor/title/context/share",
+			"menuId": "EditorTitleContextShare",
+			"proposed": "contribShareMenu",
+			"supportsSubmenus": true,
+			"description": "'Share' submenu inside the editor title context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:97",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:103",
+			"documented": false
+		},
+		{
+			"key": "editor/title/run",
+			"menuId": "EditorTitleRun",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "Run submenu inside the editor title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:60",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:101",
+			"documented": true
+		},
+		{
+			"key": "explorer/context",
+			"menuId": "ExplorerContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The file explorer context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:81",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:114",
+			"documented": true
+		},
+		{
+			"key": "explorer/context/share",
+			"menuId": "ExplorerContextShare",
+			"proposed": "contribShareMenu",
+			"supportsSubmenus": true,
+			"description": "'Share' submenu in the file explorer context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:86",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:115",
+			"documented": false
+		},
+		{
+			"key": "extension/context",
+			"menuId": "ExtensionContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The extension context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:380",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:116",
+			"documented": true
+		},
+		{
+			"key": "file/newFile",
+			"menuId": "NewFile",
+			"proposed": null,
+			"supportsSubmenus": false,
+			"description": "The 'New File...' quick pick, shown on welcome page and File menu.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:410",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:255",
+			"documented": true
+		},
+		{
+			"key": "file/share",
+			"menuId": "MenubarShare",
+			"proposed": "contribShareMenu",
+			"supportsSubmenus": true,
+			"description": "Share submenu shown in the top level File menu.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:421",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:140",
+			"documented": false
+		},
+		{
+			"key": "interactive/cell/title",
+			"menuId": "InteractiveCellTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed interactive cell title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:340",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:209",
+			"documented": true
+		},
+		{
+			"key": "interactive/toolbar",
+			"menuId": "InteractiveToolbar",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed interactive toolbar menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:335",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:208",
+			"documented": true
+		},
+		{
+			"key": "issue/reporter",
+			"menuId": "IssueReporter",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed issue reporter menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:345",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:215",
+			"documented": false
+		},
+		{
+			"key": "menuBar/edit/copy",
+			"menuId": "MenubarCopy",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "'Copy as' submenu in the top level Edit menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:141",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:127",
+			"documented": false
+		},
+		{
+			"key": "menuBar/home",
+			"menuId": "MenubarHomeMenu",
+			"proposed": "contribMenuBarHome",
+			"supportsSubmenus": false,
+			"description": "The home indicator context menu (web only)",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:134",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:146",
+			"documented": false
+		},
+		{
+			"key": "mergeEditor/result/title",
+			"menuId": "MergeInputResultToolbar",
+			"proposed": "contribMergeEditorMenus",
+			"supportsSubmenus": true,
+			"description": "The result toolbar of the merge editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:445",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:259",
+			"documented": false
+		},
+		{
+			"key": "modalEditor/editorTitle",
+			"menuId": "ModalEditorEditorTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The editor title menu in the modal editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:55",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:99",
+			"documented": false
+		},
+		{
+			"key": "multiDiffEditor/content",
+			"menuId": "MultiDiffEditorContent",
+			"proposed": "contribEditorContentMenu",
+			"supportsSubmenus": true,
+			"description": "A prominent button overlaying the multi diff editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:451",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:311",
+			"documented": false
+		},
+		{
+			"key": "multiDiffEditor/resource/title",
+			"menuId": "MultiDiffEditorFileToolbar",
+			"proposed": "contribMultiDiffEditorMenus",
+			"supportsSubmenus": true,
+			"description": "The resource toolbar in the multi diff editor",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:457",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:312",
+			"documented": false
+		},
+		{
+			"key": "notebook/cell/execute",
+			"menuId": "NotebookCellExecute",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed notebook cell execution menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:330",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:224",
+			"documented": true
+		},
+		{
+			"key": "notebook/cell/title",
+			"menuId": "NotebookCellTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed notebook cell title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:325",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:219",
+			"documented": true
+		},
+		{
+			"key": "notebook/kernelSource",
+			"menuId": "NotebookKernelSource",
+			"proposed": "notebookKernelSource",
+			"supportsSubmenus": true,
+			"description": "The contributed notebook kernel sources menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:319",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:235",
+			"documented": false
+		},
+		{
+			"key": "notebook/toolbar",
+			"menuId": "NotebookToolbar",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed notebook toolbar menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:314",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:216",
+			"documented": true
+		},
+		{
+			"key": "notebook/variables/context",
+			"menuId": "NotebookVariablesContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The notebook variables view context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:129",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:79",
+			"documented": false
+		},
+		{
+			"key": "ports/item/context",
+			"menuId": "TunnelContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Ports view item context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:395",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:187",
+			"documented": false
+		},
+		{
+			"key": "ports/item/origin/inline",
+			"menuId": "TunnelOriginInline",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Ports view item origin inline menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:400",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:193",
+			"documented": false
+		},
+		{
+			"key": "ports/item/port/inline",
+			"menuId": "TunnelPortInline",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Ports view item port inline menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:405",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:190",
+			"documented": false
+		},
+		{
+			"key": "scm/artifact/context",
+			"menuId": "SCMArtifactContext",
+			"proposed": "contribSourceControlArtifactMenu",
+			"supportsSubmenus": true,
+			"description": "The Source Control artifact context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:223",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:164",
+			"documented": false
+		},
+		{
+			"key": "scm/artifactGroup/context",
+			"menuId": "SCMArtifactGroupContext",
+			"proposed": "contribSourceControlArtifactGroupMenu",
+			"supportsSubmenus": true,
+			"description": "The Source Control artifact group context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:217",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:163",
+			"documented": false
+		},
+		{
+			"key": "scm/change/title",
+			"menuId": "SCMChangeContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Source Control inline change menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:188",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:151",
+			"documented": true
+		},
+		{
+			"key": "scm/history/title",
+			"menuId": "SCMHistoryTitle",
+			"proposed": "contribSourceControlHistoryTitleMenu",
+			"supportsSubmenus": true,
+			"description": "The Source Control History title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:199",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:159",
+			"documented": false
+		},
+		{
+			"key": "scm/historyItem/context",
+			"menuId": "SCMHistoryItemContext",
+			"proposed": "contribSourceControlHistoryItemMenu",
+			"supportsSubmenus": true,
+			"description": "The Source Control history item context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:205",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:160",
+			"documented": false
+		},
+		{
+			"key": "scm/historyItemRef/context",
+			"menuId": "SCMHistoryItemRefContext",
+			"proposed": "contribSourceControlHistoryItemMenu",
+			"supportsSubmenus": true,
+			"description": "The Source Control history item reference context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:211",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:162",
+			"documented": false
+		},
+		{
+			"key": "scm/inputBox",
+			"menuId": "SCMInputBox",
+			"proposed": "contribSourceControlInputBoxMenu",
+			"supportsSubmenus": true,
+			"description": "The Source Control input box menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:193",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:150",
+			"documented": false
+		},
+		{
+			"key": "scm/repositories/title",
+			"menuId": "SCMSourceControlTitle",
+			"proposed": "contribSourceControlTitleMenu",
+			"supportsSubmenus": true,
+			"description": "The Source Control Repositories title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:162",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:158",
+			"documented": false
+		},
+		{
+			"key": "scm/repository",
+			"menuId": "SCMSourceControlInline",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Source Control repository menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:168",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:157",
+			"documented": true
+		},
+		{
+			"key": "scm/resourceFolder/context",
+			"menuId": "SCMResourceFolderContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Source Control resource folder context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:178",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:154",
+			"documented": true
+		},
+		{
+			"key": "scm/resourceGroup/context",
+			"menuId": "SCMResourceGroupContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Source Control resource group context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:183",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:155",
+			"documented": true
+		},
+		{
+			"key": "scm/resourceState/context",
+			"menuId": "SCMResourceContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Source Control resource state context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:173",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:152",
+			"documented": true
+		},
+		{
+			"key": "scm/sourceControl",
+			"menuId": "SCMSourceControl",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Source Control menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:157",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:156",
+			"documented": true
+		},
+		{
+			"key": "scm/title",
+			"menuId": "SCMTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Source Control title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:152",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:166",
+			"documented": true
+		},
+		{
+			"key": "searchPanel/aiResults/commands",
+			"menuId": "SearchActionMenu",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The commands that will contribute to the menu rendered as buttons next to the AI search title",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:475",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:168",
+			"documented": false
+		},
+		{
+			"key": "statusBar/remoteIndicator",
+			"menuId": "StatusBarRemoteIndicatorMenu",
+			"proposed": null,
+			"supportsSubmenus": false,
+			"description": "The remote indicator menu in the status bar",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:229",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:170",
+			"documented": false
+		},
+		{
+			"key": "terminal/context",
+			"menuId": "TerminalInstanceContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The terminal context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:235",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:246",
+			"documented": true
+		},
+		{
+			"key": "terminal/title/context",
+			"menuId": "TerminalTabContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The terminal tabs context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:240",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:249",
+			"documented": true
+		},
+		{
+			"key": "testing/item/context",
+			"menuId": "TestItem",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed test item menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:350",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:172",
+			"documented": true
+		},
+		{
+			"key": "testing/item/gutter",
+			"menuId": "TestItemGutter",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The menu for a gutter decoration for a test item",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:355",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:173",
+			"documented": true
+		},
+		{
+			"key": "testing/item/result",
+			"menuId": "TestPeekElement",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The menu for an item in the Test Results view or peek.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:365",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:177",
+			"documented": false
+		},
+		{
+			"key": "testing/message/content",
+			"menuId": "TestMessageContent",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "Context menu for the message in the results tree",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:375",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:176",
+			"documented": false
+		},
+		{
+			"key": "testing/message/context",
+			"menuId": "TestMessageContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "A prominent button overlaying editor content where the message is displayed",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:370",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:175",
+			"documented": false
+		},
+		{
+			"key": "testing/profiles/context",
+			"menuId": "TestProfilesContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The menu for configuring testing profiles.",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:360",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:174",
+			"documented": false
+		},
+		{
+			"key": "timeline/item/context",
+			"menuId": "TimelineItemContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Timeline view item context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:390",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:238",
+			"documented": true
+		},
+		{
+			"key": "timeline/title",
+			"menuId": "TimelineTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The Timeline view title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:385",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:239",
+			"documented": true
+		},
+		{
+			"key": "touchBar",
+			"menuId": "TouchBarContext",
+			"proposed": null,
+			"supportsSubmenus": false,
+			"description": "The touch bar (macOS only)",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:44",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:181",
+			"documented": true
+		},
+		{
+			"key": "view/item/context",
+			"menuId": "ViewItemContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed view item context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:256",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:194",
+			"documented": true
+		},
+		{
+			"key": "view/title",
+			"menuId": "ViewTitle",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The contributed view title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:245",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:197",
+			"documented": true
+		},
+		{
+			"key": "viewContainer/title",
+			"menuId": "ViewContainerTitle",
+			"proposed": "contribViewContainerTitle",
+			"supportsSubmenus": true,
+			"description": "The contributed view container title menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:250",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:195",
+			"documented": false
+		},
+		{
+			"key": "webview/context",
+			"menuId": "WebviewContext",
+			"proposed": null,
+			"supportsSubmenus": true,
+			"description": "The webview context menu",
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:416",
+			"menuIdRef": "src/vs/platform/actions/common/actions.ts:252",
+			"documented": true
+		}
+	]
+}

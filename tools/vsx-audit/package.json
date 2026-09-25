@@ -1,0 +1,14 @@
+{
+  "name": "vsx-audit",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Audit scripts for VS Code extension compatibility (documentation/data only).",
+  "type": "module",
+  "license": "UNLICENSED",
+  "scripts": {
+    "extract-vscode": "node extract-vscode.mjs"
+  },
+  "dependencies": {
+    "typescript": "5.9.3"
+  }
+}

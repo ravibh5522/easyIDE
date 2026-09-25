@@ -1,0 +1,1371 @@
+{
+	"meta": {
+		"vscodeCommit": "0b16cb97868058754d545e5f9ced99211ccc290b",
+		"vscodeCommitDate": "2026-09-25T16:19:08+02:00",
+		"vscodeVersion": "1.140.0",
+		"generatedBy": "tools/vsx-audit/extract-vscode.mjs (typescript 5.9.3)",
+		"source": [
+			"src/vscode-dts/vscode.proposed.*.d.ts",
+			"src/vs/platform/extensions/common/extensionsApiProposals.ts",
+			"product.json"
+		],
+		"summary": {
+			"proposedDtsFiles": 180,
+			"registryEntries": 180,
+			"registryOnly": [],
+			"totalLines": 13161
+		},
+		"productEnabledApiProposals": [
+			{
+				"label": "oss-repo",
+				"file": "product.json",
+				"productVersion": null,
+				"productCommit": null,
+				"productDate": null,
+				"quality": null,
+				"hasExtensionEnabledApiProposals": false
+			},
+			{
+				"label": "microsoft-release",
+				"file": "(--product) product.json",
+				"productVersion": "1.139.1",
+				"productCommit": "04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1",
+				"productDate": "2026-09-25T03:40:57Z",
+				"quality": "stable",
+				"hasExtensionEnabledApiProposals": true,
+				"totalEntries": 65,
+				"entries": {
+					"eamodio.gitlens": null,
+					"anthropic.claude-code": null,
+					"github.vscode-pull-request-github": {
+						"key": "GitHub.vscode-pull-request-github",
+						"proposals": [
+							"activeComment",
+							"agentSessionsWorkspace",
+							"agentsWindowActivation",
+							"chatContextProvider",
+							"chatParticipantAdditions",
+							"chatParticipantPrivate",
+							"chatSessionsProvider",
+							"codeActionRanges",
+							"codiconDecoration",
+							"commentReactor",
+							"commentReveal",
+							"commentThreadApplicability",
+							"commentingRangeHint",
+							"commentsDraftState",
+							"contribAccessibilityHelpContent",
+							"contribCommentEditorActionsMenu",
+							"contribCommentPeekContext",
+							"contribCommentThreadAdditionalMenu",
+							"contribCommentsViewThreadMenus",
+							"contribEditorContentMenu",
+							"contribMultiDiffEditorMenus",
+							"contribShareMenu",
+							"diffCommand",
+							"externalUriOpener",
+							"languageModelToolResultAudience",
+							"markdownAlertSyntax",
+							"quickDiffProvider",
+							"remoteCodingAgents",
+							"shareProvider",
+							"tabInputMultiDiff",
+							"tabInputTextMerge",
+							"tokenInformation",
+							"treeItemMarkdownLabel",
+							"treeViewMarkdownMessage"
+						]
+					},
+					"ms-python.python": {
+						"key": "ms-python.python",
+						"proposals": [
+							"codeActionAI",
+							"contribEditorContentMenu",
+							"notebookReplDocument",
+							"notebookVariableProvider",
+							"portsAttributes",
+							"quickPickItemTooltip",
+							"quickPickSortByLabel",
+							"terminalDataWriteEvent",
+							"terminalExecuteCommandEvent",
+							"terminalShellEnv",
+							"testObserver"
+						]
+					},
+					"redhat.java": null,
+					"golang.go": null,
+					"rust-lang.rust-analyzer": null,
+					"dbaeumer.vscode-eslint": {
+						"key": "dbaeumer.vscode-eslint",
+						"proposals": []
+					},
+					"vue.volar": null,
+					"ms-azuretools.vscode-docker": null
+				},
+				"extensionsEnabledWithApiProposalVersionCount": 4
+			}
+		]
+	},
+	"items": [
+		{
+			"name": "activeComment",
+			"file": "src/vscode-dts/vscode.proposed.activeComment.d.ts",
+			"lines": 23,
+			"bytes": 1012,
+			"inRegistry": true
+		},
+		{
+			"name": "agentEditorComments",
+			"file": "src/vscode-dts/vscode.proposed.agentEditorComments.d.ts",
+			"lines": 97,
+			"bytes": 3565,
+			"inRegistry": true
+		},
+		{
+			"name": "agentSessionsWorkspace",
+			"file": "src/vscode-dts/vscode.proposed.agentSessionsWorkspace.d.ts",
+			"lines": 18,
+			"bytes": 708,
+			"inRegistry": true
+		},
+		{
+			"name": "agentsWindowActivation",
+			"file": "src/vscode-dts/vscode.proposed.agentsWindowActivation.d.ts",
+			"lines": 6,
+			"bytes": 467,
+			"inRegistry": true
+		},
+		{
+			"name": "agentsWindowConfiguration",
+			"file": "src/vscode-dts/vscode.proposed.agentsWindowConfiguration.d.ts",
+			"lines": 8,
+			"bytes": 545,
+			"inRegistry": true
+		},
+		{
+			"name": "aiRelatedInformation",
+			"file": "src/vscode-dts/vscode.proposed.aiRelatedInformation.d.ts",
+			"lines": 49,
+			"bytes": 1857,
+			"inRegistry": true
+		},
+		{
+			"name": "aiSettingsSearch",
+			"file": "src/vscode-dts/vscode.proposed.aiSettingsSearch.d.ts",
+			"lines": 31,
+			"bytes": 1029,
+			"inRegistry": true
+		},
+		{
+			"name": "aiTextSearchProvider",
+			"file": "src/vscode-dts/vscode.proposed.aiTextSearchProvider.d.ts",
+			"lines": 39,
+			"bytes": 1622,
+			"inRegistry": true
+		},
+		{
+			"name": "authIssuers",
+			"file": "src/vscode-dts/vscode.proposed.authIssuers.d.ts",
+			"lines": 64,
+			"bytes": 2513,
+			"inRegistry": true
+		},
+		{
+			"name": "authLearnMore",
+			"file": "src/vscode-dts/vscode.proposed.authLearnMore.d.ts",
+			"lines": 16,
+			"bytes": 628,
+			"inRegistry": true
+		},
+		{
+			"name": "authProviderSpecific",
+			"file": "src/vscode-dts/vscode.proposed.authProviderSpecific.d.ts",
+			"lines": 30,
+			"bytes": 1316,
+			"inRegistry": true
+		},
+		{
+			"name": "authSession",
+			"file": "src/vscode-dts/vscode.proposed.authSession.d.ts",
+			"lines": 13,
+			"bytes": 625,
+			"inRegistry": true
+		},
+		{
+			"name": "authSessionAccountIcon",
+			"file": "src/vscode-dts/vscode.proposed.authSessionAccountIcon.d.ts",
+			"lines": 13,
+			"bytes": 569,
+			"inRegistry": true
+		},
+		{
+			"name": "authSessionAudience",
+			"file": "src/vscode-dts/vscode.proposed.authSessionAudience.d.ts",
+			"lines": 29,
+			"bytes": 1377,
+			"inRegistry": true
+		},
+		{
+			"name": "authSessionExpiration",
+			"file": "src/vscode-dts/vscode.proposed.authSessionExpiration.d.ts",
+			"lines": 19,
+			"bytes": 920,
+			"inRegistry": true
+		},
+		{
+			"name": "authenticationChallenges",
+			"file": "src/vscode-dts/vscode.proposed.authenticationChallenges.d.ts",
+			"lines": 88,
+			"bytes": 3712,
+			"inRegistry": true
+		},
+		{
+			"name": "browser",
+			"file": "src/vscode-dts/vscode.proposed.browser.d.ts",
+			"lines": 92,
+			"bytes": 3039,
+			"inRegistry": true
+		},
+		{
+			"name": "canonicalUriProvider",
+			"file": "src/vscode-dts/vscode.proposed.canonicalUriProvider.d.ts",
+			"lines": 47,
+			"bytes": 1854,
+			"inRegistry": true
+		},
+		{
+			"name": "chatContextProvider",
+			"file": "src/vscode-dts/vscode.proposed.chatContextProvider.d.ts",
+			"lines": 163,
+			"bytes": 7321,
+			"inRegistry": true
+		},
+		{
+			"name": "chatDebug",
+			"file": "src/vscode-dts/vscode.proposed.chatDebug.d.ts",
+			"lines": 831,
+			"bytes": 21497,
+			"inRegistry": true
+		},
+		{
+			"name": "chatHooks",
+			"file": "src/vscode-dts/vscode.proposed.chatHooks.d.ts",
+			"lines": 124,
+			"bytes": 4161,
+			"inRegistry": true
+		},
+		{
+			"name": "chatInputNotification",
+			"file": "src/vscode-dts/vscode.proposed.chatInputNotification.d.ts",
+			"lines": 124,
+			"bytes": 2918,
+			"inRegistry": true
+		},
+		{
+			"name": "chatOutputRenderer",
+			"file": "src/vscode-dts/vscode.proposed.chatOutputRenderer.d.ts",
+			"lines": 121,
+			"bytes": 3626,
+			"inRegistry": true
+		},
+		{
+			"name": "chatParticipantAdditions",
+			"file": "src/vscode-dts/vscode.proposed.chatParticipantAdditions.d.ts",
+			"lines": 1110,
+			"bytes": 32273,
+			"inRegistry": true
+		},
+		{
+			"name": "chatParticipantPrivate",
+			"file": "src/vscode-dts/vscode.proposed.chatParticipantPrivate.d.ts",
+			"lines": 554,
+			"bytes": 16621,
+			"inRegistry": true
+		},
+		{
+			"name": "chatPromptFiles",
+			"file": "src/vscode-dts/vscode.proposed.chatPromptFiles.d.ts",
+			"lines": 504,
+			"bytes": 13619,
+			"inRegistry": true
+		},
+		{
+			"name": "chatProvider",
+			"file": "src/vscode-dts/vscode.proposed.chatProvider.d.ts",
+			"lines": 205,
+			"bytes": 8574,
+			"inRegistry": true
+		},
+		{
+			"name": "chatReferenceBinaryData",
+			"file": "src/vscode-dts/vscode.proposed.chatReferenceBinaryData.d.ts",
+			"lines": 49,
+			"bytes": 1606,
+			"inRegistry": true
+		},
+		{
+			"name": "chatReferenceDiagnostic",
+			"file": "src/vscode-dts/vscode.proposed.chatReferenceDiagnostic.d.ts",
+			"lines": 23,
+			"bytes": 879,
+			"inRegistry": true
+		},
+		{
+			"name": "chatSessionCustomizationProvider",
+			"file": "src/vscode-dts/vscode.proposed.chatSessionCustomizationProvider.d.ts",
+			"lines": 233,
+			"bytes": 8411,
+			"inRegistry": true
+		},
+		{
+			"name": "chatSessionsProvider",
+			"file": "src/vscode-dts/vscode.proposed.chatSessionsProvider.d.ts",
+			"lines": 851,
+			"bytes": 29655,
+			"inRegistry": true
+		},
+		{
+			"name": "chatStatusItem",
+			"file": "src/vscode-dts/vscode.proposed.chatStatusItem.d.ts",
+			"lines": 66,
+			"bytes": 1768,
+			"inRegistry": true
+		},
+		{
+			"name": "chatTab",
+			"file": "src/vscode-dts/vscode.proposed.chatTab.d.ts",
+			"lines": 17,
+			"bytes": 686,
+			"inRegistry": true
+		},
+		{
+			"name": "codeActionAI",
+			"file": "src/vscode-dts/vscode.proposed.codeActionAI.d.ts",
+			"lines": 16,
+			"bytes": 543,
+			"inRegistry": true
+		},
+		{
+			"name": "codeActionRanges",
+			"file": "src/vscode-dts/vscode.proposed.codeActionRanges.d.ts",
+			"lines": 15,
+			"bytes": 624,
+			"inRegistry": true
+		},
+		{
+			"name": "codiconDecoration",
+			"file": "src/vscode-dts/vscode.proposed.codiconDecoration.d.ts",
+			"lines": 48,
+			"bytes": 1397,
+			"inRegistry": true
+		},
+		{
+			"name": "commentReactor",
+			"file": "src/vscode-dts/vscode.proposed.commentReactor.d.ts",
+			"lines": 13,
+			"bytes": 544,
+			"inRegistry": true
+		},
+		{
+			"name": "commentReveal",
+			"file": "src/vscode-dts/vscode.proposed.commentReveal.d.ts",
+			"lines": 45,
+			"bytes": 1247,
+			"inRegistry": true
+		},
+		{
+			"name": "commentThreadApplicability",
+			"file": "src/vscode-dts/vscode.proposed.commentThreadApplicability.d.ts",
+			"lines": 40,
+			"bytes": 1482,
+			"inRegistry": true
+		},
+		{
+			"name": "commentingRangeHint",
+			"file": "src/vscode-dts/vscode.proposed.commentingRangeHint.d.ts",
+			"lines": 16,
+			"bytes": 644,
+			"inRegistry": true
+		},
+		{
+			"name": "commentsDraftState",
+			"file": "src/vscode-dts/vscode.proposed.commentsDraftState.d.ts",
+			"lines": 18,
+			"bytes": 553,
+			"inRegistry": true
+		},
+		{
+			"name": "contribAccessibilityHelpContent",
+			"file": "src/vscode-dts/vscode.proposed.contribAccessibilityHelpContent.d.ts",
+			"lines": 15,
+			"bytes": 865,
+			"inRegistry": true
+		},
+		{
+			"name": "contribChatEditorInlineGutterMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribChatEditorInlineGutterMenu.d.ts",
+			"lines": 6,
+			"bytes": 426,
+			"inRegistry": true
+		},
+		{
+			"name": "contribCommentEditorActionsMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribCommentEditorActionsMenu.d.ts",
+			"lines": 6,
+			"bytes": 432,
+			"inRegistry": true
+		},
+		{
+			"name": "contribCommentPeekContext",
+			"file": "src/vscode-dts/vscode.proposed.contribCommentPeekContext.d.ts",
+			"lines": 10,
+			"bytes": 470,
+			"inRegistry": true
+		},
+		{
+			"name": "contribCommentThreadAdditionalMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribCommentThreadAdditionalMenu.d.ts",
+			"lines": 8,
+			"bytes": 464,
+			"inRegistry": true
+		},
+		{
+			"name": "contribCommentsViewThreadMenus",
+			"file": "src/vscode-dts/vscode.proposed.contribCommentsViewThreadMenus.d.ts",
+			"lines": 6,
+			"bytes": 455,
+			"inRegistry": true
+		},
+		{
+			"name": "contribDebugCreateConfiguration",
+			"file": "src/vscode-dts/vscode.proposed.contribDebugCreateConfiguration.d.ts",
+			"lines": 6,
+			"bytes": 426,
+			"inRegistry": true
+		},
+		{
+			"name": "contribDiffEditorGutterToolBarMenus",
+			"file": "src/vscode-dts/vscode.proposed.contribDiffEditorGutterToolBarMenus.d.ts",
+			"lines": 6,
+			"bytes": 418,
+			"inRegistry": true
+		},
+		{
+			"name": "contribEditSessions",
+			"file": "src/vscode-dts/vscode.proposed.contribEditSessions.d.ts",
+			"lines": 8,
+			"bytes": 486,
+			"inRegistry": true
+		},
+		{
+			"name": "contribEditorContentMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribEditorContentMenu.d.ts",
+			"lines": 6,
+			"bytes": 416,
+			"inRegistry": true
+		},
+		{
+			"name": "contribLabelFormatterWorkspaceTooltip",
+			"file": "src/vscode-dts/vscode.proposed.contribLabelFormatterWorkspaceTooltip.d.ts",
+			"lines": 6,
+			"bytes": 474,
+			"inRegistry": true
+		},
+		{
+			"name": "contribLanguageModelToolSets",
+			"file": "src/vscode-dts/vscode.proposed.contribLanguageModelToolSets.d.ts",
+			"lines": 6,
+			"bytes": 437,
+			"inRegistry": true
+		},
+		{
+			"name": "contribMenuBarHome",
+			"file": "src/vscode-dts/vscode.proposed.contribMenuBarHome.d.ts",
+			"lines": 6,
+			"bytes": 414,
+			"inRegistry": true
+		},
+		{
+			"name": "contribMergeEditorMenus",
+			"file": "src/vscode-dts/vscode.proposed.contribMergeEditorMenus.d.ts",
+			"lines": 6,
+			"bytes": 412,
+			"inRegistry": true
+		},
+		{
+			"name": "contribMultiDiffEditorMenus",
+			"file": "src/vscode-dts/vscode.proposed.contribMultiDiffEditorMenus.d.ts",
+			"lines": 6,
+			"bytes": 416,
+			"inRegistry": true
+		},
+		{
+			"name": "contribNotebookStaticPreloads",
+			"file": "src/vscode-dts/vscode.proposed.contribNotebookStaticPreloads.d.ts",
+			"lines": 6,
+			"bytes": 431,
+			"inRegistry": true
+		},
+		{
+			"name": "contribRemoteHelp",
+			"file": "src/vscode-dts/vscode.proposed.contribRemoteHelp.d.ts",
+			"lines": 6,
+			"bytes": 426,
+			"inRegistry": true
+		},
+		{
+			"name": "contribShareMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribShareMenu.d.ts",
+			"lines": 7,
+			"bytes": 487,
+			"inRegistry": true
+		},
+		{
+			"name": "contribSourceControlArtifactGroupMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribSourceControlArtifactGroupMenu.d.ts",
+			"lines": 7,
+			"bytes": 499,
+			"inRegistry": true
+		},
+		{
+			"name": "contribSourceControlArtifactMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribSourceControlArtifactMenu.d.ts",
+			"lines": 7,
+			"bytes": 494,
+			"inRegistry": true
+		},
+		{
+			"name": "contribSourceControlHistoryItemMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribSourceControlHistoryItemMenu.d.ts",
+			"lines": 7,
+			"bytes": 497,
+			"inRegistry": true
+		},
+		{
+			"name": "contribSourceControlHistoryTitleMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribSourceControlHistoryTitleMenu.d.ts",
+			"lines": 7,
+			"bytes": 491,
+			"inRegistry": true
+		},
+		{
+			"name": "contribSourceControlInputBoxMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribSourceControlInputBoxMenu.d.ts",
+			"lines": 7,
+			"bytes": 486,
+			"inRegistry": true
+		},
+		{
+			"name": "contribSourceControlTitleMenu",
+			"file": "src/vscode-dts/vscode.proposed.contribSourceControlTitleMenu.d.ts",
+			"lines": 7,
+			"bytes": 497,
+			"inRegistry": true
+		},
+		{
+			"name": "contribStatusBarItems",
+			"file": "src/vscode-dts/vscode.proposed.contribStatusBarItems.d.ts",
+			"lines": 8,
+			"bytes": 471,
+			"inRegistry": true
+		},
+		{
+			"name": "contribViewContainerTitle",
+			"file": "src/vscode-dts/vscode.proposed.contribViewContainerTitle.d.ts",
+			"lines": 8,
+			"bytes": 471,
+			"inRegistry": true
+		},
+		{
+			"name": "contribViewsRemote",
+			"file": "src/vscode-dts/vscode.proposed.contribViewsRemote.d.ts",
+			"lines": 6,
+			"bytes": 440,
+			"inRegistry": true
+		},
+		{
+			"name": "contribViewsWelcome",
+			"file": "src/vscode-dts/vscode.proposed.contribViewsWelcome.d.ts",
+			"lines": 6,
+			"bytes": 428,
+			"inRegistry": true
+		},
+		{
+			"name": "css",
+			"file": "src/vscode-dts/vscode.proposed.css.d.ts",
+			"lines": 6,
+			"bytes": 408,
+			"inRegistry": true
+		},
+		{
+			"name": "customEditorDiffs",
+			"file": "src/vscode-dts/vscode.proposed.customEditorDiffs.d.ts",
+			"lines": 87,
+			"bytes": 3764,
+			"inRegistry": true
+		},
+		{
+			"name": "customEditorMove",
+			"file": "src/vscode-dts/vscode.proposed.customEditorMove.d.ts",
+			"lines": 29,
+			"bytes": 1314,
+			"inRegistry": true
+		},
+		{
+			"name": "dataChannels",
+			"file": "src/vscode-dts/vscode.proposed.dataChannels.d.ts",
+			"lines": 19,
+			"bytes": 642,
+			"inRegistry": true
+		},
+		{
+			"name": "debugVisualization",
+			"file": "src/vscode-dts/vscode.proposed.debugVisualization.d.ts",
+			"lines": 170,
+			"bytes": 5655,
+			"inRegistry": true
+		},
+		{
+			"name": "defaultChatParticipant",
+			"file": "src/vscode-dts/vscode.proposed.defaultChatParticipant.d.ts",
+			"lines": 40,
+			"bytes": 1371,
+			"inRegistry": true
+		},
+		{
+			"name": "devDeviceId",
+			"file": "src/vscode-dts/vscode.proposed.devDeviceId.d.ts",
+			"lines": 15,
+			"bytes": 514,
+			"inRegistry": true
+		},
+		{
+			"name": "diffCommand",
+			"file": "src/vscode-dts/vscode.proposed.diffCommand.d.ts",
+			"lines": 38,
+			"bytes": 1675,
+			"inRegistry": true
+		},
+		{
+			"name": "diffContentOptions",
+			"file": "src/vscode-dts/vscode.proposed.diffContentOptions.d.ts",
+			"lines": 16,
+			"bytes": 678,
+			"inRegistry": true
+		},
+		{
+			"name": "documentDiff",
+			"file": "src/vscode-dts/vscode.proposed.documentDiff.d.ts",
+			"lines": 145,
+			"bytes": 4132,
+			"inRegistry": true
+		},
+		{
+			"name": "documentFiltersExclusive",
+			"file": "src/vscode-dts/vscode.proposed.documentFiltersExclusive.d.ts",
+			"lines": 13,
+			"bytes": 490,
+			"inRegistry": true
+		},
+		{
+			"name": "documentSyntaxHighlighting",
+			"file": "src/vscode-dts/vscode.proposed.documentSyntaxHighlighting.d.ts",
+			"lines": 87,
+			"bytes": 3291,
+			"inRegistry": true
+		},
+		{
+			"name": "editSessionIdentityProvider",
+			"file": "src/vscode-dts/vscode.proposed.editSessionIdentityProvider.d.ts",
+			"lines": 71,
+			"bytes": 2621,
+			"inRegistry": true
+		},
+		{
+			"name": "editorHoverVerbosityLevel",
+			"file": "src/vscode-dts/vscode.proposed.editorHoverVerbosityLevel.d.ts",
+			"lines": 76,
+			"bytes": 2295,
+			"inRegistry": true
+		},
+		{
+			"name": "editorInsets",
+			"file": "src/vscode-dts/vscode.proposed.editorInsets.d.ts",
+			"lines": 22,
+			"bytes": 821,
+			"inRegistry": true
+		},
+		{
+			"name": "embeddings",
+			"file": "src/vscode-dts/vscode.proposed.embeddings.d.ts",
+			"lines": 33,
+			"bytes": 1207,
+			"inRegistry": true
+		},
+		{
+			"name": "envIsConnectionMetered",
+			"file": "src/vscode-dts/vscode.proposed.envIsConnectionMetered.d.ts",
+			"lines": 20,
+			"bytes": 785,
+			"inRegistry": true
+		},
+		{
+			"name": "environmentPower",
+			"file": "src/vscode-dts/vscode.proposed.environmentPower.d.ts",
+			"lines": 166,
+			"bytes": 5162,
+			"inRegistry": true
+		},
+		{
+			"name": "extensionAffinity",
+			"file": "src/vscode-dts/vscode.proposed.extensionAffinity.d.ts",
+			"lines": 6,
+			"bytes": 458,
+			"inRegistry": true
+		},
+		{
+			"name": "extensionRuntime",
+			"file": "src/vscode-dts/vscode.proposed.extensionRuntime.d.ts",
+			"lines": 24,
+			"bytes": 820,
+			"inRegistry": true
+		},
+		{
+			"name": "extensionsAny",
+			"file": "src/vscode-dts/vscode.proposed.extensionsAny.d.ts",
+			"lines": 41,
+			"bytes": 1545,
+			"inRegistry": true
+		},
+		{
+			"name": "externalUriOpener",
+			"file": "src/vscode-dts/vscode.proposed.externalUriOpener.d.ts",
+			"lines": 163,
+			"bytes": 5927,
+			"inRegistry": true
+		},
+		{
+			"name": "fileSearchProvider",
+			"file": "src/vscode-dts/vscode.proposed.fileSearchProvider.d.ts",
+			"lines": 73,
+			"bytes": 3282,
+			"inRegistry": true
+		},
+		{
+			"name": "fileSearchProvider2",
+			"file": "src/vscode-dts/vscode.proposed.fileSearchProvider2.d.ts",
+			"lines": 104,
+			"bytes": 3974,
+			"inRegistry": true
+		},
+		{
+			"name": "findFiles2",
+			"file": "src/vscode-dts/vscode.proposed.findFiles2.d.ts",
+			"lines": 127,
+			"bytes": 4983,
+			"inRegistry": true
+		},
+		{
+			"name": "findTextInFiles",
+			"file": "src/vscode-dts/vscode.proposed.findTextInFiles.d.ts",
+			"lines": 104,
+			"bytes": 4021,
+			"inRegistry": true
+		},
+		{
+			"name": "findTextInFiles2",
+			"file": "src/vscode-dts/vscode.proposed.findTextInFiles2.d.ts",
+			"lines": 150,
+			"bytes": 5806,
+			"inRegistry": true
+		},
+		{
+			"name": "fsChunks",
+			"file": "src/vscode-dts/vscode.proposed.fsChunks.d.ts",
+			"lines": 16,
+			"bytes": 827,
+			"inRegistry": true
+		},
+		{
+			"name": "inlineCompletionsAdditions",
+			"file": "src/vscode-dts/vscode.proposed.inlineCompletionsAdditions.d.ts",
+			"lines": 290,
+			"bytes": 9374,
+			"inRegistry": true
+		},
+		{
+			"name": "interactive",
+			"file": "src/vscode-dts/vscode.proposed.interactive.d.ts",
+			"lines": 11,
+			"bytes": 489,
+			"inRegistry": true
+		},
+		{
+			"name": "interactiveWindow",
+			"file": "src/vscode-dts/vscode.proposed.interactiveWindow.d.ts",
+			"lines": 25,
+			"bytes": 941,
+			"inRegistry": true
+		},
+		{
+			"name": "ipc",
+			"file": "src/vscode-dts/vscode.proposed.ipc.d.ts",
+			"lines": 37,
+			"bytes": 1273,
+			"inRegistry": true
+		},
+		{
+			"name": "languageModelCapabilities",
+			"file": "src/vscode-dts/vscode.proposed.languageModelCapabilities.d.ts",
+			"lines": 30,
+			"bytes": 1014,
+			"inRegistry": true
+		},
+		{
+			"name": "languageModelPricing",
+			"file": "src/vscode-dts/vscode.proposed.languageModelPricing.d.ts",
+			"lines": 143,
+			"bytes": 4779,
+			"inRegistry": true
+		},
+		{
+			"name": "languageModelProxy",
+			"file": "src/vscode-dts/vscode.proposed.languageModelProxy.d.ts",
+			"lines": 31,
+			"bytes": 1081,
+			"inRegistry": true
+		},
+		{
+			"name": "languageModelSystem",
+			"file": "src/vscode-dts/vscode.proposed.languageModelSystem.d.ts",
+			"lines": 17,
+			"bytes": 856,
+			"inRegistry": true
+		},
+		{
+			"name": "languageModelThinkingPart",
+			"file": "src/vscode-dts/vscode.proposed.languageModelThinkingPart.d.ts",
+			"lines": 109,
+			"bytes": 4246,
+			"inRegistry": true
+		},
+		{
+			"name": "languageModelToolResultAudience",
+			"file": "src/vscode-dts/vscode.proposed.languageModelToolResultAudience.d.ts",
+			"lines": 36,
+			"bytes": 1230,
+			"inRegistry": true
+		},
+		{
+			"name": "languageModelToolSupportsModel",
+			"file": "src/vscode-dts/vscode.proposed.languageModelToolSupportsModel.d.ts",
+			"lines": 67,
+			"bytes": 2617,
+			"inRegistry": true
+		},
+		{
+			"name": "languageStatusText",
+			"file": "src/vscode-dts/vscode.proposed.languageStatusText.d.ts",
+			"lines": 12,
+			"bytes": 482,
+			"inRegistry": true
+		},
+		{
+			"name": "linkPresentation",
+			"file": "src/vscode-dts/vscode.proposed.linkPresentation.d.ts",
+			"lines": 136,
+			"bytes": 3545,
+			"inRegistry": true
+		},
+		{
+			"name": "mappedEditsProvider",
+			"file": "src/vscode-dts/vscode.proposed.mappedEditsProvider.d.ts",
+			"lines": 110,
+			"bytes": 3684,
+			"inRegistry": true
+		},
+		{
+			"name": "markdownAlertSyntax",
+			"file": "src/vscode-dts/vscode.proposed.markdownAlertSyntax.d.ts",
+			"lines": 29,
+			"bytes": 934,
+			"inRegistry": true
+		},
+		{
+			"name": "mcpServerDefinitions",
+			"file": "src/vscode-dts/vscode.proposed.mcpServerDefinitions.d.ts",
+			"lines": 86,
+			"bytes": 3302,
+			"inRegistry": true
+		},
+		{
+			"name": "mcpToolDefinitions",
+			"file": "src/vscode-dts/vscode.proposed.mcpToolDefinitions.d.ts",
+			"lines": 98,
+			"bytes": 3354,
+			"inRegistry": true
+		},
+		{
+			"name": "multiDocumentHighlightProvider",
+			"file": "src/vscode-dts/vscode.proposed.multiDocumentHighlightProvider.d.ts",
+			"lines": 63,
+			"bytes": 2555,
+			"inRegistry": true
+		},
+		{
+			"name": "nativeWindowHandle",
+			"file": "src/vscode-dts/vscode.proposed.nativeWindowHandle.d.ts",
+			"lines": 17,
+			"bytes": 659,
+			"inRegistry": true
+		},
+		{
+			"name": "newSymbolNamesProvider",
+			"file": "src/vscode-dts/vscode.proposed.newSymbolNamesProvider.d.ts",
+			"lines": 47,
+			"bytes": 1522,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookCellExecution",
+			"file": "src/vscode-dts/vscode.proposed.notebookCellExecution.d.ts",
+			"lines": 72,
+			"bytes": 2076,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookControllerAffinityHidden",
+			"file": "src/vscode-dts/vscode.proposed.notebookControllerAffinityHidden.d.ts",
+			"lines": 17,
+			"bytes": 698,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookDeprecated",
+			"file": "src/vscode-dts/vscode.proposed.notebookDeprecated.d.ts",
+			"lines": 16,
+			"bytes": 522,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookExecution",
+			"file": "src/vscode-dts/vscode.proposed.notebookExecution.d.ts",
+			"lines": 39,
+			"bytes": 1549,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookKernelSource",
+			"file": "src/vscode-dts/vscode.proposed.notebookKernelSource.d.ts",
+			"lines": 46,
+			"bytes": 1524,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookLiveShare",
+			"file": "src/vscode-dts/vscode.proposed.notebookLiveShare.d.ts",
+			"lines": 21,
+			"bytes": 956,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookMessaging",
+			"file": "src/vscode-dts/vscode.proposed.notebookMessaging.d.ts",
+			"lines": 68,
+			"bytes": 2585,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookMime",
+			"file": "src/vscode-dts/vscode.proposed.notebookMime.d.ts",
+			"lines": 33,
+			"bytes": 1237,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookReplDocument",
+			"file": "src/vscode-dts/vscode.proposed.notebookReplDocument.d.ts",
+			"lines": 33,
+			"bytes": 1057,
+			"inRegistry": true
+		},
+		{
+			"name": "notebookVariableProvider",
+			"file": "src/vscode-dts/vscode.proposed.notebookVariableProvider.d.ts",
+			"lines": 55,
+			"bytes": 2045,
+			"inRegistry": true
+		},
+		{
+			"name": "portsAttributes",
+			"file": "src/vscode-dts/vscode.proposed.portsAttributes.d.ts",
+			"lines": 100,
+			"bytes": 4192,
+			"inRegistry": true
+		},
+		{
+			"name": "profileContentHandlers",
+			"file": "src/vscode-dts/vscode.proposed.profileContentHandlers.d.ts",
+			"lines": 19,
+			"bytes": 859,
+			"inRegistry": true
+		},
+		{
+			"name": "quickDiffProvider",
+			"file": "src/vscode-dts/vscode.proposed.quickDiffProvider.d.ts",
+			"lines": 22,
+			"bytes": 813,
+			"inRegistry": true
+		},
+		{
+			"name": "quickPickItemTooltip",
+			"file": "src/vscode-dts/vscode.proposed.quickPickItemTooltip.d.ts",
+			"lines": 19,
+			"bytes": 752,
+			"inRegistry": true
+		},
+		{
+			"name": "quickPickSortByLabel",
+			"file": "src/vscode-dts/vscode.proposed.quickPickSortByLabel.d.ts",
+			"lines": 24,
+			"bytes": 1067,
+			"inRegistry": true
+		},
+		{
+			"name": "remoteCodingAgents",
+			"file": "src/vscode-dts/vscode.proposed.remoteCodingAgents.d.ts",
+			"lines": 8,
+			"bytes": 436,
+			"inRegistry": true
+		},
+		{
+			"name": "resolvers",
+			"file": "src/vscode-dts/vscode.proposed.resolvers.d.ts",
+			"lines": 475,
+			"bytes": 16065,
+			"inRegistry": true
+		},
+		{
+			"name": "scmActionButton",
+			"file": "src/vscode-dts/vscode.proposed.scmActionButton.d.ts",
+			"lines": 18,
+			"bytes": 668,
+			"inRegistry": true
+		},
+		{
+			"name": "scmArtifactProvider",
+			"file": "src/vscode-dts/vscode.proposed.scmArtifactProvider.d.ts",
+			"lines": 35,
+			"bytes": 1210,
+			"inRegistry": true
+		},
+		{
+			"name": "scmHistoryProvider",
+			"file": "src/vscode-dts/vscode.proposed.scmHistoryProvider.d.ts",
+			"lines": 95,
+			"bytes": 3932,
+			"inRegistry": true
+		},
+		{
+			"name": "scmMultiDiffEditor",
+			"file": "src/vscode-dts/vscode.proposed.scmMultiDiffEditor.d.ts",
+			"lines": 34,
+			"bytes": 1619,
+			"inRegistry": true
+		},
+		{
+			"name": "scmProviderOptions",
+			"file": "src/vscode-dts/vscode.proposed.scmProviderOptions.d.ts",
+			"lines": 39,
+			"bytes": 1588,
+			"inRegistry": true
+		},
+		{
+			"name": "scmSelectedProvider",
+			"file": "src/vscode-dts/vscode.proposed.scmSelectedProvider.d.ts",
+			"lines": 22,
+			"bytes": 668,
+			"inRegistry": true
+		},
+		{
+			"name": "scmTextDocument",
+			"file": "src/vscode-dts/vscode.proposed.scmTextDocument.d.ts",
+			"lines": 19,
+			"bytes": 652,
+			"inRegistry": true
+		},
+		{
+			"name": "scmValidation",
+			"file": "src/vscode-dts/vscode.proposed.scmValidation.d.ts",
+			"lines": 60,
+			"bytes": 1610,
+			"inRegistry": true
+		},
+		{
+			"name": "shareProvider",
+			"file": "src/vscode-dts/vscode.proposed.shareProvider.d.ts",
+			"lines": 74,
+			"bytes": 2302,
+			"inRegistry": true
+		},
+		{
+			"name": "speech",
+			"file": "src/vscode-dts/vscode.proposed.speech.d.ts",
+			"lines": 74,
+			"bytes": 1980,
+			"inRegistry": true
+		},
+		{
+			"name": "statusBarItemTooltip",
+			"file": "src/vscode-dts/vscode.proposed.statusBarItemTooltip.d.ts",
+			"lines": 19,
+			"bytes": 767,
+			"inRegistry": true
+		},
+		{
+			"name": "tabInputMultiDiff",
+			"file": "src/vscode-dts/vscode.proposed.tabInputMultiDiff.d.ts",
+			"lines": 22,
+			"bytes": 778,
+			"inRegistry": true
+		},
+		{
+			"name": "tabInputTextMerge",
+			"file": "src/vscode-dts/vscode.proposed.tabInputTextMerge.d.ts",
+			"lines": 25,
+			"bytes": 841,
+			"inRegistry": true
+		},
+		{
+			"name": "taskExecutionTerminal",
+			"file": "src/vscode-dts/vscode.proposed.taskExecutionTerminal.d.ts",
+			"lines": 15,
+			"bytes": 528,
+			"inRegistry": true
+		},
+		{
+			"name": "taskPresentationGroup",
+			"file": "src/vscode-dts/vscode.proposed.taskPresentationGroup.d.ts",
+			"lines": 16,
+			"bytes": 604,
+			"inRegistry": true
+		},
+		{
+			"name": "taskProblemMatcherStatus",
+			"file": "src/vscode-dts/vscode.proposed.taskProblemMatcherStatus.d.ts",
+			"lines": 42,
+			"bytes": 1273,
+			"inRegistry": true
+		},
+		{
+			"name": "taskRunOptions",
+			"file": "src/vscode-dts/vscode.proposed.taskRunOptions.d.ts",
+			"lines": 34,
+			"bytes": 815,
+			"inRegistry": true
+		},
+		{
+			"name": "telemetry",
+			"file": "src/vscode-dts/vscode.proposed.telemetry.d.ts",
+			"lines": 36,
+			"bytes": 1228,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalCompletionProvider",
+			"file": "src/vscode-dts/vscode.proposed.terminalCompletionProvider.d.ts",
+			"lines": 286,
+			"bytes": 9203,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalDataWriteEvent",
+			"file": "src/vscode-dts/vscode.proposed.terminalDataWriteEvent.d.ts",
+			"lines": 32,
+			"bytes": 1162,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalDimensions",
+			"file": "src/vscode-dts/vscode.proposed.terminalDimensions.d.ts",
+			"lines": 39,
+			"bytes": 1342,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalExecuteCommandEvent",
+			"file": "src/vscode-dts/vscode.proposed.terminalExecuteCommandEvent.d.ts",
+			"lines": 48,
+			"bytes": 1785,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalQuickFixProvider",
+			"file": "src/vscode-dts/vscode.proposed.terminalQuickFixProvider.d.ts",
+			"lines": 87,
+			"bytes": 2729,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalRemoteResolver",
+			"file": "src/vscode-dts/vscode.proposed.terminalRemoteResolver.d.ts",
+			"lines": 21,
+			"bytes": 957,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalSelection",
+			"file": "src/vscode-dts/vscode.proposed.terminalSelection.d.ts",
+			"lines": 16,
+			"bytes": 601,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalShellEnv",
+			"file": "src/vscode-dts/vscode.proposed.terminalShellEnv.d.ts",
+			"lines": 36,
+			"bytes": 1483,
+			"inRegistry": true
+		},
+		{
+			"name": "terminalTitle",
+			"file": "src/vscode-dts/vscode.proposed.terminalTitle.d.ts",
+			"lines": 37,
+			"bytes": 1688,
+			"inRegistry": true
+		},
+		{
+			"name": "testObserver",
+			"file": "src/vscode-dts/vscode.proposed.testObserver.d.ts",
+			"lines": 199,
+			"bytes": 5789,
+			"inRegistry": true
+		},
+		{
+			"name": "testRelatedCode",
+			"file": "src/vscode-dts/vscode.proposed.testRelatedCode.d.ts",
+			"lines": 36,
+			"bytes": 1482,
+			"inRegistry": true
+		},
+		{
+			"name": "textDocumentChangeReason",
+			"file": "src/vscode-dts/vscode.proposed.textDocumentChangeReason.d.ts",
+			"lines": 30,
+			"bytes": 1019,
+			"inRegistry": true
+		},
+		{
+			"name": "textEditorDiffInformation",
+			"file": "src/vscode-dts/vscode.proposed.textEditorDiffInformation.d.ts",
+			"lines": 82,
+			"bytes": 2882,
+			"inRegistry": true
+		},
+		{
+			"name": "textSearchComplete2",
+			"file": "src/vscode-dts/vscode.proposed.textSearchComplete2.d.ts",
+			"lines": 38,
+			"bytes": 1356,
+			"inRegistry": true
+		},
+		{
+			"name": "textSearchProvider",
+			"file": "src/vscode-dts/vscode.proposed.textSearchProvider.d.ts",
+			"lines": 281,
+			"bytes": 7532,
+			"inRegistry": true
+		},
+		{
+			"name": "textSearchProvider2",
+			"file": "src/vscode-dts/vscode.proposed.textSearchProvider2.d.ts",
+			"lines": 295,
+			"bytes": 8599,
+			"inRegistry": true
+		},
+		{
+			"name": "timeline",
+			"file": "src/vscode-dts/vscode.proposed.timeline.d.ts",
+			"lines": 163,
+			"bytes": 5545,
+			"inRegistry": true
+		},
+		{
+			"name": "tokenInformation",
+			"file": "src/vscode-dts/vscode.proposed.tokenInformation.d.ts",
+			"lines": 26,
+			"bytes": 786,
+			"inRegistry": true
+		},
+		{
+			"name": "toolInvocationApproveCombination",
+			"file": "src/vscode-dts/vscode.proposed.toolInvocationApproveCombination.d.ts",
+			"lines": 31,
+			"bytes": 1149,
+			"inRegistry": true
+		},
+		{
+			"name": "toolProgress",
+			"file": "src/vscode-dts/vscode.proposed.toolProgress.d.ts",
+			"lines": 25,
+			"bytes": 948,
+			"inRegistry": true
+		},
+		{
+			"name": "treeItemMarkdownLabel",
+			"file": "src/vscode-dts/vscode.proposed.treeItemMarkdownLabel.d.ts",
+			"lines": 23,
+			"bytes": 981,
+			"inRegistry": true
+		},
+		{
+			"name": "treeViewActiveItem",
+			"file": "src/vscode-dts/vscode.proposed.treeViewActiveItem.d.ts",
+			"lines": 30,
+			"bytes": 983,
+			"inRegistry": true
+		},
+		{
+			"name": "treeViewMarkdownMessage",
+			"file": "src/vscode-dts/vscode.proposed.treeViewMarkdownMessage.d.ts",
+			"lines": 28,
+			"bytes": 1310,
+			"inRegistry": true
+		},
+		{
+			"name": "treeViewReveal",
+			"file": "src/vscode-dts/vscode.proposed.treeViewReveal.d.ts",
+			"lines": 13,
+			"bytes": 625,
+			"inRegistry": true
+		},
+		{
+			"name": "tunnelFactory",
+			"file": "src/vscode-dts/vscode.proposed.tunnelFactory.d.ts",
+			"lines": 48,
+			"bytes": 1836,
+			"inRegistry": true
+		},
+		{
+			"name": "tunnels",
+			"file": "src/vscode-dts/vscode.proposed.tunnels.d.ts",
+			"lines": 64,
+			"bytes": 2318,
+			"inRegistry": true
+		},
+		{
+			"name": "valueSelectionInQuickPick",
+			"file": "src/vscode-dts/vscode.proposed.valueSelectionInQuickPick.d.ts",
+			"lines": 21,
+			"bytes": 1027,
+			"inRegistry": true
+		},
+		{
+			"name": "workspaceTrust",
+			"file": "src/vscode-dts/vscode.proposed.workspaceTrust.d.ts",
+			"lines": 61,
+			"bytes": 2049,
+			"inRegistry": true
+		}
+	]
+}

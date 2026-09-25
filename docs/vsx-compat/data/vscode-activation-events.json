@@ -1,0 +1,886 @@
+{
+	"meta": {
+		"vscodeCommit": "0b16cb97868058754d545e5f9ced99211ccc290b",
+		"vscodeCommitDate": "2026-09-25T16:19:08+02:00",
+		"vscodeVersion": "1.140.0",
+		"generatedBy": "tools/vsx-audit/extract-vscode.mjs (typescript 5.9.3)",
+		"source": [
+			"src/vs/workbench/services/extensions/common/extensionsRegistry.ts (activationEvents schema)",
+			"activationEventsGenerator yields",
+			"activateByEvent() call sites",
+			{
+				"url": "https://code.visualstudio.com/api/references/activation-events",
+				"rawUrl": "https://code.visualstudio.com/raw/api/references/activation-events.md",
+				"sha256": "3d243d6be8f329f915484a670a40a2962c931d670320c9b22c1649330960f51a"
+			}
+		],
+		"summary": {
+			"total": 42,
+			"documented": 29,
+			"inManifestSchema": 33,
+			"implicit": [
+				"onAuthenticationRequest:",
+				"onChatContextProvider:",
+				"onChatOutputRenderer:",
+				"onChatParticipant:",
+				"onChatSession:",
+				"onCommand:",
+				"onCustomEditor:",
+				"onDebugVisualizer:",
+				"onLanguage:",
+				"onLanguageModelChatProvider:",
+				"onLanguageModelTool:",
+				"onLinkPresentation:",
+				"onNotebookSerializer:",
+				"onRenderer:",
+				"onTaskType:",
+				"onTerminalProfile:",
+				"onTerminalQuickFixRequest:",
+				"onView:",
+				"onWalkthrough:"
+			],
+			"undocumented": [
+				"onChatContextProvider:",
+				"onChatOutputRenderer:",
+				"onChatSession:",
+				"onDebugVisualizer:",
+				"onLanguageModelChatProvider:",
+				"onLinkPresentation:",
+				"onMcpCollection:",
+				"onNotebookSerializer:",
+				"onProfile:",
+				"onResolveRemoteAuthority:",
+				"onSlash:",
+				"onSpeech",
+				"onTerminalQuickFixRequest:"
+			],
+			"documentedButNoSourceRef": [],
+			"activateByEventCallSites": 76,
+			"dynamicCallSites": [
+				"src/vs/workbench/api/browser/mainThreadAuthentication.ts:287 getAuthenticationProviderActivationEvent(id)",
+				"src/vs/workbench/api/browser/mainThreadCommands.ts:77 activationEvent",
+				"src/vs/workbench/api/common/extHostExtensionService.ts:1028 activationEvent",
+				"src/vs/workbench/api/common/extHostExtensionService.ts:1033 activationEvent",
+				"src/vs/workbench/api/common/extHostExtensionService.ts:299 activationEvent",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/service/extensionPromptFileService.ts:244 activationEvent",
+				"src/vs/workbench/contrib/debug/browser/debugAdapterManager.ts:492 activationEvent",
+				"src/vs/workbench/contrib/debug/browser/debugAdapterManager.ts:496 `${activationEvent}:${debugType}`",
+				"src/vs/workbench/contrib/mcp/common/discovery/extensionMcpDiscovery.ts:175 mcpActivationEvent(collectionId)",
+				"src/vs/workbench/contrib/mcp/common/mcpServer.ts:762 activationEvent",
+				"src/vs/workbench/contrib/tasks/browser/abstractTaskService.ts:765 activationEvent",
+				"src/vs/workbench/services/authentication/browser/authenticationService.ts:446 getAuthenticationProviderActivationEvent(providerId)",
+				"src/vs/workbench/services/commands/common/commandService.ts:69 activationEvent",
+				"src/vs/workbench/services/commands/common/commandService.ts:74 activationEvent",
+				"src/vs/workbench/services/commands/common/commandService.ts:81 activationEvent",
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:1001 activationEvent",
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:1016 activationEvent",
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:1019 activationEvent",
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:1041 activationEvent",
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:504 activationEvent",
+				"src/vs/workbench/services/extensions/common/extensionHostManager.ts:157 activationEvent",
+				"src/vs/workbench/services/extensions/common/extensionHostManager.ts:329 activationEvent",
+				"src/vs/workbench/services/extensions/common/extensionHostManager.ts:354 activationEvent",
+				"src/vs/workbench/services/extensions/common/lazyCreateExtensionHostManager.ts:140 activationEvent",
+				"src/vs/workbench/services/extensions/common/lazyCreateExtensionHostManager.ts:146 activationEvent",
+				"src/vs/workbench/services/remote/common/tunnelModel.ts:706 ACTIVATION_EVENT"
+			]
+		}
+	},
+	"items": [
+		{
+			"event": "*",
+			"name": "*",
+			"documented": true,
+			"docsMdLine": 34,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted on VS Code startup. To ensure a great end user experience, please use this activation event in your extension only when no other activation events combination works in your use-case.",
+			"implicit": false,
+			"takesArgument": false,
+			"activateCallSites": 2,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/api/common/extHostExtensionService.ts:672",
+				"src/vs/workbench/services/commands/common/commandService.ts:42",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:427"
+			]
+		},
+		{
+			"event": "onAuthenticationRequest:",
+			"name": "onAuthenticationRequest",
+			"documented": true,
+			"docsMdLine": 6,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever sessions are requested from the specified authentication provider.",
+			"implicit": true,
+			"implicitFrom": [
+				"authentication"
+			],
+			"takesArgument": true,
+			"activateCallSites": 0,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/services/authentication/browser/authenticationService.ts:77",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:362",
+				"src/vs/workbench/services/authentication/browser/authenticationService.ts:27",
+				"src/vs/workbench/services/authentication/browser/authenticationService.ts:87",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:363"
+			]
+		},
+		{
+			"event": "onChatContextProvider:",
+			"name": "onChatContextProvider",
+			"documented": false,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when the specified chat context provider is invoked.",
+			"implicit": true,
+			"implicitFrom": [
+				"chatContext"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/chat/browser/contextContrib/chatContextService.ts:213",
+				"src/vs/workbench/contrib/chat/browser/contextContrib/chatContext.contribution.ts:21",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:397",
+				"src/vs/workbench/contrib/chat/browser/contextContrib/chatContext.contribution.ts:47",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:398"
+			]
+		},
+		{
+			"event": "onChatOutputRenderer:",
+			"name": "onChatOutputRenderer",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": true,
+			"implicitFrom": [
+				"chatOutputRenderers"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/chat/browser/chatOutputItemRenderer.ts:224",
+				"src/vs/workbench/contrib/chat/browser/chatOutputItemRenderer.ts:294",
+				"src/vs/workbench/contrib/chat/browser/chatOutputItemRenderer.ts:298"
+			]
+		},
+		{
+			"event": "onChatParticipant:",
+			"name": "onChatParticipant",
+			"documented": true,
+			"docsMdLine": 7,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when the specified chat participant is invoked.",
+			"implicit": true,
+			"implicitFrom": [
+				"chatParticipants"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 6,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/chat/common/chatService/chatServiceImpl.ts:1897",
+				"src/vs/workbench/contrib/chat/browser/chatParticipant.contribution.ts:106",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:392",
+				"src/vs/workbench/contrib/chat/browser/chatParticipant.contribution.ts:231",
+				"src/vs/workbench/contrib/chat/common/chatService/chatServiceImpl.ts:613"
+			]
+		},
+		{
+			"event": "onChatSession:",
+			"name": "onChatSession",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": true,
+			"implicitFrom": [
+				"chatSessions"
+			],
+			"takesArgument": true,
+			"activateCallSites": 2,
+			"sourceRefCount": 4,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts:1028",
+				"src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts:999",
+				"src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts:63",
+				"src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts:254"
+			]
+		},
+		{
+			"event": "onCommand:",
+			"name": "onCommand",
+			"documented": true,
+			"docsMdLine": 8,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever the specified command gets invoked.",
+			"implicit": true,
+			"implicitFrom": [
+				"commands"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 15,
+			"sourceRefs": [
+				"src/vs/workbench/api/browser/mainThreadCommands.ts:89",
+				"src/vs/workbench/services/actions/common/menusExtensionPoint.ts:911",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:277",
+				"src/vs/workbench/api/browser/mainThreadCommands.ts:73",
+				"src/vs/workbench/contrib/tasks/browser/abstractTaskService.ts:743"
+			]
+		},
+		{
+			"event": "onCustomEditor:",
+			"name": "onCustomEditor",
+			"documented": true,
+			"docsMdLine": 9,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever the specified custom editor becomes visible.",
+			"implicit": true,
+			"implicitFrom": [
+				"customEditors"
+			],
+			"takesArgument": true,
+			"activateCallSites": 2,
+			"sourceRefCount": 6,
+			"sourceRefs": [
+				"src/vs/workbench/api/browser/mainThreadCustomEditors.ts:134",
+				"src/vs/workbench/contrib/customEditor/browser/customEditors.ts:195",
+				"src/vs/workbench/contrib/customEditor/common/extensionPoint.ts:107",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:352",
+				"src/vs/workbench/contrib/customEditor/common/extensionPoint.ts:128"
+			]
+		},
+		{
+			"event": "onDebug",
+			"name": "onDebug",
+			"documented": true,
+			"docsMdLine": 10,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a user is about to start debugging or about to setup debug configurations.",
+			"implicit": false,
+			"takesArgument": false,
+			"activateCallSites": 2,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/debug/browser/debugAdapterManager.ts:493",
+				"src/vs/workbench/contrib/debug/browser/debugService.ts:365",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:282",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:283",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:285"
+			]
+		},
+		{
+			"event": "onDebugAdapterProtocolTracker:",
+			"name": "onDebugAdapterProtocolTracker",
+			"documented": true,
+			"docsMdLine": 11,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a debug session with the specific type is about to be launched and a debug protocol tracker might be needed.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 0,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:302",
+				"src/vs/workbench/contrib/debug/common/debugger.ts:115",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:303"
+			]
+		},
+		{
+			"event": "onDebugDynamicConfigurations",
+			"name": "onDebugDynamicConfigurations",
+			"documented": true,
+			"docsMdLine": 12,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a list of all debug configurations needs to be created (and all provideDebugConfigurations methods for the \"dynamic\" scope need to be called).",
+			"implicit": false,
+			"takesArgument": false,
+			"activateCallSites": 0,
+			"sourceRefCount": 4,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:292",
+				"src/vs/workbench/contrib/debug/browser/debugConfigurationManager.ts:50",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:293",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:295"
+			]
+		},
+		{
+			"event": "onDebugInitialConfigurations",
+			"name": "onDebugInitialConfigurations",
+			"documented": true,
+			"docsMdLine": 13,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a \"launch.json\" needs to be created (and all provideDebugConfigurations methods need to be called).",
+			"implicit": false,
+			"takesArgument": false,
+			"activateCallSites": 0,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:287",
+				"src/vs/workbench/contrib/debug/browser/debugAdapterManager.ts:369",
+				"src/vs/workbench/contrib/debug/browser/debugConfigurationManager.ts:192",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:288",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:290"
+			]
+		},
+		{
+			"event": "onDebugResolve:",
+			"name": "onDebugResolve",
+			"documented": true,
+			"docsMdLine": 14,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a debug session with the specific type is about to be launched (and a corresponding resolveDebugConfiguration method needs to be called).",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 0,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:297",
+				"src/vs/workbench/contrib/debug/browser/debugConfigurationManager.ts:151",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:298"
+			]
+		},
+		{
+			"event": "onDebugVisualizer:",
+			"name": "onDebugVisualizer",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": true,
+			"implicitFrom": [
+				"debugVisualizers"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/debug/common/debugVisualizers.ts:141",
+				"src/vs/workbench/contrib/debug/common/debugVisualizers.ts:275",
+				"src/vs/workbench/contrib/debug/common/debugVisualizers.ts:297"
+			]
+		},
+		{
+			"event": "onEditSession:",
+			"name": "onEditSession",
+			"documented": true,
+			"docsMdLine": 15,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever an edit session is accessed with the given scheme.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/workspaces/common/editSessionIdentityService.ts:81",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:327",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:328"
+			]
+		},
+		{
+			"event": "onFileSystem:",
+			"name": "onFileSystem",
+			"documented": true,
+			"docsMdLine": 16,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a file or folder is accessed with the given scheme.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:132",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:322",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:323"
+			]
+		},
+		{
+			"event": "onIssueReporterOpened",
+			"name": "onIssueReporterOpened",
+			"documented": true,
+			"docsMdLine": 17,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when the issue reporter is opened.",
+			"implicit": false,
+			"takesArgument": false,
+			"activateCallSites": 0,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:387",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:388",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:389"
+			]
+		},
+		{
+			"event": "onLanguage:",
+			"name": "onLanguage",
+			"documented": true,
+			"docsMdLine": 18,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a file that resolves to the specified language gets opened.",
+			"implicit": true,
+			"implicitFrom": [
+				"languages"
+			],
+			"takesArgument": true,
+			"activateCallSites": 2,
+			"sourceRefCount": 8,
+			"sourceRefs": [
+				"src/vs/workbench/services/language/common/languageService.ts:289",
+				"src/vs/workbench/services/language/common/languageService.ts:290",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:272",
+				"src/vs/workbench/services/language/common/languageService.ts:40",
+				"src/vs/workbench/contrib/extensions/browser/abstractRuntimeExtensionsEditor.ts:354"
+			]
+		},
+		{
+			"event": "onLanguageModelChatProvider:",
+			"name": "onLanguageModelChatProvider",
+			"documented": false,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when a chat model provider for the given vendor is requested.",
+			"implicit": true,
+			"implicitFrom": [
+				"languageModelChatProviders"
+			],
+			"takesArgument": true,
+			"activateCallSites": 2,
+			"sourceRefCount": 6,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/chat/common/languageModels.ts:1238",
+				"src/vs/workbench/contrib/chat/common/languageModels.ts:2326",
+				"src/vs/workbench/contrib/chat/common/languageModels.ts:898",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:402",
+				"src/vs/workbench/contrib/chat/common/languageModels.ts:912"
+			]
+		},
+		{
+			"event": "onLanguageModelTool:",
+			"name": "onLanguageModelTool",
+			"documented": true,
+			"docsMdLine": 19,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when the specified language model tool is invoked.",
+			"implicit": true,
+			"implicitFrom": [
+				"languageModelTools"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/chat/browser/tools/languageModelToolsService.ts:581",
+				"src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts:42",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:407",
+				"src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts:46",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:408"
+			]
+		},
+		{
+			"event": "onLinkPresentation:",
+			"name": "onLinkPresentation",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": true,
+			"implicitFrom": [
+				"linkPresentationProviders"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/dataChannel/browser/dataChannelService.ts:344",
+				"src/vs/workbench/services/dataChannel/browser/dataChannelService.ts:76",
+				"src/vs/workbench/services/dataChannel/browser/dataChannelService.ts:109"
+			]
+		},
+		{
+			"event": "onMcpCollection:",
+			"name": "onMcpCollection",
+			"documented": false,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a tool from the MCP server is requested.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 0,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:422",
+				"src/vs/workbench/contrib/mcp/common/mcpConfiguration.ts:18",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:423"
+			]
+		},
+		{
+			"event": "onNotebook:",
+			"name": "onNotebook",
+			"documented": true,
+			"docsMdLine": 20,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever the specified notebook document is opened.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 3,
+			"sourceRefCount": 8,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/notebook/browser/services/notebookServiceImpl.ts:714",
+				"src/vs/workbench/contrib/notebook/browser/services/notebookServiceImpl.ts:715",
+				"src/vs/workbench/contrib/notebook/browser/viewParts/notebookKernelQuickPickStrategy.ts:351",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:357",
+				"src/vs/workbench/contrib/notebook/browser/contrib/kernelDetection/notebookKernelDetection.ts:33"
+			]
+		},
+		{
+			"event": "onNotebookSerializer:",
+			"name": "onNotebookSerializer",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": true,
+			"implicitFrom": [
+				"notebooks"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/notebook/browser/services/notebookServiceImpl.ts:724",
+				"src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:245",
+				"src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:251"
+			]
+		},
+		{
+			"event": "onOpenExternalUri:",
+			"name": "onOpenExternalUri",
+			"documented": true,
+			"docsMdLine": 21,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a external uri (such as an http or https link) is being opened.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 4,
+			"sourceRefs": [
+				"src/vs/workbench/api/browser/mainThreadUriOpeners.ts:59",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:347",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:348",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:349"
+			]
+		},
+		{
+			"event": "onProfile:",
+			"name": "onProfile",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 3,
+			"sourceRefCount": 3,
+			"sourceRefs": [
+				"src/vs/workbench/services/userDataProfile/browser/userDataProfileImportExportService.ts:420",
+				"src/vs/workbench/services/userDataProfile/browser/userDataProfileImportExportService.ts:427",
+				"src/vs/workbench/services/userDataProfile/browser/userDataProfileImportExportService.ts:445"
+			]
+		},
+		{
+			"event": "onRenderer:",
+			"name": "onRenderer",
+			"documented": true,
+			"docsMdLine": 22,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a notebook output renderer is used.",
+			"implicit": true,
+			"implicitFrom": [
+				"notebookRenderer"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/notebook/browser/services/notebookRendererMessagingServiceImpl.ts:49",
+				"src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:257",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:367",
+				"src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:263",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:368"
+			]
+		},
+		{
+			"event": "onResolveRemoteAuthority:",
+			"name": "onResolveRemoteAuthority",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 2,
+			"sourceRefCount": 4,
+			"sourceRefs": [
+				"src/vs/workbench/api/common/extHostExtensionService.ts:728",
+				"src/vs/workbench/api/common/extHostExtensionService.ts:846",
+				"src/vs/platform/extensions/common/extensions.ts:595",
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:1430"
+			]
+		},
+		{
+			"event": "onSearch:",
+			"name": "onSearch",
+			"documented": true,
+			"docsMdLine": 23,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a search is started in the folder with the given scheme.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 2,
+			"sourceRefCount": 4,
+			"sourceRefs": [
+				"src/vs/workbench/services/search/common/searchService.ts:179",
+				"src/vs/workbench/services/search/common/searchService.ts:180",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:332",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:333"
+			]
+		},
+		{
+			"event": "onSlash:",
+			"name": "onSlash",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 1,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/chat/common/participants/chatSlashCommands.ts:160"
+			]
+		},
+		{
+			"event": "onSpeech",
+			"name": "onSpeech",
+			"documented": false,
+			"inManifestSchema": false,
+			"implicit": false,
+			"takesArgument": false,
+			"activateCallSites": 1,
+			"sourceRefCount": 1,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/speech/browser/speechService.ts:231"
+			]
+		},
+		{
+			"event": "onStartupFinished",
+			"name": "onStartupFinished",
+			"documented": true,
+			"docsMdLine": 24,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted after the start-up finished (after all `*` activated extensions have finished activating).",
+			"implicit": false,
+			"takesArgument": false,
+			"activateCallSites": 0,
+			"sourceRefCount": 7,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:312",
+				"src/vs/workbench/api/common/extHostExtensionService.ts:632",
+				"src/vs/workbench/api/common/extHostExtensionService.ts:660",
+				"src/vs/workbench/contrib/extensions/browser/abstractRuntimeExtensionsEditor.ts:346",
+				"src/vs/workbench/services/extensions/common/abstractExtensionService.ts:424"
+			]
+		},
+		{
+			"event": "onTaskType:",
+			"name": "onTaskType",
+			"documented": true,
+			"docsMdLine": 25,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever tasks of a certain type need to be listed or resolved.",
+			"implicit": true,
+			"implicitFrom": [
+				"taskDefinitions"
+			],
+			"takesArgument": true,
+			"activateCallSites": 0,
+			"sourceRefCount": 6,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/tasks/common/taskDefinitionRegistry.ts:85",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:317",
+				"src/vs/workbench/contrib/tasks/browser/abstractTaskService.ts:746",
+				"src/vs/workbench/contrib/tasks/browser/abstractTaskService.ts:750",
+				"src/vs/workbench/contrib/tasks/common/taskDefinitionRegistry.ts:90"
+			]
+		},
+		{
+			"event": "onTerminal:",
+			"name": "onTerminal",
+			"documented": true,
+			"docsMdLine": 26,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when a terminal of the given shell type is opened.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 3,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/terminal/browser/terminalService.ts:1085",
+				"src/vs/workbench/contrib/terminal/browser/terminalService.ts:1093",
+				"src/vs/workbench/contrib/terminal/browser/terminalService.ts:867",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:412",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:413"
+			]
+		},
+		{
+			"event": "onTerminalProfile:",
+			"name": "onTerminalProfile",
+			"documented": true,
+			"docsMdLine": 27,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when a specific terminal profile is launched.",
+			"implicit": true,
+			"implicitFrom": [
+				"terminal"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/terminal/browser/terminalService.ts:414",
+				"src/vs/workbench/contrib/terminal/common/terminal.ts:665",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:372",
+				"src/vs/workbench/contrib/terminal/common/terminal.ts:671",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:373"
+			]
+		},
+		{
+			"event": "onTerminalQuickFixRequest:",
+			"name": "onTerminalQuickFixRequest",
+			"documented": false,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when a command matches the selector associated with this ID",
+			"implicit": true,
+			"implicitFrom": [
+				"terminalQuickFixes"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/terminalContrib/quickFix/browser/quickFixAddon.ts:208",
+				"src/vs/workbench/contrib/terminalContrib/quickFix/browser/terminalQuickFixService.ts:94",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:377",
+				"src/vs/workbench/contrib/terminalContrib/quickFix/browser/terminalQuickFixService.ts:99",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:378"
+			]
+		},
+		{
+			"event": "onTerminalShellIntegration:",
+			"name": "onTerminalShellIntegration",
+			"documented": true,
+			"docsMdLine": 28,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when terminal shell integration is activated for the given shell type.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 3,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/api/browser/mainThreadTerminalShellIntegration.ts:116",
+				"src/vs/workbench/api/browser/mainThreadTerminalShellIntegration.ts:118",
+				"src/vs/workbench/contrib/terminal/browser/terminalService.ts:870",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:417",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:418"
+			]
+		},
+		{
+			"event": "onUri:",
+			"name": "onUri",
+			"documented": true,
+			"docsMdLine": 29,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a system-wide Uri directed towards this extension is open.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 6,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/browser/extensionUrlHandler.ts:250",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:342",
+				"src/vs/platform/extensionManagement/common/implicitActivationEvents.ts:58",
+				"src/vs/platform/extensionManagement/common/implicitActivationEvents.ts:59",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:343"
+			]
+		},
+		{
+			"event": "onView:",
+			"name": "onView",
+			"documented": true,
+			"docsMdLine": 30,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever the specified view is expanded.",
+			"implicit": true,
+			"implicitFrom": [
+				"views"
+			],
+			"takesArgument": true,
+			"activateCallSites": 3,
+			"sourceRefCount": 10,
+			"sourceRefs": [
+				"src/vs/workbench/browser/parts/views/treeView.ts:1894",
+				"src/vs/workbench/contrib/timeline/browser/timelinePane.ts:885",
+				"src/vs/workbench/contrib/webviewView/browser/webviewViewPane.ts:208",
+				"src/vs/workbench/api/browser/viewsExtensionPoint.ts:258",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:337"
+			]
+		},
+		{
+			"event": "onWalkthrough:",
+			"name": "onWalkthrough",
+			"documented": true,
+			"docsMdLine": 31,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when a specified walkthrough is opened.",
+			"implicit": true,
+			"implicitFrom": [
+				"walkthroughs"
+			],
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 5,
+			"sourceRefs": [
+				"src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStarted.ts:1511",
+				"src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStartedExtensionPoint.ts:12",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:382",
+				"src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStartedExtensionPoint.ts:224",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:383"
+			]
+		},
+		{
+			"event": "onWebviewPanel:",
+			"name": "onWebviewPanel",
+			"documented": true,
+			"docsMdLine": 32,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted when a webview is loaded of a certain viewType",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 1,
+			"sourceRefCount": 4,
+			"sourceRefs": [
+				"src/vs/workbench/api/browser/mainThreadWebviewPanels.ts:130",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:267",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:268",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:270"
+			]
+		},
+		{
+			"event": "workspaceContains:",
+			"name": "workspaceContains",
+			"documented": true,
+			"docsMdLine": 33,
+			"inManifestSchema": true,
+			"schemaDescription": "An activation event emitted whenever a folder is opened that contains at least a file matching the specified glob pattern.",
+			"implicit": false,
+			"takesArgument": true,
+			"activateCallSites": 0,
+			"sourceRefCount": 6,
+			"sourceRefs": [
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:307",
+				"src/vs/workbench/contrib/extensions/browser/abstractRuntimeExtensionsEditor.ts:319",
+				"src/vs/workbench/services/extensions/common/extensionsRegistry.ts:308",
+				"src/vs/workbench/services/extensions/common/workspaceContains.ts:109",
+				"src/vs/workbench/services/extensions/common/workspaceContains.ts:44"
+			]
+		}
+	]
+}
