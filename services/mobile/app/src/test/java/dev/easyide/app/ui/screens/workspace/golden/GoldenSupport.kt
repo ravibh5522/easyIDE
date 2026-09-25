@@ -45,21 +45,30 @@ private val PHONE_DRAWER = 360.dp
  * `<name>-<config>.png`, under `src/test/screenshots/workspace`. [interact] runs once after the first render,
  * to put the UI in the state a shot needs (a row tapped).
  */
-fun ComposeContentTestRule.record(name: String, interact: ComposeContentTestRule.() -> Unit = {}, content: @Composable (GoldenConfig) -> Unit) {
+fun ComposeContentTestRule.record(name: String, interact: ComposeContentTestRule.() -> Unit = {}, content: @Composable (GoldenConfig) -> Unit) =
+    record(name, listOf(ThemeMode.DARK), interact, content)
+
+/** As [record], once per theme in [themes]; a light shot is named `<name>-<config>-light.png`, a dark one keeps its name. */
+fun ComposeContentTestRule.record(name: String, themes: List<ThemeMode>, interact: ComposeContentTestRule.() -> Unit = {}, content: @Composable (GoldenConfig) -> Unit) {
     var config by mutableStateOf(GoldenConfig.entries.first())
+    var mode by mutableStateOf(themes.first())
     setContent {
         val base = LocalDensity.current
         CompositionLocalProvider(LocalDensity provides Density(base.density, config.fontScale)) {
-            EasyIdeTheme(themeMode = ThemeMode.DARK, appearance = Appearance(density = config.density), width = config.width) {
+            EasyIdeTheme(themeMode = mode, appearance = Appearance(density = config.density), width = config.width) {
                 Box(Modifier.background(Kit.colors.background)) { content(config) }
             }
         }
     }
     waitForIdle()
     interact()
-    GoldenConfig.entries.forEach { c ->
-        config = c
-        waitForIdle()
-        onRoot().captureRoboImage("src/test/screenshots/workspace/$name-${c.id}.png")
+    themes.forEach { theme ->
+        mode = theme
+        GoldenConfig.entries.forEach { c ->
+            config = c
+            waitForIdle()
+            val suffix = if (theme == ThemeMode.DARK) "" else "-${theme.name.lowercase()}"
+            onRoot().captureRoboImage("src/test/screenshots/workspace/$name-${c.id}$suffix.png")
+        }
     }
 }

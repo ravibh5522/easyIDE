@@ -27,6 +27,7 @@
     <string name="find_close">Close find</string>
     <string name="find_replace_one">Replace</string>
     <string name="find_replace_all">Replace all</string>
+    <string name="find_replace_all_short">All</string>
     <string name="find_count">%1$d of %2$d</string>
     <string name="find_count_capped">%1$d of %2$d+</string>
     <string name="find_no_results">No results</string>
@@ -43,10 +44,10 @@
     <string name="quick_open_indexing">Indexing files...</string>
     <string name="quick_open_truncated">Showing the first %1$d files of a large project</string>
 
+    <string name="welcome_start">Start</string>
     <string name="welcome_recent">Recent</string>
     <string name="welcome_shortcuts">Shortcuts</string>
     <string name="welcome_no_recent">Files you open appear here</string>
-    <string name="welcome_open_hint">Pick a file from the explorer, or search for one</string>
 
     <string name="explorer_filter">Filter files</string>
     <string name="explorer_hide_hidden">Hide dotfiles</string>
@@ -56,4 +57,15 @@
     <string name="setting_explorer_hide_hidden_desc">Leave files and folders whose names start with a dot out of the explorer and out of Go to File.</string>
     <string name="setting_explorer_hide_ignored_title">Hide git-ignored files</string>
     <string name="setting_explorer_hide_ignored_desc">Leave files that the project\'s .gitignore excludes out of the explorer. Go to File always skips them.</string>
+
+    <string name="setting_chrome_visibility_auto">Automatic</string>
+    <string name="setting_chrome_visibility_always">Always</string>
+    <string name="setting_chrome_visibility_never">Never</string>
+    <string name="setting_touch_toolbar_title">Touch toolbar visibility</string>
+    <string name="setting_touch_toolbar_desc">The editor actions behind the More button above the keyboard. Automatic shows them on a phone or without a hardware keyboard, while the keyboard is up.</string>
+    <string name="setting_key_row_title">Key row visibility</string>
+    <string name="setting_key_row_desc">Tab, arrows and brackets above the keyboard. Automatic shows them on a phone or without a hardware keyboard, while the keyboard is up.</string>
+    <string name="setting_breadcrumbs_title">Breadcrumbs</string>
+    <string name="setting_breadcrumbs_desc">Show the file path and the symbol at the caret under the tabs. Hidden on short windows.</string>
+    <string name="dock_more_actions">More editor actions</string>
 </resources>
