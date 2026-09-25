@@ -1,6 +1,7 @@
 package dev.easyide.app.extensions
 
 import dev.easyide.app.extensions.adapters.IconTheme
+import dev.easyide.app.extensions.adapters.IconOverrides
 import dev.easyide.app.extensions.adapters.IconThemeFile
 import dev.easyide.extensions.contrib.IconThemeContribution
 import dev.easyide.extensions.contrib.Owned
@@ -24,13 +25,15 @@ data class IconThemeChoice(val id: String, val label: String)
 
 /**
  * `workbench.iconTheme` (customization.md sec 9): the contributed icon theme whose id is
- * selected, read and parsed on [io] once per selection or contribution change. Null - the
- * built-in file-type icons - for an empty selection, an id no enabled extension contributes,
- * or a file that cannot be read (logged through [warn]).
+ * selected, read and parsed on [io] once per selection or contribution change, with the user's
+ * [overrides] (`easyide.icons.*Associations`) laid in front, which re-apply without re-reading the
+ * files. Null - the built-in file-type icons - for an empty selection, an id no enabled extension
+ * contributes, or a file that cannot be read (logged through [warn]).
  */
 class ActiveIconTheme(
     iconThemes: StateFlow<List<Owned<IconThemeContribution>>>,
     selection: Flow<String>,
+    overrides: Flow<IconOverrides>,
     private val io: CoroutineDispatcher,
     scope: CoroutineScope,
     private val warn: (String) -> Unit,
@@ -42,12 +45,18 @@ class ActiveIconTheme(
         .stateIn(scope, SharingStarted.Eagerly, emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val theme: StateFlow<IconTheme?> = combine(selection.distinctUntilChanged(), iconThemes) { id, list ->
+    private val loaded: StateFlow<IconTheme?> = combine(selection.distinctUntilChanged(), iconThemes) { id, list ->
         if (id.isEmpty()) null else list.firstOrNull { it.value.id == id }?.value
     }
         .distinctUntilChanged()
         .mapLatest { it?.let { c -> withContext(io) { load(c) } } }
         .stateIn(scope, SharingStarted.Eagerly, null)
+
+    val theme: StateFlow<IconTheme?> = combine(loaded, overrides) { t, o -> t?.copy(overrides = o) }
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    /** The active theme's icon ids, for checking the user's associations; null while built-in icons are active. */
+    val iconIds: StateFlow<Set<String>?> = loaded.map { it?.icons?.keys }.stateIn(scope, SharingStarted.Eagerly, null)
 
     private fun load(c: IconThemeContribution): IconTheme? {
         val file = File(c.file.hostPath)
@@ -57,6 +66,7 @@ class ActiveIconTheme(
         val theme = IconThemeFile.parse(c.id, text, file, root) { skipped++ }
             ?: return null.also { warn("icon theme '${c.id}': ${c.file.path} is not a JSON object") }
         if (skipped > 0) warn("icon theme '${c.id}': $skipped icons skipped (PNG and SVG only)")
+        if (theme.fontIcons > 0) warn("icon theme '${c.id}': ${theme.fontIcons} font icons skipped (icon fonts are not supported)")
         return theme
     }
 

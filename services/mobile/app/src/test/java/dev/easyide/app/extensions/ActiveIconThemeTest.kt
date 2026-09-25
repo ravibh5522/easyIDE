@@ -1,5 +1,6 @@
 package dev.easyide.app.extensions
 
+import dev.easyide.app.extensions.adapters.IconOverrides
 import dev.easyide.extensions.contrib.ContributionRef
 import dev.easyide.extensions.contrib.IconThemeContribution
 import dev.easyide.extensions.contrib.Owned
@@ -8,6 +9,7 @@ import dev.easyide.extensions.contrib.PackageFile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -33,7 +35,7 @@ class ActiveIconThemeTest {
         val selection = MutableStateFlow("")
         val warnings = ArrayList<String>()
         val reads = ArrayList<String>()
-        val active = ActiveIconTheme(themes, selection, StandardTestDispatcher(testScheduler), scope, warn = { warnings += it }) { f ->
+        val active = ActiveIconTheme(themes, selection, flowOf(IconOverrides.NONE), StandardTestDispatcher(testScheduler), scope, warn = { warnings += it }) { f ->
             reads += f.path
             if (f.name == "minimal.json") "not json" else """{"iconDefinitions": {}, "file": "_f"}"""
         }
@@ -57,6 +59,27 @@ class ActiveIconThemeTest {
         scope.advanceUntilIdle()
         assertNull(active.theme.value)
         assertEquals(listOf("/ext/icons/seti.json", "/ext/icons/minimal.json", "/ext/icons/seti.json"), reads)
+        scope.cancel()
+    }
+
+    @Test
+    fun overridesReapplyWithoutRereadingTheTheme() = runTest {
+        val scope = TestScope(StandardTestDispatcher(testScheduler))
+        val themes = MutableStateFlow(listOf(contribution("seti")))
+        val overrides = MutableStateFlow(IconOverrides.NONE)
+        var reads = 0
+        val active = ActiveIconTheme(themes, MutableStateFlow("seti"), overrides, StandardTestDispatcher(testScheduler), scope, warn = {}) {
+            reads++
+            """{"iconDefinitions": {"a": {"iconPath": "a.svg"}, "b": {"iconPath": "b.svg"}}, "file": "a"}"""
+        }
+        scope.advanceUntilIdle()
+        assertEquals(setOf("a", "b"), active.iconIds.value)
+        assertNull(active.theme.value?.fileIcon("x.foo", null, false)?.takeIf { it.endsWith("b.svg") })
+
+        overrides.value = IconOverrides.of(kotlinx.serialization.json.JsonObject(mapOf("*.foo" to kotlinx.serialization.json.JsonPrimitive("b"))), kotlinx.serialization.json.JsonObject(emptyMap()))
+        scope.advanceUntilIdle()
+        assertEquals(true, active.theme.value?.fileIcon("x.foo", null, false)?.endsWith("b.svg"))
+        assertEquals(1, reads)
         scope.cancel()
     }
 }

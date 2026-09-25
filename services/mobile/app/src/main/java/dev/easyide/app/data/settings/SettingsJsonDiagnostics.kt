@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonObject
  */
 object SettingsJsonDiagnostics {
 
-    fun check(text: String, layer: LayerId, schema: SchemaState): List<SettingsDiagnostic> {
+    fun check(text: String, layer: LayerId, schema: SchemaState, iconIds: Set<String>? = null): List<SettingsDiagnostic> {
         if (text.isBlank()) return emptyList()
         val root = when (val r = Jsonc.parse(text)) {
             is JsoncResult.Failure -> return listOf(SettingsDiagnostic(DiagnosticCode.PARSE_ERROR, offset = r.offset, parseError = r.error))
@@ -20,9 +20,9 @@ object SettingsJsonDiagnostics {
         if (root.value !is JsonObject) return listOf(SettingsDiagnostic(DiagnosticCode.NOT_AN_OBJECT, offset = root.start))
         val out = ArrayList<SettingsDiagnostic>()
         for (m in root.members) {
-            if (!LayerDoc.isLanguageKey(m.key)) { checkKey(m.key, m.node.value, false, m.keyStart, layer, schema, out); continue }
+            if (!LayerDoc.isLanguageKey(m.key)) { checkKey(m.key, m.node.value, false, m.keyStart, layer, schema, iconIds, out); continue }
             if (m.node.value !is JsonObject) { out += SettingsDiagnostic(DiagnosticCode.INVALID_VALUE, m.key, offset = m.keyStart); continue }
-            m.node.members.forEach { inner -> checkKey(inner.key, inner.node.value, true, inner.keyStart, layer, schema, out) }
+            m.node.members.forEach { inner -> checkKey(inner.key, inner.node.value, true, inner.keyStart, layer, schema, iconIds, out) }
         }
         return out
     }
@@ -33,7 +33,7 @@ object SettingsJsonDiagnostics {
 
     private fun checkKey(
         key: String, value: JsonElement, inLanguageBlock: Boolean, offset: Int,
-        layer: LayerId, schema: SchemaState, out: MutableList<SettingsDiagnostic>,
+        layer: LayerId, schema: SchemaState, iconIds: Set<String>?, out: MutableList<SettingsDiagnostic>,
     ) {
         fun add(code: DiagnosticCode, detail: String? = null) { out += SettingsDiagnostic(code, key, detail, offset) }
         if (!SettingsPolicy.layerMayHold(layer, key)) add(DiagnosticCode.PROTECTED_KEY)
@@ -45,7 +45,7 @@ object SettingsJsonDiagnostics {
             if (inLanguageBlock && !setting.scope.languageOverridable) add(DiagnosticCode.NOT_LANGUAGE_OVERRIDABLE)
             if (!setting.isValid(value)) add(DiagnosticCode.INVALID_VALUE, invalidDetail(setting, value))
             setting.deprecation?.let { add(DiagnosticCode.DEPRECATED, it) }
-            out += CustomizationDiagnostics.check(key, value).map { it.copy(offset = offset) }
+            out += CustomizationDiagnostics.check(key, value, iconIds).map { it.copy(offset = offset) }
         }
         if (layer == LayerId.PROJECT && ExecBearing.extract(LayerDoc.fromJson(JsonObject(mapOf(key to value))), schema).isNotEmpty()) {
             add(DiagnosticCode.NEEDS_TRUST)

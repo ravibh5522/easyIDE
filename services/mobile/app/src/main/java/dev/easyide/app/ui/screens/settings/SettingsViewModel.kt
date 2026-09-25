@@ -130,6 +130,7 @@ class SettingsViewModel(
     contributions: ContributionRegistry,
     lspServers: ServerRegistry,
     private val gitCredentials: GitCredentials,
+    iconIds: StateFlow<Set<String>?>,
 ) : ViewModel(), SettingActions, ThemeActions {
 
     private val _gitCredentialEntries = MutableStateFlow<List<GitCredentialEntry>>(emptyList())
@@ -164,7 +165,7 @@ class SettingsViewModel(
     private val _importPreview = MutableStateFlow<ImportPreview?>(null)
     val importPreview: StateFlow<ImportPreview?> = _importPreview.asStateFlow()
 
-    val jsonEditor = SettingsJsonEditorController(viewModelScope, settingsStore, profileManager)
+    val jsonEditor = SettingsJsonEditorController(viewModelScope, settingsStore, profileManager, iconIds)
 
     val keybindings = KeybindingsController(viewModelScope, profileManager, contributions, jsonEditor) { _message.value = SettingsMessage.WRITE_FAILED }
 

@@ -163,7 +163,7 @@ object SettingsSchema {
     val all: List<Setting<*>> = listOf(
         themeMode, colorTheme, editorFontSize, editorLineHeight, terminalFontSize, explorerHideHidden, explorerHideIgnored, safeMode, activeProfile,
         extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
-    ) + WorkbenchSettingsSchema.all + LspSettingsSchema.all + ThemeSettingsSchema.all + RegistrySettingsSchema.all +
+    ) + WorkbenchSettingsSchema.all + LspSettingsSchema.all + ThemeSettingsSchema.all + IconSettingsSchema.all + RegistrySettingsSchema.all +
         AuthoringSettingsSchema.all + WorkspaceSettingsSchema.all + GitSettingsSchema.all + AppearanceSettingsSchema.all +
         ShellSettingsSchema.all
 

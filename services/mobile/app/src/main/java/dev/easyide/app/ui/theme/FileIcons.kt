@@ -30,6 +30,9 @@ import java.io.File
  */
 class FileIcons(private val theme: IconTheme) {
 
+    /** The theme draws its icons from a font, which the app cannot render: every row keeps its built-in glyph. */
+    val fontIconsOnly: Boolean get() = theme.icons.isEmpty() && theme.fontIcons > 0
+
     suspend fun file(name: String, light: Boolean, px: Int): ImageBitmap? = withContext(Dispatchers.IO) {
         val path = theme.fileIcon(name, TextMateHighlighter.languageIdFor(name, null), light)
         path?.let { load(it, px) }

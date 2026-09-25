@@ -6,11 +6,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import dev.easyide.app.R
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.screens.workspace.files.FileIcon
+import dev.easyide.app.ui.theme.LocalFileIcons
 import dev.easyide.app.ui.theme.ThemedIcon
 import dev.easyide.app.ui.theme.rememberThemedFileIcon
 
@@ -26,6 +30,14 @@ private val PREVIEW_FOLDERS = listOf("src", "test", "docs", "node_modules")
 @Composable
 internal fun IconThemePreview() {
     val size = Kit.control.rowIcon
+    if (LocalFileIcons.current?.fontIconsOnly == true) {
+        BasicText(
+            stringResource(R.string.icon_theme_font_unsupported),
+            Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s),
+            style = Kit.text.caption.copy(color = Kit.colors.textMuted),
+        )
+        return
+    }
     Row(
         Modifier.padding(horizontal = Kit.space.l, vertical = Kit.space.s),
         horizontalArrangement = Arrangement.spacedBy(Kit.space.m),

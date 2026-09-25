@@ -79,6 +79,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 contributions = container.extensions.runtime.contributions,
                 lspServers = container.lsp.servers,
                 gitCredentials = container.gitCredentials,
+                iconIds = container.iconTheme.iconIds,
             )
 
             ExtensionsViewModel::class.java -> ExtensionsViewModel(

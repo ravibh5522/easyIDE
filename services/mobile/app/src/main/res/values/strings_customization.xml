@@ -24,6 +24,7 @@
     <string name="settings_diag_not_hideable">%1$s: %2$s can never be hidden; the entry is ignored</string>
     <string name="settings_diag_key_row_layout">%1$s: %2$s</string>
     <string name="settings_diag_lsp_incomplete">lsp.servers.%1$s: needs %2$s to define a new server, so it is ignored unless a pack declares this key</string>
+    <string name="settings_diag_unknown_icon">%1$s: \"%2$s\" is not an icon of the active icon theme; the entry is ignored</string>
     <string name="settings_diag_lsp_field">lsp.servers.%1$s: %2$s has the wrong type and is ignored</string>
 
     <string name="settings_keyboard_shortcuts">Keyboard shortcuts</string>

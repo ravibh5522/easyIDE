@@ -18,6 +18,7 @@ import dev.easyide.app.data.settings.AuthoringSettingsSchema
 import dev.easyide.app.extensions.authoring.ExtensionScaffold
 import dev.easyide.app.extensions.authoring.ScaffoldResult
 import dev.easyide.app.extensions.dev.DevPending
+import dev.easyide.app.extensions.install.VsCodeIconThemeAdapter
 import dev.easyide.app.extensions.install.AssetTree
 import dev.easyide.app.extensions.install.FileFolder
 import dev.easyide.app.extensions.install.SampleInfo
@@ -343,9 +344,9 @@ class ExtensionsViewModel(
 
     fun clearLog() = extensions.log.clear()
 
-    /** A picked `.easyext` file (SAF document). */
+    /** A picked `.easyext` file, or a VS Code `.vsix` that contributes icon themes (SAF document). */
     fun stageArchive(uri: Uri) = stage {
-        extensions.installer.stageArchive {
+        extensions.installer.stageArchive(adjust = { VsCodeIconThemeAdapter.adapt(it) }) {
             appContext.contentResolver.openInputStream(uri) ?: throw FileNotFoundException(uri.toString())
         }
     }
@@ -353,7 +354,7 @@ class ExtensionsViewModel(
     /** A picked folder (SAF tree) holding an unpacked package. */
     fun stageFolder(uri: Uri) = stage {
         val root = DocumentFile.fromTreeUri(appContext, uri) ?: throw FileNotFoundException(uri.toString())
-        extensions.installer.stageFolder(DocumentFolder(root, appContext))
+        extensions.installer.stageFolder(DocumentFolder(root, appContext)) { VsCodeIconThemeAdapter.adapt(it) }
     }
 
     /** Opens the list of bundled sample packs (Docker, Agents, Chat). */

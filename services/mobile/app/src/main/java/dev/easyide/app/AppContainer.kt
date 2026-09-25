@@ -22,6 +22,7 @@ import dev.easyide.app.data.settings.ProfileManager
 import dev.easyide.app.data.settings.ProjectFileIo
 import dev.easyide.app.data.settings.ProjectTrust
 import dev.easyide.app.data.settings.SafeModeState
+import dev.easyide.app.data.settings.IconSettingsSchema
 import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.extensions.ActiveIconTheme
 import dev.easyide.app.data.settings.SettingsDirWatcher
@@ -43,6 +44,7 @@ import dev.easyide.sandbox.service.SandboxKeepAlive
 import dev.easyide.sandbox.service.SessionHost
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.extensions.adapters.IconOverrides
 import dev.easyide.app.data.settings.SettingsTransfer
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeybindingsFile
@@ -244,6 +246,9 @@ class AppContainer(context: Context) {
     val iconTheme = ActiveIconTheme(
         iconThemes = extensions.themes.iconThemes,
         selection = settingsStore.observe(ThemeSettingsSchema.iconTheme),
+        overrides = combine(
+            settingsStore.observe(IconSettingsSchema.fileAssociations), settingsStore.observe(IconSettingsSchema.folderAssociations), IconOverrides::of,
+        ),
         io = Dispatchers.IO,
         scope = applicationScope,
         warn = { Log.w(LOG_TAG, it) },
