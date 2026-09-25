@@ -31,8 +31,8 @@ c blue t:C e=c,i l=c
 cheader indigo t:H e=h
 cpp sky t:C+ e=cpp,cc,cxx,c++,cp,ino,ipp,tpp,inl,pde l=cpp,cpp-macro
 cppheader indigo t:H+ e=hpp,hh,hxx,h++
-csharp purple t:C# e=cs,csx,cake l=csharp
-fsharp cyan t:F# e=fs,fsi,fsx,fsscript,fsl,fsy l=fsharp
+csharp purple t:CS e=cs,csx,cake l=csharp
+fsharp cyan t:FS e=fs,fsi,fsx,fsscript,fsl,fsy l=fsharp
 vb violet t:VB e=vb,bas,frm,vba l=vb
 vbscript slate t:VS e=vbs,wsf,wsh,vbe
 razor purple g:tag e=cshtml,razor,vbhtml l=razor

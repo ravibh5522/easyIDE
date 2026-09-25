@@ -70,6 +70,7 @@ private fun GalleryPage(config: GalleryConfig, onConfig: (GalleryConfig) -> Unit
             item(key = "overlays") { OverlaysSection() }
             item(key = "motifs") { MotifsSection() }
             item(key = "icons") { IconsSection() }
+            item(key = "file-icons") { FileIconsSection() }
         }
     }
 }

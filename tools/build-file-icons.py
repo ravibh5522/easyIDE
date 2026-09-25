@@ -157,12 +157,12 @@ def page_svg(glyphs, fill, ink, content):
 
 
 def folder_svg(glyphs, fill, ink, content, opened):
+    """The back panel is the fill darkened; the front panel is the plain fill, so the glyph keeps the ink contrast."""
     back, front = (FOLDER_OPEN_BACK, FOLDER_OPEN_FRONT) if opened else (FOLDER_BACK, FOLDER_FRONT)
-    front_fill = '<path fill="#fff" fill-opacity="%s" d="%s"/>' % (".3" if opened else ".22", front)
     body = glyphs.body(content, ink)
     dx = 0.4 if opened else 0
     place = '<g transform="translate(%s 6.9) scale(.75)">%s</g>' % (num(5 + dx), body) if body else ""
-    return wrap('<path fill="%s" d="%s"/>%s%s' % (fill, back, front_fill, place))
+    return wrap('<path fill="%s" d="%s"/><path fill="#000" fill-opacity=".3" d="%s"/><path fill="%s" d="%s"/>%s' % (fill, back, back, fill, front, place))
 
 
 def parse_lines(path):
