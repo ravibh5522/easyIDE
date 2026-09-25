@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -105,7 +105,7 @@ private fun RowMarks(change: GitChangeType?, dirty: Boolean) {
     val description = stringResource(R.string.gitui_modified_marker)
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.s)) {
         if (dirty) {
-            Box(Modifier.size(Kit.space.s).clip(CircleShape).background(Kit.colors.textMuted).semantics { contentDescription = description })
+            Box(Modifier.size(Kit.space.s).clip(FULLY_ROUND).background(Kit.colors.textMuted).semantics { contentDescription = description })
         }
         if (change != null) GitStatusLetter(change)
     }
@@ -123,3 +123,6 @@ internal fun Modifier.treeGuides(depth: Int): Modifier {
         repeat(depth) { level -> drawRect(color, Offset((first + step * level).toPx(), 0f), Size(width.toPx(), size.height)) }
     }
 }
+
+/** Half the shorter side on every corner: a pill for a chip, a disc for a dot. */
+private val FULLY_ROUND = RoundedCornerShape(percent = 50)

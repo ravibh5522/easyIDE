@@ -71,6 +71,7 @@ class GitHistoryControllerTest {
         Git.open(work).use { git ->
             val config = git.repository.config
             config.setString("remote", "origin", "url", "https://example.com/a/b.git")
+            config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*")
             config.setString("branch", "main", "remote", "origin")
             config.setString("branch", "main", "merge", "refs/heads/main")
             config.save()

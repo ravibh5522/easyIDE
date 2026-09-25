@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
@@ -105,9 +105,9 @@ private fun RefPill(text: String, lane: Color, icon: androidx.compose.ui.graphic
     val ink = readableOn(lane, colors.background, colors.plainText)
     Row(
         modifier
-            .clip(CircleShape)
+            .clip(FULLY_ROUND)
             .background(lane)
-            .then(if (current) Modifier.border(Kit.hairline * 2, colors.plainText, CircleShape) else Modifier)
+            .then(if (current) Modifier.border(Kit.hairline * 2, colors.plainText, FULLY_ROUND) else Modifier)
             .padding(horizontal = Kit.space.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Kit.space.xxs),
@@ -116,3 +116,6 @@ private fun RefPill(text: String, lane: Color, icon: androidx.compose.ui.graphic
         BasicText(text, style = Kit.text.caption.copy(color = ink), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
+
+/** Half the shorter side on every corner: a pill for a chip, a disc for a dot. */
+private val FULLY_ROUND = RoundedCornerShape(percent = 50)
