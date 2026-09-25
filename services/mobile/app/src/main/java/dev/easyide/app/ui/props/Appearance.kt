@@ -104,7 +104,7 @@ data class Appearance(
     val corners: Corners = Corners.SOFT,
     /** Percent, 85 to 130: scales dp and sp together. */
     val uiScalePercent: Int = UI_SCALE_DEFAULT,
-    val fontPairing: FontPairing = FontPairing.GEIST,
+    val fontPairing: FontPairing = FontPairing.SYSTEM,
     val chromeContrast: ChromeContrast = ChromeContrast.NORMAL,
     val motif: Motif = Motif.SUBTLE,
     val cursorBlink: Boolean = true,

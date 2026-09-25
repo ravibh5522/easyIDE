@@ -54,8 +54,13 @@ data class EditorColors(
     val selection: Color,
     /** Translucent; paints under the caret line. */
     val currentLine: Color,
-    /** Box behind the bracket at the caret and its partner. */
+    /** Faint fill behind the bracket at the caret and its partner. */
     val bracketMatch: Color,
+    val bracketMatchBorder: Color,
+    /** Outline of the caret line when `editor.renderLineHighlight` is `all`. */
+    val currentLineBorder: Color,
+    /** The editor's overlay scrollbar thumb. */
+    val scrollbarSlider: Color,
     /** Opaque pill behind the selected tree row. */
     val listSelection: Color,
     val listSelectionText: Color,
@@ -129,6 +134,9 @@ fun ThemeTokens.toEditorColors(): EditorColors = EditorColors(
     selection = this[ColorToken.SELECTION],
     currentLine = this[ColorToken.CURRENT_LINE],
     bracketMatch = this[ColorToken.BRACKET_MATCH],
+    bracketMatchBorder = this[ColorToken.BRACKET_MATCH_BORDER],
+    currentLineBorder = this[ColorToken.CURRENT_LINE_BORDER],
+    scrollbarSlider = this[ColorToken.SCROLLBAR_SLIDER],
     listSelection = this[ColorToken.LIST_ACTIVE_SELECTION],
     listSelectionText = this[ColorToken.LIST_ACTIVE_SELECTION_FOREGROUND],
     indentGuide = this[ColorToken.INDENT_GUIDE],
@@ -155,6 +163,7 @@ fun ThemeTokens.toEditorColors(): EditorColors = EditorColors(
         highlightWrite = this[ColorToken.HIGHLIGHT_WRITE],
         searchMatch = this[ColorToken.SEARCH_MATCH],
         searchMatchCurrent = this[ColorToken.SEARCH_MATCH_CURRENT],
+        searchMatchCurrentBorder = this[ColorToken.SEARCH_MATCH_CURRENT_BORDER],
         inlayHintText = this[ColorToken.INLAY_HINT_FOREGROUND],
         inlayHintBackground = this[ColorToken.INLAY_HINT_BACKGROUND],
         lightbulb = this[ColorToken.LIGHTBULB],

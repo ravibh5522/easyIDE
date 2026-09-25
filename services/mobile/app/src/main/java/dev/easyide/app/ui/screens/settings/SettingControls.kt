@@ -104,7 +104,7 @@ private fun JsonAction(enabled: Boolean, ctx: SettingsContext) {
 
 /** Controls that need a field's width: text fields and list editors sit in the control column, or under the label on a narrow page. */
 internal fun isWideControl(setting: Setting<*>): Boolean = when (setting) {
-    is Setting.Str, is Setting.StrList -> true
+    is Setting.Str, is Setting.StrList, is Setting.Decimal -> true
     is Setting.Contributed -> setting.control.let { it is ContributedControl.TextField || it == ContributedControl.NumberField || it == ContributedControl.StringList }
     else -> false
 }
@@ -113,6 +113,9 @@ internal fun isWideControl(setting: Setting<*>): Boolean = when (setting) {
 internal fun WideControl(setting: Setting<*>, value: Any?, enabled: Boolean, language: String?, actions: SettingActions) {
     when (setting) {
         is Setting.Str -> SettingTextField(value as String, singleLine = true, enabled = enabled) { actions.set(setting, it, language) }
+        is Setting.Decimal -> SettingTextField(value.toString(), singleLine = true, enabled = enabled, isValid = { text -> text.toDoubleOrNull()?.let { it in setting.min..setting.max } == true }, mono = true) {
+            actions.set(setting, it.toDouble(), language)
+        }
         is Setting.StrList -> {
             @Suppress("UNCHECKED_CAST") // Setting.StrList decodes to List<String> by construction
             val lines = value as List<String>

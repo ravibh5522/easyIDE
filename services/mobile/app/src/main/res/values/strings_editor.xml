@@ -56,4 +56,49 @@
     <string name="setting_explorer_hide_hidden_desc">Leave files and folders whose names start with a dot out of the explorer and out of Go to File.</string>
     <string name="setting_explorer_hide_ignored_title">Hide git-ignored files</string>
     <string name="setting_explorer_hide_ignored_desc">Leave files that the project\'s .gitignore excludes out of the explorer. Go to File always skips them.</string>
+
+    <string name="setting_editor_font_family_title">Editor font</string>
+    <string name="setting_editor_font_family_desc">The typeface of code. Monospace is the platform monospace face, the one VS Code uses on Android.</string>
+    <string name="editor_font_monospace">Monospace</string>
+    <string name="editor_font_sans">Sans-serif</string>
+    <string name="editor_font_geist_mono">Geist Mono</string>
+
+    <string name="setting_editor_letter_spacing_title">Editor letter spacing</string>
+    <string name="setting_editor_letter_spacing_desc">Extra space between code characters, in sp. 0 is the font\'s own spacing.</string>
+
+    <string name="setting_editor_cursor_style_title">Cursor style</string>
+    <string name="setting_editor_cursor_style_desc">The shape of the caret in the editor.</string>
+    <string name="cursor_style_line">Line</string>
+    <string name="cursor_style_block">Block</string>
+    <string name="cursor_style_underline">Underline</string>
+
+    <string name="setting_editor_cursor_width_title">Cursor width</string>
+    <string name="setting_editor_cursor_width_desc">Width of the line cursor, in dp.</string>
+
+    <string name="setting_editor_line_numbers_title">Line numbers</string>
+    <string name="setting_editor_line_numbers_desc">Show line numbers in the gutter; relative counts lines from the caret.</string>
+    <string name="line_numbers_relative">Relative</string>
+
+    <string name="setting_editor_line_highlight_title">Current line highlight</string>
+    <string name="setting_editor_line_highlight_desc">How the line with the caret stands out. All adds a border and highlights the gutter too.</string>
+    <string name="line_highlight_gutter">Gutter</string>
+    <string name="line_highlight_line">Line</string>
+    <string name="line_highlight_all">All</string>
+
+    <string name="setting_editor_match_brackets_title">Match brackets</string>
+    <string name="setting_editor_match_brackets_desc">Outline the bracket at the caret and its partner. Always also outlines the pair around the caret.</string>
+    <string name="match_brackets_always">Always</string>
+    <string name="match_brackets_near">Near</string>
+
+    <string name="setting_editor_indent_guides_title">Indent guides</string>
+    <string name="setting_editor_indent_guides_desc">Draw vertical lines at each indent level.</string>
+
+    <string name="setting_editor_scrollbar_title">Vertical scrollbar</string>
+    <string name="setting_editor_scrollbar_desc">Auto shows a thin bar while scrolling and fades it out.</string>
+    <string name="scrollbar_auto">Auto</string>
+    <string name="scrollbar_visible">Visible</string>
+    <string name="scrollbar_hidden">Hidden</string>
+
+    <string name="setting_editor_word_wrap_title">Word wrap</string>
+    <string name="setting_editor_word_wrap_desc">Wrap long lines at the editor width instead of scrolling sideways.</string>
 </resources>

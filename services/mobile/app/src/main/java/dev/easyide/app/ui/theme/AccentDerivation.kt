@@ -35,10 +35,8 @@ object AccentDerivation {
                 ColorToken.FOCUS_BORDER to accent,
                 ColorToken.TAB_ACTIVE_BORDER to accent,
                 ColorToken.ACTIVITY_BAR_ACTIVE_BORDER to accent,
-                ColorToken.CURSOR to accent,
                 ColorToken.TERMINAL_CURSOR to accent,
                 ColorToken.SELECTION to accent.copy(alpha = this[ColorToken.SELECTION].alpha),
-                ColorToken.BRACKET_MATCH to accent.copy(alpha = this[ColorToken.BRACKET_MATCH].alpha),
                 ColorToken.LIST_ACTIVE_SELECTION to accent.copy(alpha = listAlpha).compositeOver(panel),
             ),
         )

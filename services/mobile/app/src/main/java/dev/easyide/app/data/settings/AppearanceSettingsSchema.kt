@@ -52,7 +52,7 @@ object AppearanceSettingsSchema {
 
     val fontPairing = Setting.Enum(
         "appearance.fontPairing", C, R.string.setting_font_pairing_title, R.string.setting_font_pairing_desc,
-        FontPairing.GEIST, SettingScope.G, FontPairing.entries,
+        FontPairing.SYSTEM, SettingScope.G, FontPairing.entries,
         { when (it) { FontPairing.GEIST -> R.string.font_pairing_geist; FontPairing.MONO_CHROME -> R.string.font_pairing_mono; FontPairing.SYSTEM -> R.string.font_pairing_system } },
         id = FontPairing::id,
     )

@@ -31,6 +31,8 @@ data class DecorationColors(
     val searchMatch: Color,
     /** `editor.findMatchBackground` */
     val searchMatchCurrent: Color,
+    /** `editor.findMatchBorder`: outlines the current match */
+    val searchMatchCurrentBorder: Color,
     /** `editorInlayHint.foreground` */
     val inlayHintText: Color,
     /** `editorInlayHint.background` (`badge.background` at 10%) */

@@ -48,21 +48,10 @@ object SettingsSchema {
         category = SettingCategory.EDITOR,
         title = R.string.setting_editor_font_size_title,
         description = R.string.setting_editor_font_size_desc,
-        default = 13,
+        default = 14,
         scope = SettingScope.L,
         min = 8,
         max = 32,
-    )
-
-    val editorLineHeight = Setting.IntRange(
-        key = "editor.lineHeight",
-        category = SettingCategory.EDITOR,
-        title = R.string.setting_editor_line_height_title,
-        description = R.string.setting_editor_line_height_desc,
-        default = 20,
-        scope = SettingScope.L,
-        min = 10,
-        max = 48,
     )
 
     val terminalFontSize = Setting.IntRange(
@@ -161,11 +150,11 @@ object SettingsSchema {
     const val KEY_ROWS_AUTO = "auto"
 
     val all: List<Setting<*>> = listOf(
-        themeMode, colorTheme, editorFontSize, editorLineHeight, terminalFontSize, explorerHideHidden, explorerHideIgnored, safeMode, activeProfile,
+        themeMode, colorTheme, editorFontSize, terminalFontSize, explorerHideHidden, explorerHideIgnored, safeMode, activeProfile,
         extensionsEnabled, extensionsDisabled, contributionsHidden, keyRowsActive,
     ) + WorkbenchSettingsSchema.all + LspSettingsSchema.all + ThemeSettingsSchema.all + IconSettingsSchema.all + RegistrySettingsSchema.all +
         AuthoringSettingsSchema.all + WorkspaceSettingsSchema.all + GitSettingsSchema.all + AppearanceSettingsSchema.all +
-        ShellSettingsSchema.all
+        ShellSettingsSchema.all + EditorSettingsSchema.all
 
     /** Declared (validated, resolvable) but edited by a dedicated UI rather than a generic row. */
     val managedElsewhere: Set<String> = setOf(activeProfile.key, colorTheme.key)

@@ -82,9 +82,9 @@ class SettingsRegistryTest {
         val snapshot = SettingsSnapshot(state, state.extensionDefaults)
         assertEquals(16, snapshot[SettingsSchema.editorFontSize])
         assertEquals("extension acme.other", snapshot.inspect(SettingsSchema.editorFontSize).winner.source)
-        assertEquals(22, snapshot.get(SettingsSchema.editorLineHeight, "python"))
+        assertEquals(22.0, snapshot.get(EditorSettingsSchema.lineHeight, "python"), 0.0)
         // Out of range for its target: dropped, so the built-in default stands.
-        assertEquals(SettingsSchema.editorLineHeight.default, snapshot[SettingsSchema.editorLineHeight])
+        assertEquals(EditorSettingsSchema.lineHeight.default, snapshot[EditorSettingsSchema.lineHeight], 0.0)
         assertNull(state.extensionDefaults.first().doc.plain["profiles.active"])
         assertTrue(state.diagnostics.count { it.diagnostic.code == DiagnosticCode.DEFAULTS_REJECTED } >= 2)
     }
