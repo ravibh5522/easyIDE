@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,7 +62,7 @@ fun LspEditorOverlay(controller: WorkspaceLspController, path: String, geometry:
     }
     completion?.takeIf { it.path == path }?.let { c ->
         EditorPopup(anchor = { geometry.caretRect() }, onDismiss = controller.completion::close) {
-            CompletionContent(c, controller)
+            CompletionContent(c) { controller.completion.acceptAsync(it, AcceptMode.INSERT) }
         }
     }
     hover?.takeIf { it.path == path && completion == null }?.let { h ->
@@ -87,7 +88,7 @@ fun LspEditorOverlay(controller: WorkspaceLspController, path: String, geometry:
 }
 
 @Composable
-private fun CompletionContent(ui: CompletionUi, controller: WorkspaceLspController) {
+internal fun CompletionContent(ui: CompletionUi, onAccept: (Int) -> Unit) {
     val colors = Kit.colors
     val listState = rememberLazyListState()
     LaunchedEffect(ui.selected) { listState.scrollToItem((ui.selected - LspUiPolicy.COMPLETION_VISIBLE_ROWS / 2).coerceAtLeast(0)) }
@@ -98,10 +99,10 @@ private fun CompletionContent(ui: CompletionUi, controller: WorkspaceLspControll
                 state = listState,
                 modifier = Modifier
                     .width(LspUiMetrics.completionWidth)
-                    .heightIn(max = LspUiMetrics.completionRowHeight * LspUiPolicy.COMPLETION_VISIBLE_ROWS),
+                    .heightIn(max = LspUiMetrics.completionRowHeight * LspUiPolicy.COMPLETION_VISIBLE_ROWS + LspUiMetrics.rowPaddingV),
             ) {
                 itemsIndexed(ui.items, key = { i, _ -> i }) { index, entry ->
-                    CompletionRow(entry, index == ui.selected) { controller.completion.acceptAsync(index, AcceptMode.INSERT) }
+                    CompletionRow(entry, index == ui.selected) { onAccept(index) }
                 }
             }
         }
@@ -114,7 +115,7 @@ private fun CompletionContent(ui: CompletionUi, controller: WorkspaceLspControll
                         .heightIn(max = LspUiMetrics.popupMaxHeight)
                         .background(colors.raised)
                         .verticalScroll(rememberScrollState())
-                        .padding(Kit.space.s),
+                        .padding(horizontal = Kit.space.s, vertical = Kit.space.xs),
                 ) {
                     focused.item.detail?.let { BasicText(it, style = codeTextStyle().copy(color = colors.textMuted)) }
                     focused.item.documentation?.let { LspMarkdownView(it.asMarkdown(), null, null) }
@@ -132,12 +133,12 @@ private fun CompletionRow(entry: CompletionEntry, selected: Boolean, onClick: ()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(LspUiMetrics.completionRowHeight)
-            .background(if (selected) colors.listSelection else colors.overlay)
+            .heightIn(min = LspUiMetrics.completionRowHeight)
+            .then(if (selected) Modifier.background(colors.listSelection) else Modifier)
             .clickable(onClick = onClick)
-            .padding(horizontal = LspUiMetrics.rowPaddingH),
+            .padding(horizontal = LspUiMetrics.rowPaddingH, vertical = LspUiMetrics.rowPaddingV),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
+        horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
     ) {
         Image(LspIcons.completion(item.kind), null, Modifier.size(LspUiMetrics.kindIconSize), colorFilter = ColorFilter.tint(colors.accent))
         val text = if (selected) colors.listSelectionText else colors.plainText
@@ -146,13 +147,15 @@ private fun CompletionRow(entry: CompletionEntry, selected: Boolean, onClick: ()
                 append(item.label)
                 item.labelDetail?.let { withStyle(SpanStyle(color = colors.textMuted)) { append(it) } }
             },
-            style = codeTextStyle().copy(color = if (item.deprecated) colors.textDisabled else text),
+            style = Kit.text.body.copy(color = if (item.deprecated) colors.textDisabled else text),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
         )
-        (item.labelDescription ?: item.detail)?.let {
-            BasicText(it, style = Kit.text.label.copy(color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        // The label is measured first and keeps its width; the detail takes what is left and may vanish.
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+            (item.labelDescription ?: item.detail)?.let {
+                BasicText(it, style = Kit.text.caption.copy(color = colors.textMuted), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
         }
     }
 }

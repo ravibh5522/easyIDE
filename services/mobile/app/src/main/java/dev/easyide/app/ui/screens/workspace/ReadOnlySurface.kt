@@ -20,7 +20,11 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import dev.easyide.app.data.settings.LineNumbers
+import dev.easyide.app.ui.screens.workspace.decor.EditorGutter
 import dev.easyide.app.ui.theme.editorColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,10 +46,11 @@ internal fun ReadOnlySurface(tab: EditorTab, interaction: EditorInteraction?) {
         value = tab.content to withContext(Dispatchers.Default) { tab.content.lines() }
     }
     val lines = split?.takeIf { it.first === tab.content }?.second ?: return
-    val gutterWidth = remember(lines.size) {
-        // Widen the gutter for files with many lines so numbers never clip.
-        (GUTTER_WIDTH_DP + (lines.size.toString().length - 2).coerceAtLeast(0) * GUTTER_DIGIT_DP).dp
-    }
+    val options = rememberEditorOptions(languageId)
+    val style = codeTextStyle(languageId)
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val charWidth = remember(style, density) { with(density) { measurer.measure("0", style).size.width.toDp() } }
 
     if (interaction != null) {
         val request by interaction.selectionRequests.collectAsState()
@@ -58,33 +63,31 @@ internal fun ReadOnlySurface(tab: EditorTab, interaction: EditorInteraction?) {
         }
     }
 
-    LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-        itemsIndexed(lines) { index, line ->
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "${index + 1}",
-                    style = codeTextStyle(languageId).copy(color = colors.gutterText),
-                    textAlign = TextAlign.End,
-                    modifier = Modifier
-                        .width(gutterWidth)
-                        .background(colors.gutter)
-                        .padding(end = 8.dp),
-                )
-                Text(
-                    text = line,
-                    style = codeTextStyle(languageId).copy(color = colors.plainText),
-                    maxLines = 1,
-                    modifier = Modifier
-                        .weight(1f)
-                        .horizontalScroll(horizontalScroll)
-                        .padding(start = 8.dp),
-                )
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        // Widens with the line count, so numbers never clip.
+        val gutterWidth = EditorGutter.width(lines.size, options.lineNumbers, charWidth, EditorGutter.isCompact(maxWidth))
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+            itemsIndexed(lines) { index, line ->
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = if (options.lineNumbers == LineNumbers.OFF) "" else "${index + 1}",
+                        style = style.copy(color = colors.gutterText),
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.width(gutterWidth).background(colors.gutter).padding(end = charWidth),
+                    )
+                    Text(
+                        text = line,
+                        style = style.copy(color = colors.plainText),
+                        maxLines = 1,
+                        modifier = Modifier
+                            .weight(1f)
+                            .horizontalScroll(horizontalScroll)
+                    )
+                }
             }
         }
     }
 }
-
-private const val GUTTER_DIGIT_DP = 8
 
 /** Lines kept above a revealed line so its context is visible. */
 private const val REVEAL_CONTEXT_LINES = 5
