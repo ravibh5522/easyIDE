@@ -239,8 +239,8 @@ fun WorkspaceScreen(
         WorkspaceActions(
             onNodeMenu = { node, at -> menu = NodeMenu(node, at) },
             documents = DocumentOpener(model::open, stageActions::openBeside),
-            onNewFile = { inlineEdit = InlineEdit.NewFile("") },
-            onNewFolder = { inlineEdit = InlineEdit.NewFolder("") },
+            onNewFile = { dir -> dir?.let(revealFolder); inlineEdit = InlineEdit.NewFile(dir?.relativePath.orEmpty()) },
+            onNewFolder = { dir -> dir?.let(revealFolder); inlineEdit = InlineEdit.NewFolder(dir?.relativePath.orEmpty()) },
             inline = InlineEditSpec(
                 edit = inlineEdit,
                 onCommit = { edit, name ->

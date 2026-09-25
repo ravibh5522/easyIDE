@@ -27,8 +27,8 @@ class WorkspaceActions(
     val onNodeMenu: (FileNode, IntOffset) -> Unit,
     /** How a row puts a document on the stage (a change row opening its diff, a commit's files). */
     val documents: DocumentOpener,
-    val onNewFile: () -> Unit,
-    val onNewFolder: () -> Unit,
+    val onNewFile: (FileNode?) -> Unit,
+    val onNewFolder: (FileNode?) -> Unit,
     /** The name being typed into the tree (new file or folder, rename), and what ends it. */
     val inline: InlineEditSpec,
     val onRenameTerminal: (id: String, title: String) -> Unit,

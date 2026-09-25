@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,8 +47,8 @@ fun FileTreePane(
     onFileOpened: (FileNode) -> Unit,
     onDirectoryToggled: (FileNode) -> Unit,
     onNodeMenu: (FileNode, IntOffset) -> Unit,
-    onNewFile: () -> Unit,
-    onNewFolder: () -> Unit,
+    onNewFile: (FileNode?) -> Unit,
+    onNewFolder: (FileNode?) -> Unit,
     onRefresh: () -> Unit,
     inline: InlineEditSpec,
     modifier: Modifier = Modifier,
@@ -60,12 +61,17 @@ fun FileTreePane(
     val hideIgnored = settings[SettingsSchema.explorerHideIgnored]
     val ignore = LocalIgnoreIndex.current
     val filter = remember(hideHidden, hideIgnored, ignore) { TreeFilter(hideHidden, hideIgnored, ignore) }
+    // Like VS Code: a new entry goes where the explorer is pointing, the last tapped folder or file's
+    // folder, and once the editor moves to another file the explorer follows it.
+    var focus by remember { mutableStateOf<FileNode?>(null) }
+    LaunchedEffect(state.activeTabPath) { focus = null }
+    val target = explorerTarget(state, focus)
 
     Column(modifier = modifier.fillMaxSize().background(colors.panel)) {
         ExplorerHeader(
             projectName = state.projectName,
-            onNewFile = onNewFile,
-            onNewFolder = onNewFolder,
+            onNewFile = { onNewFile(target) },
+            onNewFolder = { onNewFolder(target) },
             onRefresh = onRefresh,
             hideHidden = hideHidden,
             hideIgnored = hideIgnored,
@@ -80,8 +86,8 @@ fun FileTreePane(
                 depth = 0,
                 filter = filter,
                 state = state,
-                onFileOpened = onFileOpened,
-                onDirectoryToggled = onDirectoryToggled,
+                onFileOpened = { focus = it; onFileOpened(it) },
+                onDirectoryToggled = { focus = it; onDirectoryToggled(it) },
                 onNodeMenu = onNodeMenu,
                 inline = inline,
                 changes = changes,
