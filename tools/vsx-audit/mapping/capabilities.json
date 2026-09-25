@@ -1,0 +1,3388 @@
+{
+ "_doc": "Hand-maintained capability table (lead-reviewed). One entry per capability id used by api-rules.json, contributes.json, activation.json, menus.json, when.json, SURFACES.md and data/ourcode-*.json. gap = today vs what route 2b needs end-to-end (ADR 0031): extension-facing capabilities that need the host/adapter are never Have; API-fed ui.* surfaces: UI Have -> Missing-backend, UI Partial/Missing -> Missing-both; declarative-only surfaces keep the UI status. provides = who does the work under 2b. milestone = when extensions using the capability stop failing gates g2/g3 (design.md §6 shape milestone, ui.md §9 WP milestone; the later one when both are needed). doc links are relative to docs/vsx-compat/. today/evidence come from data/ourcode-*.json (and cited doc lines); effort scale per COMMON: S <=2 agent-days, M <=1 week, L <=3 weeks, XL >3 weeks.",
+ "capabilities": {
+  "auth.api": {
+   "title": "authentication.getSession / registerAuthenticationProvider",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: -",
+   "evidence": [
+    "docs/vsx-compat/design.md:320"
+   ],
+   "change": "MainThreadAuthentication; Kotlin GitHub provider; consent; Accounts UI",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-API-11",
+    "WP-SEC-8",
+    "WP-UI-14"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#15-authentication-providers-github-device-flow--pat"
+  },
+  "auth.github": {
+   "title": "GitHub authentication provider (device flow / PAT)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "kotlin",
+   "today": "Partial: No OAuth.",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCredentials.kt:24-60"
+   ],
+   "change": "Kotlin provider + stub vscode.github-authentication",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-API-11",
+    "WP-SEC-8",
+    "WP-HOST-13"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#15-authentication-providers-github-device-flow--pat"
+  },
+  "chat.lm": {
+   "title": "Chat participants, language models, LM tools, MCP",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "provides": "mixed",
+   "today": "no chat UI or model access",
+   "evidence": [
+    "docs/vsx-compat/design.md:360"
+   ],
+   "change": "$getTools -> [], selectChatModels -> [], registration no-op, requests rejected",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "commands.builtin": {
+   "title": "Built-in vscode.* / workbench commands callable by extensions (vscode.open, vscode.diff, setContext, vscode.execute*Provider)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial: Missing vscode.open/diff/openWith, setContext, vscode.executeXxxProvider, openSettings; edit.undo vs undo.",
+   "evidence": [
+    "services/shared/extension-schema/builtin-commands.json:4-36",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:67-140"
+   ],
+   "change": "declarative table of vscode.* API commands; setContext; allow-list for host calls",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-17",
+    "WP-UI-2",
+    "WP-UI-6",
+    "WP-SEC-12"
+   ],
+   "milestone": "M3",
+   "doc": "design.md#53-command-execution-both-directions"
+  },
+  "commands.registry": {
+   "title": "commands.registerCommand / executeCommand / getCommands",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: Commands must be declared in contributes.commands; built-ins win; ActionOutcome not a return value.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:28-61",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:60-63",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:142",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:186-208",
+    "docs/vsx-compat/design.md:334"
+   ],
+   "change": "CommandHandler.Host + dynamic registration; both directions",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-17"
+   ],
+   "milestone": "M1",
+   "doc": "design.md#53-command-execution-both-directions"
+  },
+  "comments.api": {
+   "title": "Comments API (CommentController)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Not planned.",
+   "evidence": [
+    "docs/extension-host/arch.md:139",
+    "docs/vsx-compat/design.md:335"
+   ],
+   "change": "accept + record from M1 (N), native UI in M5",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#85-comments-decision"
+  },
+  "config.defaults": {
+   "title": "contributes.configuration defaults and configurationDefaults",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Have: EXTENSION layer.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:98-99",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:112-121"
+   ],
+   "change": "feed every enabled .vsix defaults into the defaults model",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-2",
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "doc": "design.md#8-settings-and-configuration-model"
+  },
+  "config.inspect": {
+   "title": "WorkspaceConfiguration.inspect()",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: ENVIRONMENT layer has no VS Code slot; workspaceFolderValue always undefined.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:19-22",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:115"
+   ],
+   "change": "map Resolved provenance; folder value = workspace value (UNVERIFIED)",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-2"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#6-settings--configuration-parity"
+  },
+  "config.langOverride": {
+   "title": "Language-scoped settings ([lang] overrides)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Have: [lang] blocks on every layer for L-scope keys.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/Setting.kt:18-28",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:45-47"
+   ],
+   "change": "export [lang] blocks in the models",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-2"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#6-settings--configuration-parity"
+  },
+  "config.model": {
+   "title": "workspace.getConfiguration / onDidChangeConfiguration",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have: Scopes: application/machine->G, machine-overridable->E, language-overridable->L, window/resource->P (ContributedSettings.kt:49-53). No folder layer.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/LayerDoc.kt:10",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:38-100",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:21-60",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:226-230",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/SettingsPort.kt:19-53"
+   ],
+   "change": "Kotlin builds VS Code configuration models from layers (ENVIRONMENT -> userRemote)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-2"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#6-settings--configuration-parity"
+  },
+  "debug.dap": {
+   "title": "Debug API and debug adapters",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "provides": "mixed",
+   "today": "no debugger",
+   "evidence": [
+    "docs/vsx-compat/design.md:340"
+   ],
+   "change": "registration no-op, $startDebugging -> false + banner",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "diagnostics": {
+   "title": "languages.createDiagnosticCollection / getDiagnostics",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: DiagnosticCollection = synthetic ServerKey per collection.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/diagnostics/DiagnosticStore.kt:23-43",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:52",
+    "docs/vsx-compat/design.md:343"
+   ],
+   "change": "DiagnosticCollection = synthetic ServerKey",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "doc.content-provider": {
+   "title": "registerTextDocumentContentProvider (virtual read-only documents)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Scheme router for virtual docs.",
+   "evidence": [
+    "docs/vsx-compat/design.md:344"
+   ],
+   "change": "scheme router opens read-only virtual docs",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-4",
+    "WP-API-13"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#7-file-system-providers-virtual-documents-search"
+  },
+  "doc.encoding": {
+   "title": "Document encodings (workspace.decode/encode, TextDocument.encoding)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Missing: UTF-8 only; EOL display-only; 256 KB editable, 8 MB viewer, 2 MB full-sync cap.",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/ProjectFiles.kt:110",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/layout/StatusFacts.kt:42-45",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/FileContent.kt:39-72",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:30",
+    "docs/vsx-compat/design.md:402"
+   ],
+   "change": "answer utf8 (encoding trio in MainThreadWorkspace, design.md row 87)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#9-text-document-model-and-sync-at-scale"
+  },
+  "doc.model": {
+   "title": "TextDocument model (textDocuments, open/close/change events, openTextDocument)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: No eol, isUntitled, encoding; dirty lives in tab model.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/docs/DocumentStore.kt:18-84",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/text/LineIndex.kt:12-54",
+    "services/mobile/app/src/main/java/dev/easyide/app/session/ExternalChange.kt:7-30"
+   ],
+   "change": "DocSnapshot + eol/dirty/untitled/encoding; documents delta",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#9-text-document-model-and-sync-at-scale"
+  },
+  "doc.sync": {
+   "title": "Incremental document sync to the host",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: Single coalesced range per flush, not per-edit contentChanges.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/DocumentSync.kt:31-60",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/text/TextDiff.kt:11-60"
+   ],
+   "change": "coalesced $acceptModelChanged per flush, size tiers",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#9-text-document-model-and-sync-at-scale"
+  },
+  "env.clipboard": {
+   "title": "env.clipboard",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Have: Direct.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmSmallPorts.kt:14-37",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/capability/Capability.kt:20",
+    "docs/vsx-compat/design.md:332"
+   ],
+   "change": "MainThreadClipboard -> Android clipboard",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18"
+   ],
+   "milestone": "M1",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "env.info": {
+   "title": "env.* identity (appName, machineId, uiKind, language, remoteName, version)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Partial: machineId/sessionId not generated.",
+   "evidence": [
+    "services/mobile/ext-wasm/src/main/kotlin/dev/easyide/extwasm/host/HostFunctionTable.kt:43-47",
+    "docs/extension-host/arch.md:54"
+   ],
+   "change": "D9 values in initData; machineId per environment",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-15"
+   ],
+   "milestone": "M1",
+   "doc": "backend-2.md#19-telemetry-no-op-and-identity"
+  },
+  "env.openExternal": {
+   "title": "env.openExternal / asExternalUri",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Have: Direct (with confirm).",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:140-147",
+    "docs/vsx-compat/design.md:401"
+   ],
+   "change": "confirm + scheme allow-list",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-SEC-11"
+   ],
+   "milestone": "M1",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "env.shell": {
+   "title": "env.shell",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Partial: Guest root, dash.",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:100-113",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:185"
+   ],
+   "change": "initData default shell (bash when present)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-15"
+   ],
+   "milestone": "M1",
+   "doc": "backend-2.md#13-terminals"
+  },
+  "env.uri-handler": {
+   "title": "window.registerUriHandler / onUri deep links",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "kotlin",
+   "today": "Missing: Android intent filter + onUri.",
+   "evidence": [
+    "docs/vsx-compat/design.md:397"
+   ],
+   "change": "easyide:// intent filter -> Urls shape",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-15",
+    "WP-API-18",
+    "WP-SEC-11",
+    "WP-UI-14"
+   ],
+   "milestone": "M4",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "ext.api": {
+   "title": "extensions.getExtension/all, raw packageJSON, extension-defined contribution points",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "Missing: Descriptor is typed; raw packageJSON not retained.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:58-86",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:142"
+   ],
+   "change": "adapter passes raw packageJSON in the extension snapshot",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9",
+    "WP-HOST-12"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#11-manifest-schema-blocker-and-package-limits"
+  },
+  "ext.builtins": {
+   "title": "Built-in extensions the host expects (vscode.git, git-base, github-authentication stub, npm, json-language-features)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "no built-in VS Code extensions; native JGit git and our own TS/markdown packs",
+   "evidence": [
+    "docs/vsx-compat/design.md:458"
+   ],
+   "change": "vendor git/git-base (M4), stub github-authentication, npm/json-language-features candidates (M5); typescript/markdown-language-features absent",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-API-10",
+    "WP-HOST-13"
+   ],
+   "milestone": "M5",
+   "doc": "design.md#7-built-in-extensions-the-host-expects"
+  },
+  "ext.context": {
+   "title": "ExtensionContext (paths, mode, subscriptions, environmentVariableCollection)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "Partial: storageUri/globalStorageUri/logUri/secrets missing.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:80-85",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmStoragePort.kt:5-20",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionLogRing.kt:22-42"
+   ],
+   "change": "initData storage/log homes; context built by the host",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-8",
+    "WP-HOST-12"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#4-extension-storage-and-memento"
+  },
+  "ext.deps": {
+   "title": "extensionDependencies (incl. vscode.* built-ins)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Top-level additionalProperties:false rejects the key.",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:5"
+   ],
+   "change": "resolve vscode.* against our built-in set, else Open VSX; install closure (WP-REG-5); M4 because GitHub PR/GitLab/Ruby LSP depend on vscode.git (WP-API-10)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-10",
+    "WP-REG-5",
+    "WP-API-10"
+   ],
+   "milestone": "M4",
+   "doc": "backend-2.md#21-extensiondependencies--extensionpack"
+  },
+  "ext.enable": {
+   "title": "Per-extension enable/disable with host delta",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Have: Reuse enablement rules (per env, extensions.disabled P-scope, profile allowlist, approval, crash, revoked).",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/Enablement.kt:45-100",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:18-20"
+   ],
+   "change": "$deltaExtensions; restart-to-apply for activated ones",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-10"
+   ],
+   "milestone": "M1",
+   "doc": "backend-2.md#23-per-extension-enabledisable"
+  },
+  "ext.killswitch": {
+   "title": "Per-environment kill switch and state wipe",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "kotlin",
+   "today": "Partial: No kill switch in code (grep).",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:18",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/Enablement.kt:80"
+   ],
+   "change": "stop all hosts of an environment, disable, wipe",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-SEC-6",
+    "WP-HOST-4"
+   ],
+   "milestone": "M1",
+   "doc": "backend-2.md#25-kill-switch"
+  },
+  "ext.kind": {
+   "title": "extensionKind (accepted, single local host)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Missing: Rejected by schema.",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:5"
+   ],
+   "change": "accept and ignore once the manifest is accepted",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-10"
+   ],
+   "milestone": "M1",
+   "doc": "backend-2.md#20-extensionkind"
+  },
+  "ext.manifest": {
+   "title": "Tolerant .vsix manifest reader (raw package.json -> IExtensionDescription + Kotlin contributions)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "manifest.schema.json requires engines.easyide and is closed (additionalProperties:false), so every code .vsix fails; only icon themes install from a raw .vsix",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:5"
+   ],
+   "change": "never validate .vsix through manifest.schema.json; adapter + Kotlin tolerant readers of the raw bytes",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-9",
+    "WP-REG-4",
+    "WP-REG-8"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#11-manifest-schema-blocker-and-package-limits"
+  },
+  "ext.pack": {
+   "title": "extensionPack expansion",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "kotlin",
+   "today": "Missing: Rejected by schema.",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:5"
+   ],
+   "change": "install-time closure, environment-scoped commit",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-10",
+    "WP-REG-5"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#21-extensiondependencies--extensionpack"
+  },
+  "ext.safemode": {
+   "title": "Safe mode (host not started)",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "kotlin",
+   "today": "Have: Reuse; built-ins stay enabled.",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/SafeModeState.kt:13-57",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SafeModeState.kt:11-20",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:278-292",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/CrashJournal.kt:46-56"
+   ],
+   "change": "safe mode = no host; banner after 3 failed restarts",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-7"
+   ],
+   "milestone": "M1",
+   "doc": "backend-2.md#24-safe-mode"
+  },
+  "ext.update": {
+   "title": "Updates and rollback of .vsix extensions",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "kotlin",
+   "today": "Partial: Open VSX adapter (sec 9) not built.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/registry/RegistryService.kt:117-120",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/LocalInstaller.kt:172-240",
+    "docs/extension-sdk/lld/registry-and-install.md:5"
+   ],
+   "change": "install beside old version, flip at next host start",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-10",
+    "WP-REG-7"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#22-updates-and-rollback"
+  },
+  "ext.web": {
+   "title": "Browser-only (web) extensions",
+   "track": "OOS-WEB",
+   "gap": "Not-planned",
+   "provides": "host",
+   "today": "no web worker extension host",
+   "evidence": [],
+   "change": "none (no browser extension host); 0 corpus extensions are browser-only",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-WEB"
+   ],
+   "milestone": "OOS",
+   "doc": "backend-2.md#20-extensionkind"
+  },
+  "fork.api": {
+   "title": "APIs of VS Code forks (Cursor, Antigravity)",
+   "track": "fork",
+   "gap": "Not-planned",
+   "provides": "host",
+   "today": "n/a",
+   "evidence": [],
+   "change": "none; such code paths are fork-only (feature-detected)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [],
+   "milestone": "OOS",
+   "doc": "design.md#1-goals-non-goals-mental-model"
+  },
+  "fs.api": {
+   "title": "workspace.fs (file: via the host's Node disk provider)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "Partial: file: scheme served by Node fs inside the guest (ADR 0030 dec. 5).",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/ProjectFiles.kt:28-254",
+    "services/mobile/ext-wasm/src/main/kotlin/dev/easyide/extwasm/host/HostFunctionTable.kt:68-80",
+    "docs/vsx-compat/design.md:354"
+   ],
+   "change": "free in the host for file:; other schemes via fs.provider",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-1",
+    "WP-API-4"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#7-file-system-providers-virtual-documents-search"
+  },
+  "fs.provider": {
+   "title": "registerFileSystemProvider (non-file schemes) + scheme router",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Scheme router needed in the editor/explorer.",
+   "evidence": [
+    "docs/extension-host/arch.md:108"
+   ],
+   "change": "adapter provider registry; Kotlin scheme router in editor/explorer",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-4"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#7-file-system-providers-virtual-documents-search"
+  },
+  "fs.watch": {
+   "title": "createFileSystemWatcher and file-operation events",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Partial: Kotlin watcher covers expanded explorer dirs only; LSP capability advertised but never sent; guest inotify via proot UNVERIFIED.",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/ProjectFileWatcher.kt:27-79",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ClientCapabilities.kt:139-142",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmRuntime.kt:194-200"
+   ],
+   "change": "adapter-owned guest fs.watch(recursive) + excludes; Kotlin will/did file-operation events",
+   "effort": "M",
+   "risk": "High",
+   "wp": [
+    "WP-API-5"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#8-file-watching"
+  },
+  "git.api": {
+   "title": "vscode.git getAPI(1)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "Partial: Kotlin JGit service not reachable from host; token not given to host.",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitRepository.kt:1-40",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitService.kt:21-150",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCommandLine.kt:55-65"
+   ],
+   "change": "vendor extensions/git + git-base at the pinned tag as built-ins",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-API-10"
+   ],
+   "milestone": "M4",
+   "doc": "backend-2.md#14-git-extension-api-vscodegit-getapi1"
+  },
+  "host.activation": {
+   "title": "Activation events: Kotlin detects, host activates",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: Only 6 events (onLanguage,onCommand,onView,onStage,workspaceContains,onStartupFinished); '*' downgraded; unknown dropped; no implicit activation; timeout uses extensions.wasm.activateTimeout…",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:22-47",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:35-39",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:88-99",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:128-139",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:30"
+   ],
+   "change": "raw event index incl. implicit events; $activateByEvent; NodeHostActivator",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-1"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#3-activation-model-and-lazy-activation"
+  },
+  "host.core-types": {
+   "title": "Core value types and namespace objects (Uri, EventEmitter, Disposable, CancellationToken, MarkdownString, ...)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "no host; value types exist only inside VS Code's ext host",
+   "evidence": [
+    "docs/vsx-compat/backend.md:40"
+   ],
+   "change": "none beyond the vendored host: implemented in extHostTypes.ts",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-1"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#0-legend-aliases-and-what-the-vendored-host-gives-us"
+  },
+  "host.crash": {
+   "title": "Crash journal and attribution for host extensions",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: Crash keys are extensions.wasm.*; need host-neutral keys (R-ENG-07/08).",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/CrashJournal.kt:36-60",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:111-127",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/ExtensionPolicy.kt:12",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:32-33"
+   ],
+   "change": "journal from $onWillActivate/$onDidActivate; host-neutral crash keys",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-7"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#14-crash-journal-attribution-supervision-outcome"
+  },
+  "host.lifecycle": {
+   "title": "Host start/stop/park, restart with backoff",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Partial: Model host process on LspSession/ServerInstance lifecycle (initialize, shutdown grace, restart backoff).",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:22",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/SessionStateMachine.kt",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:50-60"
+   ],
+   "change": "model on LspSession lifecycle; lazy start; park rules",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-4"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#12-process-model-and-lifecycle-d3"
+  },
+  "host.loader": {
+   "title": "Vendored node extension host bundle, require('vscode') and the main-thread adapter core",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "Missing: services/mobile/exthost does not exist.",
+   "evidence": [
+    "docs/extension-host/tracker.md:8",
+    "docs/vsx-compat/backend.md:40"
+   ],
+   "change": "esbuild of extensionHostProcess.ts at the pinned tag + adapter core (initData, registry, errors, console)",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-1",
+    "WP-HOST-12"
+   ],
+   "milestone": "M1",
+   "doc": "design.md#21-component-diagram"
+  },
+  "host.memory": {
+   "title": "Host memory budget and shedding order",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Partial: Kill order models LspSession only; defaults 1200 MB global, 3 servers.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/manager/MemoryPolicy.kt:5-70",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/LspRuntime.kt:122-160",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/LspSettingsSchema.kt:52-65",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/SandboxServerLauncher.kt:79-90",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmRuntime.kt:203-204"
+   ],
+   "change": "Victim.Host in MemoryPolicy; process-tree RSS",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-6",
+    "WP-SEC-13",
+    "WP-PERF-3"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#13-memory-budget-memorypolicy-integration-and-shedding-order"
+  },
+  "host.process": {
+   "title": "Extension host process (Node 24 in the guest, one per workspace session)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Partial: Launcher keyed by ServerKey(env,project,server) and binds one project at /workspace: host is effectively per (env,project), not per env as ADR 0030 says. PROOT_LOADER/LD_LIBRARY_PATH leak in…",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/ServerProcessFactory.kt:67-88",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/SandboxServerLauncher.kt:46-62",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/LinuxEnvironment.kt:215",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/backend/ProotLauncher.kt:20-57",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:159-182",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/backend/SandboxLauncher.kt:86-119"
+   ],
+   "change": "ExtHostSupervisor over ServerProcessFactory; Node provisioning per ADR 0032",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-2",
+    "WP-HOST-3",
+    "WP-HOST-4"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#12-process-model-and-lifecycle-d3"
+  },
+  "host.transport": {
+   "title": "Adapter <-> Kotlin UI protocol (JSON-RPC, Content-Length)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have: Protocol draft's $/cancel+cancelId duplicates $/cancelRequest. Notifications are handled one at a time in wire order. Every request needs a timeout.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/jsonrpc/JsonRpcConnection.kt:50-150",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/jsonrpc/JsonRpcConnection.kt:292",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/jsonrpc/Framing.kt:27-29",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:13-24"
+   ],
+   "change": "new :exthost module on JsonRpcConnection; host<->adapter uses VS Code RPCProtocol unchanged",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-5"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#2-transport"
+  },
+  "l10n": {
+   "title": "vscode.l10n bundles and env.language",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Partial: vscode.l10n runtime bundles missing.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/Nls.kt:9-60",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:59",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:173",
+    "docs/vsx-compat/design.md:362"
+   ],
+   "change": "adapter reads bundles in the guest",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-15",
+    "WP-HOST-12"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#18-localisation-l10n"
+  },
+  "lang.call-hierarchy": {
+   "title": "Call hierarchy providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Not in LspFeature enum.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "new LspFeature kind + request + UI (design.md row 43 schedules it for M5)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.code-action": {
+   "title": "Code action providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:157-174",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.code-lens": {
+   "title": "Code lens providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:185-189",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.color": {
+   "title": "Document color providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Not in LspFeature enum.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "new LspFeature kind + request + UI (design.md row 43 schedules it for M5)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.completion": {
+   "title": "Completion item providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing except WASM.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:116-133",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.definition": {
+   "title": "Definition/declaration/type-definition/implementation providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:199-202",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:285-286",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.drop-paste": {
+   "title": "Document drop/paste edit providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Not in LspFeature enum.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "new LspFeature kind + request + UI (design.md row 43 schedules it for M5)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.folding": {
+   "title": "Folding range providers (results computed; UI is PE1)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:182-183",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:87",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.formatting": {
+   "title": "Formatting providers (document, range, on-type)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:229-242",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.grammar": {
+   "title": "TextMate grammars (contributes.grammars)",
+   "track": "in",
+   "gap": "Have",
+   "provides": "kotlin",
+   "today": "Have: TextMate with extension grammars/injections.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:208-210",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:106-109",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/ExtensionPolicy.kt:20"
+   ],
+   "change": "none for the engine; .vsix path needs ext.manifest",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#11-manifest-schema-blocker-and-package-limits"
+  },
+  "lang.highlight": {
+   "title": "Document highlight providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:145-146",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.hover": {
+   "title": "Hover providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing except WASM.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:135-138",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.inlay-hint": {
+   "title": "Inlay hint providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:176-180",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.inline-completion": {
+   "title": "Inline completion providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Not in LspFeature enum.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "new LspFeature kind + request + UI (design.md row 43 schedules it for M5)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.inline-values": {
+   "title": "Inline values / evaluatable expressions (debugger)",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "provides": "adapter",
+   "today": "no debugger",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "registration accepted as no-op (design.md row 43)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "lang.json-validation": {
+   "title": "contributes.jsonValidation (applied by the json-language-features built-in)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Missing: Point rejected by schema.",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsJsonCompletion.kt",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SchemaValidator.kt"
+   ],
+   "change": "vendor json-language-features (candidate, open question 11.3) or feed schemas to our JSON support",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "milestone": "M5",
+   "doc": "design.md#72-other-built-ins"
+  },
+  "lang.language-config": {
+   "title": "Language configuration (setLanguageConfiguration, language-configuration.json)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: BUG: regexes read only as {pattern,flags} objects (lines 98,108-109,134,149); VS Code accepts string|IRegExp; wordPattern/folding.markers not read; setLanguageConfiguration missing.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/syntax/LanguageConfigs.kt:95-150",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "fix string-regex parsing bug; $setLanguageConfiguration",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-13"
+   ],
+   "milestone": "M2",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "lang.languages": {
+   "title": "contributes.languages (ids, extensions, filenames, aliases)",
+   "track": "in",
+   "gap": "Have",
+   "provides": "kotlin",
+   "today": "language contributions decoded and used (icon key rejected)",
+   "evidence": [],
+   "change": "accept icon key; via .vsix needs ext.manifest",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#11-manifest-schema-blocker-and-package-limits"
+  },
+  "lang.linked-editing": {
+   "title": "Linked editing range providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Not in LspFeature enum.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "new LspFeature kind + request + UI (design.md row 43 schedules it for M5)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.links": {
+   "title": "Document link providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:191-195",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.references": {
+   "title": "Reference providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:140-143",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.rename": {
+   "title": "Rename providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:216-227",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.router": {
+   "title": "Language feature routing (FeatureSource + DocumentSelector, D10 yield rule)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Partial: Router typed to LspSession; ext providers = completion/hover only, merged in presenters, resolve/command stripped.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/FeatureRouting.kt:30-90",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/ExtensionProviders.kt:24-48",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:200-212",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:278",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/InfoController.kt:81",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:280"
+   ],
+   "change": "FeatureSource refactor of FeatureRouting; built-in pack yields per D10",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.selection-range": {
+   "title": "Selection range providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:208-211",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.semantic-tokens": {
+   "title": "Semantic token providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:256-265",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/SemanticTokensCache.kt",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "LSP semantic tokens are routed today; design.md row 43 still lists semantic tokens for M5",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.set-language": {
+   "title": "languages.setTextDocumentLanguage / getLanguages",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: No API to re-key a DocSnapshot's languageId.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/syntax/TextMateHighlighter.kt:135",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/syntax/LanguageConfigs.kt:60-71",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/docs/DocumentStore.kt:48-55",
+    "docs/vsx-compat/design.md:361"
+   ],
+   "change": "re-key DocSnapshot languageId",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#9-text-document-model-and-sync-at-scale"
+  },
+  "lang.signature-help": {
+   "title": "Signature help providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:204-206",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.snippets": {
+   "title": "Snippets (contributes.snippets, SnippetString)",
+   "track": "in",
+   "gap": "Have",
+   "provides": "kotlin",
+   "today": "Have: Reuse SnippetBody for SnippetString.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Snippets.kt",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/SnippetBody.kt",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:212-218"
+   ],
+   "change": "none for the engine; .vsix path needs ext.manifest",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#11-manifest-schema-blocker-and-package-limits"
+  },
+  "lang.symbols": {
+   "title": "Document symbol providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:148-149",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.type-hierarchy": {
+   "title": "Type hierarchy providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Not in LspFeature enum.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "new LspFeature kind + request + UI (design.md row 43 schedules it for M5)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "lang.workspace-symbols": {
+   "title": "Workspace symbol providers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: LSP path Have; extension-provider path missing.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:152-155",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64",
+    "docs/vsx-compat/design.md:358"
+   ],
+   "change": "extension provider = another FeatureSource under the existing per-feature policy; adapter bridges MainThreadLanguageFeatures",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#263-refactor-featuresource"
+  },
+  "log.output": {
+   "title": "Output channels and LogOutputChannel",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial: Named output channels missing.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionLogRing.kt:22-42",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/LogRing.kt",
+    "docs/vsx-compat/design.md:373",
+    "docs/vsx-compat/ui.md:84"
+   ],
+   "change": "channel store + Output panel renderer",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4",
+    "WP-HOST-12"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "misc.unclassified": {
+   "title": "Residual non-stable ids matched by no specific rule",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "provides": "host",
+   "today": "n/a",
+   "evidence": [],
+   "change": "review per corpus refresh",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "doc": "design-protocol.md#p7-proposed-api-allow-list-d8-initial-content"
+  },
+  "ms-services": {
+   "title": "Microsoft-service features (Settings Sync, MS auth, Live Share, Remote-*, tunnels, Pylance)",
+   "track": "OOS-MS",
+   "gap": "Not-planned",
+   "provides": "mixed",
+   "today": "none",
+   "evidence": [
+    "docs/vsx-compat/design.md:395"
+   ],
+   "change": "stub-reject (TunnelService, ManagedSockets)",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "doc": "design.md#72-other-built-ins"
+  },
+  "native.modules": {
+   "title": "Native binaries and .node addons shipped by extensions",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Missing: Layout rules refuse nested archives/symlinks; UNVERIFIED per extension.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/SandboxImages.kt:24-41",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/PackageFiles.kt:87-124"
+   ],
+   "change": "linux-arm64 target selection, exec bits, native usability scan",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-11",
+    "WP-REG-4",
+    "WP-SEC-14"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#16-process-spawning-and-native-code-inside-proot"
+  },
+  "net.proxy": {
+   "title": "HTTP proxy / certificates for extensions",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Missing: Guest env cleared; no proxy settings propagated.",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:159-171",
+    "docs/vsx-compat/design.md:402"
+   ],
+   "change": "$resolveProxy (DIRECT or http.proxy), $loadCertificates [] (phase 1); Android proxy (phase 2)",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-14"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#17-network-and-proxy"
+  },
+  "notebook.api": {
+   "title": "Notebooks and kernels",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "provides": "mixed",
+   "today": "no notebook editor",
+   "evidence": [
+    "docs/vsx-compat/design.md:370"
+   ],
+   "change": "serializer/controller registration no-op; execution rejected",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "process.spawn": {
+   "title": "child_process inside the guest",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "host",
+   "today": "Partial: Host env has no git token by design.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:49-52",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:85",
+    "services/mobile/ext-wasm/src/main/kotlin/dev/easyide/extwasm/host/HostFunctionTable.kt:124-125"
+   ],
+   "change": "nothing to proxy; guest prerequisites (git, bash, rg), PATH policy",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-11"
+   ],
+   "milestone": "M2",
+   "doc": "backend-2.md#16-process-spawning-and-native-code-inside-proot"
+  },
+  "proposed.api": {
+   "title": "Proposed APIs outside the D8 allow-list (and non-stable ids seen in bundles)",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "provides": "host",
+   "today": "no host",
+   "evidence": [],
+   "change": "host enforces enabledApiProposals; allow-list per P7",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "doc": "design-protocol.md#p7-proposed-api-allow-list-d8-initial-content"
+  },
+  "scm.api": {
+   "title": "scm.createSourceControl, quick diff",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: Native git UI only.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:15-16",
+    "docs/vsx-compat/design.md:379"
+   ],
+   "change": "MainThreadSCM (headless for vscode.git at M4) + provider-generic SCM view (WP-UI-11, M5)",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#84-scm-generic-provider-view"
+  },
+  "secrets": {
+   "title": "SecretStorage",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Missing: NoSecrets returns null.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmSmallPorts.kt:40-47",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCredentials.kt:14-24",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCredentials.kt:74-90",
+    "docs/vsx-compat/design.md:381"
+   ],
+   "change": "adapter forwards $get/$set/$deletePassword to Kotlin ExtensionSecrets (Keystore)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-6",
+    "WP-SEC-7"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#5-secrets-secretstorage"
+  },
+  "storage.memento": {
+   "title": "globalState / workspaceState (Memento)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: setKeysForSync n/a.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmStoragePort.kt:5-20"
+   ],
+   "change": "ExtensionStoragePort (generalised WasmStoragePort), MainThreadStorage in the adapter",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-8"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#4-extension-storage-and-memento"
+  },
+  "storage.paths": {
+   "title": "storageUri / globalStorageUri / logUri",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Partial: Only extensionPath exists in guest.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:84",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/SandboxPaths.kt:128"
+   ],
+   "change": "guest homes in initData",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-8"
+   ],
+   "milestone": "M1",
+   "doc": "backend.md#4-extension-storage-and-memento"
+  },
+  "tasks.api": {
+   "title": "Tasks API and task providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "adapter",
+   "today": "Partial: taskDefinitions parse-only; file is .easyide/tasks.json not .vscode/tasks.json.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Tasks.kt:12-82",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:102",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:228-233",
+    "docs/vsx-compat/design.md:386"
+   ],
+   "change": "task system in the adapter (.vscode/tasks.json + providers); run via terminals",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-7",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#12-tasks"
+  },
+  "tasks.problem-matchers": {
+   "title": "Problem matchers / patterns",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Partial: Not applied; problemPatterns point rejected.",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:159-160",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:235-246",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Tasks.kt:38"
+   ],
+   "change": "vendored problemMatcher.ts in the adapter",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-7"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#12-tasks"
+  },
+  "telemetry": {
+   "title": "Telemetry API (no-op, disabled)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Missing: No-op TelemetryLogger.",
+   "evidence": [
+    "docs/extension-host/arch.md:158",
+    "docs/vsx-compat/design.md:387"
+   ],
+   "change": "isTelemetryEnabled false; Telemetry shape N",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-15",
+    "WP-SEC-17"
+   ],
+   "milestone": "M1",
+   "doc": "backend-2.md#19-telemetry-no-op-and-identity"
+  },
+  "terminal.api": {
+   "title": "window.createTerminal, Terminal objects and events",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: createTerminal -> commandPtyParams; sendText -> TerminalPort.",
+   "evidence": [
+    "services/mobile/terminal-emulator/src/main/java/com/termux/terminal/JNI.java:26-29",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:63-113",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/LinuxEnvironment.kt:246-256",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:41-46",
+    "docs/vsx-compat/design.md:388"
+   ],
+   "change": "terminal/create -> commandPtyParams; sendText/show/dispose; existing terminal tabs render",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-8"
+   ],
+   "milestone": "M4",
+   "doc": "backend-2.md#13-terminals"
+  },
+  "terminal.env-collection": {
+   "title": "EnvironmentVariableCollection",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Missing: extraEnvironment of pty params.",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/LinuxEnvironment.kt:246-256",
+    "docs/vsx-compat/design.md:388"
+   ],
+   "change": "apply to new terminals' extraEnvironment (accepted from M1)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-8"
+   ],
+   "milestone": "M4",
+   "doc": "backend-2.md#13-terminals"
+  },
+  "terminal.links": {
+   "title": "Terminal link providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: -",
+   "evidence": [],
+   "change": "link detection + tap in terminal view",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-8",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#13-terminals"
+  },
+  "terminal.profiles": {
+   "title": "Terminal profile providers",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: -",
+   "evidence": [],
+   "change": "profile list in the terminal UI",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-8",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#13-terminals"
+  },
+  "terminal.pty": {
+   "title": "Pseudoterminal (extension terminals)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: UNVERIFIED reuse of terminal-view.",
+   "evidence": [
+    "docs/vsx-compat/design.md:388"
+   ],
+   "change": "byte-fed TerminalSession",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-8",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#13-terminals"
+  },
+  "terminal.shell-integration": {
+   "title": "Terminal shell integration and execution events",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Missing: -",
+   "evidence": [
+    "docs/vsx-compat/design.md:389"
+   ],
+   "change": "vendored bash script, OSC 633 parser",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-9"
+   ],
+   "milestone": "M5",
+   "doc": "backend-2.md#13-terminals"
+  },
+  "tests.api": {
+   "title": "Testing API (TestController)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing: -",
+   "evidence": [
+    "docs/extension-sdk/m8-gap-analysis.md:56",
+    "docs/vsx-compat/design.md:390"
+   ],
+   "change": "MainThreadTesting + Testing view",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "ui.accessibility": {
+   "title": "accessibilityInformation on tree/status items, screen reader mode, accessible view, audio cues",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "ui",
+   "today": "Partial (UI): kit rules U-A11Y; 202 semantics/contentDescription uses under ui/; view schema requires spoken labels; ext accessibilityInformation not carried",
+   "evidence": [
+    "docs/ui-redesign/ux-rules.md:96",
+    "docs/extension-sdk/views.md (section 3)"
+   ],
+   "change": "carry accessibilityInformation/label to semantics; UNVERIFIED: TalkBack in the BasicTextField editor (verify on device)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-UI-16"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#89-accessibility"
+  },
+  "ui.activity-nav": {
+   "title": "activity bar: container icons, badges (TreeView.badge/WebviewView.badge), reorder/hide, overflow",
+   "track": "in",
+   "gap": "Have",
+   "provides": "ui",
+   "today": "Have (UI): NavSurface rail/bottom bar, badges, user order/hide, More sheet, 3 items per pack, title <=14 chars",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/nav/NavRules.kt:35",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/nav/NavSurface.kt:54",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/nav/NavMoreSheet.kt:21",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ShellLimits.kt:19",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ShellLimits.kt:24"
+   ],
+   "change": "wire TreeView.badge/WebviewView.badge to NavBadge; truncate long VS Code titles to 14 chars instead of refusing",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.auth-ui": {
+   "title": "Accounts menu, session consent dialogs, sign in/out",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing-UI (UI): none (only a git credential dialog)",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/GitCredentialDialog.kt:1 (git token dialog only; no auth-provider UI)"
+   ],
+   "change": "auth provider UI shell",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-11",
+    "WP-UI-14"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.breadcrumbs": {
+   "title": "path + symbol breadcrumbs with pickers",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have (UI): EditorBreadcrumbs: path crumbs + symbols at caret",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/EditorBreadcrumbs.kt:21",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/BreadcrumbModel.kt:27"
+   ],
+   "change": "feed exthost documentSymbol providers",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.code-action-ui": {
+   "title": "light bulb, Ctrl+. quick fix menu, kinds, isPreferred, disabled reason, refactor preview",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have (UI): lightbulb as gutter marker on the caret line, quick-fix menu (preferred first, disabled greyed), Ctrl+.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/EditActionsController.kt:31",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspInfoPopups.kt:113",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:129"
+   ],
+   "change": "exthost codeAction providers merged; refactor preview reuse RenamePreviewUi",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.code-lens-ui": {
+   "title": "between-line lens row, clickable commands, resolve",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): CodeLensController: lenses as a gutter glyph, tap lists them in an EditorPopup (0018 deferral)",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CodeLensController.kt:30",
+    "docs/decision/0018-editor-engine-and-decorations.md (Decision 3)"
+   ],
+   "change": "PE1 between-line blocks; exthost codeLens provider into same controller",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.codicons": {
+   "title": "$(name) and $(name~spin) in labels, ThemeIcon ids (762 in VS Code)",
+   "track": "in",
+   "gap": "Missing-UI",
+   "provides": "ui",
+   "today": "Missing-UI (UI): no codicon font or table; icon tokens resolve against our glyph set + ~67 Material tokens; `$(x)` is taken as an unknown token",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/icons/IconResolver.kt:26",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/icons/MaterialIcons.kt:1",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/DecodeContext.kt:80"
+   ],
+   "change": "bundle @vscode/codicons font (CC-BY-4.0, attribution in licenses) + name->codepoint table; label parser for $(...) in status items, menus, tree labels, quick pick",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#43-codicons-and-icons"
+  },
+  "ui.color-theme": {
+   "title": "contributes.themes: colors, tokenColors, semanticTokenColors, uiTheme",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): ColorThemeFile + VsCodeThemeMapper: 92 workbench ids -> ColorTokens, tokenColors collapsed into SyntaxRoles, semanticTokenColors",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ColorThemes.kt:82",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/VsCodeThemeMapping.kt:52",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:17",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/SemanticTokenColors.kt:115"
+   ],
+   "change": "keep raw colour map for webviews/ThemeColor; map more ids",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.command-palette": {
+   "title": "F1/Ctrl+Shift+P, categories, keybinding hints, recently used, `>` `@` `#` `:` prefixes, commandPalette `when`",
+   "track": "in",
+   "gap": "Have",
+   "provides": "ui",
+   "today": "Have (UI): CommandPalette over PickerOverlay with fuzzy match and chord labels; extension commands filtered by commandPalette `when`; QuickOpen with `@`/`#` symbol prefixes; `Commands` nav action",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/CommandPalette.kt:30",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceExtensionUi.kt:56",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:97",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/quickopen/QuickOpen.kt:46",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:79"
+   ],
+   "change": "recently-used section; `>` and `:` prefix parity; `category: title` display",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M1",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.comments-ui": {
+   "title": "comment threads in gutter + inline widgets, Comments panel",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Not-planned (UI): none; commentController listed as not planned in the host protocol",
+   "evidence": [
+    "docs/extension-host/arch.md (Providers table: commentController not planned)"
+   ],
+   "change": "-",
+   "effort": "XL",
+   "risk": "Med",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#85-comments-decision"
+  },
+  "ui.completion-ui": {
+   "title": "suggest widget: kind icons, labelDetails, detail + markdown docs, resolve, snippets, commit characters, additionalTextE…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): CompletionController + CompletionContent: resolve on focus, docs beside or below, commit characters, snippet sessions; provider (WASM) items have their `command` stripped",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspPopups.kt:91",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:102",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:208",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/SnippetController.kt:16"
+   ],
+   "change": "run CompletionItem.command for exthost items, labelDetails, deprecated strike",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.context-keys": {
+   "title": "context-key service, `when` grammar (&&, ||, !, ==, !=, <, >, =~, in, not in), setContext command, ~300 built-in keys",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): ContextKeyService + full when lexer/parser/evaluator in :extension-schema; 37 fixed + 7 prefixed keys declared, 29 set by the app; config.* resolved from settings; no `setContext` built-in",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeyService.kt:59",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/WhenEvaluator.kt:24",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/WhenExpr.kt:11",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:33",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:109"
+   ],
+   "change": "`setContext` (ext-owned namespace), VS Code key names (view, viewItem, focusedView, resourceScheme, isLinux, textInputFocus, sideBarVisible, panelFocus, activeViewlet, scmProvider, workspaceFolderCount...), set the decl…",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-17",
+    "WP-UI-2"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#41-context-keys-and-setcontext"
+  },
+  "ui.custom-editor": {
+   "title": "contributes.customEditors (viewType, selector globs, priority default/option), CustomTextEditorProvider / CustomEditorP…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "ui",
+   "today": "Missing-UI (UI): documentOpeners (glob -> document type, priority default|option) + DocumentRegistry already model 'which editor opens this file'; no webview renderer; manifest has no customEditors key",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/DocumentOpeners.kt:1",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ShellContributions.kt:64",
+    "services/shared/extension-schema/manifest.schema.json ($defs.contributes additionalProperties:false)"
+   ],
+   "change": "translate customEditors -> documentOpeners + webview document type; CustomTextEditor syncs with doc model",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#83-custom-editors"
+  },
+  "ui.debug": {
+   "title": "debug UI (out of scope)",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "provides": "ui",
+   "today": "Not-planned (UI): none",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md (Consequences)"
+   ],
+   "change": "-",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.diagnostics-ui": {
+   "title": "squiggles, gutter, Problems panel (filter, group, severity), relatedInformation, code href, tags Unnecessary/Deprecated",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): DiagnosticsPresenter -> squiggles + gutter; ProblemsView grouped by file; status counts; no tag rendering, no code href",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/DiagnosticsPresenter.kt:53",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:128",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspPanels.kt:92"
+   ],
+   "change": "DiagnosticCollection source from exthost; fade for Unnecessary, strike for Deprecated; code links",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.dialogs": {
+   "title": "showOpenDialog / showSaveDialog over the guest FS",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "not inventoried in ourcode-ui.json (UNVERIFIED)",
+   "evidence": [
+    "docs/vsx-compat/design.md:342"
+   ],
+   "change": "guest-FS picker sheet (not inventoried in ourcode-ui.json: UNVERIFIED which picker to reuse)",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18"
+   ],
+   "milestone": "M3",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "ui.diff-editor": {
+   "title": "vscode.diff(left,right,title,options) for any URIs, side-by-side/inline, editable modified side, navigation, multi-diff",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): git-diff / git-commit stage documents, read-only, side-by-side at >= threshold else unified, hunk stage/unstage/discard; DiffProviders registry per scheme not fed by extensions; Comparison is git-only",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffModel.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffProvider.kt:41",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/Comparison.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffProvider.kt:53"
+   ],
+   "change": "generic `compare:` provider taking two document URIs (file, untitled, content-provider schemes); editable right side after PE1",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-UI-6"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#82-diff-editor-generic-vscodediff"
+  },
+  "ui.editor-decorations": {
+   "title": "TextEditorDecorationType: color, backgroundColor, border/outline, fontStyle/Weight, textDecoration, opacity, before/aft…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): engine-neutral DecorationModel with FIXED typed layers (search matches, highlights, diagnostics, inlay hints as EOL ghost text, gutter glyph enum, code lenses); draw-phase painters (backgrounds, squiggles,…",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationLayer.kt:27",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/Decorations.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:99",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:190",
+    "docs/decision/0018-editor-engine-and-decorations.md (Decision 1,3)"
+   ],
+   "change": "new `ExtDecorations` layer: bg/border/outline/underline/strike, whole-line bg, EOL after-text (GitLens blame fits), gutter icon (tinted SVG/PNG), overview colour; text colour/fontStyle and inline before/after need PE1",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-7"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#5-editor-decorations"
+  },
+  "ui.extensions-ui": {
+   "title": "marketplace browse/search, details (README, changelog, contributions), install/enable/disable, recommendations",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "ui",
+   "today": "Partial (UI): Extensions panel + page (details, contributions, capabilities) over the easyIDE registry; `.vsix` accepted only for icon themes",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/BrowseState.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionPage.kt:1",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/VsCodeIconThemeAdapter.kt:18"
+   ],
+   "change": "Open VSX source, README/CHANGELOG render, host.run capability prompt",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-REG-6",
+    "WP-SEC-4"
+   ],
+   "milestone": "M1",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.file-decorations": {
+   "title": "FileDecorationProvider: badge (<=2 chars), colour (ThemeColor), tooltip, propagate; explorer, tabs, SCM, open editors",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): git status tint + letter in explorer rows (git-only source)",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/FileTreeRow.kt:1",
+    "docs/ui-redesign/vscode-parity-git.md:36"
+   ],
+   "change": "generic decoration source merged with git; badge + colour in FileTreeRow/tabs",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-7"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#810-file-decorations"
+  },
+  "ui.folding": {
+   "title": "(new id) fold gutter chevrons, fold/unfold commands, folding ranges",
+   "track": "in",
+   "gap": "Missing-UI",
+   "provides": "ui",
+   "today": "Missing-UI (UI): none; LSP foldingRange withheld from client capabilities",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/LspRuntime.kt:145",
+    "docs/ux-overhaul/arch.md:66"
+   ],
+   "change": "PE1 line-virtualised editor",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "PE1"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.gutter": {
+   "title": "glyph margin, gutterIconPath, line-number context menu, quick-diff bars",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): gutter glyph enum ERROR/WARNING/INFO/LIGHTBULB/CODE_LENS; gutter tap reports the line; no quick-diff (dirty diff) bars",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/Decorations.kt:69",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:252",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:278",
+    "docs/ux-overhaul/arch.md:208"
+   ],
+   "change": "icon glyph from decoration types, quick-diff bars (scm quickDiffProvider + built-in git), lineNumber menu",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-7"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.hover-ui": {
+   "title": "MarkdownString hover (code fences, `command:` links, isTrusted, supportHtml, $(icons)), multiple providers merged",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): HoverContent with LspMarkdownView; long-press, mouse rest, Ctrl+K Ctrl+I; WASM hover providers merged; no `command:` link handling, no codicons",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/InfoController.kt:45",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspInfoPopups.kt:36",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspMarkdown.kt:54"
+   ],
+   "change": "trusted `command:` links, $(codicon) in markdown, exthost providers through the router",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.icon-theme": {
+   "title": "contributes.iconThemes (file/folder icons)",
+   "track": "in",
+   "gap": "Have",
+   "provides": "ui",
+   "today": "Have (UI): icon themes installable (also from .vsix), Material default (ADR 0029)",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/IconThemes.kt:89",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/VsCodeIconThemeAdapter.kt:18"
+   ],
+   "change": "-",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.icons": {
+   "title": "contributes.icons (font glyphs referenced as $(id))",
+   "track": "in",
+   "gap": "Missing-UI",
+   "provides": "ui",
+   "today": "Missing-UI (UI): none; manifest rejects `icons`",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json ($defs.contributes)"
+   ],
+   "change": "load the declared woff/ttf, map id -> codepoint, draw as text glyph",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#43-codicons-and-icons"
+  },
+  "ui.inlay-hint-ui": {
+   "title": "inline labels with padding, tooltips, clickable label parts, kinds",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): end-of-line ghost text of joined labels",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/Decorations.kt:59",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CaretDecorations.kt:81"
+   ],
+   "change": "PE1 inline insertion; tooltip on long-press",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.input-box": {
+   "title": "showInputBox/createInputBox: prompt, value, valueSelection, password, async validateInput with severity, step, buttons,…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): InputBoxDialog: regex validation only, password, prompt/placeholder",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionPrompts.kt:89",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:98"
+   ],
+   "change": "async validation round trip (arch input/validate), severity messages, valueSelection, steps",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.keybindings": {
+   "title": "contributes.keybindings key/mac/linux/win, when, args, two-step chords; keybindings.json; Keyboard Shortcuts editor",
+   "track": "in",
+   "gap": "Have",
+   "provides": "ui",
+   "today": "Have (UI): Keymap with KeyChord + two-step prefix chords + when (WhenEvaluator) + args; built-in defaults declared in Kotlin (Keymap.DEFAULT); user keybindings.json layer with diagnostics and conflicts; contributed laye…",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:64",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:112",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:181",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/KeybindingOverrides.kt:67",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ContributedKeybindings.kt:21",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/settings/KeyboardPage.kt:40"
+   ],
+   "change": "only as good as the context keys (ui.context-keys); `-command` removal entries and `win` ignored by design",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.language-status": {
+   "title": "(new id) languages.createLanguageStatusItem",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing-UI (UI): LSP status items only (LspStatusItems)",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspChrome.kt:82"
+   ],
+   "change": "reuse LspStatusItems popup",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.menus": {
+   "title": "contributes.menus at ~93 locations, group@order, when, alt, submenu, icon in navigation group",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "ui",
+   "today": "Partial (UI): data-driven MenuModel (group `navigation` first, group, @order, title; when; enablement; hidden; user reorder) rendered at 5 VS Code locations + 2 own; other ids load with a warning and are dropped",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:33",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:57",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:4",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:56",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/kit/KitMenu.kt:28"
+   ],
+   "change": "render the missing ids (see menus table), accept `submenu` items + contributes.submenus, `alt`, $(codicon) and {light,dark} icons",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#3-menus"
+  },
+  "ui.minimap": {
+   "title": "minimap (out of scope)",
+   "track": "in",
+   "gap": "Not-planned",
+   "provides": "ui",
+   "today": "Not-planned (UI): none",
+   "evidence": [
+    "docs/ux-overhaul/arch.md:208"
+   ],
+   "change": "-",
+   "effort": "L",
+   "risk": "Low",
+   "wp": [],
+   "milestone": "OOS",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.notebook": {
+   "title": "notebooks (out of scope)",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "provides": "ui",
+   "today": "Not-planned (UI): none",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md (Consequences)"
+   ],
+   "change": "-",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.notifications": {
+   "title": "non-modal toasts with action buttons, modal dialogs (modal:true, detail), notification centre, progress notifications",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): every extension message is a modal KitDialog; ToastQueue shows plain text without actions; no notification centre",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionPrompts.kt:112",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/Toasts.kt:19",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/ExtensionUiHost.kt:23"
+   ],
+   "change": "Notification model (severity, source ext, actions, progress, dismissed state) + centre; keep dialog only for modal",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4",
+    "WP-SEC-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.outline": {
+   "title": "(new id) Outline view",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have (UI): Outline container (secondary sidebar) from document symbols",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:52",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/WorkspaceLspController.kt:57"
+   ],
+   "change": "feed exthost documentSymbol",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.output": {
+   "title": "OutputChannel/LogOutputChannel: append/replace/clear/show, log levels, language colouring; Output panel channel picker",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing-UI (UI): Extension Log section (global extension log) only; Output container has no renderer",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionLog.kt:54",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:55",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/WorkspacePanels.kt:32"
+   ],
+   "change": "OutputChannel store (ring buffer, 5,000 lines like logStream) + renderer reusing LogSection",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.overview-ruler": {
+   "title": "coloured marks on the vertical scrollbar (diagnostics, find, decorations)",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing-UI (UI): editor scrollbar draws the thumb only",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/EditorScrollbar.kt:26"
+   ],
+   "change": "paint marks from DecorationSet per line / total lines",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-7"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.panel": {
+   "title": "bottom panel: Problems, Output, Terminal, Debug Console, extension panel containers; maximise, move",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "ui",
+   "today": "Partial (UI): BottomPanel with Terminal + Problems renderers; `output` container is registered but has no renderer",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/BottomPanel.kt:71",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:55",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/WorkspacePanels.kt:32"
+   ],
+   "change": "bind Output renderer; extension panel containers already allowed (Placement.PANEL)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-4"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.peek": {
+   "title": "peek widget (embedded editor) for references/definition/implementation; editor.action.peekLocations",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): References side panel list with preview lines; no inline peek; `peekVisible` key never set",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/WorkspaceLspController.kt:57",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/NavigationController.kt:35"
+   ],
+   "change": "route peek commands (editor.action.peekLocations, showReferences) to the References panel; no embedded editor",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.product-icon-theme": {
+   "title": "productIconThemes (workbench glyph font)",
+   "track": "in",
+   "gap": "Not-planned",
+   "provides": "ui",
+   "today": "Not-planned (UI): none",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json (no productIconThemes key)"
+   ],
+   "change": "low usage; revisit after codicons",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [],
+   "milestone": "OOS",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.progress": {
+   "title": "window.withProgress: Notification (cancellable, increment), Window (status bar spinner), SourceControl/view (bar under …",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing-UI (UI): KitProgress primitive exists; nothing is wired to extensions",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/kit/KitProgress.kt:35"
+   ],
+   "change": "progress controller keyed by id (arch window/progress*)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.quick-pick": {
+   "title": "showQuickPick/createQuickPick: label/description/detail, iconPath, $(icons), separators, picked, alwaysShow, item + tit…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): QuickPickDialog in a KitDialog: fuzzy filter on label, description subtitle, multi-select checkboxes; palette PickerOverlay is separate",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionPrompts.kt:55",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/PickerOverlay.kt:59",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:97"
+   ],
+   "change": "QuickInput controller on PickerOverlay supporting the createQuickPick lifecycle (live items, busy, buttons, steps, separators, detail line)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.rename-ui": {
+   "title": "F2 inline rename input, prepareRename placeholder, preview of edits",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have (UI): RenameUi input + RenamePreviewUi file list",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/NavigationController.kt:46",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspDialogs.kt:30"
+   ],
+   "change": "exthost rename provider via router",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.resource-labels": {
+   "title": "contributes.resourceLabelFormatters (LabelService)",
+   "track": "in",
+   "gap": "Not-planned",
+   "provides": "adapter",
+   "today": "n/a",
+   "evidence": [
+    "docs/vsx-compat/design.md:357"
+   ],
+   "change": "accepted and recorded; Kotlin labels unchanged (design.md row 42, N)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-25"
+   ],
+   "milestone": "M1",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "ui.scm-view": {
+   "title": "provider-generic SourceControl: groups, resources with decorations, inputBox (placeholder, validation), count, statusBa…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): native git-only Source Control (JGit): changes/staged list or tree, commit split button, graph, commit menu; not provider-generic; no scm/* menus",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/SourceControlPane.kt:67",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/ScmList.kt:119",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/CommitMenu.kt:44",
+    "docs/ui-redesign/vscode-parity-git.md:15"
+   ],
+   "change": "ScmProvider abstraction; extension providers rendered as extra sections with ChangeRow; scm menus; count badge on nav",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#84-scm-generic-provider-view"
+  },
+  "ui.semantic-highlighting": {
+   "title": "semantic tokens coloured by theme semanticTokenColors / tokenColors fallback",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have (UI): SemanticTokensController + SemanticStyler + SemanticOverlay",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/SemanticTokensController.kt:35",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/SemanticTokenColors.kt:115"
+   ],
+   "change": "exthost semanticTokens providers via router",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.settings-ui": {
+   "title": "Settings editor generated from contributes.configuration: enum/enumDescriptions/markdownEnumDescriptions, markdownDescr…",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "ui",
+   "today": "Partial (UI): ContributedSettings.controlOf: enum -> choice, boolean switch, integer stepper/number, string field with pattern, string[] list, everything else `Edit in settings.json`; markdown flattened to plain; deprec…",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:95",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:75",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/settings/SettingControls.kt:85"
+   ],
+   "change": "render markdownDescription as markdown with `#setting#` and command links; multilineText; object key/value editor; patternErrorMessage",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-12"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#87-settings-ui-from-arbitrary-schema-0956"
+  },
+  "ui.status-bar": {
+   "title": "StatusBarItem: text with $(icon), tooltip string|MarkdownString, command string|Command(args), color, backgroundColor (…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): declarative easyide.statusBarItems + WASM items: caption text, clickable command id; tooltip carried but not shown; no colour/background/icons/args/a11y label; phone drops EXT_LEFT/EXT_RIGHT before FILE/SA…",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionSlots.kt:104",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/StatusItems.kt:16",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/StatusStrip.kt:60",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/StatusPlan.kt:6"
+   ],
+   "change": "extend StatusItem (icon tokens, colours, background, tooltip markdown, args, a11y); overflow sheet; transient message slot",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.submenus": {
+   "title": "contributes.submenus + menu items `{submenu}`",
+   "track": "in",
+   "gap": "Missing-UI",
+   "provides": "ui",
+   "today": "Missing-UI (UI): KitMenuItem.Submenu renders cascades, but the manifest schema requires `command` on every menu item and has no `submenus` key",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/kit/KitMenu.kt:41",
+    "services/shared/extension-schema/manifest.schema.json:137 (menuItem required [command], additionalProperties:false)",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:63"
+   ],
+   "change": "decode submenus, MenuEntry.Submenu, recursion limit",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#3-menus"
+  },
+  "ui.tabs": {
+   "title": "window.tabGroups: groups, tabs (input kinds, isActive/isDirty/isPinned/isPreview), close, events; editor/title/context",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Have (UI): EditorStage (1..4 groups, one axis), Tab state PREVIEW/KEPT/PINNED, DocumentStrip, phone DocumentSwitcher, TabMenu with fixed actions",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/EditorStage.kt:25",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ShellLimits.kt:13",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/EditorGroup.kt:7",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/TabMenuPlan.kt:8",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/DocumentStrip.kt:74",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/DocumentSwitcher.kt:49"
+   ],
+   "change": "expose read model + close to exthost; append editor/title/context to TabMenu",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-6"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#81-tabs-windowtabgroups-usage-0543"
+  },
+  "ui.terminal-ui": {
+   "title": "multiple named terminals, icons, colours, split, link detection + link providers, profiles picker, terminal/context men…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): multiple PTY tabs, rename, extension-named terminals, key row; no icons/colours/links/split/profiles UI",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/WorkspaceTerminals.kt:30",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/WorkspaceTerminals.kt:79",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/TerminalKeyRow.kt:49"
+   ],
+   "change": "tab icon/colour, URL + path:line link detection with tap to open, profile picker, terminal menus",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-8",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#88-terminal-ui-0368"
+  },
+  "ui.testing": {
+   "title": "(new id) Test Explorer, gutter run icons, results peek, testing/* menus",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Missing-both (UI): none",
+   "evidence": [
+    "absence: no TestController/testing view under services/mobile/app/src/main"
+   ],
+   "change": "TestController UI (tree + gutter + results)",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.text-editor": {
+   "title": "TextEditor: multiple selections, visibleRanges, revealRange types, edit builder, insertSnippet, options (tabSize, inser…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): one selection per tab (EditorSelections), reveal, snippets, edits; editorHasMultipleSelections is always false",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/EditorSelections.kt:10",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:151",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/EditorReveal.kt:1"
+   ],
+   "change": "multi-cursor needs PE1; visibleRanges from EditorGeometry; options per tab",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-6"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.theme-colors": {
+   "title": "contributes.colors (id, defaults light/dark/hc) and ThemeColor references in status bar, decorations, tree icons",
+   "track": "in",
+   "gap": "Missing-UI",
+   "provides": "ui",
+   "today": "Missing-UI (UI): no colour registry; manifest rejects `colors` (contributes additionalProperties:false)",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json ($defs.contributes)",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:17"
+   ],
+   "change": "ColorRegistry: VS Code id -> theme value | contributed default | core default table (~990 ids); ThemeColor resolves through it",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "milestone": "M2",
+   "doc": "ui.md#42-colour-registry-proposal"
+  },
+  "ui.timeline": {
+   "title": "Timeline view (file history providers, e.g. GitLens)",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "provides": "ui",
+   "today": "Missing-UI (UI): none",
+   "evidence": [
+    "absence: grep -ril timeline services/mobile/app/src/main (no view)"
+   ],
+   "change": "timeline container + provider fan-in",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.tree-view": {
+   "title": "TreeDataProvider: lazy getChildren, TreeItem label/description/tooltip/iconPath(ThemeIcon|uri|light-dark)/resourceUri/c…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "mixed",
+   "today": "Partial (UI): schema `tree` component = eager JSON tree with local expand state; schema-less views = flat label/description list. No lazy fetch, inline actions, view/item/context, selection, checkbox, DnD, tooltip",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ViewDataNodes.kt:84",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ViewDataNodes.kt:96",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/LegacyView.kt:16",
+    "docs/extension-host/arch.md (Tree views section)"
+   ],
+   "change": "new native TreeViewHost fed by exthost tree/children|item|refresh|reveal: element-id keyed lazy LazyColumn, `view`/`viewItem` scoped context keys, inline (`inline` group) buttons, resourceUri -> file-icon theme + file d…",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-20",
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.view-container": {
+   "title": "viewsContainers.activitybar/panel: icon + title, holds views; viewContainer/title actions",
+   "track": "in",
+   "gap": "Partial",
+   "provides": "ui",
+   "today": "Partial (UI): R4 container registry: sidebar / secondarySidebar / panel; a bare `activitybar` container becomes a sidebar container plus a nav item; 10 containers/pack",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ShellContributions.kt:53",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ShellContributions.kt:118",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:46",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ExtRenderers.kt:57"
+   ],
+   "change": "map VSIX `viewsContainers` (activitybar/panel) with no `ui.contribute` gate for host.run exts; tint SVG icons that use currentColor, rasterise PNG to mono; render viewContainer/title",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.views-welcome": {
+   "title": "viewsWelcome markdown (links, `command:` buttons) shown when a view is empty, `when`-gated",
+   "track": "in",
+   "gap": "Missing-UI",
+   "provides": "ui",
+   "today": "Missing-UI (UI): decoded and stored; only listed on the Extension page Contributions list; never drawn",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:224",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/contrib/ContributionRegistry.kt:64",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionPageModel.kt:26"
+   ],
+   "change": "render ViewWelcomeContribution when the view has no rows (tree empty / webview not resolved)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#2-surface-table-all-ui-ids"
+  },
+  "ui.walkthroughs": {
+   "title": "Get Started walkthroughs: steps, media (image/svg/markdown), completionEvents",
+   "track": "in",
+   "gap": "Missing-UI",
+   "provides": "ui",
+   "today": "Missing-UI (UI): decoded; listed on Extension page only",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:248",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionPageModel.kt:26"
+   ],
+   "change": "document type + markdown/image render; completionEvents onCommand/onSettingChanged",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-12"
+   ],
+   "milestone": "M3",
+   "doc": "ui.md#86-walkthroughs-0277"
+  },
+  "ui.webview-bridge": {
+   "title": "acquireVsCodeApi postMessage/getState/setState, asWebviewUri + localResourceRoots, CSP, `--vscode-*` CSS vars, body.vsc…",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "ui",
+   "today": "Missing-UI (UI): MermaidView uses addJavascriptInterface + allowFileAccess (ux-overhaul PS6 wants WebViewAssetLoader); no theme var export (we know 92 of ~990 colour ids)",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/MermaidView.kt:57",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:17",
+    "docs/ux-overhaul/arch.md:61"
+   ],
+   "change": "WebMessagePort bridge, shouldInterceptRequest resource server (https://easyide-webview.local/<handle>/, arch.md), inject all `--vscode-*` vars from a full colour registry (ui.theme-colors), codicon.css (CC-BY-4.0)",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-UI-8",
+    "WP-SEC-9"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#7-webviews-summary-detail-in-ui-webviewsmdui-webviewsmd-model--d5--adr-0033"
+  },
+  "ui.webview-panel": {
+   "title": "createWebviewPanel in an editor column; title, iconPath, reveal, onDidChangeViewState, serializer restore",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "ui",
+   "today": "Missing-UI (UI): none; stage documents can host any registered document type (URI-keyed) so a `webview:` type fits",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/DocumentRegistry.kt:1",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/EditorStage.kt:25",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/MermaidView.kt:48"
+   ],
+   "change": "`webview` document type + renderer, restore via WebviewPanelSerializer (webview/resolve)",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-8",
+    "WP-UI-9",
+    "WP-SEC-9"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#7-webviews-summary-detail-in-ui-webviewsmdui-webviewsmd-model--d5--adr-0033"
+  },
+  "ui.webview-view": {
+   "title": "WebviewViewProvider in sidebar/panel: HTML page, scripts, messaging, retainContextWhenHidden",
+   "track": "in",
+   "gap": "Missing-both",
+   "provides": "ui",
+   "today": "Missing-UI (UI): no webview surface; the only WebView in the app is MermaidView; manifest `views[].type` enum is only `tree`",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/MermaidView.kt:48",
+    "services/shared/extension-schema/manifest.schema.json ($defs.view.type enum [\"tree\"])",
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md (Decision 4)"
+   ],
+   "change": "WebView host view type in PanelHost; lifecycle (dispose when hidden unless retainContextWhenHidden); memory budget with host (0030 Consequences)",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-8",
+    "WP-UI-9",
+    "WP-SEC-9"
+   ],
+   "milestone": "M4",
+   "doc": "ui.md#7-webviews-summary-detail-in-ui-webviewsmdui-webviewsmd-model--d5--adr-0033"
+  },
+  "ui.window-misc": {
+   "title": "Other window.* members (only non-stable ids reach this rule)",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "provides": "adapter",
+   "today": "n/a",
+   "evidence": [],
+   "change": "proposal-gated",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "doc": "design-protocol.md#p7-proposed-api-allow-list-d8-initial-content"
+  },
+  "workspace.edit": {
+   "title": "workspace.applyEdit and WorkspaceEdit",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Have: workspace.applyEdit -> same applier.",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/workspace/WorkspaceEditApplier.kt",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ClientCapabilities.kt:131-136",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:112-121",
+    "docs/vsx-compat/design.md:323"
+   ],
+   "change": "BulkEdits -> WorkspaceEditApplier",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "workspace.find": {
+   "title": "workspace.findFiles / findTextInFiles",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "Partial: findTextInFiles Missing (no search engine, no rg in rootfs).",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/files/FileIndexer.kt:47-60",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/SearchPanel.kt:36-40",
+    "docs/vsx-compat/design.md:380"
+   ],
+   "change": "adapter glob walk for findFiles (M2); ripgrep stand-in for findTextInFiles (M5)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-4"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#7-file-system-providers-virtual-documents-search"
+  },
+  "workspace.folders": {
+   "title": "Workspace folders (single root /workspace)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "mixed",
+   "today": "Partial: Multi-root planned as /workspace/<name> binds (ADR 0017:67-68).",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/SandboxPaths.kt:62",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/SandboxPaths.kt:149",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:25-27",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/ServerRequests.kt:69",
+    "docs/vsx-compat/design.md:402"
+   ],
+   "change": "single folder; $updateWorkspaceFolders -> false",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-2",
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "workspace.misc": {
+   "title": "Other workspace.* members",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "adapter",
+   "today": "no host",
+   "evidence": [
+    "docs/vsx-compat/design.md:402"
+   ],
+   "change": "per member; mostly proposed ids end up in proposed.api",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "design.md#6-mainthread-shape-disposition-all-87"
+  },
+  "workspace.save": {
+   "title": "workspace.save/saveAll and will-save participants",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Have: save/saveAll commands; willSaveWaitUntil pipeline for onWillSave.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:69-70",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:244-253"
+   ],
+   "change": "save commands + onWillSave pipeline",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-3"
+   ],
+   "milestone": "M2",
+   "doc": "backend.md#9-text-document-model-and-sync-at-scale"
+  },
+  "workspace.trust": {
+   "title": "Workspace trust (isTrusted, onDidGrantWorkspaceTrust, restricted mode)",
+   "track": "in",
+   "gap": "Missing-backend",
+   "provides": "kotlin",
+   "today": "Partial: Restricted mode / untrustedWorkspaces capability not modelled.",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ProjectTrust.kt:1-31",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ProjectTrust.kt:106-120",
+    "docs/vsx-compat/design.md:402"
+   ],
+   "change": "TrustState -> trusted flag; restricted-mode activation filter (WP-API-16, M5)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-16"
+   ],
+   "milestone": "M3",
+   "doc": "backend.md#10-workspace-trust"
+  }
+ }
+}

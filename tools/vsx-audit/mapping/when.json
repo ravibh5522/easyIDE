@@ -1,0 +1,801 @@
+{
+ "_doc": "Rules mapping when-clause context key names to a capability and who sets the value (kotlin | host | extension(setContext) | n/a). First match wins, in order: exact, prefix, regex (JS, anchored as written); then the three defaults: vscode-default (key declared in VS Code source and used by the corpus), vscode-unused (declared in VS Code, no corpus use), extension-default (key not declared by VS Code: extension-owned via setContext). gap/milestone per rule; the extension-default gap is Missing-both because setContext needs the host command path and a Kotlin extension-owned layer (ui.md §4.1).",
+ "rules": [
+  {
+   "match": "exact",
+   "pattern": "editorLangId",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:34"
+  },
+  {
+   "match": "exact",
+   "pattern": "resourceLangId",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:35"
+  },
+  {
+   "match": "exact",
+   "pattern": "resourceExtname",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:36"
+  },
+  {
+   "match": "exact",
+   "pattern": "resourceFilename",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:37"
+  },
+  {
+   "match": "exact",
+   "pattern": "resourceDirname",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:38"
+  },
+  {
+   "match": "exact",
+   "pattern": "resourcePath",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:39"
+  },
+  {
+   "match": "exact",
+   "pattern": "resourceIsFolder",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:40"
+  },
+  {
+   "match": "exact",
+   "pattern": "editorFocus",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:41"
+  },
+  {
+   "match": "exact",
+   "pattern": "editorTextFocus",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:42"
+  },
+  {
+   "match": "exact",
+   "pattern": "editorReadonly",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:43"
+  },
+  {
+   "match": "exact",
+   "pattern": "activeEditorIsDirty",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:44"
+  },
+  {
+   "match": "exact",
+   "pattern": "editorHasSelection",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:45"
+  },
+  {
+   "match": "exact",
+   "pattern": "editorHasMultipleSelections",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:46"
+  },
+  {
+   "match": "exact",
+   "pattern": "inSnippetMode",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:47"
+  },
+  {
+   "match": "exact",
+   "pattern": "suggestWidgetVisible",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:48"
+  },
+  {
+   "match": "exact",
+   "pattern": "hoverVisible",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:49"
+  },
+  {
+   "match": "exact",
+   "pattern": "peekVisible",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:50"
+  },
+  {
+   "match": "exact",
+   "pattern": "terminalFocus",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:51"
+  },
+  {
+   "match": "exact",
+   "pattern": "terminalProcessRunning",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:52"
+  },
+  {
+   "match": "exact",
+   "pattern": "explorerFocus",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set only in explorer menu scope; services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:53"
+  },
+  {
+   "match": "exact",
+   "pattern": "scmFocus",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:54"
+  },
+  {
+   "match": "exact",
+   "pattern": "focusedView",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:55"
+  },
+  {
+   "match": "exact",
+   "pattern": "focusedStage",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined) (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:56"
+  },
+  {
+   "match": "exact",
+   "pattern": "hardwareKeyboard",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:57"
+  },
+  {
+   "match": "exact",
+   "pattern": "inputMode",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:58"
+  },
+  {
+   "match": "exact",
+   "pattern": "windowSizeClass",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:59"
+  },
+  {
+   "match": "exact",
+   "pattern": "devicePosture",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined) (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:60"
+  },
+  {
+   "match": "exact",
+   "pattern": "envId",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:61"
+  },
+  {
+   "match": "exact",
+   "pattern": "envState",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:62"
+  },
+  {
+   "match": "exact",
+   "pattern": "envBackend",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:63"
+  },
+  {
+   "match": "exact",
+   "pattern": "envDistro",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:64"
+  },
+  {
+   "match": "exact",
+   "pattern": "envArch",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:65"
+  },
+  {
+   "match": "exact",
+   "pattern": "gitRepo",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:66"
+  },
+  {
+   "match": "exact",
+   "pattern": "gitBranch",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:67"
+  },
+  {
+   "match": "exact",
+   "pattern": "gitDirty",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: set (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:68"
+  },
+  {
+   "match": "exact",
+   "pattern": "isOffline",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined) (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:69"
+  },
+  {
+   "match": "exact",
+   "pattern": "isSafeMode",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "ourcode: declared, never set (always undefined) (easyIDE-own key); services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:70"
+  },
+  {
+   "match": "prefix",
+   "pattern": "config.",
+   "capability": "config.model",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "config.<setting> resolved from settings (ContextKeyService.kt:34); .vsix settings need ext.manifest"
+  },
+  {
+   "match": "prefix",
+   "pattern": "stageVisible:",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [],
+   "note": "easyIDE-own prefix key"
+  },
+  {
+   "match": "prefix",
+   "pattern": "lspReady:",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [],
+   "note": "easyIDE-own prefix key"
+  },
+  {
+   "match": "prefix",
+   "pattern": "lspState:",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [],
+   "note": "easyIDE-own prefix key"
+  },
+  {
+   "match": "prefix",
+   "pattern": "lspSupports:",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [],
+   "note": "easyIDE-own prefix key"
+  },
+  {
+   "match": "prefix",
+   "pattern": "extensionEnabled:",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Have",
+   "milestone": "M1",
+   "wp": [],
+   "note": "easyIDE-own prefix key"
+  },
+  {
+   "match": "prefix",
+   "pattern": "envHasCommand:",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M1",
+   "wp": [],
+   "note": "easyIDE-own prefix key"
+  },
+  {
+   "match": "exact",
+   "pattern": "view",
+   "capability": "ui.tree-view",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2",
+    "WP-UI-5"
+   ],
+   "note": "scoped per view (menu overlay)"
+  },
+  {
+   "match": "exact",
+   "pattern": "viewItem",
+   "capability": "ui.tree-view",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2",
+    "WP-UI-5"
+   ],
+   "note": "TreeItem.contextValue, scoped per row"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(webviewId|webviewSection|activeWebviewPanelId|activeCustomEditorId)$",
+   "capability": "ui.webview-panel",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M4",
+   "wp": [
+    "WP-UI-9"
+   ],
+   "note": "webview host"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(debug|inDebug|callStack|breakpoint|variableType|exceptionWidget|debuggersAvailable|focusedSessionIsAttach|javadebug|debugProtocol|inDebugRepl|stackFrame|watchItem)",
+   "capability": "debug.dap",
+   "who": "n/a",
+   "gap": "Not-planned",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "note": "undefined (OOS-DAP)"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(notebook|isCompositeNotebook|interactive|jupyter|activeNotebook|notebookKernel)",
+   "capability": "notebook.api",
+   "who": "n/a",
+   "gap": "Not-planned",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "note": "undefined (OOS-NB)"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(chat|inChat|inlineChat|isSessionsWindow|agent|copilot)",
+   "capability": "chat.lm",
+   "who": "n/a",
+   "gap": "Not-planned",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "note": "undefined (OOS-CHAT)"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(comment|commentThread|commentController|commentIsEmpty|commentEditorFocused|commentingEnabled|activeComment)",
+   "capability": "ui.comments-ui",
+   "who": "kotlin",
+   "gap": "Missing-both",
+   "milestone": "M5",
+   "wp": [
+    "WP-UI-15"
+   ],
+   "note": "never true until comments UI"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(scm|scmProvider|scmResourceGroup|scmProviderRootUri|scmActive)",
+   "capability": "ui.scm-view",
+   "who": "kotlin",
+   "gap": "Missing-both",
+   "milestone": "M5",
+   "wp": [
+    "WP-UI-11"
+   ],
+   "note": "SCM row scope"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(testId|testing\\.|testItem|testMessage|testRunProfile|testResult)",
+   "capability": "ui.testing",
+   "who": "kotlin",
+   "gap": "Missing-both",
+   "milestone": "M5",
+   "wp": [
+    "WP-UI-13"
+   ],
+   "note": "testing view"
+  },
+  {
+   "match": "regex",
+   "pattern": "^terminal",
+   "capability": "ui.terminal-ui",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M5",
+   "wp": [
+    "WP-UI-13"
+   ],
+   "note": "terminal view"
+  },
+  {
+   "match": "regex",
+   "pattern": "^timeline",
+   "capability": "ui.timeline",
+   "who": "n/a",
+   "gap": "Not-planned",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "note": "no timeline"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(remoteName|remoteConnectionState|embedderIdentifier|isWeb|isMac|isLinux|isWindows|isIOS|isMobile|workspacePlatform|isFileSystemResource|virtualWorkspace)$",
+   "capability": "env.info",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "constant per D9 identity (isLinux=true, isWeb=false, remoteName unset)"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(workspaceFolderCount|workbenchState|isWorkspaceTrusted|shellExecutionSupported|workspaceFolderSupport|isWorkspaceTrusted)$",
+   "capability": "workspace.folders",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "workspace model"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(resource|explorerResource|explorerViewlet|filesExplorer|foldersViewVisible|originalResourceScheme)",
+   "capability": "ui.menus",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2",
+    "WP-UI-3"
+   ],
+   "note": "scoped resource keys per menu location"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(isInDiffEditor|inDiffEditor|isInDiffRightEditor|textCompareEditor|activeCompareEditorCanSwap|isMerge|mergeEditor|diffEditor|isEmbeddedDiffEditor|multiDiff)",
+   "capability": "ui.diff-editor",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-6"
+   ],
+   "note": "diff document focus"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(activeEditor|editor|inCompositeEditor|isInEmbeddedEditor|textInputFocus|inputFocus|inSnippetMode|selectionAnchorSet|LinkedEditingInputVisible|foldingEnabled|isComposing)",
+   "capability": "ui.text-editor",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2",
+    "WP-UI-6"
+   ],
+   "note": "editor state"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(suggest|hasOtherSuggestions|hasSnippetCompletions|acceptSuggestionOnEnter|parameterHints|renameInputVisible|referenceSearchVisible|inReferenceSearchEditor|codeActionMenuVisible|supportedCodeAction|hasWordHighlights|markersNavigationVisible|inlineSuggestion|inlineEdit|inInlineEdits)",
+   "capability": "ui.completion-ui",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2",
+    "WP-UI-10"
+   ],
+   "note": "editor widget state"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(focusedView|activeViewlet|activeAuxiliary|activePanel|sideBar|auxiliaryBar|panel|view\\.|listFocus|listMultiSelection|listDoubleSelection|listSupportsKeyboardNavigation|problemFocus|searchViewletVisible|inQuickOpen|inOutput|notificationToastsVisible|breadcrumbs|canNavigate|findInputFocussed|replaceInputFocussed|findWidgetVisible)",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "workbench focus/visibility"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(extension|extensionStatus)$",
+   "capability": "ui.extensions-ui",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "note": "extension/context menu scope"
+  },
+  {
+   "match": "regex",
+   "pattern": "^(taskCommandsRegistered|taskRunning)",
+   "capability": "tasks.api",
+   "who": "kotlin",
+   "gap": "Missing-both",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-7"
+   ],
+   "note": "task system"
+  },
+  {
+   "match": "vscode-default",
+   "pattern": "*",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Missing-UI",
+   "milestone": "M3",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "note": "other VS Code key used by the corpus: add to the key table (ui.md §4.1)"
+  },
+  {
+   "match": "vscode-unused",
+   "pattern": "*",
+   "capability": "ui.context-keys",
+   "who": "kotlin",
+   "gap": "Not-planned",
+   "milestone": "OOS",
+   "wp": [],
+   "note": "VS Code key with no corpus use: add on demand"
+  },
+  {
+   "match": "extension-default",
+   "pattern": "*",
+   "capability": "ui.context-keys",
+   "who": "extension(setContext)",
+   "gap": "Missing-both",
+   "milestone": "M3",
+   "wp": [
+    "WP-API-17",
+    "WP-UI-2"
+   ],
+   "note": "extension-owned key set via setContext (host command + Kotlin extension layer)"
+  }
+ ]
+}

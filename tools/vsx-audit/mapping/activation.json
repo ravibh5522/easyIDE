@@ -1,0 +1,620 @@
+{
+ "_doc": "Every activation event in data/vscode-activation-events.json. ourStatus/evidence = today's easyIDE (WASM/.easyext) activation support from ourcode-backend.json; gap is for .vsix code extensions under route 2b (Kotlin raises, host activates, backend.md §3). Activation events are not part of the milestone-coverage computation (an event that is never raised does not by itself fail a gate when the extension has other events).",
+ "events": {
+  "*": {
+   "capability": "host.activation",
+   "gap": "Missing-backend",
+   "change": "host evaluates * itself (eager); Kotlin just starts the host",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1"
+   ],
+   "milestone": "M1",
+   "implicit": false,
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  "onAuthenticationRequest:": {
+   "capability": "auth.api",
+   "gap": "Missing-both",
+   "change": "raised on getSession for the provider",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-11"
+   ],
+   "milestone": "M5",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onChatContextProvider:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onChatOutputRenderer:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onChatParticipant:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onChatSession:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onCommand:": {
+   "capability": "commands.registry",
+   "gap": "Missing-backend",
+   "change": "Kotlin raises before executing (Immediate)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1"
+   ],
+   "milestone": "M1",
+   "implicit": true,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  "onCustomEditor:": {
+   "capability": "ui.custom-editor",
+   "gap": "Missing-both",
+   "change": "raised when a custom editor opens",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1",
+    "WP-UI-9"
+   ],
+   "milestone": "M4",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onDebug": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-DAP)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onDebugAdapterProtocolTracker:": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-DAP)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "implicit": false
+  },
+  "onDebugDynamicConfigurations": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-DAP)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "implicit": false
+  },
+  "onDebugInitialConfigurations": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-DAP)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onDebugResolve:": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-DAP)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onDebugVisualizer:": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-DAP)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onEditSession:": {
+   "capability": "ms-services",
+   "gap": "Not-planned",
+   "change": "edit sessions (OOS-MS)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onFileSystem:": {
+   "capability": "fs.provider",
+   "gap": "Missing-both",
+   "change": "raised by the scheme router before resolving a URI",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1",
+    "WP-API-4"
+   ],
+   "milestone": "M2",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onIssueReporterOpened": {
+   "capability": "ui.menus",
+   "gap": "Not-planned",
+   "change": "no issue reporter; never raised",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [],
+   "milestone": "M1",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onLanguage:": {
+   "capability": "host.activation",
+   "gap": "Missing-backend",
+   "change": "Kotlin emitter exists (onLanguage Have for WASM); forward to host",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1"
+   ],
+   "milestone": "M1",
+   "implicit": true,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  "onLanguageModelChatProvider:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onLanguageModelTool:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onLinkPresentation:": {
+   "capability": "proposed.api",
+   "gap": "Not-planned",
+   "change": "proposal-gated",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onMcpCollection:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onNotebook:": {
+   "capability": "notebook.api",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-NB)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onNotebookSerializer:": {
+   "capability": "notebook.api",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-NB)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onOpenExternalUri:": {
+   "capability": "proposed.api",
+   "gap": "Not-planned",
+   "change": "externalUriOpener proposal",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onProfile:": {
+   "capability": "ms-services",
+   "gap": "Not-planned",
+   "change": "profiles / Settings Sync (OOS-MS)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "implicit": false
+  },
+  "onRenderer:": {
+   "capability": "notebook.api",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-NB)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onResolveRemoteAuthority:": {
+   "capability": "ms-services",
+   "gap": "Not-planned",
+   "change": "Remote-* (OOS-MS)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "implicit": false
+  },
+  "onSearch:": {
+   "capability": "proposed.api",
+   "gap": "Not-planned",
+   "change": "file/text search provider proposals",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onSlash:": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": false
+  },
+  "onSpeech": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "never raised (OOS-CHAT)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "implicit": false
+  },
+  "onStartupFinished": {
+   "capability": "host.activation",
+   "gap": "Missing-backend",
+   "change": "host evaluates it (delayed)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1"
+   ],
+   "milestone": "M1",
+   "implicit": false,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  "onTaskType:": {
+   "capability": "tasks.api",
+   "gap": "Missing-both",
+   "change": "raised before $provideTasks",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-7"
+   ],
+   "milestone": "M5",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onTerminal:": {
+   "capability": "terminal.api",
+   "gap": "Missing-backend",
+   "change": "raised when a terminal of that shell type opens",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-8"
+   ],
+   "milestone": "M4",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onTerminalProfile:": {
+   "capability": "terminal.profiles",
+   "gap": "Missing-both",
+   "change": "raised when the profile is chosen",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-8"
+   ],
+   "milestone": "M5",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onTerminalQuickFixRequest:": {
+   "capability": "proposed.api",
+   "gap": "Not-planned",
+   "change": "terminalQuickFixProvider proposal",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "implicit": true
+  },
+  "onTerminalShellIntegration:": {
+   "capability": "terminal.shell-integration",
+   "gap": "Missing-backend",
+   "change": "raised when shell integration activates",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-9"
+   ],
+   "milestone": "M5",
+   "implicit": false
+  },
+  "onUri:": {
+   "capability": "env.uri-handler",
+   "gap": "Missing-both",
+   "change": "raised by the deep-link router",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-15",
+    "WP-SEC-11"
+   ],
+   "milestone": "M4",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onView:": {
+   "capability": "ui.tree-view",
+   "gap": "Missing-both",
+   "change": "raised before resolving a view (Immediate)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1",
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "implicit": true,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  "onWalkthrough:": {
+   "capability": "ui.walkthroughs",
+   "gap": "Missing-UI",
+   "change": "raised when a walkthrough opens",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-12"
+   ],
+   "milestone": "M3",
+   "implicit": true,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "onWebviewPanel:": {
+   "capability": "ui.webview-panel",
+   "gap": "Missing-both",
+   "change": "raised on serializer restore",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-1",
+    "WP-API-21"
+   ],
+   "milestone": "M4",
+   "implicit": false,
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ]
+  },
+  "workspaceContains:": {
+   "capability": "host.activation",
+   "gap": "Missing-backend",
+   "change": "host checks file names; globs via $checkExists (adapter glob walk)",
+   "effort": "S",
+   "risk": "Med",
+   "wp": [
+    "WP-API-1"
+   ],
+   "milestone": "M1",
+   "implicit": false,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  }
+ }
+}

@@ -1,0 +1,1994 @@
+{
+ "_doc": "Every MainThread*Shape (disposition/milestone/WP parsed from docs/vsx-compat/design.md §6; codes I, I*, N, R, N+R, N→I) and every ExtHost*Shape (implemented by the vendored host unmodified; milestone = its MainThread counterpart's, matched by name or by the manual table in counterpartBy).",
+ "shapes": {
+  "ExtHostAgentEditorCommentsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadAgentEditorCommentsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostAiEmbeddingVectorShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadAiEmbeddingVectorShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostAiRelatedInformationShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadAiRelatedInformationShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostAiSettingsSearchShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadAiSettingsSearchShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostAuthenticationShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-11",
+    "WP-SEC-8"
+   ],
+   "methods": 10,
+   "counterpart": "MainThreadAuthenticationShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostBrowserTunnelProxyShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadBrowserTunnelProxyShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostBrowsersShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadBrowsersShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostChatAgentsShape2": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 22,
+   "counterpart": "MainThreadChatAgentsShape2",
+   "counterpartBy": "name"
+  },
+  "ExtHostChatContextShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadChatContextShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostChatDebugShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadChatDebugShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostChatOutputRendererShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadChatOutputRendererShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostChatQuotaShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 0,
+   "counterpart": "MainThreadChatQuotaShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostChatSessionsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 12,
+   "counterpart": "MainThreadChatSessionsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostCodeMapperShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadCodeMapperShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostCommandsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-17"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadCommandsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostCommentsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4 stub, M5",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "methods": 7,
+   "counterpart": "MainThreadCommentsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostConfigurationShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-2/3"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadConfigurationShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostCustomEditorsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "methods": 13,
+   "counterpart": "MainThreadCustomEditorsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostDataChannelsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 5,
+   "counterpart": "MainThreadDataChannelsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostDebugServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "methods": 24,
+   "counterpart": "MainThreadDebugServiceShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostDecorationsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M3",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-7"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadDecorationsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostDiagnosticsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-13"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadDiagnosticsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostDocumentContentProvidersShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-13"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadDocumentContentProvidersShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostDocumentSaveParticipantShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-2/3"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadDocumentsShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostDocumentsAndEditorsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-2/3"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadDocumentsShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostDocumentsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-2/3"
+   ],
+   "methods": 5,
+   "counterpart": "MainThreadDocumentsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostEditorInsetsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadEditorInsetsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostEditorsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-7"
+   ],
+   "methods": 3,
+   "counterpart": "MainThreadTextEditorsShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostEmbeddingsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadEmbeddingsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostExtensionServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 12,
+   "counterpart": "MainThreadExtensionServiceShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostFileSystemEventServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-4/5"
+   ],
+   "methods": 3,
+   "counterpart": "MainThreadFileSystemEventServiceShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostFileSystemInfoShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-4/5"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadFileSystemShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostFileSystemShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-4/5"
+   ],
+   "methods": 14,
+   "counterpart": "MainThreadFileSystemShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostGitExtensionShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadGitExtensionShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostHeapServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadExtensionServiceShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostInteractiveShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadInteractiveShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostLabelServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-API-25"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadLabelServiceShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostLanguageFeaturesShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2 / M5",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "methods": 72,
+   "counterpart": "MainThreadLanguageFeaturesShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostLanguageModelToolsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 5,
+   "counterpart": "MainThreadLanguageModelToolsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostLanguageModelsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 9,
+   "counterpart": "MainThreadLanguageModelsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostLanguagesShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-13"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadLanguagesShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostLocalizationShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 4,
+   "counterpart": "MainThreadLocalizationShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostLogLevelServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadLoggerShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostManagedSocketsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 4,
+   "counterpart": "MainThreadManagedSocketsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostMcpShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 8,
+   "counterpart": "MainThreadMcpShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostMeteredConnectionShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadMeteredConnectionShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostNotebookDocumentSaveParticipantShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadNotebookDocumentsShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostNotebookDocumentsAndEditorsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadNotebookDocumentsShape",
+   "counterpartBy": "manual (no same-name MainThread shape)"
+  },
+  "ExtHostNotebookDocumentsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 3,
+   "counterpart": "MainThreadNotebookDocumentsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostNotebookEditorsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadNotebookEditorsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostNotebookKernelsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadNotebookKernelsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostNotebookRenderersShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadNotebookRenderersShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostNotebookShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadNotebookShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostOutputServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadOutputServiceShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostPowerShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 8,
+   "counterpart": "MainThreadPowerShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostProfileContentHandlersShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadProfileContentHandlersShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostProgressShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadProgressShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostQuickDiffShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadQuickDiffShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostQuickOpenShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 9,
+   "counterpart": "MainThreadQuickOpenShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostSCMShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "methods": 15,
+   "counterpart": "MainThreadSCMShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostSearchShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2 / M5",
+   "wp": [
+    "WP-API-4/5"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadSearchShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostSecretStateShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2",
+   "wp": [
+    "WP-HOST-8/WP-API-6",
+    "WP-SEC-7"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadSecretStateShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostShareShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadShareShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostSpeechShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 7,
+   "counterpart": "MainThreadSpeechShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostStatusBarShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadStatusBarShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostStorageShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-8/WP-API-6"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadStorageShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTaskShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-7/8"
+   ],
+   "methods": 11,
+   "counterpart": "MainThreadTaskShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTelemetryShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-SEC-17"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadTelemetryShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTerminalServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4 / M5",
+   "wp": [
+    "WP-API-7/8",
+    "WP-UI-13"
+   ],
+   "methods": 27,
+   "counterpart": "MainThreadTerminalServiceShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTerminalShellIntegrationShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-7/8"
+   ],
+   "methods": 7,
+   "counterpart": "MainThreadTerminalShellIntegrationShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTestingShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "methods": 17,
+   "counterpart": "MainThreadTestingShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostThemingShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-API-25"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadThemingShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTimelineShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadTimelineShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTreeViewsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M3",
+   "wp": [
+    "WP-API-20",
+    "WP-UI-5"
+   ],
+   "methods": 9,
+   "counterpart": "MainThreadTreeViewsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostTunnelServiceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 6,
+   "counterpart": "MainThreadTunnelServiceShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostUriOpenersShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadUriOpenersShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostUrlsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-18",
+    "WP-SEC-11"
+   ],
+   "methods": 1,
+   "counterpart": "MainThreadUrlsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostWebviewPanelsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "methods": 3,
+   "counterpart": "MainThreadWebviewPanelsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostWebviewViewsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "methods": 3,
+   "counterpart": "MainThreadWebviewViewsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostWebviewsShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-8"
+   ],
+   "methods": 2,
+   "counterpart": "MainThreadWebviewsShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostWindowShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18"
+   ],
+   "methods": 3,
+   "counterpart": "MainThreadWindowShape",
+   "counterpartBy": "name"
+  },
+  "ExtHostWorkspaceShape": {
+   "side": "ExtHost",
+   "disposition": "in vendored host",
+   "milestone": "M2 / M5",
+   "wp": [
+    "WP-API-2/3",
+    "WP-API-4/5"
+   ],
+   "methods": 9,
+   "counterpart": "MainThreadWorkspaceShape",
+   "counterpartBy": "name"
+  },
+  "MainThreadAgentEditorCommentsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 4,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:316",
+   "notes": "proposal `agentEditorComments`"
+  },
+  "MainThreadAiEmbeddingVectorShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:317",
+   "notes": "proposal"
+  },
+  "MainThreadAiRelatedInformationShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:318",
+   "notes": "proposal"
+  },
+  "MainThreadAiSettingsSearchShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:319",
+   "notes": "proposal"
+  },
+  "MainThreadAuthenticationShape": {
+   "side": "MainThread",
+   "disposition": "I*",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-11",
+    "WP-SEC-8"
+   ],
+   "methods": 15,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:320",
+   "notes": "`github` provider main-side (§7); `$registerDynamicAuthenticationProvider`/`$setSessionsForDynamicAuthProvider`/`$sendDidChangeDynamicProviderInfo`/`$promptFor*` = R (MCP auth, OOS-CHAT); M1: register accepted"
+  },
+  "MainThreadBrowserTunnelProxyShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:322",
+   "notes": "remote-only"
+  },
+  "MainThreadBrowsersShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 5,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:321",
+   "notes": "proposal `browser` (CDP)"
+  },
+  "MainThreadBulkEditsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-2/3"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:323",
+   "notes": "`workspace.applyEdit`; Kotlin `WorkspaceEditApplier`"
+  },
+  "MainThreadChatAgentsShape2": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 20,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:324",
+   "notes": "`chat.createChatParticipant` rejects with typed error"
+  },
+  "MainThreadChatContextShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 6,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:325",
+   "notes": ""
+  },
+  "MainThreadChatDebugShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 5,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:326",
+   "notes": ""
+  },
+  "MainThreadChatInputNotificationShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:327",
+   "notes": ""
+  },
+  "MainThreadChatOutputRendererShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:328",
+   "notes": ""
+  },
+  "MainThreadChatQuotaShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:329",
+   "notes": ""
+  },
+  "MainThreadChatSessionsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 14,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:330",
+   "notes": ""
+  },
+  "MainThreadChatStatusShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:331",
+   "notes": ""
+  },
+  "MainThreadClipboardShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:332",
+   "notes": "Kotlin `AndroidClipboard`"
+  },
+  "MainThreadCodeMapperShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:333",
+   "notes": ""
+  },
+  "MainThreadCommandsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-17"
+   ],
+   "methods": 5,
+   "spikeMethods": 3,
+   "source": "docs/vsx-compat/design.md:334",
+   "notes": "all 5"
+  },
+  "MainThreadCommentsShape": {
+   "side": "MainThread",
+   "disposition": "N→I",
+   "milestone": "M4 stub, M5",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "methods": 9,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:335",
+   "notes": "accept + record from M1 (ui.md §8.5), draw in M5"
+  },
+  "MainThreadConfigurationShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-2/3"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:336",
+   "notes": "§8"
+  },
+  "MainThreadConsoleShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 1,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:337",
+   "notes": "to extension log"
+  },
+  "MainThreadCustomEditorsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "methods": 5,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:338",
+   "notes": "text editors first (GitLens rebase); register accepted from M1"
+  },
+  "MainThreadDataChannelsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 5,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:339",
+   "notes": "`linkPresentation` etc."
+  },
+  "MainThreadDebugServiceShape": {
+   "side": "MainThread",
+   "disposition": "N+R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "methods": 21,
+   "spikeMethods": 3,
+   "source": "docs/vsx-compat/design.md:340",
+   "notes": "`$register*`/`$unregister*`/`$sessionCached` = N (called at activation, 8/8 spike runs call `$registerDebugTypes`); `$startDebugging` resolves `false` + banner; rest R"
+  },
+  "MainThreadDecorationsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M3",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-7"
+   ],
+   "methods": 3,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:341",
+   "notes": "file decorations"
+  },
+  "MainThreadDiaglogsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M3",
+   "wp": [
+    "WP-API-18"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:342",
+   "notes": "open/save dialogs over guest FS"
+  },
+  "MainThreadDiagnosticsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-13"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:343",
+   "notes": "`DiagnosticStore` synthetic `ServerKey`"
+  },
+  "MainThreadDocumentContentProvidersShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-13"
+   ],
+   "methods": 3,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:344",
+   "notes": "virtual docs (`git:`, GitLens `gitlens:`)"
+  },
+  "MainThreadDocumentDiffShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:345",
+   "notes": "proposal `documentDiff`"
+  },
+  "MainThreadDocumentsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-2/3"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:346",
+   "notes": "open/create/save"
+  },
+  "MainThreadDownloadServiceShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M5",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:347",
+   "notes": "adapter-local (Node `fetch` in guest)"
+  },
+  "MainThreadEditorInsetsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 5,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:348",
+   "notes": "proposal `editorInsets`"
+  },
+  "MainThreadEditorTabsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M3",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-6"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:349",
+   "notes": "`tabGroups` close/move"
+  },
+  "MainThreadEmbeddingsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:350",
+   "notes": ""
+  },
+  "MainThreadErrorsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 1,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:351",
+   "notes": "to extension log + crash attribution"
+  },
+  "MainThreadExtensionServiceShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 8,
+   "spikeMethods": 5,
+   "source": "docs/vsx-compat/design.md:352",
+   "notes": "`$asBrowserUri` M4 (webview resources)"
+  },
+  "MainThreadFileSystemEventServiceShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-4/5"
+   ],
+   "methods": 2,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:353",
+   "notes": "adapter-local guest watcher + Kotlin save events (§3)"
+  },
+  "MainThreadFileSystemShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-4/5"
+   ],
+   "methods": 12,
+   "spikeMethods": 2,
+   "source": "docs/vsx-compat/design.md:354",
+   "notes": "adapter-local routing between provider schemes; `file` stays in the host (node `DiskFileSystemProvider`)"
+  },
+  "MainThreadGitExtensionShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:355",
+   "notes": "only fires for main-side git consumers (agent sessions); record"
+  },
+  "MainThreadInteractiveShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 0,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:356",
+   "notes": "0 methods"
+  },
+  "MainThreadLabelServiceShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-API-25"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:357",
+   "notes": "formatters recorded; Kotlin labels unchanged"
+  },
+  "MainThreadLanguageFeaturesShape": {
+   "side": "MainThread",
+   "disposition": "I*",
+   "milestone": "M2 / M5",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "methods": 47,
+   "spikeMethods": 5,
+   "source": "docs/vsx-compat/design.md:358",
+   "notes": "M2: the 23 kinds `FeatureRouting` already routes (§4.2); M5: color, call/type hierarchy, linked editing, inline completions, semantic tokens, paste/drop; `$registerEvaluatableExpressionProvider`/`$registerInlineValuesProvider`/`$emitInlineValuesEvent` = N (OOS-DAP); `$registerNewSymbolNamesProvider`, `$registerMultiDocumentHighlightProvider` = N"
+  },
+  "MainThreadLanguageModelToolsShape": {
+   "side": "MainThread",
+   "disposition": "N+R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 7,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:360",
+   "notes": "`$getTools` -> `[]` (host calls it at start, 8/8), `$registerTool*`/`$unregisterTool` = N (`lm.registerTool` 0.161 at activation), `$invokeTool`/`$countTokensForInvocation` = R"
+  },
+  "MainThreadLanguageModelsShape": {
+   "side": "MainThread",
+   "disposition": "N+R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 12,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:359",
+   "notes": "`$selectChatModels` -> `[]`; register = N; `$tryStartChatRequest` = R"
+  },
+  "MainThreadLanguagesShape": {
+   "side": "MainThread",
+   "disposition": "I*",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-13"
+   ],
+   "methods": 5,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:361",
+   "notes": "`$changeLanguage`, `$setLanguageStatus`, `$removeLanguageStatus`; `$tokensAtPosition`, `$computeFullSyntaxHighlighting` = R (proposals)"
+  },
+  "MainThreadLocalizationShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:362",
+   "notes": "adapter reads bundle files in guest"
+  },
+  "MainThreadLoggerShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-12"
+   ],
+   "methods": 6,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:363",
+   "notes": "adapter-local files under logsLocation; `LogOutputChannel` visible via output"
+  },
+  "MainThreadManagedSocketsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 5,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:364",
+   "notes": "remote resolvers"
+  },
+  "MainThreadMcpShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 11,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:365",
+   "notes": ""
+  },
+  "MainThreadMessageServiceShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18"
+   ],
+   "methods": 1,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:366",
+   "notes": ""
+  },
+  "MainThreadMeteredConnectionShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 0,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:367",
+   "notes": "0 methods"
+  },
+  "MainThreadNotebookDocumentsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:368",
+   "notes": ""
+  },
+  "MainThreadNotebookEditorsShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:369",
+   "notes": ""
+  },
+  "MainThreadNotebookKernelsShape": {
+   "side": "MainThread",
+   "disposition": "N+R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 18,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:370",
+   "notes": "`$addKernel`/`$updateKernel`/`$removeKernel`/detection = N (controllers created at activation); execution = R"
+  },
+  "MainThreadNotebookRenderersShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:371",
+   "notes": ""
+  },
+  "MainThreadNotebookShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "methods": 5,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:372",
+   "notes": "serializer/status-bar registration accepted"
+  },
+  "MainThreadOutputServiceShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 5,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:373",
+   "notes": ""
+  },
+  "MainThreadPowerShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 7,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:374",
+   "notes": "proposal `environmentPower`"
+  },
+  "MainThreadProfileContentHandlersShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:375",
+   "notes": "Settings Sync profiles"
+  },
+  "MainThreadProgressShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:376",
+   "notes": ""
+  },
+  "MainThreadQuickDiffShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "methods": 4,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:377",
+   "notes": "git extension quick-diff bars"
+  },
+  "MainThreadQuickOpenShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 6,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:378",
+   "notes": "QuickPick/InputBox sessions"
+  },
+  "MainThreadSCMShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "methods": 17,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:379",
+   "notes": "git extension is the main producer (§7); history/artifact events = N until M5"
+  },
+  "MainThreadSearchShape": {
+   "side": "MainThread",
+   "disposition": "I*",
+   "milestone": "M2 / M5",
+   "wp": [
+    "WP-API-4/5"
+   ],
+   "methods": 8,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:380",
+   "notes": "`$register*Provider`/`$unregisterProvider` = accept (host registers file providers at start, 8/8); `$handleFileMatch`/`$handleTextMatch` M2/M5; `$registerAITextSearchProvider`, `$handleKeywordResult` = N"
+  },
+  "MainThreadSecretStateShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M2",
+   "wp": [
+    "WP-HOST-8/WP-API-6",
+    "WP-SEC-7"
+   ],
+   "methods": 4,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:381",
+   "notes": "Kotlin Keystore; M1 answers `undefined`"
+  },
+  "MainThreadShareShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:382",
+   "notes": "proposal `shareProvider`"
+  },
+  "MainThreadSpeechShape": {
+   "side": "MainThread",
+   "disposition": "R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "methods": 5,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:383",
+   "notes": ""
+  },
+  "MainThreadStatusBarShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:384",
+   "notes": ""
+  },
+  "MainThreadStorageShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-HOST-8/WP-API-6"
+   ],
+   "methods": 3,
+   "spikeMethods": 3,
+   "source": "docs/vsx-compat/design.md:385",
+   "notes": "adapter-local guest files (§3)"
+  },
+  "MainThreadTaskShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-7/8"
+   ],
+   "methods": 10,
+   "spikeMethods": 3,
+   "source": "docs/vsx-compat/design.md:386",
+   "notes": "register/`$registerSupportedExecutions`/`$registerTaskSystem` accepted from M1 (8/8 at start); run via terminal"
+  },
+  "MainThreadTelemetryShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "M1",
+   "wp": [
+    "WP-SEC-17"
+   ],
+   "methods": 2,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:387",
+   "notes": "dropped (D9)"
+  },
+  "MainThreadTerminalServiceShape": {
+   "side": "MainThread",
+   "disposition": "I*",
+   "milestone": "M4 / M5",
+   "wp": [
+    "WP-API-7/8",
+    "WP-UI-13"
+   ],
+   "methods": 23,
+   "spikeMethods": 2,
+   "source": "docs/vsx-compat/design.md:388",
+   "notes": "M1 accept `$registerProcessSupport`, `$setEnvironmentVariableCollection`; M4 create/show/hide/sendText/dispose; M5 Pseudoterminal (`$sendProcess*`), data events, link provider; profile/completion/quick-fix providers = N"
+  },
+  "MainThreadTerminalShellIntegrationShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-7/8"
+   ],
+   "methods": 1,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:389",
+   "notes": "no shell integration until M5 (`terminal.shellIntegration` stays undefined)"
+  },
+  "MainThreadTestingShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M5",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "methods": 21,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:390",
+   "notes": ""
+  },
+  "MainThreadTextEditorsShape": {
+   "side": "MainThread",
+   "disposition": "I*",
+   "milestone": "M2",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-7"
+   ],
+   "methods": 13,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:391",
+   "notes": "`$getDiffInformation` = N (proposal)"
+  },
+  "MainThreadThemingShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-API-25"
+   ],
+   "methods": 0,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:392",
+   "notes": "0 methods; theme changes go ext-host-wards"
+  },
+  "MainThreadTimelineShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 3,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:393",
+   "notes": "proposal `timeline` (ui.md: Not-planned); git built-in registers it"
+  },
+  "MainThreadTreeViewsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M3",
+   "wp": [
+    "WP-API-20",
+    "WP-UI-5"
+   ],
+   "methods": 9,
+   "spikeMethods": 2,
+   "source": "docs/vsx-compat/design.md:394",
+   "notes": "drop data = M5"
+  },
+  "MainThreadTunnelServiceShape": {
+   "side": "MainThread",
+   "disposition": "N+R",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "methods": 11,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:395",
+   "notes": "`$setCandidateFilter`/`$registerPortsAttributesProvider`/`$setTunnelProvider` = N; `$openTunnel` = R"
+  },
+  "MainThreadUriOpenersShape": {
+   "side": "MainThread",
+   "disposition": "N",
+   "milestone": "OOS",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "methods": 2,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:396",
+   "notes": "proposal `externalUriOpener`"
+  },
+  "MainThreadUrlsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-18",
+    "WP-SEC-11"
+   ],
+   "methods": 3,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:397",
+   "notes": "register accepted from M1; `$createAppUri` -> `easyide://`"
+  },
+  "MainThreadWebviewPanelsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "methods": 7,
+   "spikeMethods": 3,
+   "source": "docs/vsx-compat/design.md:398",
+   "notes": ""
+  },
+  "MainThreadWebviewViewsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "methods": 6,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:400",
+   "notes": ""
+  },
+  "MainThreadWebviewsShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M4",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-8"
+   ],
+   "methods": 3,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:399",
+   "notes": ""
+  },
+  "MainThreadWindowShape": {
+   "side": "MainThread",
+   "disposition": "I",
+   "milestone": "M1",
+   "wp": [
+    "WP-API-18"
+   ],
+   "methods": 3,
+   "spikeMethods": 1,
+   "source": "docs/vsx-compat/design.md:401",
+   "notes": ""
+  },
+  "MainThreadWorkspaceShape": {
+   "side": "MainThread",
+   "disposition": "I*",
+   "milestone": "M2 / M5",
+   "wp": [
+    "WP-API-2/3",
+    "WP-API-4/5"
+   ],
+   "methods": 20,
+   "spikeMethods": 0,
+   "source": "docs/vsx-compat/design.md:402",
+   "notes": "M2: `$startFileSearch`, `$checkExists`, `$save(All)`, encoding trio (UTF-8), `$resolveProxy` (DIRECT), `$loadCertificates` (`[]`); M3: trust; M5: `$startTextSearch`; `$updateWorkspaceFolders` -> `false` (single root); edit-session/canonical-URI providers = N; `$lookup*Authorization` = R"
+  }
+ }
+}

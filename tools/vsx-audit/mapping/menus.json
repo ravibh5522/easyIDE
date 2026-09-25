@@ -1,0 +1,1576 @@
+{
+ "_doc": "Every menu location in data/vscode-menus.json (96) plus the 4 easyIDE-own locations of ourcode-ui.json. ourStatus/evidence/note = today's UI (ourcode-ui.json). gap: declarative menu surface status (execution of the command is commands.registry). milestone M3 with gap Not-planned = items loaded and ignored silently (WP-UI-3 rule M7; macOS touch bar, menu bar, issue reporter). Rule for corpus menu keys that are not VS Code locations (submenu ids declared in contributes.submenus): capability ui.submenus, milestone M3 (see corpusOnlyRule).",
+ "corpusOnlyRule": {
+  "capability": "ui.submenus",
+  "track": "in",
+  "gap": "Missing-UI",
+  "wp": [
+   "WP-UI-3"
+  ],
+  "milestone": "M3",
+  "note": "VS Code resolves a menus key that is not an API menu only as a submenu id; unknown keys are ignored by VS Code as well"
+ },
+ "locations": {
+  "agents/change/inline": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:574"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "agents/changes/actions": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:562"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "agents/changes/actions/primary": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:568"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/chatSessions": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:501"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/contextUsage/actions": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatParticipantAdditions",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:550"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/customizations/create": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionCustomizationProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:529"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/customizations/item": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionCustomizationProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:536"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/editor/inlineGutter": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribChatEditorInlineGutterMenu",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:543"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/input/editing/sessionTitleToolbar": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:494"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/input/editing/sessionToolbar": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:488"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/input/status": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:147"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/multiDiff/context": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:522"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chat/newSession": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:556"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chatSessions/item/context": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:508"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "chatSessions/newSession": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatSessionsProvider",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:515"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "commandPalette": {
+   "capability": "ui.command-palette",
+   "track": "in",
+   "gap": "Have",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M1",
+   "proposed": null,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:97",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceExtensionUi.kt:56",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:39"
+   ],
+   "note": "palette filter by `when`"
+  },
+  "comments/comment/context": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:297"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "comments/comment/editorActions": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": "contribCommentEditorActionsMenu",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:262"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "comments/comment/title": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:292"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "comments/commentThread/additionalActions": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": "contribCommentThreadAdditionalMenu",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:279"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "comments/commentThread/comment/context": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": "contribCommentPeekContext",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:303"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "comments/commentThread/context": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:273"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "comments/commentThread/title": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:268"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "comments/commentThread/title/context": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": "contribCommentPeekContext",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:286"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "commentsView/commentThread/context": {
+   "capability": "ui.comments-ui",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-24",
+    "WP-UI-15"
+   ],
+   "milestone": "M5",
+   "proposed": "contribCommentsViewThreadMenus",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:309"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "debug/callstack/context": {
+   "capability": "debug.dap",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:104"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "debug/createConfiguration": {
+   "capability": "debug.dap",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribDebugCreateConfiguration",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:124"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "debug/toolBar": {
+   "capability": "debug.dap",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:119"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "debug/variables/context": {
+   "capability": "debug.dap",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:109"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "debug/watch/context": {
+   "capability": "debug.dap",
+   "track": "OOS-DAP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:114"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "diffEditor/gutter/hunk": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribDiffEditorGutterToolBarMenus",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:464",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffProvider.kt:30"
+   ],
+   "note": "native hunk actions exist (stage/unstage/discard), not extensible"
+  },
+  "diffEditor/gutter/selection": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribDiffEditorGutterToolBarMenus",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:470"
+   ],
+   "note": "no equivalent menu"
+  },
+  "editor/content": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M5",
+   "proposed": "contribEditorContentMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:435"
+   ],
+   "note": "no equivalent menu"
+  },
+  "editor/context": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Partial",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/FileDocument.kt:60",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionSlots.kt:79",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:66"
+   ],
+   "note": "secondary-click menu in the editor; also inside the editor/title overflow for touch (long-press on text is hover)"
+  },
+  "editor/context/chat": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": "chatParticipantPrivate",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:481"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "editor/context/copy": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:71"
+   ],
+   "note": "no equivalent menu"
+  },
+  "editor/context/share": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribShareMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:76"
+   ],
+   "note": "no equivalent menu"
+  },
+  "editor/inlineCompletions/actions": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "inlineCompletionsAdditions",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:428"
+   ],
+   "note": "no equivalent menu"
+  },
+  "editor/lineNumber/context": {
+   "capability": "ui.gutter",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3",
+    "WP-UI-7"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:441",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:278",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:11"
+   ],
+   "note": "gutter tap goes to lens/diagnostic popup; easyIDE-own `editor/gutter` id unrendered"
+  },
+  "editor/title": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Partial",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/WorkspaceScreen.kt:461",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionSlots.kt:51",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:51"
+   ],
+   "note": "`navigation` group inline (max EDITOR_TITLE_MAX_INLINE) + overflow; icon only for easyIDE tokens, else text; no `alt`, no toggled"
+  },
+  "editor/title/context": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:93",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:7",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/TabMenuPlan.kt:8",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/TabMenu.kt:29"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; tab menu is fixed actions"
+  },
+  "editor/title/context/share": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribShareMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:98"
+   ],
+   "note": "no equivalent menu"
+  },
+  "editor/title/run": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:61"
+   ],
+   "note": "no equivalent menu"
+  },
+  "explorer/context": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Have",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M1",
+   "proposed": null,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceExtensionUi.kt:77",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/FileContextMenu.kt:95",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:82"
+   ],
+   "note": "scoped resource* keys + explorerFocus; appended after built-ins; no multi-select"
+  },
+  "explorer/context/share": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribShareMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:87"
+   ],
+   "note": "no equivalent menu"
+  },
+  "extension/context": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:381",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionListRow.kt:1"
+   ],
+   "note": "Extensions page menus fixed"
+  },
+  "file/newFile": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:411",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/FileTreePane.kt:1"
+   ],
+   "note": "explorer toolbar new file/folder fixed"
+  },
+  "file/share": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribShareMenu",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:422"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "interactive/cell/title": {
+   "capability": "notebook.api",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:341"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "interactive/toolbar": {
+   "capability": "notebook.api",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:336"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "issue/reporter": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:346"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "menuBar/edit/copy": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:142"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "menuBar/home": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": "contribMenuBarHome",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:135"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "mergeEditor/result/title": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribMergeEditorMenus",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:446"
+   ],
+   "note": "no equivalent menu"
+  },
+  "modalEditor/editorTitle": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:56"
+   ],
+   "note": "no equivalent menu"
+  },
+  "multiDiffEditor/content": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": "contribEditorContentMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:452"
+   ],
+   "note": "no equivalent menu"
+  },
+  "multiDiffEditor/resource/title": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribMultiDiffEditorMenus",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:458"
+   ],
+   "note": "no equivalent menu"
+  },
+  "notebook/cell/execute": {
+   "capability": "notebook.api",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:331"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "notebook/cell/title": {
+   "capability": "notebook.api",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:326"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "notebook/kernelSource": {
+   "capability": "notebook.api",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "proposed": "notebookKernelSource",
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:320"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "notebook/toolbar": {
+   "capability": "notebook.api",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:315"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "notebook/variables/context": {
+   "capability": "notebook.api",
+   "track": "OOS-NB",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:130"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "ports/item/context": {
+   "capability": "ms-services",
+   "track": "OOS-MS",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:396"
+   ],
+   "note": "no equivalent menu"
+  },
+  "ports/item/origin/inline": {
+   "capability": "ms-services",
+   "track": "OOS-MS",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:401"
+   ],
+   "note": "no equivalent menu"
+  },
+  "ports/item/port/inline": {
+   "capability": "ms-services",
+   "track": "OOS-MS",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:406"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/artifact/context": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribSourceControlArtifactMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:224"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/artifactGroup/context": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribSourceControlArtifactGroupMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:218"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/change/title": {
+   "capability": "ui.scm-view",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:189"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/history/title": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribSourceControlHistoryTitleMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:200"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/historyItem/context": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribSourceControlHistoryItemMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:206",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/CommitMenu.kt:44",
+    "docs/ui-redesign/vscode-parity-git.md:30"
+   ],
+   "note": "commit menu fixed; doc names this hook as not built"
+  },
+  "scm/historyItemRef/context": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribSourceControlHistoryItemMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:212"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/inputBox": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribSourceControlInputBoxMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:194"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/repositories/title": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribSourceControlTitleMenu",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:163"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/repository": {
+   "capability": "ui.scm-view",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:169"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/resourceFolder/context": {
+   "capability": "ui.scm-view",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:179"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/resourceGroup/context": {
+   "capability": "ui.scm-view",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:184"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/resourceState/context": {
+   "capability": "ui.scm-view",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:174",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:16",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/ChangeRow.kt:1"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; change rows have fixed actions"
+  },
+  "scm/sourceControl": {
+   "capability": "ui.scm-view",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:158"
+   ],
+   "note": "no equivalent menu"
+  },
+  "scm/title": {
+   "capability": "ui.scm-view",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-22",
+    "WP-UI-11"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:153",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:15",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/ScmHeader.kt:1"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; SCM header actions fixed"
+  },
+  "searchPanel/aiResults/commands": {
+   "capability": "chat.lm",
+   "track": "OOS-CHAT",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:476"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "statusBar/remoteIndicator": {
+   "capability": "ms-services",
+   "track": "OOS-MS",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:230"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "terminal/context": {
+   "capability": "ui.terminal-ui",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:236",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:17",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:18"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; MenuIds also defines `terminal/title` which is not a VS Code id (VS Code: terminal/title/context)"
+  },
+  "terminal/title/context": {
+   "capability": "ui.terminal-ui",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:241",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:18"
+   ],
+   "note": "easyIDE spells it `terminal/title`; terminal tab long-press only renames"
+  },
+  "testing/item/context": {
+   "capability": "ui.testing",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:351"
+   ],
+   "note": "no equivalent menu"
+  },
+  "testing/item/gutter": {
+   "capability": "ui.testing",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:356"
+   ],
+   "note": "no equivalent menu"
+  },
+  "testing/item/result": {
+   "capability": "ui.testing",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:366"
+   ],
+   "note": "no equivalent menu"
+  },
+  "testing/message/content": {
+   "capability": "ui.testing",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:376"
+   ],
+   "note": "no equivalent menu"
+  },
+  "testing/message/context": {
+   "capability": "ui.testing",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:371"
+   ],
+   "note": "no equivalent menu"
+  },
+  "testing/profiles/context": {
+   "capability": "ui.testing",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-API-23",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:361"
+   ],
+   "note": "no equivalent menu"
+  },
+  "timeline/item/context": {
+   "capability": "ui.timeline",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:391"
+   ],
+   "note": "no equivalent menu"
+  },
+  "timeline/title": {
+   "capability": "ui.timeline",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:386"
+   ],
+   "note": "no equivalent menu"
+  },
+  "touchBar": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:45"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)"
+  },
+  "view/item/context": {
+   "capability": "ui.tree-view",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3",
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:257",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ViewDataNodes.kt:96"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; R4 tree rows have no menu"
+  },
+  "view/title": {
+   "capability": "ui.tree-view",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3",
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:246",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:13",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ExtRenderers.kt:57"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; R4 container header has no action slot"
+  },
+  "viewContainer/title": {
+   "capability": "proposed.api",
+   "track": "OOS-PROP",
+   "gap": "Not-planned",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS",
+   "proposed": "contribViewContainerTitle",
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:251"
+   ],
+   "note": "no equivalent menu"
+  },
+  "webview/context": {
+   "capability": "ui.webview-bridge",
+   "track": "in",
+   "gap": "Missing-both",
+   "wp": [
+    "WP-UI-3",
+    "WP-UI-9"
+   ],
+   "milestone": "M4",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:417"
+   ],
+   "note": "no equivalent menu"
+  },
+  "editor/touchToolbar (easyIDE)": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Have",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/InputDock.kt:40",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:9"
+   ],
+   "note": "touch toolbar in input dock (easyIDE-own location)",
+   "own": true
+  },
+  "keyRow (easyIDE)": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Have",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/KeyRows.kt:92",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:20"
+   ],
+   "note": "key row keys (easyIDE-own location)",
+   "own": true
+  },
+  "editor/selectionToolbar (easyIDE)": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:10"
+   ],
+   "note": "declared, not rendered (easyIDE-own location)",
+   "own": true
+  },
+  "editor/gutter (easyIDE)": {
+   "capability": "ui.menus",
+   "track": "in",
+   "gap": "Missing-UI",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "proposed": null,
+   "ourStatus": "Missing-UI",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:11"
+   ],
+   "note": "declared, not rendered (easyIDE-own location)",
+   "own": true
+  }
+ }
+}
