@@ -73,21 +73,32 @@ class EasyTerminalViewClient : TerminalViewClient {
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession?): Boolean = onHardwareKey(e)
 
-    override fun onKeyUp(keyCode: Int, e: KeyEvent): Boolean = false
+    override fun onKeyUp(keyCode: Int, e: KeyEvent): Boolean {
+        // A hardware key has used the armed Ctrl/Alt; the modifier keys themselves have not.
+        if (!KeyEvent.isModifierKey(keyCode)) TerminalModifiers.consume()
+        return false
+    }
 
     override fun onLongPress(event: MotionEvent): Boolean = false
 
-    override fun readControlKey(): Boolean = false
+    override fun readControlKey(): Boolean = TerminalModifiers.ctrl
 
-    override fun readAltKey(): Boolean = false
+    override fun readAltKey(): Boolean = TerminalModifiers.alt
 
     override fun readShiftKey(): Boolean = false
 
     override fun readFnKey(): Boolean = false
 
-    override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean = false
+    override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean {
+        // The view has read the armed modifiers for this character; they apply to one key.
+        TerminalModifiers.consume()
+        return false
+    }
 
-    override fun onEmulatorSet() {}
+    /** Remembers the grid so a terminal opened next starts at the size this view really has. */
+    override fun onEmulatorSet() {
+        terminalView?.currentSession?.emulator?.let { TerminalGrid.remember(it.mColumns, it.mRows) }
+    }
 
     override fun logError(tag: String, message: String) { Log.e(tag, message) }
     override fun logWarn(tag: String, message: String) { Log.w(tag, message) }

@@ -22,6 +22,7 @@ import dev.easyide.app.ui.shell.host.PanelRendererRegistry
 import dev.easyide.app.ui.shell.host.panelRenderer
 import dev.easyide.extensions.contrib.KeyAction
 import dev.easyide.app.ui.screens.workspace.TerminalKeyInput
+import dev.easyide.app.ui.screens.workspace.TerminalModifiers
 
 /**
  * The one place the workspace's containers and document types are bound to their composables. The
@@ -104,5 +105,9 @@ object WorkspacePanels {
 
 /** What a terminal key row key does: a command runs, anything else is bytes for the shell. */
 fun terminalRowKey(action: KeyAction, session: com.termux.terminal.TerminalSession, runCommand: (String) -> Unit) {
-    if (action is KeyAction.Command) runCommand(action.id) else TerminalKeyInput.bytesFor(action, session)?.let(session::write)
+    if (action is KeyAction.Command) {
+        if (!TerminalModifiers.toggle(action.id)) runCommand(action.id)
+    } else {
+        TerminalKeyInput.bytesFor(action, session)?.let { session.write(TerminalModifiers.wrap(it)) }
+    }
 }

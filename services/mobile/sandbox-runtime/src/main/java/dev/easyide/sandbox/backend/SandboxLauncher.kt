@@ -71,11 +71,21 @@ data class LaunchRequest(
     val extraEnvironment: Map<String, String> = emptyMap(),
     val extraBinds: List<GuestBind> = emptyList(),
     val guestCwd: String? = null,
+    /** Fake ids to run as (proot `-i`); null runs as fake root (`-0`). See [GuestIds]. */
+    val ids: GuestIds? = null,
 ) {
     init {
         require(guestCwd == null || guestCwd.startsWith("/")) { "Guest cwd must be an absolute guest path: $guestCwd" }
     }
 }
+
+/**
+ * The uid and gid a guest process believes it has. proot only fakes them, so this is not a
+ * security boundary, but programs behave as they would for that user: `whoami`, `id`, tools that
+ * refuse to run as root. A process can still regain uid 0 with `setpriv --reuid=0`, which is what
+ * the guest's `sudo` does once the password is right (measured on a Xiaomi Pad 6).
+ */
+data class GuestIds(val uid: Int, val gid: Int)
 
 /** Builds the argv for one sandbox backend. */
 interface SandboxLauncher {
@@ -94,26 +104,44 @@ internal object GuestEnvironment {
 
     /** /usr/local first, so the provisioned `sudo` shim is found. */
     const val DEFAULT_PATH = "/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+    /**
+     * Where per-user installers put their binaries, relative to HOME. Installers such as opencode,
+     * bun, rustup and `pipx` edit `~/.bashrc`, which only a login bash reads; listing the
+     * directories here means a tool is found in every kind of session (a plain `sh`, a language
+     * server, a task) right after it installs.
+     */
+    val USER_BIN_DIRS = listOf(".opencode/bin", ".local/bin", ".cargo/bin", ".bun/bin", ".npm-global/bin")
+
     const val DEFAULT_TERM = "xterm-256color"
+
+    /** Lets terminal programs use 24-bit colour instead of falling back to the 256-colour palette. */
+    const val DEFAULT_COLORTERM = "truecolor"
+    const val COLORTERM = "COLORTERM"
     const val DEFAULT_LANG = "C.UTF-8"
 
     /**
-     * The unprivileged user `RootfsProvisioner.createDefaultUser` writes into
-     * every rootfs, and that `SandboxShell.interactiveParams` switches
-     * interactive shells to via `su` when it is present. Named once here so
-     * both agree - see `createDefaultUser`'s doc comment for why this is
-     * cosmetic (prompt/`whoami` only), not a real privilege boundary.
+     * The default account (`GuestAccounts`): uid [DEFAULT_UID] in the root group, home `/root`.
+     * Interactive terminals run as it; `sudo` (a shim) asks for its password and re-runs the
+     * command as uid 0. Language servers and tasks run as root.
      */
     const val DEFAULT_USER = "dev"
     const val DEFAULT_UID = 1000
+
+    /** The root group: the default user is a member of it, so it can read what root's group owns. */
+    const val DEFAULT_GID = 0
+
+    /** The shell every interactive terminal starts (a login shell), when the guest has it. */
+    const val LOGIN_SHELL = "/bin/bash"
 
     /** Where a session with no bound project lands - root's own home, matching a real login. */
     const val GUEST_HOME = "/root"
 
     fun defaults(home: String): Map<String, String> = mapOf(
         HOME to home,
-        PATH to DEFAULT_PATH,
+        PATH to (USER_BIN_DIRS.map { "$home/$it" } + DEFAULT_PATH).joinToString(":"),
         TERM to DEFAULT_TERM,
+        COLORTERM to DEFAULT_COLORTERM,
         LANG to DEFAULT_LANG,
     )
 }

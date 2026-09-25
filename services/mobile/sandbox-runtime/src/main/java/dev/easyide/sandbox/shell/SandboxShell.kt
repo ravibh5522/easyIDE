@@ -2,6 +2,7 @@ package dev.easyide.sandbox.shell
 
 import dev.easyide.sandbox.backend.GuestBind
 import dev.easyide.sandbox.backend.GuestEnvironment
+import dev.easyide.sandbox.backend.GuestIds
 import dev.easyide.sandbox.backend.LaunchRequest
 import dev.easyide.sandbox.backend.ProotLauncher
 import dev.easyide.sandbox.bootstrap.ProotInstaller
@@ -102,15 +103,27 @@ class SandboxShell(
         hostProjectDir: File?,
         guestProjectPath: String,
         extraBinds: List<GuestBind> = emptyList(),
+        asRoot: Boolean = false,
     ): PtyShellParams = ptyParams(
         LaunchRequest(
             rootfs = rootfs,
             hostProjectDir = hostProjectDir,
             guestProjectPath = guestProjectPath,
             extraBinds = extraBinds,
-            command = listOf(GUEST_SHELL),
+            command = loginShell(rootfs),
+            extraEnvironment = if (asRoot) emptyMap() else USER_ENVIRONMENT,
+            ids = if (asRoot) null else GuestIds(GuestEnvironment.DEFAULT_UID, GuestEnvironment.DEFAULT_GID),
         )
     )
+
+    /**
+     * A login bash where the guest has one, so `~/.profile` and `~/.bashrc` run: installers
+     * (opencode, bun, rustup, nvm) add their `PATH` line to `~/.bashrc` and expect a shell that
+     * reads it, and readline gives history, arrow-key editing and tab completion. dash, the
+     * `/bin/sh` of Ubuntu, has none of that.
+     */
+    private fun loginShell(rootfs: File): List<String> =
+        if (File(rootfs, "usr/bin/bash").isFile) listOf(GuestEnvironment.LOGIN_SHELL, "-l") else listOf(GUEST_SHELL)
 
     private fun ptyParams(request: LaunchRequest): PtyShellParams {
         val spec = launcher.buildLaunchSpec(request)
@@ -183,6 +196,13 @@ class SandboxShell(
 
     private companion object {
         const val GUEST_SHELL = "/bin/sh"
+
+        /** What a login would set for the default user; HOME stays `/root`, shared with servers and tasks. */
+        val USER_ENVIRONMENT = mapOf(
+            "USER" to GuestEnvironment.DEFAULT_USER,
+            "LOGNAME" to GuestEnvironment.DEFAULT_USER,
+            "SHELL" to GuestEnvironment.LOGIN_SHELL,
+        )
         const val GUEST_SHELL_FLAG = "-c"
         const val ENV_PROOT_LOADER = "PROOT_LOADER"
         const val ENV_PROOT_LOADER_32 = "PROOT_LOADER_32"

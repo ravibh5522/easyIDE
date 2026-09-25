@@ -15,6 +15,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -32,6 +39,9 @@ public final class TerminalSession extends TerminalOutput {
 
     private static final int MSG_NEW_INPUT = 1;
     private static final int MSG_PROCESS_EXITED = 4;
+
+    /** How long {@link #terminate()} waits after SIGHUP before it kills. */
+    private static final long TERMINATE_GRACE_MS = 800;
 
     public final String mHandle = UUID.randomUUID().toString();
 
@@ -236,13 +246,78 @@ public final class TerminalSession extends TerminalOutput {
 
     /** Finish this terminal session by sending SIGKILL to the shell. */
     public void finishIfRunning() {
-        if (isRunning()) {
+        if (isRunning()) killTree(descendantsOf(mShellPid), OsConstants.SIGKILL);
+    }
+
+    /**
+     * Closes the terminal the way a terminal emulator does: SIGHUP to everything the shell started
+     * so programs (an editor, a coding assistant) can save state and stop their children, then
+     * SIGKILL after {@link #TERMINATE_GRACE_MS} for whatever is left.
+     */
+    public void terminate() {
+        if (!isRunning() || mShellPid <= 0) return;
+        final List<Integer> tree = descendantsOf(mShellPid);
+        killTree(tree, OsConstants.SIGHUP);
+        mMainThreadHandler.postDelayed(() -> {
+            // The tracer may be gone by now, so what it started is only known from the list.
+            killTree(tree, OsConstants.SIGKILL);
+            finishIfRunning();
+        }, TERMINATE_GRACE_MS);
+    }
+
+    /**
+     * Signals every pid in [tree], then the shell's own process and group. proot does not take its
+     * tracees down when it is killed: they are re-parented to init and keep running, so killing
+     * only the shell pid left every program the user had started alive after the tab was closed.
+     */
+    private void killTree(List<Integer> tree, int signal) {
+        for (int pid : tree) sendSignal(pid, signal);
+        // 0 means the process has not started: kill(0) would signal the app's own group.
+        if (mShellPid <= 0) return;
+        sendSignal(-mShellPid, signal);
+        sendSignal(mShellPid, signal);
+    }
+
+    private void sendSignal(int pid, int signal) {
+        try {
+            Os.kill(pid, signal);
+        } catch (ErrnoException e) {
+            // ESRCH: it already exited, which is the goal.
+            if (e.errno != OsConstants.ESRCH) Logger.logWarn(mClient, LOG_TAG, "Failed sending signal " + signal + " to " + pid + ": " + e.getMessage());
+        }
+    }
+
+    /** Every live descendant of [root] by parentage, read from /proc; empty when root is not positive. */
+    static List<Integer> descendantsOf(int root) {
+        final List<Integer> result = new ArrayList<>();
+        if (root <= 0) return result;
+        final Map<Integer, List<Integer>> children = new HashMap<>();
+        final File[] entries = new File("/proc").listFiles();
+        if (entries == null) return result;
+        for (File entry : entries) {
+            final String name = entry.getName();
+            if (name.isEmpty() || !Character.isDigit(name.charAt(0))) continue;
             try {
-                Os.kill(mShellPid, OsConstants.SIGKILL);
-            } catch (ErrnoException e) {
-                Logger.logWarn(mClient, LOG_TAG, "Failed sending SIGKILL: " + e.getMessage());
+                final String stat = new String(Files.readAllBytes(new File(entry, "stat").toPath()), StandardCharsets.UTF_8);
+                // "pid (comm) S ppid ...": comm may hold spaces and parentheses, so cut at the last ')'.
+                final String[] rest = stat.substring(stat.lastIndexOf(')') + 2).split(" ");
+                final int ppid = Integer.parseInt(rest[1]);
+                children.computeIfAbsent(ppid, k -> new ArrayList<>()).add(Integer.parseInt(name));
+            } catch (Exception e) {
+                // The process ended while it was being read, or is not ours to read.
             }
         }
+        final Deque<Integer> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            final List<Integer> kids = children.get(queue.poll());
+            if (kids == null) continue;
+            for (int kid : kids) {
+                result.add(kid);
+                queue.add(kid);
+            }
+        }
+        return result;
     }
 
     /** Cleanup resources when the process exits. */

@@ -22,7 +22,8 @@ class ProotLauncher(
             add(prootBinary.absolutePath)
             add(ARG_KILL_ON_EXIT)
             addAll(HARD_LINK_EMULATION)
-            add(ARG_ROOT_ID)
+            val ids = request.ids
+            if (ids == null) add(ARG_ROOT_ID) else addAll(listOf(ARG_CHANGE_ID, "${ids.uid}:${ids.gid}"))
             addAll(listOf(ARG_ROOTFS, request.rootfs.absolutePath))
 
             // Android's own /dev, /proc and /sys are passed through; proot
@@ -62,6 +63,7 @@ class ProotLauncher(
         const val ARG_BIND = "-b"
         const val ARG_CWD = "-w"
         const val ARG_ROOT_ID = "-0"
+        const val ARG_CHANGE_ID = "-i"
         const val ARG_KILL_ON_EXIT = "--kill-on-exit"
 
         const val ENV_PROOT_LOADER = "PROOT_LOADER"
