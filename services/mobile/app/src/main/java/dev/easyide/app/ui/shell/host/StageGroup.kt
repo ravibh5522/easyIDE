@@ -98,6 +98,7 @@ internal fun StageGroup(
                 onKeep = { callbacks.keep(it.uri) },
                 onClose = { callbacks.close(it.uri) },
                 onMenu = if (callbacks.hasTabMenu) ({ tab, at -> menu = tab to at }) else null,
+                iconOf = { tab -> TabIcon(tab.uri, documents.resolve(tab.uri).icon(tab.uri).name) },
                 trailing = actions,
             )
         }
