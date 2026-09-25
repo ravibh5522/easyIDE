@@ -70,7 +70,10 @@ internal fun LazyListScope.commitGraph(rows: List<GraphRow>, actions: GraphRowAc
 private fun CommitRow(row: GraphRow, refs: List<GitRef>, selected: Boolean, actions: GraphRowActions) {
     val colors = Kit.colors
     val laneWidth = Kit.control.indent
-    val drawn = row.laneCount.coerceIn(1, GitUi.MAX_DRAWN_LANES)
+    // Like VS Code, the subject starts right after the lanes this row actually uses, not after the graph's
+    // widest row, so a commit on the main line keeps the whole width for its text.
+    val used = (row.passing + row.incoming + row.parentLanes + row.ending + row.lane).max() + 1
+    val drawn = used.coerceIn(1, GitUi.MAX_DRAWN_LANES)
     val press = rememberPressPoint()
     val hover = remember { MutableInteractionSource() }
     val hovered by hover.collectIsHoveredAsState()
@@ -93,7 +96,7 @@ private fun CommitRow(row: GraphRow, refs: List<GitRef>, selected: Boolean, acti
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
     ) {
-        LaneGutter(row, drawn, colors.lanes, colors.panel, head, laneWidth, Modifier.width(gutterWidth(row.laneCount, laneWidth)).fillMaxHeight())
+        LaneGutter(row, drawn, colors.lanes, colors.panel, head, laneWidth, Modifier.width(gutterWidth(drawn, laneWidth)).fillMaxHeight())
         SubjectAndChips(
             Modifier.weight(1f),
             subject = {
