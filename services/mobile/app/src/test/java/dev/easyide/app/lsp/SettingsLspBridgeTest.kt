@@ -23,7 +23,7 @@ class SettingsLspBridgeTest {
         assertEquals(JsonPrimitive(500), hover["delay"])
         val editor = provider.sectionOf(defaults, "editor") as JsonObject
         assertTrue(editor["hover"] is JsonObject)
-        assertEquals(JsonPrimitive(13), editor["fontSize"])
+        assertEquals(JsonPrimitive(SettingsSchema.editorFontSize.default), editor["fontSize"])
     }
 
     @Test

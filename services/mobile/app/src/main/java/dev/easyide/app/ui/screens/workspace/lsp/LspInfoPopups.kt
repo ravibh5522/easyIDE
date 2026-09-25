@@ -34,14 +34,8 @@ import dev.easyide.app.ui.screens.workspace.codeTextStyle
 /** The content of the hover, signature help, quick-fix and code lens popups; [LspEditorOverlay] anchors them. */
 @Composable
 internal fun HoverContent(ui: HoverUi, controller: WorkspaceLspController) {
-    Column(modifier = Modifier.widthIn(max = LspUiMetrics.hoverMaxWidth)) {
-        LspMarkdownView(
-            ui.markdown, ui.languageId, ui.fileName,
-            Modifier
-                .heightIn(max = LspUiMetrics.popupMaxHeight)
-                .verticalScroll(rememberScrollState())
-                .padding(Kit.space.s),
-        )
+    Column {
+        HoverBody(ui)
         if (ui.origin != HoverOrigin.MOUSE) {
             Row(horizontalArrangement = Arrangement.spacedBy(Kit.space.xs), modifier = Modifier.padding(Kit.space.xs)) {
                 KitButton(stringResource(R.string.lsp_action_definition), style = KitButtonStyle.Ghost, onClick = {
@@ -65,6 +59,19 @@ internal fun HoverContent(ui: HoverUi, controller: WorkspaceLspController) {
     }
 }
 
+/** The hover text alone, without the touch action row. */
+@Composable
+internal fun HoverBody(ui: HoverUi) {
+    LspMarkdownView(
+        ui.markdown, ui.languageId, ui.fileName,
+        Modifier
+            .widthIn(max = LspUiMetrics.hoverMaxWidth)
+            .heightIn(max = LspUiMetrics.popupMaxHeight)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = Kit.space.s, vertical = Kit.space.xs),
+    )
+}
+
 @Composable
 internal fun SignatureContent(ui: SignatureUi) {
     val colors = Kit.colors
@@ -75,7 +82,7 @@ internal fun SignatureContent(ui: SignatureUi) {
             .widthIn(max = LspUiMetrics.hoverMaxWidth)
             .heightIn(max = LspUiMetrics.popupMaxHeight)
             .verticalScroll(rememberScrollState())
-            .padding(Kit.space.s),
+            .padding(horizontal = Kit.space.s, vertical = Kit.space.xs),
     ) {
         BasicText(
             text = buildAnnotatedString {
@@ -112,10 +119,11 @@ internal fun CodeActionContent(ui: CodeActionMenuUi, controller: WorkspaceLspCon
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = LspUiMetrics.completionRowHeight)
                     .clickable(enabled = enabled) { controller.actions.run(action) }
                     .padding(horizontal = LspUiMetrics.rowPaddingH, vertical = LspUiMetrics.rowPaddingV),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Kit.space.s),
+                horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
             ) {
                 Image(
                     LspIcons.quickFix,
@@ -124,7 +132,7 @@ internal fun CodeActionContent(ui: CodeActionMenuUi, controller: WorkspaceLspCon
                     colorFilter = ColorFilter.tint(if (a.isPreferred && enabled) colors.decorations.lightbulb else colors.textMuted),
                 )
                 Column {
-                    BasicText(a.title, style = Kit.text.caption.copy(color = if (enabled) colors.plainText else colors.textDisabled))
+                    BasicText(a.title, style = Kit.text.body.copy(color = if (enabled) colors.plainText else colors.textDisabled))
                     a.disabledReason?.let { BasicText(it, style = Kit.text.label.copy(color = colors.textDisabled)) }
                 }
             }
@@ -141,6 +149,7 @@ internal fun CodeLensContent(ui: CodeLensMenuUi, controller: WorkspaceLspControl
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = LspUiMetrics.completionRowHeight)
                     .clickable { controller.codeLens.run(lens) }
                     .padding(horizontal = LspUiMetrics.rowPaddingH, vertical = LspUiMetrics.rowPaddingV),
                 verticalAlignment = Alignment.CenterVertically,
@@ -149,7 +158,7 @@ internal fun CodeLensContent(ui: CodeLensMenuUi, controller: WorkspaceLspControl
                 Image(LspIcons.codeLens, null, Modifier.size(LspUiMetrics.kindIconSize), colorFilter = ColorFilter.tint(colors.decorations.codeLens))
                 BasicText(
                     lens.title ?: stringResource(R.string.lsp_code_lens_unresolved),
-                    style = Kit.text.caption.copy(color = if (lens.title != null) colors.plainText else colors.textMuted),
+                    style = Kit.text.body.copy(color = if (lens.title != null) colors.plainText else colors.textMuted),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

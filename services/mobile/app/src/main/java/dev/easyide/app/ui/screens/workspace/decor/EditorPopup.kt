@@ -3,7 +3,7 @@ package dev.easyide.app.ui.screens.workspace.decor
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -96,9 +96,8 @@ fun EditorPopup(
                 modifier = modifier,
                 color = colors.panel,
                 contentColor = colors.plainText,
-                shape = MaterialTheme.shapes.small,
+                shape = RoundedCornerShape(DecorationMetrics.popupRadius),
                 border = BorderStroke(DecorationMetrics.popupBorder, colors.panelBorder),
-                shadowElevation = DecorationMetrics.popupElevation,
                 content = content,
             )
         },

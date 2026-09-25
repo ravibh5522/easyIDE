@@ -48,14 +48,15 @@ object LspUiPolicy {
 
 /** Sizes of the LSP popups and panels, in one place. */
 internal object LspUiMetrics {
-    val completionRowHeight = 28.dp
+    /** Least height of a list row (VS Code's suggest rows are 22); a larger font grows it. */
+    val completionRowHeight = 22.dp
     val completionWidth = 360.dp
     val completionDocWidth = 320.dp
     val popupMaxHeight = 280.dp
     val hoverMaxWidth = 480.dp
     val kindIconSize = 16.dp
-    val rowPaddingH = 8.dp
-    val rowPaddingV = 4.dp
+    val rowPaddingH = 6.dp
+    val rowPaddingV = 2.dp
     val panelWidth = 320.dp
     val statusIconSize = 14.dp
 }

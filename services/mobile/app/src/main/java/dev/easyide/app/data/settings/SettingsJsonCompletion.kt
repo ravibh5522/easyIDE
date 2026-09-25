@@ -107,6 +107,7 @@ object SettingsJsonCompletion {
     private fun kindOf(s: Setting<*>): String = when (s) {
         is Setting.Bool -> "boolean"
         is Setting.IntRange -> "${s.min}..${s.max}"
+        is Setting.Decimal -> "${s.min}..${s.max}"
         is Setting.Enum<*> -> "enum"
         is Setting.Str -> "string"
         is Setting.StrList -> "string[]"

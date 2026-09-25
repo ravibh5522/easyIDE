@@ -67,12 +67,12 @@ val GraphiteDarkPalette = Palette(
     ),
     emphasis = Emphasis(
         selection = 0.22f,
-        currentLine = 0.05f,
+        currentLine = 0.04f,
         listSelection = 0.18f,
-        bracketMatch = 0.22f,
+        bracketMatch = 0.12f,
         wordHighlight = 0.1f,
-        searchMatch = 0.28f,
-        searchMatchCurrent = 0.4f,
+        searchMatch = 0.22f,
+        searchMatchCurrent = 0.38f,
         inlayBackground = 0.06f,
     ),
 )
@@ -136,12 +136,12 @@ val PaperLightPalette = Palette(
     ),
     emphasis = Emphasis(
         selection = 0.2f,
-        currentLine = 0.045f,
+        currentLine = 0.04f,
         listSelection = 0.16f,
-        bracketMatch = 0.2f,
+        bracketMatch = 0.1f,
         wordHighlight = 0.1f,
-        searchMatch = 0.28f,
-        searchMatchCurrent = 0.4f,
+        searchMatch = 0.22f,
+        searchMatchCurrent = 0.38f,
         inlayBackground = 0.06f,
     ),
 )

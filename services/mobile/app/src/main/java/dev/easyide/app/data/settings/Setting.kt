@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
 
 /**
@@ -100,6 +101,16 @@ sealed class Setting<T>(
         override fun decode(value: JsonElement): Int? =
             (value as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull?.takeIf { it in min..max }
         override fun encode(value: Int): JsonElement = JsonPrimitive(value)
+    }
+
+    /** A fractional number within [min]..[max]: line height as a multiplier, letter spacing. */
+    class Decimal(
+        key: String, category: SettingCategory, @StringRes title: Int, @StringRes description: Int,
+        default: Double, scope: SettingScope, val min: Double, val max: Double,
+    ) : Setting<Double>(key, SettingGroup.BuiltIn(category), Text.Res(title), Text.Res(description), default, scope) {
+        override fun decode(value: JsonElement): Double? =
+            (value as? JsonPrimitive)?.takeIf { !it.isString }?.doubleOrNull?.takeIf { it in min..max }
+        override fun encode(value: Double): JsonElement = JsonPrimitive(value)
     }
 
     /**

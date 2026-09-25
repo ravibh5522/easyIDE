@@ -9,7 +9,7 @@
     <string name="setting_ui_scale_title">Interface scale (%)</string>
     <string name="setting_ui_scale_desc">Scales the interface and its text together. The editor font size is separate.</string>
     <string name="setting_font_pairing_title">Interface font</string>
-    <string name="setting_font_pairing_desc">Geist with Geist Mono, Geist Mono for all chrome, or the system fonts.</string>
+    <string name="setting_font_pairing_desc">The system fonts (like VS Code), Geist with Geist Mono, or Geist Mono for all chrome.</string>
     <string name="setting_chrome_contrast_title">Chrome contrast</string>
     <string name="setting_chrome_contrast_desc">Strength of dividers and secondary text, separate from the high contrast theme.</string>
     <string name="setting_motif_title">Block motif</string>

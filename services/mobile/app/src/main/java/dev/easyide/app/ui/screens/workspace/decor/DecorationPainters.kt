@@ -102,7 +102,11 @@ private fun DrawScope.drawBackgrounds(set: DecorationSet, result: TextLayoutResu
             if (item.start == item.end) continue
             val color = backgroundOf(item, colors) ?: continue
             // getPathForRange yields one box per line, so a multi-line match needs no splitting.
-            drawPath(result.getPathForRange(item.start, item.end), color)
+            val path = result.getPathForRange(item.start, item.end)
+            drawPath(path, color)
+            if (item is SearchMatchDecoration && item.isCurrent) {
+                drawPath(path, colors.searchMatchCurrentBorder, style = Stroke(DecorationMetrics.outlineStroke.toPx()))
+            }
         }
     }
 }
@@ -241,20 +245,22 @@ internal fun rememberGutterPainters(): Map<GutterGlyph, VectorPainter> =
     GutterGlyph.entries.associateWith { rememberVectorPainter(it.icon()) }
 
 /**
- * Gutter glyphs, vertically centred on their text line. Applied to the full gutter box;
- * [textTop] is the gap between the gutter's top and the text layout's first line.
+ * Gutter glyphs, vertically centred on their text line and horizontally in the [lane] (glyph margin)
+ * at the gutter's left edge. Applied to the full gutter box; [textTop] is the gap between the
+ * gutter's top and the text layout's first line.
  */
 internal fun Modifier.gutterDecorations(
     inputs: DecorationInputs,
     colors: DecorationColors,
     painters: Map<GutterGlyph, VectorPainter>,
     textTop: Dp,
+    lane: Dp,
 ): Modifier = drawBehind {
     val (set, result, offsets) = paintWindow(inputs) ?: return@drawBehind
     val glyphs = GutterGlyphs.byLine(set, offsets.first, offsets.last, result::getLineForOffset)
     if (glyphs.isEmpty()) return@drawBehind
     val icon = DecorationMetrics.gutterIconSize.toPx()
-    val left = (DecorationMetrics.gutterLaneWidth.toPx() - icon) / 2
+    val left = (lane.toPx() - icon) / 2
     val top = textTop.toPx()
     for ((line, glyph) in glyphs) {
         val painter = painters.getValue(glyph)

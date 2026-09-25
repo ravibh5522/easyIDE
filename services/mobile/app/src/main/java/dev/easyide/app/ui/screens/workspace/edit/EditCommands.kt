@@ -49,6 +49,38 @@ object EditCommands {
         return null
     }
 
+    /**
+     * The innermost bracket pair that contains [caret] without touching it, for `editor.matchBrackets`
+     * = always. Same limits as [matchingBracket]: single-character pairs, bounded scan, no parse.
+     */
+    fun enclosingBracket(text: String, caret: Int, brackets: List<CharPair>): Pair<Int, Int>? {
+        var best: Pair<Int, Int>? = null
+        for (pair in brackets) {
+            if (pair.open.length != 1 || pair.close.length != 1) continue
+            val open = unmatchedBefore(text, caret, pair.open[0], pair.close[0]) ?: continue
+            if (best != null && best.first > open) continue
+            val close = scan(text, open, pair.open[0], pair.close[0], 1) ?: continue
+            best = open to close
+        }
+        return best
+    }
+
+    /** The nearest [open] before [caret] that no [close] between it and the caret has already matched. */
+    private fun unmatchedBefore(text: String, caret: Int, open: Char, close: Char): Int? {
+        var depth = 0
+        var i = minOf(caret, text.length) - 1
+        var walked = 0
+        while (i >= 0 && walked <= MAX_BRACKET_SCAN_CHARS) {
+            when (text[i]) {
+                close -> depth++
+                open -> if (depth-- == 0) return i
+            }
+            i--
+            walked++
+        }
+        return null
+    }
+
     private fun scan(text: String, from: Int, self: Char, partner: Char, step: Int): Int? {
         var depth = 0
         var i = from

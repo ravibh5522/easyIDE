@@ -45,8 +45,9 @@ class AccentDerivationTest {
         val chosen = Color(0xFF3CC9C0)
         val t = dark.withAccent(chosen)
         val accent = t[ColorToken.ACCENT]
-        listOf(ColorToken.FOCUS_BORDER, ColorToken.TAB_ACTIVE_BORDER, ColorToken.ACTIVITY_BAR_ACTIVE_BORDER, ColorToken.CURSOR, ColorToken.TERMINAL_CURSOR)
+        listOf(ColorToken.FOCUS_BORDER, ColorToken.TAB_ACTIVE_BORDER, ColorToken.ACTIVITY_BAR_ACTIVE_BORDER, ColorToken.TERMINAL_CURSOR)
             .forEach { assertEquals(it.name, accent, t[it]) }
+        assertEquals("the editor caret ignores the accent", dark[ColorToken.CURSOR], t[ColorToken.CURSOR])
         assertEquals(dark[ColorToken.SELECTION].alpha, t[ColorToken.SELECTION].alpha, 0f)
         listOf(ColorToken.EDITOR_BACKGROUND, ColorToken.PANEL, ColorToken.FOREGROUND, ColorToken.ERROR, ColorToken.ANSI_RED, ColorToken.GIT_ADDED)
             .forEach { assertEquals(it.name, dark[it], t[it]) }

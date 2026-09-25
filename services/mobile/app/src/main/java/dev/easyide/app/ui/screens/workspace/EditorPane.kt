@@ -2,7 +2,6 @@ package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.defaultMinSize
@@ -19,41 +18,24 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.easyide.app.data.settings.SettingsSchema
-import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.screens.workspace.syntax.SemanticOverlay
-import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
-import dev.easyide.app.ui.theme.EasyIdeFonts
-import dev.easyide.app.ui.theme.EditorColors
 import dev.easyide.app.ui.theme.editorColors
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -64,17 +46,24 @@ import dev.easyide.app.ui.screens.workspace.edit.TextState
 import dev.easyide.app.ui.screens.workspace.edit.TypingOptions
 import dev.easyide.app.ui.screens.workspace.edit.TypingRules
 import dev.easyide.app.ui.screens.workspace.syntax.LanguageConfigs
-import kotlinx.coroutines.flow.filterNotNull
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.State
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import kotlinx.coroutines.flow.first
-import kotlin.math.roundToInt
+import androidx.compose.ui.focus.onFocusChanged
+import dev.easyide.app.data.settings.BracketMatching
+import dev.easyide.app.data.settings.WordWrap
+import dev.easyide.app.ui.screens.workspace.decor.EditorGutter
+import dev.easyide.app.ui.screens.workspace.decor.GuidePaint
+import dev.easyide.app.ui.screens.workspace.decor.GutterPaint
+import dev.easyide.app.ui.screens.workspace.decor.LineStarts
+import dev.easyide.app.ui.screens.workspace.decor.gutterLineNumbers
+import dev.easyide.app.ui.screens.workspace.decor.indentGuides
+import dev.easyide.app.ui.screens.workspace.decor.matchTextHeight
 import dev.easyide.app.ui.screens.workspace.decor.DecorationInputs
 import dev.easyide.app.ui.screens.workspace.decor.DecorationMetrics
 import dev.easyide.app.ui.screens.workspace.decor.DecorationModel
@@ -172,13 +161,13 @@ private fun EditableSurface(
     val horizontalScroll = scrollStates.horizontal
 
     val totalLines = LineCount.of(tab.content)
-    val lineNumbers = remember(totalLines) { (1..totalLines).joinToString("\n") }
     val config by produceState(LanguageConfig.GENERIC, tab.name) {
         value = withContext(Dispatchers.IO) { LanguageConfigs.forFile(tab.name) }
     }
     val languageId = rememberLanguageId(tab.name)
+    val options = rememberEditorOptions(languageId)
     val zoom = rememberFontZoom(SettingsSchema.editorFontSize, languageId)
-    val codeStyle = codeTextStyle(languageId, zoom.size)
+    val codeStyle = remember(options, zoom.size) { codeTextStyleOf(options, zoom.size) }
     val editorFocus = remember { FocusRequester() }
 
     // Text comes from the tab, the selection from the hoisted EditorSelections
@@ -189,32 +178,33 @@ private fun EditableSurface(
     val selection = selections[path].let { TextRange(it.start.coerceIn(0, tab.content.length), it.end.coerceIn(0, tab.content.length)) }
     var composition by remember(tab.relativePath) { mutableStateOf<TextRange?>(null) }
     val field = TextFieldValue(tab.content, selection, composition)
-    val bracketPair = remember(tab.content, field.selection, config) {
-        if (field.selection.collapsed) EditCommands.matchingBracket(tab.content, field.selection.start, config.brackets)
-        else null
+    val bracketPair = remember(tab.content, field.selection, config, options.matchBrackets) {
+        when {
+            options.matchBrackets == BracketMatching.NEVER || !field.selection.collapsed -> null
+            else -> EditCommands.matchingBracket(tab.content, field.selection.start, config.brackets)
+                ?: EditCommands.enclosingBracket(tab.content, field.selection.start, config.brackets)
+                    .takeIf { options.matchBrackets == BracketMatching.ALWAYS }
+        }
     }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
-    // Derived, so the gutter recomposes when the caret changes line, not on every caret move.
-    // Reads the hoisted state inside the derivation: the local `selection` is a per-composition
-    // value, and capturing it here would freeze the gutter on the first caret position.
-    val caretLine by remember(tab.relativePath) {
-        derivedStateOf { layout?.let { it.getLineForOffset(selections[path].start.coerceIn(0, it.layoutInput.text.length)) } ?: 0 }
-    }
-    val numbered = remember(lineNumbers, caretLine, colors.gutterActiveText) {
-        gutterNumbers(lineNumbers, caretLine, colors.gutterActiveText)
-    }
     val snapshot = remember(decorations) { decorations?.let(::DecorationSnapshot) }
     // Before layout and draw of this frame, so the painters see decorations already moved
     // onto the text being laid out. A no-op when the buffer is unchanged.
     SideEffect { snapshot?.sync(tab.content) }
     LaunchedEffect(snapshot) { snapshot?.follow() }
     val popupHost = remember { EditorPopupHost() }
-    val measurer = rememberTextMeasurer(cacheSize = DecorationMetrics.GHOST_TEXT_MEASURE_CACHE)
+    val measurer = rememberTextMeasurer(cacheSize = DecorationMetrics.MEASURE_CACHE)
     val gutterPainters = rememberGutterPainters()
-    val gutterWidth = GUTTER_WIDTH_DP.dp + DecorationMetrics.gutterLaneWidth
-    val selectionColors = remember(colors.cursor, colors.selection) {
-        TextSelectionColors(handleColor = colors.cursor, backgroundColor = colors.selection)
+    val selectionColors = remember(colors.accent, colors.selection) {
+        TextSelectionColors(handleColor = colors.accent, backgroundColor = colors.selection)
     }
+    val wrap = options.wordWrap == WordWrap.ON
+    // Word wrap only: which logical line each visual line belongs to. Without wrap they are the same.
+    val lineStarts = remember(tab.content, wrap) { if (wrap) LineStarts(tab.content) else null }
+    val focused = remember { mutableStateOf(false) }
+    val caretPhase = rememberCaretPhase(field.selection to tab.content.length, focused.value)
+    val density = LocalDensity.current
+    val charWidthPx = remember(codeStyle, density) { measurer.measure(CHAR_PROBE, codeStyle).size.width.toFloat().coerceAtLeast(1f) }
 
     // The text field is only as large as its text, so tapping beside a short
     // line or below the last line used to hit nothing and the caret never
@@ -225,12 +215,21 @@ private fun EditableSurface(
             .fillMaxSize()
             .onPreviewKeyEvent { event -> interaction?.onPreviewKey(tab.relativePath, event) == true }
             .dismissPopupsOnEscape(popupHost)
-            .pinchToZoom(zoom),
+            .pinchToZoom(zoom)
+            .editorScrollbar(verticalScroll, options.scrollbar, colors.scrollbarSlider),
     ) {
         val viewportHeight = maxHeight
+        val compact = EditorGutter.isCompact(maxWidth)
+        val charWidth = with(density) { charWidthPx.toDp() }
+        val gutterWidth = EditorGutter.width(totalLines, options.lineNumbers, charWidth, compact)
+        val laneWidth = EditorGutter.laneWidth(compact)
+        // Room on the right for the scrollbar; the gap before the text is part of the gutter.
+        val textEnd = DecorationMetrics.scrollbarWidth
         val textMinWidth = maxWidth - gutterWidth
-        val density = LocalDensity.current
+        val padV = DecorationMetrics.textPaddingVertical
+        val padVPx = with(density) { padV.toPx() }
         val viewportPx = with(density) { viewportHeight.toPx() }
+        val visiblePx = { (verticalScroll.value - padVPx)..(verticalScroll.value + viewportPx - padVPx) }
 
         val liveWindow = remember(verticalScroll, viewportPx, totalLines) {
             derivedStateOf { visibleLineWindow(verticalScroll.value, verticalScroll.maxValue, viewportPx, totalLines) }
@@ -248,9 +247,7 @@ private fun EditableSurface(
         }
         // Keyed by path too: the caret lambda reads this tab's entry of the hoisted selections.
         val geometry = remember(tab.relativePath, verticalScroll, horizontalScroll, density, gutterWidth) {
-            val origin = with(density) {
-                Offset((gutterWidth + TEXT_PADDING_H_DP.dp).toPx(), TEXT_PADDING_V_DP.dp.toPx())
-            }
+            val origin = with(density) { Offset(gutterWidth.toPx(), padVPx) }
             EditorGeometry({ layout }, { selections[path] }, verticalScroll, horizontalScroll, origin)
         }
 
@@ -283,20 +280,32 @@ private fun EditableSurface(
             }
         }
 
+        val gutterPaint = GutterPaint(
+            layout = { layout },
+            visiblePx = visiblePx,
+            selection = { selections[path] },
+            lineStarts = lineStarts,
+            mode = options.lineNumbers,
+            highlight = options.lineHighlight,
+            colors = colors,
+            numberStyle = codeStyle,
+            measurer = measurer,
+            rightInset = charWidth,
+        )
+        val guidePaint = GuidePaint({ layout }, visiblePx, TYPING_OPTIONS.indentUnit.length, charWidthPx, colors.indentGuide, DecorationMetrics.indentGuideStroke)
+
         Row(modifier = Modifier.fillMaxSize().verticalScroll(verticalScroll)) {
-            Text(
-                text = numbered,
-                style = codeStyle.copy(color = colors.gutterText),
-                textAlign = TextAlign.End,
+            Box(
                 modifier = Modifier
                     .width(gutterWidth)
+                    .matchTextHeight({ layout }, padV, viewportHeight)
                     .background(colors.gutter)
-                    .gutterDecorations(paint, colors.decorations, gutterPainters, TEXT_PADDING_V_DP.dp)
-                    .gutterTaps({ layout }, TEXT_PADDING_V_DP.dp, onGutterTap)
-                    .padding(end = TEXT_PADDING_H_DP.dp, top = TEXT_PADDING_V_DP.dp, bottom = TEXT_PADDING_V_DP.dp),
+                    .gutterLineNumbers(gutterPaint, padV)
+                    .gutterDecorations(paint, colors.decorations, gutterPainters, padV, laneWidth)
+                    .gutterTaps({ layout }, padV, onGutterTap),
             )
 
-            Box(modifier = Modifier.horizontalScroll(horizontalScroll)) {
+            Box(modifier = if (wrap) Modifier else Modifier.horizontalScroll(horizontalScroll)) {
                 CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
                     BasicTextField(
                         value = field,
@@ -319,17 +328,22 @@ private fun EditableSurface(
                             }
                         },
                         textStyle = codeStyle.copy(color = colors.plainText),
-                        cursorBrush = SolidColor(colors.cursor),
+                        // The caret is drawn by drawCaret (style, width, blink phase); the field's own is hidden.
+                        cursorBrush = SolidColor(Color.Transparent),
                         visualTransformation = transformation,
                         onTextLayout = { layout = it },
                         modifier = Modifier
                             .focusRequester(editorFocus)
-                            .defaultMinSize(minWidth = textMinWidth, minHeight = viewportHeight)
-                            .drawCurrentLine({ layout }, { selection.start }, colors.currentLine, TEXT_PADDING_V_DP.dp)
-                            .padding(horizontal = TEXT_PADDING_H_DP.dp, vertical = TEXT_PADDING_V_DP.dp)
+                            .onFocusChanged { focused.value = it.isFocused }
+                            .then(if (wrap) Modifier.width(textMinWidth) else Modifier.defaultMinSize(minWidth = textMinWidth))
+                            .defaultMinSize(minHeight = viewportHeight)
+                            .drawCurrentLine({ layout }, { selections[path] }, lineStarts, options.lineHighlight, colors.currentLine, colors.currentLineBorder, DecorationMetrics.outlineStroke, padV)
+                            .padding(end = textEnd, top = padV, bottom = padV)
                             .editorPointer(tab.relativePath, interaction) { layout }
-                            .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch)
+                            .indentGuides(guidePaint, options.indentGuides)
+                            .drawBracketMatch(bracketPair, { layout }, colors.bracketMatch, colors.bracketMatchBorder, DecorationMetrics.outlineStroke)
                             .textDecorations(paint, colors.decorations, measurer, codeStyle)
+                            .drawCaret({ layout }, { selections[path] }, caretPhase, focused, options.cursorStyle, options.cursorWidth.dp, colors.cursor, charWidthPx)
                             .secondaryClicks(onSecondaryClick)
                             // Own layer for the text itself: a decoration redraw then replays
                             // the recorded paragraph instead of drawing it again.
@@ -344,26 +358,6 @@ private fun EditableSurface(
         }
     }
 }
-
-/**
- * Boxes the bracket pair at the caret. Drawn from the existing text layout
- * rather than as spans in the visual transformation: a span change would make
- * the field re-lay-out the whole buffer on every caret move.
- */
-private fun Modifier.drawBracketMatch(
-    pair: Pair<Int, Int>?,
-    layout: () -> TextLayoutResult?,
-    color: Color,
-): Modifier = if (pair == null) this else drawBehind {
-    val result = layout() ?: return@drawBehind
-    val length = result.layoutInput.text.length
-    for (offset in intArrayOf(pair.first, pair.second)) {
-        if (offset >= length) continue
-        val box = result.getBoundingBox(offset)
-        drawRect(color, topLeft = box.topLeft, size = box.size)
-    }
-}
-
 
 /**
  * Typing behaviour until the settings schema supplies `editor.autoClosingBrackets`,
@@ -388,42 +382,5 @@ internal fun NoticeBar(text: String) {
     )
 }
 
-/**
- * One definition so the gutter and buffer share a line height and never drift.
- * [languageId] applies `[lang]` settings blocks for the open document; [fontSizeOverride] is
- * the live size while a pinch is in progress.
- */
-@Composable
-fun codeTextStyle(languageId: String? = null, fontSizeOverride: Int? = null): TextStyle {
-    val settings = LocalSettings.current
-    val fontSize = fontSizeOverride ?: settings.get(SettingsSchema.editorFontSize, languageId)
-    return TextStyle(
-        fontFamily = EasyIdeFonts.mono,
-        fontSize = fontSize.sp,
-        // Both are independent settings; a line shorter than its glyphs would
-        // overlap neighbouring lines, so the font size is the floor.
-        lineHeight = settings.get(SettingsSchema.editorLineHeight, languageId).coerceAtLeast(fontSize).sp,
-    )
-}
-
-/** The document's language id, looked up off the main thread (the grammar index may still be loading). */
-@Composable
-internal fun rememberLanguageId(fileName: String): String? {
-    val id by produceState<String?>(null, fileName) {
-        value = withContext(Dispatchers.IO) { LanguageConfigs.languageIdFor(fileName) }
-    }
-    return id
-}
-
-internal const val GUTTER_WIDTH_DP = 52
-
-/**
- * Inset of the text inside the editable surface. Named because three things must agree on
- * it: the text field, the gutter (so line numbers and glyphs sit on their lines) and
- * [EditorGeometry]'s viewport mapping.
- */
-private const val TEXT_PADDING_H_DP = 8
-private const val TEXT_PADDING_V_DP = 4
-
-
-
+/** The glyph whose advance is the editor's character cell (monospace: every glyph). */
+private const val CHAR_PROBE = "0"

@@ -57,4 +57,13 @@ class EditCommandsTest {
         assertNull(EditCommands.matchingBracket("f(a", 2, typescript.brackets))
         assertNull(EditCommands.matchingBracket("abc", 1, typescript.brackets))
     }
+
+    @Test fun `the innermost enclosing pair is found when the caret touches no bracket`() {
+        val text = "f(a[1], (b c))"
+        assertEquals(1 to 13, EditCommands.enclosingBracket(text, 6, typescript.brackets))
+        assertEquals(8 to 12, EditCommands.enclosingBracket(text, 11, typescript.brackets))
+        assertEquals(3 to 5, EditCommands.enclosingBracket(text, 4, typescript.brackets))
+        assertNull(EditCommands.enclosingBracket("abc", 1, typescript.brackets))
+        assertNull(EditCommands.enclosingBracket("f(a", 3, typescript.brackets))
+    }
 }
