@@ -76,6 +76,11 @@ object AppearanceSettingsSchema {
         default = true, scope = SettingScope.G,
     )
 
+    val fullScreen = Setting.Bool(
+        "appearance.fullScreen", C, R.string.setting_full_screen_title, R.string.setting_full_screen_desc,
+        default = true, scope = SettingScope.G,
+    )
+
     val reduceMotion = Setting.Enum(
         "appearance.reduceMotion", C, R.string.setting_reduce_motion_title, R.string.setting_reduce_motion_desc,
         ReduceMotion.SYSTEM, SettingScope.G, ReduceMotion.entries,
@@ -106,7 +111,7 @@ object AppearanceSettingsSchema {
 
     val all: List<Setting<*>> = listOf(
         accent, density, corners, uiScale, fontPairing, chromeContrast, motif, cursorBlink,
-        reduceMotion, haptics, iconStyle, handedness,
+        reduceMotion, haptics, iconStyle, handedness, fullScreen,
     )
 
     /** The resolved properties. Invalid stored values were already skipped by resolution, so this never fails. */
@@ -123,6 +128,7 @@ object AppearanceSettingsSchema {
         haptics = settings[haptics],
         iconStyle = settings[iconStyle],
         handedness = settings[handedness],
+        fullScreen = settings[fullScreen],
     )
 }
 

@@ -90,7 +90,7 @@ class AppearanceTest {
         assertEquals(a.reduceMotion, AppearanceSettingsSchema.reduceMotion.default)
         assertEquals(a.accent.id, AppearanceSettingsSchema.accent.default)
         assertTrue(AppearanceSettingsSchema.all.all { it.key.startsWith("appearance.") })
-        assertEquals(12, AppearanceSettingsSchema.all.size)
+        assertEquals(13, AppearanceSettingsSchema.all.size)
     }
 
     @Test fun `motion honours reduce settings and the screen reader`() {

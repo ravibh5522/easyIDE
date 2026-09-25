@@ -66,7 +66,7 @@ private fun InlineSection(@StringRes title: Int, ctx: SettingsContext, rows: Lis
 
 private val SHAPE_ROWS: List<Setting<*>> = with(AppearanceSettingsSchema) { listOf(density, corners, uiScale, fontPairing, chromeContrast) }
 private val MOTION_ROWS: List<Setting<*>> = with(AppearanceSettingsSchema) { listOf(motif, cursorBlink, reduceMotion, haptics) }
-private val INTERFACE_ROWS: List<Setting<*>> = with(AppearanceSettingsSchema) { listOf(iconStyle, handedness) }
+private val INTERFACE_ROWS: List<Setting<*>> = with(AppearanceSettingsSchema) { listOf(iconStyle, handedness, fullScreen) }
 
 /** Every `appearance.*` property plus the theme keys the picker writes. */
 private val APPEARANCE_KEYS: List<Setting<*>> = AppearanceSettingsSchema.all + SettingsSchema.themeMode + SettingsSchema.colorTheme

@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -97,6 +100,16 @@ class MainActivity : ComponentActivity() {
             val iconThemeChoices by container.iconTheme.choices.collectAsStateWithLifecycle()
             val fileIcons = remember(iconTheme) { iconTheme?.let(::FileIcons) }
             val appearance = remember(settings) { AppearanceSettingsSchema.appearance(settings) }
+            // Immersive: bars hidden, a swipe from the edge shows them briefly over the app.
+            LaunchedEffect(appearance.fullScreen) {
+                val controller = WindowCompat.getInsetsController(window, window.decorView)
+                if (appearance.fullScreen) {
+                    controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    controller.hide(WindowInsetsCompat.Type.systemBars())
+                } else {
+                    controller.show(WindowInsetsCompat.Type.systemBars())
+                }
+            }
             EasyIdeTheme(
                 themeMode = themeMode,
                 contributed = contributedTheme,

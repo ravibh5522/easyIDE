@@ -112,6 +112,8 @@ data class Appearance(
     val haptics: HapticsLevel = HapticsLevel.SUBTLE,
     val iconStyle: IconStyle = IconStyle.EI,
     val handedness: Handedness = Handedness.RIGHT,
+    /** Hide the system bars (swipe from an edge to peek at them), so the app owns the whole screen. */
+    val fullScreen: Boolean = true,
 ) {
     val uiScale: Float get() = uiScalePercent / PERCENT
 

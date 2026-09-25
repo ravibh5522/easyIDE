@@ -14,6 +14,8 @@
     <string name="setting_chrome_contrast_desc">Strength of dividers and secondary text, separate from the high contrast theme.</string>
     <string name="setting_motif_title">Block motif</string>
     <string name="setting_motif_desc">How much the cursor block and prompt glyph appear in the interface.</string>
+    <string name="setting_full_screen_title">Full screen</string>
+    <string name="setting_full_screen_desc">Hide the status and navigation bars. Swipe from the edge to show them for a moment.</string>
     <string name="setting_cursor_blink_title">Cursor blink</string>
     <string name="setting_cursor_blink_desc">Blink the cursor block. Always solid when motion is reduced or a screen reader is on.</string>
     <string name="setting_reduce_motion_title">Reduce motion</string>

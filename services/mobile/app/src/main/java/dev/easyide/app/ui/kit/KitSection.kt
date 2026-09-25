@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import dev.easyide.app.R
+import dev.easyide.app.ui.props.Density
 
 /**
  * The header row of a section (density.md 1): [Kit.control] `sectionHeaderHeight` tall, a
@@ -63,7 +64,9 @@ fun KitSectionHeader(
         horizontalArrangement = Arrangement.spacedBy(Kit.space.xs),
     ) {
         if (expanded != null) TwistieSlot(if (expanded) Twistie.Expanded else Twistie.Collapsed, colors.textMuted)
-        else Box(Modifier.size(KitSizes.twistieSlot), Alignment.Center) { if (Kit.feel.motif.drawsSupporting) PromptGlyph() }
+        // The prompt glyph reads as a "collapsed" twistie beside collapsible headers, so only the
+        // roomy densities draw it: a Dense header is the plain caps title, like VS Code's.
+        else if (Kit.metrics.density != Density.DENSE) Box(Modifier.size(KitSizes.twistieSlot), Alignment.Center) { if (Kit.feel.motif.drawsSupporting) PromptGlyph() }
         BasicText(title.uppercase(), Modifier.weight(1f), style = Kit.text.label.copy(color = colors.textMuted), maxLines = 1)
         if (count != null) CountBadge(count)
         if (actions != null) Row(Modifier.kitClampHeight(Kit.control.sectionHeaderHeight), verticalAlignment = Alignment.CenterVertically, content = actions)

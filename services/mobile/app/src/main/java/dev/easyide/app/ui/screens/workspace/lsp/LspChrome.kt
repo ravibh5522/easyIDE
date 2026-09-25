@@ -99,7 +99,7 @@ fun RowScope.LspStatusItems(controller: WorkspaceLspController) {
     }
     val summary = ServerStatusKind.summary(statuses.map { it.kind }) ?: return
     BasicText(
-        text = stringResource(R.string.lsp_status_item, statuses.joinToString { it.key.serverId.substringAfterLast('/') }, stringResource(summary.label())),
+        text = stringResource(R.string.lsp_status_item, statuses.filter { it.kind == summary }.joinToString { it.key.serverId.substringAfterLast('/') }, stringResource(summary.label())),
         style = Kit.text.caption.copy(color = if (summary.isProblem) colors.warning else colors.statusBarText),
         modifier = Modifier.clickable(role = Role.Button) { listOpen = true },
     )
