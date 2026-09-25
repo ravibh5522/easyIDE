@@ -19,12 +19,15 @@ import dev.easyide.app.ui.screens.workspace.ext.WorkspaceExtensionHost
 import dev.easyide.app.ui.screens.workspace.lsp.WorkspaceLspController
 import dev.easyide.app.ui.screens.workspace.session.WorkspaceSessionUi
 import dev.easyide.extensions.contrib.KeyAction
+import dev.easyide.app.ui.screens.workspace.FileAction
 import dev.easyide.sandbox.files.FileNode
 
 /** What the panels and documents of a workspace ask of the screen that owns its dialogs and overlays. */
 class WorkspaceActions(
     /** A long press or right click on a tree row: the row and the window position of the press. */
     val onNodeMenu: (FileNode, IntOffset) -> Unit,
+    /** An explorer action from a key on the tree (F2, Delete, Ctrl+C/X/V), the same as choosing it in the row's menu. */
+    val onNodeAction: (FileAction, FileNode) -> Unit,
     /** How a row puts a document on the stage (a change row opening its diff, a commit's files). */
     val documents: DocumentOpener,
     val onNewFile: () -> Unit,

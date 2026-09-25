@@ -42,9 +42,10 @@ data class NodeMenu(val node: FileNode, val at: IntOffset)
 /**
  * Long-press (or right-click) menu for a tree node, opened under [NodeMenu.at].
  *
- * New file/folder appear only for directories (that is where they would be
- * created), and paste only when something is on the clipboard - a menu full of
- * entries that silently do nothing is worse than a short one.
+ * VS Code's set and order: new file and folder for a directory (that is where they are
+ * created), open to the side for a file, then cut, copy and paste, the two path copies, rename
+ * and delete, with the keys the tree answers to as hints. An entry that cannot apply to the
+ * row (paste with nothing cut) is dimmed, not hidden, so the menu keeps its shape.
  */
 @Composable
 fun FileContextMenu(
@@ -57,30 +58,40 @@ fun FileContextMenu(
     onExtensionEntry: (MenuEntry, FileNode) -> Unit = { _, _ -> },
 ) {
     if (menu == null) return
-    val node = menu.node
+    val items = fileMenuItems(menu.node, canPaste, onAction, extensionEntries, onExtensionEntry)
+    KitMenu(expanded = true, onDismiss = onDismiss, items = items, at = menu.at)
+}
 
-    fun action(label: String, what: FileAction, danger: Boolean = false) =
-        KitMenuItem.Action(label, { onAction(what, node) }, danger = danger)
+/** The entries of a tree node's menu; a function of the node so the goldens can lay the same menu out inline. */
+@Composable
+internal fun fileMenuItems(
+    node: FileNode,
+    canPaste: Boolean,
+    onAction: (FileAction, FileNode) -> Unit,
+    extensionEntries: (FileNode) -> List<MenuEntry> = { emptyList() },
+    onExtensionEntry: (MenuEntry, FileNode) -> Unit = { _, _ -> },
+): List<KitMenuItem> {
+    fun action(label: String, what: FileAction, danger: Boolean = false, hint: String? = null, enabled: Boolean = true) =
+        KitMenuItem.Action(label, { onAction(what, node) }, danger = danger, hint = hint, enabled = enabled)
 
-    val items = buildList {
-        if (!node.isDirectory) {
-            add(action(stringResource(R.string.wstage_open_beside), FileAction.OPEN_BESIDE))
-            add(KitMenuItem.Divider)
-        }
+    return buildList {
         if (node.isDirectory) {
             add(action(stringResource(R.string.wp_new_file), FileAction.NEW_FILE))
             add(action(stringResource(R.string.wp_new_folder), FileAction.NEW_FOLDER))
-            add(KitMenuItem.Divider)
+        } else {
+            add(action(stringResource(R.string.gitui_open_beside), FileAction.OPEN_BESIDE))
         }
-        add(action(stringResource(R.string.wp_copy), FileAction.COPY))
-        add(action(stringResource(R.string.wp_cut), FileAction.CUT))
-        if (canPaste && node.isDirectory) add(action(stringResource(R.string.wp_paste), FileAction.PASTE))
         add(KitMenuItem.Divider)
-        add(action(stringResource(R.string.wp_rename), FileAction.RENAME))
-        add(action(stringResource(R.string.wp_delete), FileAction.DELETE, danger = true))
+        add(action(stringResource(R.string.wp_cut), FileAction.CUT, hint = stringResource(R.string.gitui_key_cut)))
+        add(action(stringResource(R.string.wp_copy), FileAction.COPY, hint = stringResource(R.string.gitui_key_copy)))
+        // A file has no inside to paste into; a folder shows it dimmed until something is cut or copied.
+        if (node.isDirectory) add(action(stringResource(R.string.wp_paste), FileAction.PASTE, hint = stringResource(R.string.gitui_key_paste), enabled = canPaste))
         add(KitMenuItem.Divider)
         add(action(stringResource(R.string.wp_copy_path), FileAction.COPY_PATH))
         add(action(stringResource(R.string.wp_copy_relative_path), FileAction.COPY_RELATIVE_PATH))
+        add(KitMenuItem.Divider)
+        add(action(stringResource(R.string.wp_rename), FileAction.RENAME, hint = stringResource(R.string.gitui_key_rename)))
+        add(action(stringResource(R.string.wp_delete), FileAction.DELETE, danger = true, hint = stringResource(R.string.gitui_key_delete)))
         extensionEntries(node).sections().forEach { section ->
             add(KitMenuItem.Divider)
             section.forEach { entry ->
@@ -88,7 +99,6 @@ fun FileContextMenu(
             }
         }
     }
-    KitMenu(expanded = true, onDismiss = onDismiss, items = items, at = menu.at)
 }
 
 /** Shared prompt for the actions that need a name (new file/folder, rename). */

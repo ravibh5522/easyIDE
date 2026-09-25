@@ -66,6 +66,7 @@ object WorkspacePanels {
             inline = env.actions.inline,
             modifier = modifier.fillMaxSize(),
             changes = changes,
+            onNodeAction = env.actions.onNodeAction,
         )
     }
 

@@ -3,6 +3,7 @@ package dev.easyide.app.ui.screens.workspace
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -11,12 +12,16 @@ import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.IntOffset
@@ -52,6 +57,7 @@ fun FileTreePane(
     inline: InlineEditSpec,
     modifier: Modifier = Modifier,
     changes: Map<String, GitChangeType> = emptyMap(),
+    onNodeAction: (FileAction, FileNode) -> Unit = { _, _ -> },
 ) {
     val colors = Kit.colors
     val settings = LocalSettings.current
@@ -60,6 +66,10 @@ fun FileTreePane(
     val hideIgnored = settings[SettingsSchema.explorerHideIgnored]
     val ignore = LocalIgnoreIndex.current
     val filter = remember(hideHidden, hideIgnored, ignore) { TreeFilter(hideHidden, hideIgnored, ignore) }
+    val marks = remember(state.openTabs, changes) { TreeMarks(state.openTabs.filter { it.isDirty }.map { it.relativePath }.toSet(), changes) }
+    var focused by remember { mutableStateOf<FileNode?>(null) }
+    val focus = remember { FocusRequester() }
+    val collapseAll = { state.expandedFolders().forEach(onDirectoryToggled) }
 
     Column(modifier = modifier.fillMaxSize().background(colors.panel)) {
         ExplorerHeader(
@@ -67,13 +77,14 @@ fun FileTreePane(
             onNewFile = onNewFile,
             onNewFolder = onNewFolder,
             onRefresh = onRefresh,
+            onCollapseAll = collapseAll,
             hideHidden = hideHidden,
             hideIgnored = hideIgnored,
             onHideHiddenChange = { settingsEditor?.set(SettingsSchema.explorerHideHidden, it) },
             onHideIgnoredChange = { settingsEditor?.set(SettingsSchema.explorerHideIgnored, it) },
         )
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.fillMaxSize().focusRequester(focus).focusable().onKeyEvent { treeKey(it, focused, state.clipboard != null, onNodeAction) }) {
             renderNodes(
                 nodes = state.tree,
                 parent = "",
@@ -84,7 +95,9 @@ fun FileTreePane(
                 onDirectoryToggled = onDirectoryToggled,
                 onNodeMenu = onNodeMenu,
                 inline = inline,
-                changes = changes,
+                marks = marks,
+                focused = focused,
+                onFocus = { focused = it; focus.requestFocus() },
             )
         }
     }
@@ -96,6 +109,7 @@ private fun ExplorerHeader(
     onNewFile: () -> Unit,
     onNewFolder: () -> Unit,
     onRefresh: () -> Unit,
+    onCollapseAll: () -> Unit,
     hideHidden: Boolean,
     hideIgnored: Boolean,
     onHideHiddenChange: (Boolean) -> Unit,
@@ -105,6 +119,7 @@ private fun ExplorerHeader(
         KitIconButton(Icons.Filled.NoteAdd, stringResource(R.string.wp_new_file), onNewFile)
         KitIconButton(Icons.Filled.CreateNewFolder, stringResource(R.string.wp_new_folder), onNewFolder)
         KitIconButton(Icons.Filled.Refresh, stringResource(R.string.wp_refresh), onRefresh)
+        KitIconButton(Icons.Filled.UnfoldLess, stringResource(R.string.gitui_collapse_all), onCollapseAll)
         FilterMenu(hideHidden, hideIgnored, onHideHiddenChange, onHideIgnoredChange)
     }
 }
@@ -147,7 +162,9 @@ private fun LazyListScope.renderNodes(
     onDirectoryToggled: (FileNode) -> Unit,
     onNodeMenu: (FileNode, IntOffset) -> Unit,
     inline: InlineEditSpec,
-    changes: Map<String, GitChangeType>,
+    marks: TreeMarks,
+    focused: FileNode?,
+    onFocus: (FileNode) -> Unit,
 ) {
     val edit = inline.edit
     if (edit != null && edit.parent == parent) {
@@ -162,10 +179,12 @@ private fun LazyListScope.renderNodes(
                     node = node,
                     depth = depth,
                     expanded = node.relativePath in state.expandedDirs,
-                    selected = state.activeTabPath == node.relativePath,
-                    change = changes[node.relativePath],
-                    onClick = { if (node.isDirectory) onDirectoryToggled(node) else onFileOpened(node) },
-                    onMenu = { at -> onNodeMenu(node, at) },
+                    selected = state.activeTabPath == node.relativePath || focused?.relativePath == node.relativePath,
+                    change = marks.changes[node.relativePath],
+                    dirty = node.relativePath in marks.dirty,
+                    holdsChanges = node.isDirectory && node.relativePath in marks.changedDirs,
+                    onClick = { onFocus(node); if (node.isDirectory) onDirectoryToggled(node) else onFileOpened(node) },
+                    onMenu = { at -> onFocus(node); onNodeMenu(node, at) },
                 )
             }
         }
@@ -180,7 +199,9 @@ private fun LazyListScope.renderNodes(
                 onDirectoryToggled = onDirectoryToggled,
                 onNodeMenu = onNodeMenu,
                 inline = inline,
-                changes = changes,
+                marks = marks,
+                focused = focused,
+                onFocus = onFocus,
             )
         }
     }
