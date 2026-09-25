@@ -74,6 +74,8 @@ import dev.easyide.app.ui.shell.host.ShellDeps
 import dev.easyide.app.ui.shell.host.ShellTokens
 import dev.easyide.app.ui.shell.host.ShellViewModel
 import dev.easyide.app.ui.shell.host.panelRenderer
+import dev.easyide.app.data.settings.ChromeSettingsSchema
+import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.shell.workspace.DockFocus
 import dev.easyide.app.ui.shell.workspace.DockRules
 import dev.easyide.app.ui.shell.workspace.FileDocuments
@@ -271,7 +273,8 @@ fun WorkspaceScreen(
         editorFocus -> DockFocus.EDITOR
         else -> DockFocus.NONE
     }
-    val dockShown = DockRules.visible(dockFocus, keyboardUp, hardwareKeyboard, compact)
+    val chromeSettings = LocalSettings.current
+    val dockShow = DockRules.show(chromeSettings[ChromeSettingsSchema.keyRow], chromeSettings[ChromeSettingsSchema.touchToolbar], dockFocus, keyboardUp, hardwareKeyboard, compact)
 
     val transientOpen = paletteOpen || overlays.quickOpen || overlays.goToLine || editing.find.isOpen || presetsOpen
     val navItems by shell.workspaceNavItems.collectAsStateWithLifecycle()
@@ -341,7 +344,7 @@ fun WorkspaceScreen(
                 windowSize.width,
             )
         },
-        dock = if (dockShown) ({ InputDock(env, dockFocus, activeFile?.editable == true, inputMode, runShortcut) }) else null,
+        dock = if (dockShow.any) ({ InputDock(env, dockFocus, dockShow, activeFile?.editable == true, runShortcut) }) else null,
         statusHidden = compact && keyboardUp,
     )
 
