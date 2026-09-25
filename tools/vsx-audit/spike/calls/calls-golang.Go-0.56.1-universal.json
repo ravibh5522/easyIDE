@@ -1,0 +1,925 @@
+{
+ "summary": {
+  "totalMainThreadCalls": 146,
+  "distinctMethods": 36,
+  "msgIn": 156,
+  "msgOut": 297,
+  "bytesIn": 37886,
+  "bytesOut": 2439,
+  "byActor": {
+   "MainThreadLogger": {
+    "$registerLogger": 5
+   },
+   "MainThreadWindow": {
+    "$getInitialState": 1
+   },
+   "MainThreadCommands": {
+    "$registerCommand": 71,
+    "$fireCommandActivationEvent": 7,
+    "$executeCommand": 6
+   },
+   "MainThreadTerminalService": {
+    "$registerProcessSupport": 1,
+    "$setEnvironmentVariableCollection": 2
+   },
+   "MainThreadSearch": {
+    "$registerTextSearchProvider": 1
+   },
+   "MainThreadTask": {
+    "$registerSupportedExecutions": 2,
+    "$registerTaskSystem": 1,
+    "$registerTaskProvider": 1
+   },
+   "MainThreadLanguageModelTools": {
+    "$getTools": 1
+   },
+   "MainThreadConsole": {
+    "$logExtensionHostMessage": 7
+   },
+   "MainThreadExtensionService": {
+    "$onWillActivateExtension": 1,
+    "$onDidActivateExtension": 1,
+    "$setPerformanceMarks": 1
+   },
+   "MainThreadDebugService": {
+    "$registerDebugTypes": 1,
+    "$registerDebugConfigurationProvider": 1,
+    "$registerDebugAdapterDescriptorFactory": 1
+   },
+   "MainThreadTelemetry": {
+    "$publicLog2": 3
+   },
+   "MainThreadStorage": {
+    "$initializeExtensionStorage": 2,
+    "$setValue": 2
+   },
+   "MainThreadFileSystem": {
+    "$ensureActivation": 3
+   },
+   "MainThreadOutputService": {
+    "$register": 1
+   },
+   "MainThreadWebviewPanels": {
+    "$registerSerializer": 1,
+    "$createWebviewPanel": 1,
+    "$setIconPath": 1
+   },
+   "MainThreadWebviews": {
+    "$setHtml": 1
+   },
+   "MainThreadLanguageFeatures": {
+    "$registerDocumentFormattingSupport": 1,
+    "$registerCodeLensSupport": 1,
+    "$setLanguageConfiguration": 1
+   },
+   "MainThreadMessageService": {
+    "$showMessage": 1
+   },
+   "MainThreadTextEditors": {
+    "$registerTextEditorDecorationType": 10
+   },
+   "MainThreadDocumentContentProviders": {
+    "$registerTextContentProvider": 1
+   },
+   "MainThreadTreeViews": {
+    "$registerTreeViewDataProvider": 2
+   },
+   "MainThreadLanguages": {
+    "$setLanguageStatus": 2
+   }
+  }
+ },
+ "calls": [
+  {
+   "t": 323,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadWindow",
+   "method": "$getInitialState"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "__vsc5b05537b-dddd-4d7f-9830-a18feedf9cb0"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadTerminalService",
+   "method": "$registerProcessSupport"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadSearch",
+   "method": "$registerTextSearchProvider"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadTask",
+   "method": "$registerTaskSystem",
+   "arg0": "file"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadLanguageModelTools",
+   "method": "$getTools"
+  },
+  {
+   "t": 323,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 331,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 331,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 336,
+   "actor": "MainThreadExtensionService",
+   "method": "$onWillActivateExtension"
+  },
+  {
+   "t": 336,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugTypes"
+  },
+  {
+   "t": 439,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "activatePlugin"
+  },
+  {
+   "t": 439,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 439,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 439,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 439,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 439,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 443,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 443,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 445,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 445,
+   "actor": "MainThreadOutputService",
+   "method": "$register",
+   "arg0": "Go Tests"
+  },
+  {
+   "t": 446,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 449,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.welcome"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "welcomeGo"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "go.welcome"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$createWebviewPanel"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$setIconPath",
+   "arg0": "e486483b-3965-4917-b781-2431a5233832"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadWebviews",
+   "method": "$setHtml",
+   "arg0": "e486483b-3965-4917-b781-2431a5233832"
+  },
+  {
+   "t": 462,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "Extension:ActionExecuted"
+  },
+  {
+   "t": 464,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 545,
+   "actor": "MainThreadTerminalService",
+   "method": "$setEnvironmentVariableCollection",
+   "arg0": "golang.go"
+  },
+  {
+   "t": 545,
+   "actor": "MainThreadTerminalService",
+   "method": "$setEnvironmentVariableCollection",
+   "arg0": "golang.go"
+  },
+  {
+   "t": 545,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.languageserver.restart"
+  },
+  {
+   "t": 545,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.languageserver.maintain"
+  },
+  {
+   "t": 545,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 545,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadLanguageFeatures",
+   "method": "$registerDocumentFormattingSupport"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadMessageService",
+   "method": "$showMessage"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTextEditors",
+   "method": "$registerTextEditorDecorationType"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.builds.run"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.environment.status"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadLanguageFeatures",
+   "method": "$registerCodeLensSupport"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugConfigurationProvider",
+   "arg0": "go"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.pickProcess"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.pickGoProcess"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadDocumentContentProviders",
+   "method": "$registerTextContentProvider"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.openVariableAsDoc"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugAdapterDescriptorFactory",
+   "arg0": "go"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.toggleHideSystemGoroutines"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "go.explorer"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.explorer.refresh"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.explorer.open"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.workspace.editEnv"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.workspace.resetEnv"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadTreeViews",
+   "method": "$registerTreeViewDataProvider",
+   "arg0": "go.package.outline"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.packageOutline.sortByName"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.packageOutline.sortByPosition"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 546,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.gopath"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.goroot"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.locate.tools"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.add.tags"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.remove.tags"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.impl.cursor"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.impl.cursor.legacy"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.cursor"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.cursorOrPrevious"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.subtest.cursor"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.cursor"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.subtest.cursor"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.benchmark.cursor"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.benchmark.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.file"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.benchmark.file"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.workspace"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.previous"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.previous"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.coverage"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.showOutput"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.cancel"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.import.add"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.add.package.workspace"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.tools.install"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.browse.packages"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.generate.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.generate.file"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.generate.function.legacy"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.test.generate.function"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.toggle.test.file"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.debug.startSession"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.show.commands"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.get.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.playground"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.lint.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.lint.workspace"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.lint.file"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.vet.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.vet.workspace"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.build.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.build.workspace"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.install.package"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.run.modinit"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.extractServerChannel"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.workspace.resetState"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.global.resetState"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.toggle.gc_details"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.apply.coverprofile"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.environment.choose"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.survey.showConfig"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.survey.resetConfig"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadLanguageFeatures",
+   "method": "$setLanguageConfiguration"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadTask",
+   "method": "$registerTaskProvider"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.vulncheck.toggle"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadExtensionService",
+   "method": "$onDidActivateExtension"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "extensionActivationTimes"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 547,
+   "actor": "MainThreadExtensionService",
+   "method": "$setPerformanceMarks"
+  },
+  {
+   "t": 577,
+   "actor": "MainThreadLanguages",
+   "method": "$setLanguageStatus"
+  },
+  {
+   "t": 595,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 695,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 698,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "go.promptforgoinstall"
+  },
+  {
+   "t": 699,
+   "actor": "MainThreadLanguages",
+   "method": "$setLanguageStatus"
+  }
+ ]
+}

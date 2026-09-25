@@ -1,0 +1,1104 @@
+{
+	"meta": {
+		"vscodeCommit": "0b16cb97868058754d545e5f9ced99211ccc290b",
+		"vscodeCommitDate": "2026-09-25T16:19:08+02:00",
+		"vscodeVersion": "1.140.0",
+		"generatedBy": "tools/vsx-audit/extract-vscode.mjs (typescript 5.9.3)",
+		"source": [
+			"src/vs/**: ExtensionsRegistry.registerExtensionPoint descriptors ({extensionPoint, jsonSchema})",
+			{
+				"url": "https://code.visualstudio.com/api/references/contribution-points",
+				"rawUrl": "https://code.visualstudio.com/raw/api/references/contribution-points.md",
+				"sha256": "b2b28df97e48ca33787c735227d7638e11f476d3b94e17751e64a234f891ca3e"
+			}
+		],
+		"summary": {
+			"registered": 59,
+			"documented": 38,
+			"registeredNotDocumented": [
+				"chatContext",
+				"chatOutputRenderers",
+				"chatParticipants",
+				"chatPlugins",
+				"chatSessions",
+				"chatViewsWelcome",
+				"continueEditSession",
+				"css",
+				"debugVisualizers",
+				"jsonValidationRegistry",
+				"languageModelToolSets",
+				"linkPresentationProviders",
+				"localizations",
+				"mcpServerDefinitionProviders",
+				"notebookPreload",
+				"notebookRenderer",
+				"notebooks",
+				"remoteCodingAgents",
+				"remoteHelp",
+				"speechProviders",
+				"statusBarItems",
+				"terminalQuickFixes"
+			],
+			"documentedNotRegistered": [
+				"typescriptServerPlugins"
+			],
+			"withActivationEventsGenerator": [
+				"authentication",
+				"chatContext",
+				"chatOutputRenderers",
+				"chatParticipants",
+				"chatSessions",
+				"commands",
+				"customEditors",
+				"debugVisualizers",
+				"languageModelChatProviders",
+				"languageModelTools",
+				"languages",
+				"linkPresentationProviders",
+				"mcpServerDefinitionProviders",
+				"notebookRenderer",
+				"notebooks",
+				"taskDefinitions",
+				"terminal",
+				"terminalQuickFixes",
+				"views",
+				"walkthroughs"
+			]
+		}
+	},
+	"items": [
+		{
+			"point": "authentication",
+			"registered": true,
+			"file": "src/vs/workbench/services/authentication/browser/authenticationService.ts",
+			"line": 77,
+			"ref": "src/vs/workbench/services/authentication/browser/authenticationService.ts:77",
+			"registeredAt": [
+				"src/vs/workbench/services/authentication/browser/authenticationService.ts:77"
+			],
+			"documented": true,
+			"docsMdLine": 45,
+			"description": "Contributes authentication",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onAuthenticationRequest:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "breakpoints",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/debug/common/debugSchemas.ts",
+			"line": 136,
+			"ref": "src/vs/workbench/contrib/debug/common/debugSchemas.ts:136",
+			"registeredAt": [
+				"src/vs/workbench/contrib/debug/common/debugSchemas.ts:136"
+			],
+			"documented": true,
+			"docsMdLine": 62,
+			"description": "Contributes breakpoints.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "chatAgents",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts",
+			"line": 39,
+			"ref": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39"
+			],
+			"documented": true,
+			"docsMdLine": 81,
+			"description": "Contributes {0} for chat prompts.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "chatContext",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/browser/contextContrib/chatContext.contribution.ts",
+			"line": 21,
+			"ref": "src/vs/workbench/contrib/chat/browser/contextContrib/chatContext.contribution.ts:21",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/browser/contextContrib/chatContext.contribution.ts:21"
+			],
+			"documented": false,
+			"description": "Contributes chat context integrations to the chat widget.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onChatContextProvider:"
+			],
+			"proposalChecksInFile": [
+				"chatContextProvider"
+			]
+		},
+		{
+			"point": "chatInstructions",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts",
+			"line": 39,
+			"ref": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39"
+			],
+			"documented": true,
+			"docsMdLine": 109,
+			"description": "Contributes {0} for chat prompts.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "chatOutputRenderers",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/browser/chatOutputItemRenderer.ts",
+			"line": 294,
+			"ref": "src/vs/workbench/contrib/chat/browser/chatOutputItemRenderer.ts:294",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/browser/chatOutputItemRenderer.ts:294"
+			],
+			"documented": false,
+			"description": "Contributes a renderer for specific MIME types and code block language identifiers in chat outputs",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onChatOutputRenderer:"
+			],
+			"proposalChecksInFile": [
+				"chatOutputRenderer"
+			]
+		},
+		{
+			"point": "chatParticipants",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/browser/chatParticipant.contribution.ts",
+			"line": 106,
+			"ref": "src/vs/workbench/contrib/chat/browser/chatParticipant.contribution.ts:106",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/browser/chatParticipant.contribution.ts:106"
+			],
+			"documented": false,
+			"description": "Contributes a chat participant",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onChatParticipant:"
+			],
+			"proposalChecksInFile": [
+				"chatParticipantAdditions",
+				"defaultChatParticipant"
+			]
+		},
+		{
+			"point": "chatPlugins",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/plugins/agentPluginServiceImpl.ts",
+			"line": 1117,
+			"ref": "src/vs/workbench/contrib/chat/common/plugins/agentPluginServiceImpl.ts:1117",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/plugins/agentPluginServiceImpl.ts:1117"
+			],
+			"documented": false,
+			"description": "Contributes agent plugins for chat.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "chatPromptFiles",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts",
+			"line": 39,
+			"ref": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39"
+			],
+			"documented": true,
+			"docsMdLine": 153,
+			"description": "Contributes {0} for chat prompts.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "chatSessions",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts",
+			"line": 63,
+			"ref": "src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts:63",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts:63"
+			],
+			"documented": false,
+			"description": "Contributes chat session integrations to the chat widget.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onChatSession:"
+			],
+			"proposalChecksInFile": [
+				"chatSessionsProvider"
+			]
+		},
+		{
+			"point": "chatSkills",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts",
+			"line": 39,
+			"ref": "src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/promptSyntax/chatPromptFilesContribution.ts:39"
+			],
+			"documented": true,
+			"docsMdLine": 180,
+			"description": "Contributes {0} for chat prompts.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "chatViewsWelcome",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/browser/viewsWelcome/chatViewsWelcomeHandler.ts",
+			"line": 45,
+			"ref": "src/vs/workbench/contrib/chat/browser/viewsWelcome/chatViewsWelcomeHandler.ts:45",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/browser/viewsWelcome/chatViewsWelcomeHandler.ts:45"
+			],
+			"documented": false,
+			"description": "Contributes a welcome message to a chat view",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"chatParticipantPrivate"
+			]
+		},
+		{
+			"point": "colors",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/colorExtensionPoint.ts",
+			"line": 28,
+			"ref": "src/vs/workbench/services/themes/common/colorExtensionPoint.ts:28",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/colorExtensionPoint.ts:28"
+			],
+			"documented": true,
+			"docsMdLine": 207,
+			"description": "Contributes extension defined themable colors",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "commands",
+			"registered": true,
+			"file": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts",
+			"line": 911,
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:911",
+			"registeredAt": [
+				"src/vs/workbench/services/actions/common/menusExtensionPoint.ts:911"
+			],
+			"documented": true,
+			"docsMdLine": 238,
+			"description": "Contributes commands to the command palette.",
+			"schemaRef": "schema.commandsContribution",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onCommand:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "configuration",
+			"registered": true,
+			"file": "src/vs/workbench/api/common/configurationExtensionPoint.ts",
+			"line": 244,
+			"ref": "src/vs/workbench/api/common/configurationExtensionPoint.ts:244",
+			"registeredAt": [
+				"src/vs/workbench/api/common/configurationExtensionPoint.ts:244"
+			],
+			"documented": true,
+			"docsMdLine": 284,
+			"description": "Contributes configuration settings.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"agentsWindowConfiguration"
+			],
+			"canHandleResolver": true,
+			"deps": [
+				"defaultConfigurationExtPoint"
+			]
+		},
+		{
+			"point": "configurationDefaults",
+			"registered": true,
+			"file": "src/vs/workbench/api/common/configurationExtensionPoint.ts",
+			"line": 188,
+			"ref": "src/vs/workbench/api/common/configurationExtensionPoint.ts:188",
+			"registeredAt": [
+				"src/vs/workbench/api/common/configurationExtensionPoint.ts:188"
+			],
+			"documented": true,
+			"docsMdLine": 595,
+			"description": null,
+			"schemaRef": "$ref: configurationDefaultsSchemaId",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"agentsWindowConfiguration"
+			],
+			"canHandleResolver": true
+		},
+		{
+			"point": "continueEditSession",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/editSessions/browser/editSessions.contribution.ts",
+			"line": 1112,
+			"ref": "src/vs/workbench/contrib/editSessions/browser/editSessions.contribution.ts:1112",
+			"registeredAt": [
+				"src/vs/workbench/contrib/editSessions/browser/editSessions.contribution.ts:1112"
+			],
+			"documented": false,
+			"description": "Contributes options for continuing the current edit session in a different environment",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"contribEditSessions"
+			]
+		},
+		{
+			"point": "css",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/browser/cssExtensionPoint.ts",
+			"line": 31,
+			"ref": "src/vs/workbench/services/themes/browser/cssExtensionPoint.ts:31",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/browser/cssExtensionPoint.ts:31"
+			],
+			"documented": false,
+			"description": "Contributes CSS files to be loaded in the workbench.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"css"
+			]
+		},
+		{
+			"point": "customEditors",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/customEditor/common/extensionPoint.ts",
+			"line": 107,
+			"ref": "src/vs/workbench/contrib/customEditor/common/extensionPoint.ts:107",
+			"registeredAt": [
+				"src/vs/workbench/contrib/customEditor/common/extensionPoint.ts:107"
+			],
+			"documented": true,
+			"docsMdLine": 626,
+			"description": "Contributed custom editors.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onCustomEditor:"
+			],
+			"proposalChecksInFile": [],
+			"deps": [
+				"languagesExtPoint"
+			]
+		},
+		{
+			"point": "debugVisualizers",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/debug/common/debugVisualizers.ts",
+			"line": 275,
+			"ref": "src/vs/workbench/contrib/debug/common/debugVisualizers.ts:275",
+			"registeredAt": [
+				"src/vs/workbench/contrib/debug/common/debugVisualizers.ts:275"
+			],
+			"documented": false,
+			"description": null,
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onDebugVisualizer:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "debuggers",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/debug/common/debugSchemas.ts",
+			"line": 19,
+			"ref": "src/vs/workbench/contrib/debug/common/debugSchemas.ts:19",
+			"registeredAt": [
+				"src/vs/workbench/contrib/debug/common/debugSchemas.ts:19"
+			],
+			"documented": true,
+			"docsMdLine": 674,
+			"description": "Contributes debug adapters.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"defaultExtensionKind": [
+				"workspace"
+			]
+		},
+		{
+			"point": "grammars",
+			"registered": true,
+			"file": "src/vs/workbench/services/textMate/common/TMGrammars.ts",
+			"line": 29,
+			"ref": "src/vs/workbench/services/textMate/common/TMGrammars.ts:29",
+			"registeredAt": [
+				"src/vs/workbench/services/textMate/common/TMGrammars.ts:29"
+			],
+			"documented": true,
+			"docsMdLine": 748,
+			"description": "Contributes textmate tokenizers.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"deps": [
+				"languagesExtPoint"
+			]
+		},
+		{
+			"point": "iconThemes",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/themeExtensionPoints.ts",
+			"line": 56,
+			"ref": "src/vs/workbench/services/themes/common/themeExtensionPoints.ts:56",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/themeExtensionPoints.ts:56"
+			],
+			"documented": true,
+			"docsMdLine": 804,
+			"description": "Contributes file icon themes.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "icons",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/iconExtensionPoint.ts",
+			"line": 27,
+			"ref": "src/vs/workbench/services/themes/common/iconExtensionPoint.ts:27",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/iconExtensionPoint.ts:27"
+			],
+			"documented": true,
+			"docsMdLine": 777,
+			"description": "Contributes extension defined themable icons",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "jsonValidation",
+			"registered": true,
+			"file": "src/vs/workbench/api/common/jsonValidationExtensionPoint.ts",
+			"line": 26,
+			"ref": "src/vs/workbench/api/common/jsonValidationExtensionPoint.ts:26",
+			"registeredAt": [
+				"src/vs/workbench/api/common/jsonValidationExtensionPoint.ts:26"
+			],
+			"documented": true,
+			"docsMdLine": 830,
+			"description": "Contributes json schema configuration.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"defaultExtensionKind": [
+				"workspace",
+				"web"
+			]
+		},
+		{
+			"point": "jsonValidationRegistry",
+			"registered": true,
+			"file": "src/vs/workbench/api/common/jsonValidationExtensionPoint.ts",
+			"line": 53,
+			"ref": "src/vs/workbench/api/common/jsonValidationExtensionPoint.ts:53",
+			"registeredAt": [
+				"src/vs/workbench/api/common/jsonValidationExtensionPoint.ts:53"
+			],
+			"documented": false,
+			"description": "Contributes a JSON validation registry. The registry can be a dynamic resource from a filesystem provider and allows associations to change at runtime.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"defaultExtensionKind": [
+				"workspace",
+				"web"
+			]
+		},
+		{
+			"point": "keybindings",
+			"registered": true,
+			"file": "src/vs/workbench/services/keybinding/browser/keybindingService.ts",
+			"line": 130,
+			"ref": "src/vs/workbench/services/keybinding/browser/keybindingService.ts:130",
+			"registeredAt": [
+				"src/vs/workbench/services/keybinding/browser/keybindingService.ts:130"
+			],
+			"documented": true,
+			"docsMdLine": 847,
+			"description": "Contributes keybindings.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"deps": [
+				"commandsExtensionPoint"
+			]
+		},
+		{
+			"point": "languageModelChatProviders",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/languageModels.ts",
+			"line": 898,
+			"ref": "src/vs/workbench/contrib/chat/common/languageModels.ts:898",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/languageModels.ts:898"
+			],
+			"documented": true,
+			"docsMdLine": 913,
+			"description": "Contribute language model chat providers of a specific vendor.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onLanguageModelChatProvider:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "languageModelToolSets",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts",
+			"line": 152,
+			"ref": "src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts:152",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts:152"
+			],
+			"documented": false,
+			"description": "Contributes a set of language model tools that can be used together.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"chatParticipantPrivate",
+				"contribLanguageModelToolSets"
+			],
+			"deps": [
+				"languageModelToolsExtensionPoint"
+			]
+		},
+		{
+			"point": "languageModelTools",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts",
+			"line": 42,
+			"ref": "src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts:42",
+			"registeredAt": [
+				"src/vs/workbench/contrib/chat/common/tools/languageModelToolsContribution.ts:42"
+			],
+			"documented": true,
+			"docsMdLine": 947,
+			"description": "Contributes a tool that can be invoked by a language model in a chat session, or from a standalone command. Registered tools can be used by all extensions.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onLanguageModelTool:"
+			],
+			"proposalChecksInFile": [
+				"chatParticipantPrivate",
+				"contribLanguageModelToolSets"
+			]
+		},
+		{
+			"point": "languages",
+			"registered": true,
+			"file": "src/vs/workbench/services/language/common/languageService.ts",
+			"line": 40,
+			"ref": "src/vs/workbench/services/language/common/languageService.ts:40",
+			"registeredAt": [
+				"src/vs/workbench/services/language/common/languageService.ts:40"
+			],
+			"documented": true,
+			"docsMdLine": 878,
+			"description": "Contributes language declarations.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onLanguage:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "linkPresentationProviders",
+			"registered": true,
+			"file": "src/vs/workbench/services/dataChannel/browser/dataChannelService.ts",
+			"line": 76,
+			"ref": "src/vs/workbench/services/dataChannel/browser/dataChannelService.ts:76",
+			"registeredAt": [
+				"src/vs/workbench/services/dataChannel/browser/dataChannelService.ts:76"
+			],
+			"documented": false,
+			"description": "Contributes link presentation providers selected by URI regular expressions.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onLinkPresentation:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "localizations",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/localization/common/localization.contribution.ts",
+			"line": 25,
+			"ref": "src/vs/workbench/contrib/localization/common/localization.contribution.ts:25",
+			"registeredAt": [
+				"src/vs/workbench/contrib/localization/common/localization.contribution.ts:25"
+			],
+			"documented": false,
+			"description": "Contributes localizations to the editor",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"defaultExtensionKind": [
+				"ui",
+				"workspace"
+			]
+		},
+		{
+			"point": "mcpServerDefinitionProviders",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/mcp/common/mcpConfiguration.ts",
+			"line": 326,
+			"ref": "src/vs/workbench/contrib/mcp/common/mcpConfiguration.ts:326",
+			"registeredAt": [
+				"src/vs/workbench/contrib/mcp/common/discovery/extensionMcpDiscovery.ts:27"
+			],
+			"documented": false,
+			"description": "Contributes Model Context Protocol servers. Users of this should also use `vscode.lm.registerMcpServerDefinitionProvider`.",
+			"activationEventsGenerator": true,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "menus",
+			"registered": true,
+			"file": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts",
+			"line": 1047,
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:1047",
+			"registeredAt": [
+				"src/vs/workbench/services/actions/common/menusExtensionPoint.ts:1047"
+			],
+			"documented": true,
+			"docsMdLine": 997,
+			"description": "Contributes menu items to the editor",
+			"schemaRef": "schema.menusContribution",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"deps": [
+				"submenusExtensionPoint"
+			]
+		},
+		{
+			"point": "notebookPreload",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts",
+			"line": 269,
+			"ref": "src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:269",
+			"registeredAt": [
+				"src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:269"
+			],
+			"documented": false,
+			"description": "Contributes notebook preloads.",
+			"schemaRef": "notebookPreloadContribution",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "notebookRenderer",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts",
+			"line": 257,
+			"ref": "src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:257",
+			"registeredAt": [
+				"src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:257"
+			],
+			"documented": false,
+			"description": "Contributes notebook output renderer provider.",
+			"schemaRef": "notebookRendererContribution",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onRenderer:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "notebooks",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts",
+			"line": 245,
+			"ref": "src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:245",
+			"registeredAt": [
+				"src/vs/workbench/contrib/notebook/browser/notebookExtensionPoint.ts:245"
+			],
+			"documented": false,
+			"description": "Contributes notebook document provider.",
+			"schemaRef": "notebookProviderContribution",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onNotebookSerializer:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "problemMatchers",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/tasks/common/problemMatcher.ts",
+			"line": 1863,
+			"ref": "src/vs/workbench/contrib/tasks/common/problemMatcher.ts:1863",
+			"registeredAt": [
+				"src/vs/workbench/contrib/tasks/common/problemMatcher.ts:1863"
+			],
+			"documented": true,
+			"docsMdLine": 1227,
+			"description": "Contributes problem matchers",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"deps": [
+				"problemPatternExtPoint"
+			]
+		},
+		{
+			"point": "problemPatterns",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/tasks/common/problemMatcher.ts",
+			"line": 1430,
+			"ref": "src/vs/workbench/contrib/tasks/common/problemMatcher.ts:1430",
+			"registeredAt": [
+				"src/vs/workbench/contrib/tasks/common/problemMatcher.ts:1430"
+			],
+			"documented": true,
+			"docsMdLine": 1271,
+			"description": "Contributes problem patterns",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "productIconThemes",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/themeExtensionPoints.ts",
+			"line": 85,
+			"ref": "src/vs/workbench/services/themes/common/themeExtensionPoints.ts:85",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/themeExtensionPoints.ts:85"
+			],
+			"documented": true,
+			"docsMdLine": 1275,
+			"description": "Contributes product icon themes.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "remoteCodingAgents",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/remoteCodingAgents/browser/remoteCodingAgents.contribution.ts",
+			"line": 26,
+			"ref": "src/vs/workbench/contrib/remoteCodingAgents/browser/remoteCodingAgents.contribution.ts:26",
+			"registeredAt": [
+				"src/vs/workbench/contrib/remoteCodingAgents/browser/remoteCodingAgents.contribution.ts:26"
+			],
+			"documented": false,
+			"description": "Contributes remote coding agent integrations to the chat widget.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"remoteCodingAgents"
+			]
+		},
+		{
+			"point": "remoteHelp",
+			"registered": true,
+			"file": "src/vs/workbench/services/remote/common/remoteExplorerService.ts",
+			"line": 86,
+			"ref": "src/vs/workbench/services/remote/common/remoteExplorerService.ts:86",
+			"registeredAt": [
+				"src/vs/workbench/services/remote/common/remoteExplorerService.ts:86"
+			],
+			"documented": false,
+			"description": "Contributes help information for Remote",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "resourceLabelFormatters",
+			"registered": true,
+			"file": "src/vs/workbench/services/label/common/labelService.ts",
+			"line": 32,
+			"ref": "src/vs/workbench/services/label/common/labelService.ts:32",
+			"registeredAt": [
+				"src/vs/workbench/services/label/common/labelService.ts:32"
+			],
+			"documented": true,
+			"docsMdLine": 1301,
+			"description": "Contributes resource label formatting rules.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"contribLabelFormatterWorkspaceTooltip"
+			]
+		},
+		{
+			"point": "semanticTokenModifiers",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts",
+			"line": 57,
+			"ref": "src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts:57",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts:57"
+			],
+			"documented": true,
+			"docsMdLine": 1324,
+			"description": "Contributes semantic token modifiers.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "semanticTokenScopes",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts",
+			"line": 79,
+			"ref": "src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts:79",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts:79"
+			],
+			"documented": true,
+			"docsMdLine": 1343,
+			"description": "Contributes semantic token scope maps.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "semanticTokenTypes",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts",
+			"line": 28,
+			"ref": "src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts:28",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/tokenClassificationExtensionPoint.ts:28"
+			],
+			"documented": true,
+			"docsMdLine": 1364,
+			"description": "Contributes semantic token types.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "snippets",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/snippets/browser/snippetsService.ts",
+			"line": 114,
+			"ref": "src/vs/workbench/contrib/snippets/browser/snippetsService.ts:114",
+			"registeredAt": [
+				"src/vs/workbench/contrib/snippets/browser/snippetsService.ts:114"
+			],
+			"documented": true,
+			"docsMdLine": 1384,
+			"description": "Contributes snippets.",
+			"schemaRef": "snippetExt.snippetsContribution",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [],
+			"deps": [
+				"languagesExtPoint"
+			]
+		},
+		{
+			"point": "speechProviders",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/speech/browser/speechService.ts",
+			"line": 25,
+			"ref": "src/vs/workbench/contrib/speech/browser/speechService.ts:25",
+			"registeredAt": [
+				"src/vs/workbench/contrib/speech/browser/speechService.ts:25"
+			],
+			"documented": false,
+			"description": "Contributes a Speech Provider",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "statusBarItems",
+			"registered": true,
+			"file": "src/vs/workbench/api/browser/statusBarExtensionPoint.ts",
+			"line": 250,
+			"ref": "src/vs/workbench/api/browser/statusBarExtensionPoint.ts:250",
+			"registeredAt": [
+				"src/vs/workbench/api/browser/statusBarExtensionPoint.ts:250"
+			],
+			"documented": false,
+			"description": "Contributes items to the status bar.",
+			"schemaRef": "statusBarItemsSchema",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"contribStatusBarItems"
+			]
+		},
+		{
+			"point": "submenus",
+			"registered": true,
+			"file": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts",
+			"line": 989,
+			"ref": "src/vs/workbench/services/actions/common/menusExtensionPoint.ts:989",
+			"registeredAt": [
+				"src/vs/workbench/services/actions/common/menusExtensionPoint.ts:989"
+			],
+			"documented": true,
+			"docsMdLine": 1403,
+			"description": "Contributes submenu items to the editor",
+			"schemaRef": "schema.submenusContribution",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "taskDefinitions",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/tasks/common/taskDefinitionRegistry.ts",
+			"line": 85,
+			"ref": "src/vs/workbench/contrib/tasks/common/taskDefinitionRegistry.ts:85",
+			"registeredAt": [
+				"src/vs/workbench/contrib/tasks/common/taskDefinitionRegistry.ts:85"
+			],
+			"documented": true,
+			"docsMdLine": 1426,
+			"description": "Contributes task kinds",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onTaskType:"
+			],
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "terminal",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/terminal/common/terminal.ts",
+			"line": 665,
+			"ref": "src/vs/workbench/contrib/terminal/common/terminal.ts:665",
+			"registeredAt": [
+				"src/vs/workbench/contrib/terminal/common/terminalExtensionPoints.ts:16"
+			],
+			"documented": true,
+			"docsMdLine": 1463,
+			"description": "Contributes terminal functionality.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onTerminalProfile:"
+			],
+			"proposalChecksInFile": [],
+			"defaultExtensionKind": [
+				"workspace"
+			]
+		},
+		{
+			"point": "terminalQuickFixes",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/terminalContrib/quickFix/browser/terminalQuickFixService.ts",
+			"line": 94,
+			"ref": "src/vs/workbench/contrib/terminalContrib/quickFix/browser/terminalQuickFixService.ts:94",
+			"registeredAt": [
+				"src/vs/workbench/contrib/terminalContrib/quickFix/browser/terminalQuickFixService.ts:94"
+			],
+			"documented": false,
+			"description": "Contributes terminal quick fixes.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onTerminalQuickFixRequest:"
+			],
+			"proposalChecksInFile": [
+				"terminalQuickFixProvider"
+			],
+			"defaultExtensionKind": [
+				"workspace"
+			]
+		},
+		{
+			"point": "themes",
+			"registered": true,
+			"file": "src/vs/workbench/services/themes/common/themeExtensionPoints.ts",
+			"line": 24,
+			"ref": "src/vs/workbench/services/themes/common/themeExtensionPoints.ts:24",
+			"registeredAt": [
+				"src/vs/workbench/services/themes/common/themeExtensionPoints.ts:24"
+			],
+			"documented": true,
+			"docsMdLine": 1495,
+			"description": "Contributes textmate color themes.",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "typescriptServerPlugins",
+			"registered": false,
+			"documented": true,
+			"docsMdLine": 1521,
+			"handledByBuiltinExtensionRefs": [
+				"extensions/typescript-language-features/src/tsServer/plugins.ts:73",
+				"extensions/typescript-language-features/src/tsServer/plugins.ts:75"
+			]
+		},
+		{
+			"point": "views",
+			"registered": true,
+			"file": "src/vs/workbench/api/browser/viewsExtensionPoint.ts",
+			"line": 258,
+			"ref": "src/vs/workbench/api/browser/viewsExtensionPoint.ts:258",
+			"registeredAt": [
+				"src/vs/workbench/api/browser/viewsExtensionPoint.ts:258"
+			],
+			"documented": true,
+			"docsMdLine": 1616,
+			"description": "Contributes views to the editor",
+			"schemaRef": "viewsContribution",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onView:"
+			],
+			"proposalChecksInFile": [
+				"chatSessionsProvider",
+				"contribAccessibilityHelpContent",
+				"contribViewsRemote"
+			],
+			"deps": [
+				"viewsContainersExtensionPoint"
+			]
+		},
+		{
+			"point": "viewsContainers",
+			"registered": true,
+			"file": "src/vs/workbench/api/browser/viewsExtensionPoint.ts",
+			"line": 252,
+			"ref": "src/vs/workbench/api/browser/viewsExtensionPoint.ts:252",
+			"registeredAt": [
+				"src/vs/workbench/api/browser/viewsExtensionPoint.ts:252"
+			],
+			"documented": true,
+			"docsMdLine": 1653,
+			"description": "Contributes views containers to the editor",
+			"schemaRef": "viewsContainersContribution",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": [
+				"chatSessionsProvider",
+				"contribAccessibilityHelpContent",
+				"contribViewsRemote"
+			]
+		},
+		{
+			"point": "viewsWelcome",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/welcomeViews/common/viewsWelcomeExtensionPoint.ts",
+			"line": 78,
+			"ref": "src/vs/workbench/contrib/welcomeViews/common/viewsWelcomeExtensionPoint.ts:78",
+			"registeredAt": [
+				"src/vs/workbench/contrib/welcomeViews/common/viewsWelcome.contribution.ts:14"
+			],
+			"documented": true,
+			"docsMdLine": 1700,
+			"description": null,
+			"schemaRef": "viewsWelcomeExtensionPointSchema",
+			"activationEventsGenerator": false,
+			"proposalChecksInFile": []
+		},
+		{
+			"point": "walkthroughs",
+			"registered": true,
+			"file": "src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStartedExtensionPoint.ts",
+			"line": 12,
+			"ref": "src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStartedExtensionPoint.ts:12",
+			"registeredAt": [
+				"src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStartedExtensionPoint.ts:12"
+			],
+			"documented": true,
+			"docsMdLine": 1722,
+			"description": "Contribute walkthroughs to help users getting started with your extension.",
+			"activationEventsGenerator": true,
+			"implicitEventPrefixes": [
+				"onWalkthrough:"
+			],
+			"proposalChecksInFile": []
+		}
+	]
+}

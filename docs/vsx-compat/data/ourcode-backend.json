@@ -1,0 +1,1988 @@
+{
+ "agent": "OURCODE-BACKEND",
+ "repo_commit": "49725be",
+ "path_base": "$WT (/home/user/easyIDE-wt/audit-vsx)",
+ "items": [
+  {
+   "capability": "host.process",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/ServerProcessFactory.kt:67-88",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/SandboxServerLauncher.kt:46-62",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/LinuxEnvironment.kt:215",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/backend/ProotLauncher.kt:20-57",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:159-182",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/backend/SandboxLauncher.kt:86-119"
+   ],
+   "reuse": "Launch node exthost.js through ServerLauncher/ServerProcessFactory (stdio, clean env, proot --kill-on-exit, cwd /workspace).",
+   "notes": "Launcher keyed by ServerKey(env,project,server) and binds one project at /workspace: host is effectively per (env,project), not per env as ADR 0030 says. PROOT_LOADER/LD_LIBRARY_PATH leak into guest UNVERIFIED."
+  },
+  {
+   "capability": "host.transport",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/jsonrpc/JsonRpcConnection.kt:50-150",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/jsonrpc/JsonRpcConnection.kt:292",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/jsonrpc/Framing.kt:27-29",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:13-24"
+   ],
+   "reuse": "Reuse JsonRpcConnection as-is (bidirectional requests, $/cancelRequest, 64 MB frames, depth 256).",
+   "notes": "Protocol draft's $/cancel+cancelId duplicates $/cancelRequest. Notifications are handled one at a time in wire order. Every request needs a timeout."
+  },
+  {
+   "capability": "host.loader",
+   "status": "Missing",
+   "evidence": [
+    "docs/extension-host/tracker.md:8"
+   ],
+   "reuse": "New exthost.js module loader (require('vscode') shim).",
+   "notes": "services/mobile/exthost does not exist."
+  },
+  {
+   "capability": "host.activation",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:22-47",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:35-39",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:88-99",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:128-139",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:30"
+   ],
+   "reuse": "Add a Node-host Activator to ActivationManager (per-id mutex, states, journal).",
+   "notes": "Only 6 events (onLanguage,onCommand,onView,onStage,workspaceContains,onStartupFinished); '*' downgraded; unknown dropped; no implicit activation; timeout uses extensions.wasm.activateTimeoutMs=5000."
+  },
+  {
+   "capability": "host.lifecycle",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:22",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/SessionStateMachine.kt",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:50-60"
+   ],
+   "reuse": "Model host process on LspSession/ServerInstance lifecycle (initialize, shutdown grace, restart backoff).",
+   "notes": ""
+  },
+  {
+   "capability": "host.crash",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/CrashJournal.kt:36-60",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/ActivationManager.kt:111-127",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/ExtensionPolicy.kt:12",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:32-33"
+   ],
+   "reuse": "Host death -> reportCrash for its active extensions; CrashJournal attributes in-process deaths.",
+   "notes": "Crash keys are extensions.wasm.*; need host-neutral keys (R-ENG-07/08)."
+  },
+  {
+   "capability": "host.memory",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/manager/MemoryPolicy.kt:5-70",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/LspRuntime.kt:122-160",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/LspSettingsSchema.kt:52-65",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/SandboxServerLauncher.kt:79-90",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmRuntime.kt:203-204"
+   ],
+   "reuse": "Register host as MemoryPressureHook or new Victim step; reuse ProcMemoryProbe RSS.",
+   "notes": "Kill order models LspSession only; defaults 1200 MB global, 3 servers."
+  },
+  {
+   "capability": "ext.deps",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:5"
+   ],
+   "reuse": "Accept extensionDependencies; order activation; vscode.git stub in host.",
+   "notes": "Top-level additionalProperties:false rejects the key."
+  },
+  {
+   "capability": "ext.pack",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:5"
+   ],
+   "reuse": "Install-time expansion.",
+   "notes": "Rejected by schema."
+  },
+  {
+   "capability": "ext.kind",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:5"
+   ],
+   "reuse": "Accept and ignore (everything runs in the workspace guest).",
+   "notes": "Rejected by schema."
+  },
+  {
+   "capability": "ext.enable",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/Enablement.kt:45-100",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:18-20"
+   ],
+   "reuse": "Reuse enablement rules (per env, extensions.disabled P-scope, profile allowlist, approval, crash, revoked).",
+   "notes": ""
+  },
+  {
+   "capability": "ext.update",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/registry/RegistryService.kt:117-120",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/LocalInstaller.kt:172-240",
+    "docs/extension-sdk/lld/registry-and-install.md:5"
+   ],
+   "reuse": "Registry update badge + rollback; add Open VSX version check.",
+   "notes": "Open VSX adapter (sec 9) not built."
+  },
+  {
+   "capability": "ext.safemode",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/SafeModeState.kt:13-57",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SafeModeState.kt:11-20",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:278-292",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/CrashJournal.kt:46-56"
+   ],
+   "reuse": "Reuse; built-ins stay enabled.",
+   "notes": ""
+  },
+  {
+   "capability": "ext.killswitch",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/ExtensionSettings.kt:18",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/host/Enablement.kt:80"
+   ],
+   "reuse": "Global extensions.enabled + revocation; add per-env host kill switch that wipes host state.",
+   "notes": "No kill switch in code (grep)."
+  },
+  {
+   "capability": "ext.api",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:58-86",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:142"
+   ],
+   "reuse": "Serve getExtension/all in host from ExtDesc.",
+   "notes": "Descriptor is typed; raw packageJSON not retained."
+  },
+  {
+   "capability": "ext.context",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:80-85",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmStoragePort.kt:5-20",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionLogRing.kt:22-42"
+   ],
+   "reuse": "Compose from storage port, guest extension path, log ring.",
+   "notes": "storageUri/globalStorageUri/logUri/secrets missing."
+  },
+  {
+   "capability": "storage.memento",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmStoragePort.kt:5-20"
+   ],
+   "reuse": "globalState=global scope, workspaceState=project scope JSON files with quota.",
+   "notes": "setKeysForSync n/a."
+  },
+  {
+   "capability": "storage.paths",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:84",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/SandboxPaths.kt:128"
+   ],
+   "reuse": "Define guest-visible storage/log dirs.",
+   "notes": "Only extensionPath exists in guest."
+  },
+  {
+   "capability": "secrets",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmSmallPorts.kt:40-47",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCredentials.kt:14-24",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCredentials.kt:74-90"
+   ],
+   "reuse": "Build ExtensionSecrets on GitCredentials' Keystore AES-GCM pattern.",
+   "notes": "NoSecrets returns null."
+  },
+  {
+   "capability": "config.model",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/LayerDoc.kt:10",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:38-100",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:21-60",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:226-230",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/settings/SettingsPort.kt:19-53"
+   ],
+   "reuse": "getConfiguration via SettingsPort.value; update via SettingsPort.write(target user/language/environment/project).",
+   "notes": "Scopes: application/machine->G, machine-overridable->E, language-overridable->L, window/resource->P (ContributedSettings.kt:49-53). No folder layer."
+  },
+  {
+   "capability": "config.inspect",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:19-22",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:115"
+   ],
+   "reuse": "Map Resolved(winner,shadowed) provenance to inspect() fields.",
+   "notes": "ENVIRONMENT layer has no VS Code slot; workspaceFolderValue always undefined."
+  },
+  {
+   "capability": "config.langOverride",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/Setting.kt:18-28",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsResolver.kt:45-47"
+   ],
+   "reuse": "Direct.",
+   "notes": "[lang] blocks on every layer for L-scope keys."
+  },
+  {
+   "capability": "config.defaults",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:98-99",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:112-121"
+   ],
+   "reuse": "EXTENSION layer.",
+   "notes": ""
+  },
+  {
+   "capability": "fs.api",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/ProjectFiles.kt:28-254",
+    "services/mobile/ext-wasm/src/main/kotlin/dev/easyide/extwasm/host/HostFunctionTable.kt:68-80"
+   ],
+   "reuse": "file: scheme served by Node fs inside the guest (ADR 0030 dec. 5).",
+   "notes": ""
+  },
+  {
+   "capability": "fs.provider",
+   "status": "Missing",
+   "evidence": [
+    "docs/extension-host/arch.md:108"
+   ],
+   "reuse": "Scheme router needed in the editor/explorer.",
+   "notes": ""
+  },
+  {
+   "capability": "fs.watch",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/ProjectFileWatcher.kt:27-79",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ClientCapabilities.kt:139-142",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmRuntime.kt:194-200"
+   ],
+   "reuse": "One project-wide watcher feeding host fileEvents, LSP didChangeWatchedFiles, WASM fs.watch.",
+   "notes": "Kotlin watcher covers expanded explorer dirs only; LSP capability advertised but never sent; guest inotify via proot UNVERIFIED."
+  },
+  {
+   "capability": "doc.model",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/docs/DocumentStore.kt:18-84",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/text/LineIndex.kt:12-54",
+    "services/mobile/app/src/main/java/dev/easyide/app/session/ExternalChange.kt:7-30"
+   ],
+   "reuse": "Host doc sync = another consumer of DocumentStore.snapshots.",
+   "notes": "No eol, isUntitled, encoding; dirty lives in tab model."
+  },
+  {
+   "capability": "doc.sync",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/DocumentSync.kt:31-60",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/text/TextDiff.kt:11-60"
+   ],
+   "reuse": "Reuse reconcile + TextDiff to emit doc/changed.",
+   "notes": "Single coalesced range per flush, not per-edit contentChanges."
+  },
+  {
+   "capability": "doc.content-provider",
+   "status": "Missing",
+   "evidence": [],
+   "reuse": "Scheme router for virtual docs.",
+   "notes": ""
+  },
+  {
+   "capability": "doc.encoding",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/ProjectFiles.kt:110",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/layout/StatusFacts.kt:42-45",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/files/FileContent.kt:39-72",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:30"
+   ],
+   "reuse": "-",
+   "notes": "UTF-8 only; EOL display-only; 256 KB editable, 8 MB viewer, 2 MB full-sync cap."
+  },
+  {
+   "capability": "workspace.folders",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/SandboxPaths.kt:62",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/SandboxPaths.kt:149",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:25-27",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/ServerRequests.kt:69"
+   ],
+   "reuse": "One folder /workspace.",
+   "notes": "Multi-root planned as /workspace/<name> binds (ADR 0017:67-68)."
+  },
+  {
+   "capability": "workspace.trust",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ProjectTrust.kt:1-31",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ProjectTrust.kt:106-120"
+   ],
+   "reuse": "isTrusted = TrustState TRUSTED or NOT_REQUIRED.",
+   "notes": "Restricted mode / untrustedWorkspaces capability not modelled."
+  },
+  {
+   "capability": "workspace.edit",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/workspace/WorkspaceEditApplier.kt",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ClientCapabilities.kt:131-136",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:112-121"
+   ],
+   "reuse": "workspace.applyEdit -> same applier.",
+   "notes": ""
+  },
+  {
+   "capability": "workspace.find",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/files/FileIndexer.kt:47-60",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/SearchPanel.kt:36-40"
+   ],
+   "reuse": "findFiles in-guest JS glob or FileIndexer.",
+   "notes": "findTextInFiles Missing (no search engine, no rg in rootfs)."
+  },
+  {
+   "capability": "workspace.save",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:69-70",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:244-253"
+   ],
+   "reuse": "save/saveAll commands; willSaveWaitUntil pipeline for onWillSave.",
+   "notes": ""
+  },
+  {
+   "capability": "commands.registry",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:28-61",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:60-63",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:142",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:186-208"
+   ],
+   "reuse": "Add CommandHandler.Host and dynamic registration.",
+   "notes": "Commands must be declared in contributes.commands; built-ins win; ActionOutcome not a return value."
+  },
+  {
+   "capability": "commands.builtin",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/builtin-commands.json:4-36",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:67-140"
+   ],
+   "reuse": "Declarative table of vscode.* API commands.",
+   "notes": "Missing vscode.open/diff/openWith, setContext, vscode.executeXxxProvider, openSettings; edit.undo vs undo."
+  },
+  {
+   "capability": "env.info",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/ext-wasm/src/main/kotlin/dev/easyide/extwasm/host/HostFunctionTable.kt:43-47",
+    "docs/extension-host/arch.md:54"
+   ],
+   "reuse": "appName/uiKind/language from app.",
+   "notes": "machineId/sessionId not generated."
+  },
+  {
+   "capability": "env.clipboard",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/wasm/WasmSmallPorts.kt:14-37",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/capability/Capability.kt:20"
+   ],
+   "reuse": "Direct.",
+   "notes": ""
+  },
+  {
+   "capability": "env.openExternal",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:140-147"
+   ],
+   "reuse": "Direct (with confirm).",
+   "notes": ""
+  },
+  {
+   "capability": "env.uri-handler",
+   "status": "Missing",
+   "evidence": [],
+   "reuse": "Android intent filter + onUri.",
+   "notes": ""
+  },
+  {
+   "capability": "env.shell",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:100-113",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:185"
+   ],
+   "reuse": "env.shell=/bin/sh.",
+   "notes": "Guest root, dash."
+  },
+  {
+   "capability": "net.proxy",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:159-171"
+   ],
+   "reuse": "-",
+   "notes": "Guest env cleared; no proxy settings propagated."
+  },
+  {
+   "capability": "l10n",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/Nls.kt:9-60",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:59",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:173"
+   ],
+   "reuse": "package.nls handled at load.",
+   "notes": "vscode.l10n runtime bundles missing."
+  },
+  {
+   "capability": "telemetry",
+   "status": "Missing",
+   "evidence": [
+    "docs/extension-host/arch.md:158"
+   ],
+   "reuse": "No-op TelemetryLogger.",
+   "notes": ""
+  },
+  {
+   "capability": "log.output",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionLogRing.kt:22-42",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/session/LogRing.kt"
+   ],
+   "reuse": "Per-extension log ring.",
+   "notes": "Named output channels missing."
+  },
+  {
+   "capability": "process.spawn",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:49-52",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:85",
+    "services/mobile/ext-wasm/src/main/kotlin/dev/easyide/extwasm/host/HostFunctionTable.kt:124-125"
+   ],
+   "reuse": "In the Node host child_process runs natively in the guest.",
+   "notes": "Host env has no git token by design."
+  },
+  {
+   "capability": "native.modules",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/SandboxImages.kt:24-41",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/PackageFiles.kt:87-124"
+   ],
+   "reuse": "linux-arm64 glibc prebuilds only; targetPlatform selection needed.",
+   "notes": "Layout rules refuse nested archives/symlinks; UNVERIFIED per extension."
+  },
+  {
+   "capability": "tasks.api",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Tasks.kt:12-82",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/AppHostPort.kt:102",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:228-233"
+   ],
+   "reuse": ".easyide/tasks.json runner; add TaskProvider hook.",
+   "notes": "taskDefinitions parse-only; file is .easyide/tasks.json not .vscode/tasks.json."
+  },
+  {
+   "capability": "tasks.problem-matchers",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:159-160",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:235-246",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Tasks.kt:38"
+   ],
+   "reuse": "Engine to be built over kept JSON.",
+   "notes": "Not applied; problemPatterns point rejected."
+  },
+  {
+   "capability": "terminal.api",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/terminal-emulator/src/main/java/com/termux/terminal/JNI.java:26-29",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/shell/SandboxShell.kt:63-113",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/LinuxEnvironment.kt:246-256",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:41-46"
+   ],
+   "reuse": "createTerminal -> commandPtyParams; sendText -> TerminalPort.",
+   "notes": ""
+  },
+  {
+   "capability": "terminal.pty",
+   "status": "Missing",
+   "evidence": [],
+   "reuse": "Byte-fed TerminalEmulator backend.",
+   "notes": "UNVERIFIED reuse of terminal-view."
+  },
+  {
+   "capability": "terminal.shell-integration",
+   "status": "Missing",
+   "evidence": [],
+   "reuse": "-",
+   "notes": ""
+  },
+  {
+   "capability": "terminal.env-collection",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/LinuxEnvironment.kt:246-256"
+   ],
+   "reuse": "extraEnvironment of pty params.",
+   "notes": ""
+  },
+  {
+   "capability": "terminal.profiles",
+   "status": "Missing",
+   "evidence": [],
+   "reuse": "-",
+   "notes": ""
+  },
+  {
+   "capability": "terminal.links",
+   "status": "Missing",
+   "evidence": [],
+   "reuse": "-",
+   "notes": ""
+  },
+  {
+   "capability": "git.api",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitRepository.kt:1-40",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitService.kt:21-150",
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCommandLine.kt:55-65"
+   ],
+   "reuse": "In-host vscode.git stub over guest git (arch.md:161).",
+   "notes": "Kotlin JGit service not reachable from host; token not given to host."
+  },
+  {
+   "capability": "scm.api",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:15-16"
+   ],
+   "reuse": "-",
+   "notes": "Native git UI only."
+  },
+  {
+   "capability": "auth.api",
+   "status": "Missing",
+   "evidence": [],
+   "reuse": "-",
+   "notes": ""
+  },
+  {
+   "capability": "auth.github",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/sandbox-runtime/src/main/java/dev/easyide/sandbox/git/GitCredentials.kt:24-60"
+   ],
+   "reuse": "Per-host PAT store (not exposed by design).",
+   "notes": "No OAuth."
+  },
+  {
+   "capability": "lang.router",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/FeatureRouting.kt:30-90",
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/ExtensionProviders.kt:24-48",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:200-212",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:278",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/InfoController.kt:81",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:280"
+   ],
+   "reuse": "Introduce FeatureSource (LspSession | host provider) + DocumentSelector; move ext merging into LspClient.",
+   "notes": "Router typed to LspSession; ext providers = completion/hover only, merged in presenters, resolve/command stripped."
+  },
+  {
+   "capability": "lang.completion",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:116-133",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge, no dedupe; WASM completion merged after).",
+   "notes": "LSP path Have; extension-provider path missing except WASM."
+  },
+  {
+   "capability": "lang.hover",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:135-138",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge, distinctBy contents; WASM hover merged).",
+   "notes": "LSP path Have; extension-provider path missing except WASM."
+  },
+  {
+   "capability": "lang.definition",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:199-202",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:285-286",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (firstNonEmpty).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.references",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:140-143",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe uri+range).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.symbols",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:148-149",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.workspace-symbols",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:152-155",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge per language).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.code-action",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:157-174",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe title+kind, resolve on producer).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.code-lens",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:185-189",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe, resolve).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.formatting",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:229-242",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (single owner, defaultFormatter by server id).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.rename",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:216-227",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (single owner).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.signature-help",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:204-206",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (firstNonEmpty).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.highlight",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:145-146",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.links",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:191-195",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe, resolve).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.folding",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:182-183",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/LspPolicy.kt:87",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.selection-range",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:208-211",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (firstNonEmpty).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.inlay-hint",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:176-180",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (merge+dedupe, resolve, refresh).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.semantic-tokens",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/LspClient.kt:256-265",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/client/SemanticTokensCache.kt",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:19-64"
+   ],
+   "reuse": "Extension providers plug in as another FeatureSource under the same policy (single owner, full/delta/range).",
+   "notes": "LSP path Have; extension-provider path missing."
+  },
+  {
+   "capability": "lang.color",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27"
+   ],
+   "reuse": "New LspFeature + method + UI.",
+   "notes": "Not in LspFeature enum."
+  },
+  {
+   "capability": "lang.call-hierarchy",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27"
+   ],
+   "reuse": "New LspFeature + method + UI.",
+   "notes": "Not in LspFeature enum."
+  },
+  {
+   "capability": "lang.type-hierarchy",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27"
+   ],
+   "reuse": "New LspFeature + method + UI.",
+   "notes": "Not in LspFeature enum."
+  },
+  {
+   "capability": "lang.linked-editing",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27"
+   ],
+   "reuse": "New LspFeature + method + UI.",
+   "notes": "Not in LspFeature enum."
+  },
+  {
+   "capability": "lang.inline-completion",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27"
+   ],
+   "reuse": "New LspFeature + method + UI.",
+   "notes": "Not in LspFeature enum."
+  },
+  {
+   "capability": "lang.inline-values",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27"
+   ],
+   "reuse": "New LspFeature + method + UI.",
+   "notes": "Not in LspFeature enum."
+  },
+  {
+   "capability": "lang.drop-paste",
+   "status": "Missing",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/ServerCapabilities.kt:13-27"
+   ],
+   "reuse": "New LspFeature + method + UI.",
+   "notes": "Not in LspFeature enum."
+  },
+  {
+   "capability": "lang.set-language",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/syntax/TextMateHighlighter.kt:135",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/syntax/LanguageConfigs.kt:60-71",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/docs/DocumentStore.kt:48-55"
+   ],
+   "reuse": "Language detection exists.",
+   "notes": "No API to re-key a DocSnapshot's languageId."
+  },
+  {
+   "capability": "lang.language-config",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/syntax/LanguageConfigs.kt:95-150"
+   ],
+   "reuse": "Reuse parser; accept string regexes.",
+   "notes": "BUG: regexes read only as {pattern,flags} objects (lines 98,108-109,134,149); VS Code accepts string|IRegExp; wordPattern/folding.markers not read; setLanguageConfiguration missing."
+  },
+  {
+   "capability": "lang.grammar",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:208-210",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/Contributions.kt:106-109",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/ExtensionPolicy.kt:20"
+   ],
+   "reuse": "TextMate with extension grammars/injections.",
+   "notes": ""
+  },
+  {
+   "capability": "lang.snippets",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Snippets.kt",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/SnippetBody.kt",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/ExtensionsContainer.kt:212-218"
+   ],
+   "reuse": "Reuse SnippetBody for SnippetString.",
+   "notes": ""
+  },
+  {
+   "capability": "lang.json-validation",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SettingsJsonCompletion.kt",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/SchemaValidator.kt"
+   ],
+   "reuse": "Settings JSON schema machinery could back it.",
+   "notes": "Point rejected by schema."
+  },
+  {
+   "capability": "diagnostics",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/diagnostics/DiagnosticStore.kt:23-43",
+    "services/mobile/lsp/src/main/kotlin/dev/easyide/lsp/protocol/LspMethods.kt:52"
+   ],
+   "reuse": "DiagnosticCollection = synthetic ServerKey per collection.",
+   "notes": ""
+  },
+  {
+   "capability": "tests.api",
+   "status": "Missing",
+   "evidence": [
+    "docs/extension-sdk/m8-gap-analysis.md:56"
+   ],
+   "reuse": "-",
+   "notes": ""
+  },
+  {
+   "capability": "comments.api",
+   "status": "Missing",
+   "evidence": [
+    "docs/extension-host/arch.md:139"
+   ],
+   "reuse": "-",
+   "notes": "Not planned."
+  }
+ ],
+ "contributes": [
+  {
+   "point": "commands",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:39-50",
+    "services/shared/extension-schema/manifest.schema.json:128"
+   ],
+   "notes": "icon string only (token/SVG); id prefix warn"
+  },
+  {
+   "point": "menus",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:52-69",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:4-26",
+    "services/shared/extension-schema/manifest.schema.json:137"
+   ],
+   "notes": "16 menu ids incl. tablet ones; unknown ids warn+ignored; no submenu items"
+  },
+  {
+   "point": "submenus",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ],
+   "notes": "rejected by closed contributes schema"
+  },
+  {
+   "point": "keybindings",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:71-76",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ContributedKeybindings.kt:13-42"
+   ],
+   "notes": "linux>key, mac/win ignored, <=2-press chords"
+  },
+  {
+   "point": "languages",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:123-137",
+    "services/shared/extension-schema/manifest.schema.json:84"
+   ],
+   "notes": "icon key rejected"
+  },
+  {
+   "point": "grammars",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:140-147"
+   ],
+   "notes": "injectTo, embeddedLanguages, tokenTypes"
+  },
+  {
+   "point": "snippets",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:149-152"
+   ],
+   "notes": ""
+  },
+  {
+   "point": "themes",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:154-157",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ColorThemes.kt"
+   ],
+   "notes": ""
+  },
+  {
+   "point": "iconThemes",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:159-162",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/VsCodeIconThemeAdapter.kt:25-59"
+   ],
+   "notes": "only point a raw .vsix installs today"
+  },
+  {
+   "point": "productIconThemes",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ],
+   "notes": ""
+  },
+  {
+   "point": "configuration",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:79-110",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:21-60"
+   ],
+   "notes": "unvalidated schema keywords warn"
+  },
+  {
+   "point": "configurationDefaults",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:112-121"
+   ],
+   "notes": ""
+  },
+  {
+   "point": "views",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:204-217",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/LegacyView.kt"
+   ],
+   "notes": "R4 schema view or legacy list; no TreeDataProvider"
+  },
+  {
+   "point": "viewsContainers",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:164-202"
+   ],
+   "notes": "activitybar/panel + sidebar/secondarySidebar"
+  },
+  {
+   "point": "viewsWelcome",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:224-226",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionsViewModel.kt:257"
+   ],
+   "notes": "parse-only"
+  },
+  {
+   "point": "customEditors",
+   "status": "Missing",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md:73-74"
+   ],
+   "notes": "not planned beyond text/webview"
+  },
+  {
+   "point": "walkthroughs",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:248-270"
+   ],
+   "notes": "parse-only; video ignored"
+  },
+  {
+   "point": "colors",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ],
+   "notes": "rejected"
+  },
+  {
+   "point": "icons",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ],
+   "notes": "rejected"
+  },
+  {
+   "point": "jsonValidation",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ],
+   "notes": "rejected"
+  },
+  {
+   "point": "taskDefinitions",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:228-233"
+   ],
+   "notes": "parse-only"
+  },
+  {
+   "point": "problemMatchers",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:235-246",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Tasks.kt:38"
+   ],
+   "notes": "parse-only"
+  },
+  {
+   "point": "problemPatterns",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48",
+    "services/shared/extension-schema/manifest.schema.json:220"
+   ],
+   "notes": "point rejected; inline pattern def exists"
+  },
+  {
+   "point": "terminal",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "debuggers",
+   "status": "Missing",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md:73"
+   ],
+   "notes": "not planned"
+  },
+  {
+   "point": "breakpoints",
+   "status": "Missing",
+   "evidence": [],
+   "notes": "not planned"
+  },
+  {
+   "point": "resourceLabelFormatters",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "semanticTokenTypes",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "semanticTokenModifiers",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "semanticTokenScopes",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "authentication",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "codeActions",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "typescriptServerPlugins",
+   "status": "Missing",
+   "evidence": [],
+   "notes": ""
+  },
+  {
+   "point": "localizations",
+   "status": "Missing",
+   "evidence": [
+    "docs/extension-sdk/m8-gap-analysis.md:34"
+   ],
+   "notes": "M8 Gap 2"
+  },
+  {
+   "point": "easyide.*",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/EasyideDecoder.kt:23-110",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/UiDecoder.kt"
+   ],
+   "notes": "stages, statusBarItems, keyRows, languageServers, sandbox, viewData, navigation, documents, layoutPresets, actions, wasm (easyIDE-only)"
+  }
+ ],
+ "activationEvents": [
+  {
+   "event": "onLanguage:",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  {
+   "event": "onCommand:",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  {
+   "event": "onView:",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  {
+   "event": "workspaceContains:",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  {
+   "event": "onStartupFinished",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  {
+   "event": "*",
+   "status": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ],
+   "notes": "treated as onStartupFinished with warning (ManifestParser.kt:156)"
+  },
+  {
+   "event": "onStage: (easyIDE)",
+   "status": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ExtensionDescriptor.kt:32-45"
+   ]
+  },
+  {
+   "event": "onUri",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onFileSystem:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onDebug",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onDebugResolve:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onDebugInitialConfigurations",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onWebviewPanel:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onCustomEditor:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onAuthenticationRequest:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onTerminalProfile:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onTerminal:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onWalkthrough:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onNotebook:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onSearch:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onOpenExternalUri:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onTaskType:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onEditSession:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onIssueReporterOpened",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onRenderer:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onChatParticipant:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onLanguageModelTool:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onLanguageModelChat:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "onMcpCollection:",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  },
+  {
+   "event": "implicit (from contributes)",
+   "status": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ManifestParser.kt:153-161"
+   ],
+   "notes": "unknown events dropped with warning"
+  }
+ ],
+ "whenKeys": [
+  {
+   "key": "editorLangId",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:34"
+   ]
+  },
+  {
+   "key": "resourceLangId",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:35"
+   ]
+  },
+  {
+   "key": "resourceExtname",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:36"
+   ]
+  },
+  {
+   "key": "resourceFilename",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:37"
+   ]
+  },
+  {
+   "key": "resourceDirname",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:38"
+   ]
+  },
+  {
+   "key": "resourcePath",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:39"
+   ]
+  },
+  {
+   "key": "resourceIsFolder",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:40"
+   ]
+  },
+  {
+   "key": "editorFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:41"
+   ]
+  },
+  {
+   "key": "editorTextFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:42"
+   ]
+  },
+  {
+   "key": "editorReadonly",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:43"
+   ]
+  },
+  {
+   "key": "activeEditorIsDirty",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:44"
+   ]
+  },
+  {
+   "key": "editorHasSelection",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:45"
+   ]
+  },
+  {
+   "key": "editorHasMultipleSelections",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:46"
+   ]
+  },
+  {
+   "key": "inSnippetMode",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:47"
+   ]
+  },
+  {
+   "key": "suggestWidgetVisible",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:48"
+   ]
+  },
+  {
+   "key": "hoverVisible",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:49"
+   ]
+  },
+  {
+   "key": "peekVisible",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:50"
+   ]
+  },
+  {
+   "key": "terminalFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:51"
+   ]
+  },
+  {
+   "key": "terminalProcessRunning",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:52"
+   ]
+  },
+  {
+   "key": "explorerFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:53"
+   ]
+  },
+  {
+   "key": "scmFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:54"
+   ]
+  },
+  {
+   "key": "focusedView",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:55"
+   ]
+  },
+  {
+   "key": "focusedStage",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:56"
+   ]
+  },
+  {
+   "key": "hardwareKeyboard",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:57"
+   ]
+  },
+  {
+   "key": "inputMode",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:58"
+   ]
+  },
+  {
+   "key": "windowSizeClass",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:59"
+   ]
+  },
+  {
+   "key": "devicePosture",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:60"
+   ]
+  },
+  {
+   "key": "envId",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:61"
+   ]
+  },
+  {
+   "key": "envState",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:62"
+   ]
+  },
+  {
+   "key": "envBackend",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:63"
+   ]
+  },
+  {
+   "key": "envDistro",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:64"
+   ]
+  },
+  {
+   "key": "envArch",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:65"
+   ]
+  },
+  {
+   "key": "gitRepo",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:66"
+   ]
+  },
+  {
+   "key": "gitBranch",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:67"
+   ]
+  },
+  {
+   "key": "gitDirty",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:68"
+   ]
+  },
+  {
+   "key": "isOffline",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:69"
+   ]
+  },
+  {
+   "key": "isSafeMode",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:70"
+   ]
+  },
+  {
+   "key": "stageVisible:<id>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:72"
+   ]
+  },
+  {
+   "key": "envHasCommand:<cmd>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:73"
+   ]
+  },
+  {
+   "key": "lspReady:<lang>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:74"
+   ]
+  },
+  {
+   "key": "lspState:<lang>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:75"
+   ]
+  },
+  {
+   "key": "lspSupports:<lang>:<feature>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:76"
+   ]
+  },
+  {
+   "key": "extensionEnabled:<id>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:77"
+   ]
+  },
+  {
+   "key": "config.<setting>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:80"
+   ]
+  }
+ ],
+ "commandsBuiltin": [
+  {
+   "id": "workbench.action.showCommands",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:68"
+   ]
+  },
+  {
+   "id": "workbench.action.files.save",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:69"
+   ]
+  },
+  {
+   "id": "workbench.action.files.saveAll",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:70"
+   ]
+  },
+  {
+   "id": "workbench.action.closeActiveEditor",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:71"
+   ]
+  },
+  {
+   "id": "workbench.action.nextEditor",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:72"
+   ]
+  },
+  {
+   "id": "workbench.action.previousEditor",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:73"
+   ]
+  },
+  {
+   "id": "workbench.view.explorer",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:74"
+   ]
+  },
+  {
+   "id": "workbench.view.scm",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:75"
+   ]
+  },
+  {
+   "id": "workbench.action.terminal.toggleTerminal",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:76"
+   ]
+  },
+  {
+   "id": "workbench.action.terminal.new",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:77"
+   ]
+  },
+  {
+   "id": "workbench.files.action.refreshFilesExplorer",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:78"
+   ]
+  },
+  {
+   "id": "markdown.togglePreview",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:79"
+   ]
+  },
+  {
+   "id": "editor.action.insertSnippet",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:80"
+   ]
+  },
+  {
+   "id": "workbench.action.tasks.runTask",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:81"
+   ]
+  },
+  {
+   "id": "workbench.view.extensions",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:82"
+   ]
+  },
+  {
+   "id": "editor.action.triggerSuggest",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:84"
+   ]
+  },
+  {
+   "id": "editor.action.triggerParameterHints",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:85"
+   ]
+  },
+  {
+   "id": "editor.action.showHover",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:86"
+   ]
+  },
+  {
+   "id": "editor.action.revealDefinition",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:87"
+   ]
+  },
+  {
+   "id": "editor.action.revealDeclaration",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:88"
+   ]
+  },
+  {
+   "id": "editor.action.goToTypeDefinition",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:89"
+   ]
+  },
+  {
+   "id": "editor.action.goToImplementation",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:90"
+   ]
+  },
+  {
+   "id": "editor.action.goToReferences",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:91"
+   ]
+  },
+  {
+   "id": "editor.action.rename",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:92"
+   ]
+  },
+  {
+   "id": "editor.action.quickFix",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:93"
+   ]
+  },
+  {
+   "id": "editor.action.formatDocument",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:94"
+   ]
+  },
+  {
+   "id": "editor.action.formatSelection",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:95"
+   ]
+  },
+  {
+   "id": "editor.action.commentLine",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:96"
+   ]
+  },
+  {
+   "id": "workbench.action.gotoSymbol",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:97"
+   ]
+  },
+  {
+   "id": "workbench.action.showAllSymbols",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:98"
+   ]
+  },
+  {
+   "id": "workbench.actions.view.problems",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:99"
+   ]
+  },
+  {
+   "id": "outline.focus",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:100"
+   ]
+  },
+  {
+   "id": "actions.find",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:105"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "editor.action.startFindReplace",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:106"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "editor.action.nextMatchFindAction",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:107"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "editor.action.previousMatchFindAction",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:108"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "workbench.action.gotoLine",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:109"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "workbench.action.quickOpen",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:110"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "explorer.openToSide",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:124"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "workbench.action.splitEditor",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:125"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "workbench.action.moveEditorToNextGroup",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:127"
+   ],
+   "notes": "palette/keybinding only; not in builtin-commands.json so manifests cannot name it (Command.kt:112-128)"
+  },
+  {
+   "id": "edit.undo / edit.redo",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Command.kt:103-104"
+   ],
+   "notes": "VS Code ids are 'undo'/'redo'; alias needed"
+  }
+ ]
+}

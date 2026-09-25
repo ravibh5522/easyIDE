@@ -38,3 +38,8 @@ Lightweight ADRs (Architecture Decision Records) for major, hard-to-reverse choi
 | [0023](0023-workspace-session-lifetime.md) | Workspace session lifetime: an app-scoped registry parks projects; a hot-exit snapshot survives the process | Accepted |
 | [0022](0022-editing-workflows-history-find-quick-open.md) | Editing workflows: patch history at the workspace's content choke point, decoration-painted find, one picker shell | Accepted |
 | [0027](0027-extension-view-schema.md) | Extension views: a fixed declarative view schema (`viewSchema: 1`) drawn by the app's kit | Accepted |
+| [0030](0030-vscode-extension-host-in-sandbox.md) | VS Code extension host: Node in the sandbox, Kotlin main side (decision 2 superseded by 0031) | Partly superseded |
+| [0031](0031-vendor-vscode-extension-host.md) | Run VS Code's own extension host (vendored, MIT) with a thin main-thread adapter | Accepted, pending device gates |
+| [0032](0032-node-runtime-provisioning.md) | Node runtime: pinned official Node 24 linux-arm64 in the guest, not apt | Accepted |
+| [0033](0033-extension-webview-security-model.md) | Extension webviews: one WebView per instance, per-instance origin, VS Code's host page vendored | Accepted |
+| [0034](0034-play-policy-stance-code-extensions.md) | Code-running extensions are a per-channel flag; Play default off pending legal review | Proposed |

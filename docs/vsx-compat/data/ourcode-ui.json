@@ -1,0 +1,2566 @@
+{
+ "generated": "2026-09-25",
+ "agent": "OURCODE-UI",
+ "pathsRelativeTo": "$WT (vscode/... paths are relative to $SP)",
+ "surfaces": [
+  {
+   "id": "ui.view-container",
+   "vscode": "viewsContainers.activitybar/panel: icon + title, holds views; viewContainer/title actions",
+   "have": "R4 container registry: sidebar / secondarySidebar / panel; a bare `activitybar` container becomes a sidebar container plus a nav item; 10 containers/pack",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ShellContributions.kt:53",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ShellContributions.kt:118",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:46",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ExtRenderers.kt:57"
+   ],
+   "tablet": "rail icon -> primary panel (or secondary/bottom per placement); several views = collapsible sections",
+   "phone": "bottom-bar cell (<=5, rest in More sheet) -> panel as overlay sheet",
+   "change": "map VSIX `viewsContainers` (activitybar/panel) with no `ui.contribute` gate for host.run exts; tint SVG icons that use currentColor, rasterise PNG to mono; render viewContainer/title",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.tree-view",
+   "vscode": "TreeDataProvider: lazy getChildren, TreeItem label/description/tooltip/iconPath(ThemeIcon|uri|light-dark)/resourceUri/contextValue/command/checkbox, reveal, multi-select, badge, message, title, drag-and-drop",
+   "have": "schema `tree` component = eager JSON tree with local expand state; schema-less views = flat label/description list. No lazy fetch, inline actions, view/item/context, selection, checkbox, DnD, tooltip",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ViewDataNodes.kt:84",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ViewDataNodes.kt:96",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/LegacyView.kt:16",
+    "docs/extension-host/arch.md (Tree views section)"
+   ],
+   "tablet": "Dense 28dp rows, twistie+icon+label+muted description+trailing inline actions on hover/selection; right-click = view/item/context KitMenu",
+   "phone": "Comfortable 36dp rows; trailing `...` button and long-press open view/item/context as menu; inline actions shown only on the selected row",
+   "change": "new native TreeViewHost fed by exthost tree/children|item|refresh|reveal: element-id keyed lazy LazyColumn, `view`/`viewItem` scoped context keys, inline (`inline` group) buttons, resourceUri -> file-icon theme + file decorations, selection/multi-select, checkbox, badge -> nav badge, message + viewsWelcome",
+   "effort": "L",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.views-welcome",
+   "vscode": "viewsWelcome markdown (links, `command:` buttons) shown when a view is empty, `when`-gated",
+   "have": "decoded and stored; only listed on the Extension page Contributions list; never drawn",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:224",
+    "services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/contrib/ContributionRegistry.kt:64",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionPageModel.kt:26"
+   ],
+   "tablet": "KitEmptyState in the view body: paragraphs + KitButton per `[label](command:id)` line",
+   "phone": "same, buttons full width in the thumb zone",
+   "change": "render ViewWelcomeContribution when the view has no rows (tree empty / webview not resolved)",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.webview-view",
+   "vscode": "WebviewViewProvider in sidebar/panel: HTML page, scripts, messaging, retainContextWhenHidden",
+   "have": "no webview surface; the only WebView in the app is MermaidView; manifest `views[].type` enum is only `tree`",
+   "status": "Missing-UI",
+   "rendering": "webview",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/MermaidView.kt:48",
+    "services/shared/extension-schema/manifest.schema.json ($defs.view.type enum [\"tree\"])",
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md (Decision 4)"
+   ],
+   "tablet": "android.webkit.WebView inside the panel container; pointer/keyboard pass-through",
+   "phone": "panel opens as full-height sheet; Back closes; WebView resized above IME (adjustResize)",
+   "change": "WebView host view type in PanelHost; lifecycle (dispose when hidden unless retainContextWhenHidden); memory budget with host (0030 Consequences)",
+   "effort": "L",
+   "risk": "High"
+  },
+  {
+   "id": "ui.webview-panel",
+   "vscode": "createWebviewPanel in an editor column; title, iconPath, reveal, onDidChangeViewState, serializer restore",
+   "have": "none; stage documents can host any registered document type (URI-keyed) so a `webview:` type fits",
+   "status": "Missing-UI",
+   "rendering": "webview",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/DocumentRegistry.kt:1",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/EditorStage.kt:25",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/MermaidView.kt:48"
+   ],
+   "tablet": "stage document tab; viewColumn 1..4 -> groups; Beside -> split",
+   "phone": "full-screen stage document in the switcher; Beside opens full screen with Back to previous",
+   "change": "`webview` document type + renderer, restore via WebviewPanelSerializer (webview/resolve)",
+   "effort": "L",
+   "risk": "High"
+  },
+  {
+   "id": "ui.webview-bridge",
+   "vscode": "acquireVsCodeApi postMessage/getState/setState, asWebviewUri + localResourceRoots, CSP, `--vscode-*` CSS vars, body.vscode-dark/light/high-contrast, codicon css",
+   "have": "MermaidView uses addJavascriptInterface + allowFileAccess (ux-overhaul PS6 wants WebViewAssetLoader); no theme var export (we know 92 of ~990 colour ids)",
+   "status": "Missing-UI",
+   "rendering": "webview",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/MermaidView.kt:57",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:17",
+    "docs/ux-overhaul/arch.md:61"
+   ],
+   "tablet": "same bridge on both",
+   "phone": "same; plus touch: map long-press to contextmenu event, disable pinch zoom by default",
+   "change": "WebMessagePort bridge, shouldInterceptRequest resource server (https://easyide-webview.local/<handle>/, arch.md), inject all `--vscode-*` vars from a full colour registry (ui.theme-colors), codicon.css (CC-BY-4.0)",
+   "effort": "L",
+   "risk": "High"
+  },
+  {
+   "id": "ui.custom-editor",
+   "vscode": "contributes.customEditors (viewType, selector globs, priority default/option), CustomTextEditorProvider / CustomEditorProvider (webview based)",
+   "have": "documentOpeners (glob -> document type, priority default|option) + DocumentRegistry already model 'which editor opens this file'; no webview renderer; manifest has no customEditors key",
+   "status": "Missing-UI",
+   "rendering": "webview",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/DocumentOpeners.kt:1",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ShellContributions.kt:64",
+    "services/shared/extension-schema/manifest.schema.json ($defs.contributes additionalProperties:false)"
+   ],
+   "tablet": "file opens in stage per priority; explorer `Open With...` entry",
+   "phone": "long-press file -> Open With... sheet",
+   "change": "translate customEditors -> documentOpeners + webview document type; CustomTextEditor syncs with doc model",
+   "effort": "M",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.activity-nav",
+   "vscode": "activity bar: container icons, badges (TreeView.badge/WebviewView.badge), reorder/hide, overflow",
+   "have": "NavSurface rail/bottom bar, badges, user order/hide, More sheet, 3 items per pack, title <=14 chars",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/nav/NavRules.kt:35",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/nav/NavSurface.kt:54",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/nav/NavMoreSheet.kt:21",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ShellLimits.kt:19",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ShellLimits.kt:24"
+   ],
+   "tablet": "rail (labels on EXPANDED); Ctrl+Alt+n",
+   "phone": "bottom bar, 5 cells, rest in More sheet; hidden while soft keyboard is up",
+   "change": "wire TreeView.badge/WebviewView.badge to NavBadge; truncate long VS Code titles to 14 chars instead of refusing",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.panel",
+   "vscode": "bottom panel: Problems, Output, Terminal, Debug Console, extension panel containers; maximise, move",
+   "have": "BottomPanel with Terminal + Problems renderers; `output` container is registered but has no renderer",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/BottomPanel.kt:71",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:55",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/WorkspacePanels.kt:32"
+   ],
+   "tablet": "docked bottom panel, drag handle to resize, Ctrl+J",
+   "phone": "bottom sheet overlay with handle; height COMPACT -> overlay",
+   "change": "bind Output renderer; extension panel containers already allowed (Placement.PANEL)",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.status-bar",
+   "vscode": "StatusBarItem: text with $(icon), tooltip string|MarkdownString, command string|Command(args), color, backgroundColor (error/warning), alignment, priority, name, accessibilityInformation; setStatusBarMessage",
+   "have": "declarative easyide.statusBarItems + WASM items: caption text, clickable command id; tooltip carried but not shown; no colour/background/icons/args/a11y label; phone drops EXT_LEFT/EXT_RIGHT before FILE/SAVE/PROBLEMS",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionSlots.kt:104",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/StatusItems.kt:16",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/StatusStrip.kt:60",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/StatusPlan.kt:6"
+   ],
+   "tablet": "24dp strip, left/right by priority; tooltip on hover/long-press as EditorPopup-style card; statusBarItem.error/warningBackground tokens",
+   "phone": "28dp strip keeps PROBLEMS/SAVE/FILE; extension items collapse to one `+n` chip opening a sheet listing each item with tooltip and its command",
+   "change": "extend StatusItem (icon tokens, colours, background, tooltip markdown, args, a11y); overflow sheet; transient message slot",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.notifications",
+   "vscode": "non-modal toasts with action buttons, modal dialogs (modal:true, detail), notification centre, progress notifications",
+   "have": "every extension message is a modal KitDialog; ToastQueue shows plain text without actions; no notification centre",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionPrompts.kt:112",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/Toasts.kt:19",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/host/ExtensionUiHost.kt:23"
+   ],
+   "tablet": "toast stack bottom-right above status strip (max 3), actions inline; bell item in status strip opens centre as side sheet",
+   "phone": "one snackbar above the bottom bar/input dock, <=2 actions + `More`; centre as bottom sheet; modal:true -> KitDialog",
+   "change": "Notification model (severity, source ext, actions, progress, dismissed state) + centre; keep dialog only for modal",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.progress",
+   "vscode": "window.withProgress: Notification (cancellable, increment), Window (status bar spinner), SourceControl/view (bar under view header)",
+   "have": "KitProgress primitive exists; nothing is wired to extensions",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/kit/KitProgress.kt:35"
+   ],
+   "tablet": "notification toast with bar + Cancel; Window -> spinner item in status strip; view -> 2dp bar under panel header",
+   "phone": "same; notification progress in the snackbar slot",
+   "change": "progress controller keyed by id (arch window/progress*)",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.quick-pick",
+   "vscode": "showQuickPick/createQuickPick: label/description/detail, iconPath, $(icons), separators, picked, alwaysShow, item + title buttons, busy, step/totalSteps, dynamic items on value change, matchOnDescription/Detail, activeItems",
+   "have": "QuickPickDialog in a KitDialog: fuzzy filter on label, description subtitle, multi-select checkboxes; palette PickerOverlay is separate",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionPrompts.kt:55",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/PickerOverlay.kt:59",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:97"
+   ],
+   "tablet": "top-centre PickerOverlay (as the palette), keyboard navigation",
+   "phone": "bottom-anchored full-width sheet, search field just above the keyboard (thumb zone), 44dp rows",
+   "change": "QuickInput controller on PickerOverlay supporting the createQuickPick lifecycle (live items, busy, buttons, steps, separators, detail line)",
+   "effort": "M",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.input-box",
+   "vscode": "showInputBox/createInputBox: prompt, value, valueSelection, password, async validateInput with severity, step, buttons, busy",
+   "have": "InputBoxDialog: regex validation only, password, prompt/placeholder",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionPrompts.kt:89",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/action/HostPort.kt:98"
+   ],
+   "tablet": "same overlay as quick pick",
+   "phone": "same, field above keyboard",
+   "change": "async validation round trip (arch input/validate), severity messages, valueSelection, steps",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.output",
+   "vscode": "OutputChannel/LogOutputChannel: append/replace/clear/show, log levels, language colouring; Output panel channel picker",
+   "have": "Extension Log section (global extension log) only; Output container has no renderer",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionLog.kt:54",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:55",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/WorkspacePanels.kt:32"
+   ],
+   "tablet": "bottom panel `Output` with channel KitMenu picker, follow/clear/copy",
+   "phone": "bottom sheet; channel picker as sheet list; also openable as stage document `output://<channel>`",
+   "change": "OutputChannel store (ring buffer, 5,000 lines like logStream) + renderer reusing LogSection",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.menus",
+   "vscode": "contributes.menus at ~93 locations, group@order, when, alt, submenu, icon in navigation group",
+   "have": "data-driven MenuModel (group `navigation` first, group, @order, title; when; enablement; hidden; user reorder) rendered at 5 VS Code locations + 2 own; other ids load with a warning and are dropped",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:33",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:57",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:4",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:56",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/kit/KitMenu.kt:28"
+   ],
+   "tablet": "right-click / secondary click opens KitMenu at the pointer; title groups as icon buttons",
+   "phone": "long-press or a visible `...` button opens the same KitMenu anchored to the row (U-INT-03: long-press never the only path)",
+   "change": "render the missing ids (see menus table), accept `submenu` items + contributes.submenus, `alt`, $(codicon) and {light,dark} icons",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.submenus",
+   "vscode": "contributes.submenus + menu items `{submenu}`",
+   "have": "KitMenuItem.Submenu renders cascades, but the manifest schema requires `command` on every menu item and has no `submenus` key",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/kit/KitMenu.kt:41",
+    "services/shared/extension-schema/manifest.schema.json:137 (menuItem required [command], additionalProperties:false)",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:63"
+   ],
+   "tablet": "cascade beside the row (KitMenuLogic placement)",
+   "phone": "submenu replaces the menu body with a Back row (cascades do not fit 360dp)",
+   "change": "decode submenus, MenuEntry.Submenu, recursion limit",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.keybindings",
+   "vscode": "contributes.keybindings key/mac/linux/win, when, args, two-step chords; keybindings.json; Keyboard Shortcuts editor",
+   "have": "Keymap with KeyChord + two-step prefix chords + when (WhenEvaluator) + args; built-in defaults declared in Kotlin (Keymap.DEFAULT); user keybindings.json layer with diagnostics and conflicts; contributed layer (linux over key; terminalFocus opt-in); Keyboard settings page",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:64",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:112",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:181",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/KeybindingOverrides.kt:67",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ContributedKeybindings.kt:21",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/settings/KeyboardPage.kt:40"
+   ],
+   "tablet": "hardware keyboard dispatch; chords shown in palette and menu hints",
+   "phone": "InputDock key row above the soft keyboard (contributed `keyRow` + builtin); commands reachable from palette; no chords needed",
+   "change": "only as good as the context keys (ui.context-keys); `-command` removal entries and `win` ignored by design",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.command-palette",
+   "vscode": "F1/Ctrl+Shift+P, categories, keybinding hints, recently used, `>` `@` `#` `:` prefixes, commandPalette `when`",
+   "have": "CommandPalette over PickerOverlay with fuzzy match and chord labels; extension commands filtered by commandPalette `when`; QuickOpen with `@`/`#` symbol prefixes; `Commands` nav action",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/CommandPalette.kt:30",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceExtensionUi.kt:56",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:97",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/quickopen/QuickOpen.kt:46",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:79"
+   ],
+   "tablet": "top overlay, Ctrl+Shift+P / Ctrl+P",
+   "phone": "nav `Commands` action; bottom-anchored picker",
+   "change": "recently-used section; `>` and `:` prefix parity; `category: title` display",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.context-keys",
+   "vscode": "context-key service, `when` grammar (&&, ||, !, ==, !=, <, >, =~, in, not in), setContext command, ~300 built-in keys",
+   "have": "ContextKeyService + full when lexer/parser/evaluator in :extension-schema; 37 fixed + 7 prefixed keys declared, 29 set by the app; config.* resolved from settings; no `setContext` built-in",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeyService.kt:59",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/WhenEvaluator.kt:24",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/WhenExpr.kt:11",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:33",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:109"
+   ],
+   "tablet": "n/a (engine)",
+   "phone": "n/a; plus touch-only keys windowSizeClass, inputMode, hardwareKeyboard",
+   "change": "`setContext` (ext-owned namespace), VS Code key names (view, viewItem, focusedView, resourceScheme, isLinux, textInputFocus, sideBarVisible, panelFocus, activeViewlet, scmProvider, workspaceFolderCount...), set the declared-but-unset keys",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.editor-decorations",
+   "vscode": "TextEditorDecorationType: color, backgroundColor, border/outline, fontStyle/Weight, textDecoration, opacity, before/after (contentText, icon, margin), isWholeLine, rangeBehavior, overviewRuler*, gutterIcon*, light/dark; setDecorations(ranges, hoverMessage, renderOptions)",
+   "have": "engine-neutral DecorationModel with FIXED typed layers (search matches, highlights, diagnostics, inlay hints as EOL ghost text, gutter glyph enum, code lenses); draw-phase painters (backgrounds, squiggles, ghost text, gutter); no generic styled-range layer; colour/font changes of text forbidden on the current engine",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationLayer.kt:27",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/Decorations.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:99",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:190",
+    "docs/decision/0018-editor-engine-and-decorations.md (Decision 1,3)"
+   ],
+   "tablet": "full set after PE1; now: background, border, underline, whole-line bg, EOL `after` text, gutter icon",
+   "phone": "same; hoverMessage via long-press on the decorated range (existing hover card)",
+   "change": "new `ExtDecorations` layer: bg/border/outline/underline/strike, whole-line bg, EOL after-text (GitLens blame fits), gutter icon (tinted SVG/PNG), overview colour; text colour/fontStyle and inline before/after need PE1",
+   "effort": "L",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.gutter",
+   "vscode": "glyph margin, gutterIconPath, line-number context menu, quick-diff bars",
+   "have": "gutter glyph enum ERROR/WARNING/INFO/LIGHTBULB/CODE_LENS; gutter tap reports the line; no quick-diff (dirty diff) bars",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/Decorations.kt:69",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:252",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:278",
+    "docs/ux-overhaul/arch.md:208"
+   ],
+   "tablet": "16dp glyph lane; right-click -> editor/lineNumber/context",
+   "phone": "tap glyph -> popup list; narrower lane on compact (DecorationMetrics)",
+   "change": "icon glyph from decoration types, quick-diff bars (scm quickDiffProvider + built-in git), lineNumber menu",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.overview-ruler",
+   "vscode": "coloured marks on the vertical scrollbar (diagnostics, find, decorations)",
+   "have": "editor scrollbar draws the thumb only",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/EditorScrollbar.kt:26"
+   ],
+   "tablet": "4dp marks along the scrollbar track",
+   "phone": "marks on the fast-scroll track, shown while scrolling",
+   "change": "paint marks from DecorationSet per line / total lines",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.code-lens-ui",
+   "vscode": "between-line lens row, clickable commands, resolve",
+   "have": "CodeLensController: lenses as a gutter glyph, tap lists them in an EditorPopup (0018 deferral)",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CodeLensController.kt:30",
+    "docs/decision/0018-editor-engine-and-decorations.md (Decision 3)"
+   ],
+   "tablet": "true between-line block after PE1",
+   "phone": "gutter tap -> popup list (keep even after PE1: lens text is tiny on phones)",
+   "change": "PE1 between-line blocks; exthost codeLens provider into same controller",
+   "effort": "XL",
+   "risk": "High"
+  },
+  {
+   "id": "ui.inlay-hint-ui",
+   "vscode": "inline labels with padding, tooltips, clickable label parts, kinds",
+   "have": "end-of-line ghost text of joined labels",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/Decorations.kt:59",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CaretDecorations.kt:81"
+   ],
+   "tablet": "inline after PE1",
+   "phone": "EOL ghost text (inline would reflow narrow lines)",
+   "change": "PE1 inline insertion; tooltip on long-press",
+   "effort": "XL",
+   "risk": "High"
+  },
+  {
+   "id": "ui.hover-ui",
+   "vscode": "MarkdownString hover (code fences, `command:` links, isTrusted, supportHtml, $(icons)), multiple providers merged",
+   "have": "HoverContent with LspMarkdownView; long-press, mouse rest, Ctrl+K Ctrl+I; WASM hover providers merged; no `command:` link handling, no codicons",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/InfoController.kt:45",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspInfoPopups.kt:36",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspMarkdown.kt:54"
+   ],
+   "tablet": "mouse rest + keyboard",
+   "phone": "long-press a word -> hover card with action row",
+   "change": "trusted `command:` links, $(codicon) in markdown, exthost providers through the router",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.completion-ui",
+   "vscode": "suggest widget: kind icons, labelDetails, detail + markdown docs, resolve, snippets, commit characters, additionalTextEdits, command after accept, deprecated tag, preselect",
+   "have": "CompletionController + CompletionContent: resolve on focus, docs beside or below, commit characters, snippet sessions; provider (WASM) items have their `command` stripped",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspPopups.kt:91",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:102",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/CompletionController.kt:208",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/SnippetController.kt:16"
+   ],
+   "tablet": "caret popup, docs side-by-side when wide",
+   "phone": "narrow popup, docs below; tap to accept; key row Tab/arrows",
+   "change": "run CompletionItem.command for exthost items, labelDetails, deprecated strike",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.code-action-ui",
+   "vscode": "light bulb, Ctrl+. quick fix menu, kinds, isPreferred, disabled reason, refactor preview",
+   "have": "lightbulb as gutter marker on the caret line, quick-fix menu (preferred first, disabled greyed), Ctrl+.",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/EditActionsController.kt:31",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspInfoPopups.kt:113",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/commands/Keymap.kt:129"
+   ],
+   "tablet": "Ctrl+. or gutter bulb",
+   "phone": "tap bulb; add to editor/touchToolbar",
+   "change": "exthost codeAction providers merged; refactor preview reuse RenamePreviewUi",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.diagnostics-ui",
+   "vscode": "squiggles, gutter, Problems panel (filter, group, severity), relatedInformation, code href, tags Unnecessary/Deprecated",
+   "have": "DiagnosticsPresenter -> squiggles + gutter; ProblemsView grouped by file; status counts; no tag rendering, no code href",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/DiagnosticsPresenter.kt:53",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:128",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspPanels.kt:92"
+   ],
+   "tablet": "Problems in bottom panel, Ctrl+Shift+M",
+   "phone": "nav `Problems` -> sheet; status strip count opens it",
+   "change": "DiagnosticCollection source from exthost; fade for Unnecessary, strike for Deprecated; code links",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.peek",
+   "vscode": "peek widget (embedded editor) for references/definition/implementation; editor.action.peekLocations",
+   "have": "References side panel list with preview lines; no inline peek; `peekVisible` key never set",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/WorkspaceLspController.kt:57",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/NavigationController.kt:35"
+   ],
+   "tablet": "References panel (secondary sidebar) with preview rows",
+   "phone": "bottom sheet of locations with preview line",
+   "change": "route peek commands (editor.action.peekLocations, showReferences) to the References panel; no embedded editor",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.rename-ui",
+   "vscode": "F2 inline rename input, prepareRename placeholder, preview of edits",
+   "have": "RenameUi input + RenamePreviewUi file list",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/NavigationController.kt:46",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspDialogs.kt:30"
+   ],
+   "tablet": "dialog / F2",
+   "phone": "dialog above keyboard",
+   "change": "exthost rename provider via router",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.diff-editor",
+   "vscode": "vscode.diff(left,right,title,options) for any URIs, side-by-side/inline, editable modified side, navigation, multi-diff",
+   "have": "git-diff / git-commit stage documents, read-only, side-by-side at >= threshold else unified, hunk stage/unstage/discard; DiffProviders registry per scheme not fed by extensions; Comparison is git-only",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffModel.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffProvider.kt:41",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/Comparison.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffProvider.kt:53"
+   ],
+   "tablet": "side-by-side stage document, open beside",
+   "phone": "unified diff, full-screen document",
+   "change": "generic `compare:` provider taking two document URIs (file, untitled, content-provider schemes); editable right side after PE1",
+   "effort": "M",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.tabs",
+   "vscode": "window.tabGroups: groups, tabs (input kinds, isActive/isDirty/isPinned/isPreview), close, events; editor/title/context",
+   "have": "EditorStage (1..4 groups, one axis), Tab state PREVIEW/KEPT/PINNED, DocumentStrip, phone DocumentSwitcher, TabMenu with fixed actions",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/EditorStage.kt:25",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ShellLimits.kt:13",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/EditorGroup.kt:7",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/TabMenuPlan.kt:8",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/DocumentStrip.kt:74",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/DocumentSwitcher.kt:49"
+   ],
+   "tablet": "tab strip per group, up to 4 groups",
+   "phone": "one group; switcher list; ViewColumn.Beside = full screen + Back",
+   "change": "expose read model + close to exthost; append editor/title/context to TabMenu",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.text-editor",
+   "vscode": "TextEditor: multiple selections, visibleRanges, revealRange types, edit builder, insertSnippet, options (tabSize, insertSpaces, cursorStyle, lineNumbers), viewColumn",
+   "have": "one selection per tab (EditorSelections), reveal, snippets, edits; editorHasMultipleSelections is always false",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/EditorSelections.kt:10",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:151",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/EditorReveal.kt:1"
+   ],
+   "tablet": "same",
+   "phone": "same",
+   "change": "multi-cursor needs PE1; visibleRanges from EditorGeometry; options per tab",
+   "effort": "L",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.scm-view",
+   "vscode": "provider-generic SourceControl: groups, resources with decorations, inputBox (placeholder, validation), count, statusBarCommands, quick diff, several repositories, scm/* menus",
+   "have": "native git-only Source Control (JGit): changes/staged list or tree, commit split button, graph, commit menu; not provider-generic; no scm/* menus",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/SourceControlPane.kt:67",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/ScmList.kt:119",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/CommitMenu.kt:44",
+    "docs/ui-redesign/vscode-parity-git.md:15"
+   ],
+   "tablet": "sidebar container Git",
+   "phone": "nav Git -> sheet",
+   "change": "ScmProvider abstraction; extension providers rendered as extra sections with ChangeRow; scm menus; count badge on nav",
+   "effort": "L",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.comments-ui",
+   "vscode": "comment threads in gutter + inline widgets, Comments panel",
+   "have": "none; commentController listed as not planned in the host protocol",
+   "status": "Not-planned",
+   "rendering": "not-planned",
+   "evidence": [
+    "docs/extension-host/arch.md (Providers table: commentController not planned)"
+   ],
+   "tablet": "later: thread card in EditorPopup + Comments panel",
+   "phone": "later: bottom sheet thread",
+   "change": "-",
+   "effort": "XL",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.walkthroughs",
+   "vscode": "Get Started walkthroughs: steps, media (image/svg/markdown), completionEvents",
+   "have": "decoded; listed on Extension page only",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:248",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionPageModel.kt:26"
+   ],
+   "tablet": "stage document `walkthrough://`, steps left, media right",
+   "phone": "single column, steps as collapsible rows, media inline",
+   "change": "document type + markdown/image render; completionEvents onCommand/onSettingChanged",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.color-theme",
+   "vscode": "contributes.themes: colors, tokenColors, semanticTokenColors, uiTheme",
+   "have": "ColorThemeFile + VsCodeThemeMapper: 92 workbench ids -> ColorTokens, tokenColors collapsed into SyntaxRoles, semanticTokenColors",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ColorThemes.kt:82",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/VsCodeThemeMapping.kt:52",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:17",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/SemanticTokenColors.kt:115"
+   ],
+   "tablet": "same",
+   "phone": "same",
+   "change": "keep raw colour map for webviews/ThemeColor; map more ids",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.icon-theme",
+   "vscode": "contributes.iconThemes (file/folder icons)",
+   "have": "icon themes installable (also from .vsix), Material default (ADR 0029)",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/IconThemes.kt:89",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/VsCodeIconThemeAdapter.kt:18"
+   ],
+   "tablet": "same",
+   "phone": "same",
+   "change": "-",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.product-icon-theme",
+   "vscode": "productIconThemes (workbench glyph font)",
+   "have": "none",
+   "status": "Not-planned",
+   "rendering": "not-planned",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json (no productIconThemes key)"
+   ],
+   "tablet": "-",
+   "phone": "-",
+   "change": "low usage; revisit after codicons",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.theme-colors",
+   "vscode": "contributes.colors (id, defaults light/dark/hc) and ThemeColor references in status bar, decorations, tree icons",
+   "have": "no colour registry; manifest rejects `colors` (contributes additionalProperties:false)",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json ($defs.contributes)",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:17"
+   ],
+   "tablet": "same",
+   "phone": "same",
+   "change": "ColorRegistry: VS Code id -> theme value | contributed default | core default table (~990 ids); ThemeColor resolves through it",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.icons",
+   "vscode": "contributes.icons (font glyphs referenced as $(id))",
+   "have": "none; manifest rejects `icons`",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json ($defs.contributes)"
+   ],
+   "tablet": "same",
+   "phone": "same",
+   "change": "load the declared woff/ttf, map id -> codepoint, draw as text glyph",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.codicons",
+   "vscode": "$(name) and $(name~spin) in labels, ThemeIcon ids (762 in VS Code)",
+   "have": "no codicon font or table; icon tokens resolve against our glyph set + ~67 Material tokens; `$(x)` is taken as an unknown token",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/icons/IconResolver.kt:26",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/icons/MaterialIcons.kt:1",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/DecodeContext.kt:80"
+   ],
+   "tablet": "same",
+   "phone": "same",
+   "change": "bundle @vscode/codicons font (CC-BY-4.0, attribution in licenses) + name->codepoint table; label parser for $(...) in status items, menus, tree labels, quick pick",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.file-decorations",
+   "vscode": "FileDecorationProvider: badge (<=2 chars), colour (ThemeColor), tooltip, propagate; explorer, tabs, SCM, open editors",
+   "have": "git status tint + letter in explorer rows (git-only source)",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/FileTreeRow.kt:1",
+    "docs/ui-redesign/vscode-parity-git.md:36"
+   ],
+   "tablet": "explorer rows, tabs, breadcrumbs",
+   "phone": "same (letter badge kept, colour tint)",
+   "change": "generic decoration source merged with git; badge + colour in FileTreeRow/tabs",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.timeline",
+   "vscode": "Timeline view (file history providers, e.g. GitLens)",
+   "have": "none",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "absence: grep -ril timeline services/mobile/app/src/main (no view)"
+   ],
+   "tablet": "section in Explorer or secondary sidebar",
+   "phone": "file long-press -> Timeline sheet",
+   "change": "timeline container + provider fan-in",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.breadcrumbs",
+   "vscode": "path + symbol breadcrumbs with pickers",
+   "have": "EditorBreadcrumbs: path crumbs + symbols at caret",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/EditorBreadcrumbs.kt:21",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/BreadcrumbModel.kt:27"
+   ],
+   "tablet": "under tab strip",
+   "phone": "under switcher, scrolls horizontally",
+   "change": "feed exthost documentSymbol providers",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.settings-ui",
+   "vscode": "Settings editor generated from contributes.configuration: enum/enumDescriptions/markdownEnumDescriptions, markdownDescription with links, deprecation, scope, order, array/object editors, editPresentation, patternErrorMessage",
+   "have": "ContributedSettings.controlOf: enum -> choice, boolean switch, integer stepper/number, string field with pattern, string[] list, everything else `Edit in settings.json`; markdown flattened to plain; deprecation, scope, order; user/project/environment layers",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:95",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:75",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/settings/SettingControls.kt:85"
+   ],
+   "tablet": "two-column rows (label left, control right)",
+   "phone": "stacked rows",
+   "change": "render markdownDescription as markdown with `#setting#` and command links; multilineText; object key/value editor; patternErrorMessage",
+   "effort": "M",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.accessibility",
+   "vscode": "accessibilityInformation on tree/status items, screen reader mode, accessible view, audio cues",
+   "have": "kit rules U-A11Y; 202 semantics/contentDescription uses under ui/; view schema requires spoken labels; ext accessibilityInformation not carried",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "docs/ui-redesign/ux-rules.md:96",
+    "docs/extension-sdk/views.md (section 3)"
+   ],
+   "tablet": "TalkBack + keyboard focus ring",
+   "phone": "TalkBack; 44dp isolated targets",
+   "change": "carry accessibilityInformation/label to semantics; UNVERIFIED: TalkBack in the BasicTextField editor (verify on device)",
+   "effort": "M",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.terminal-ui",
+   "vscode": "multiple named terminals, icons, colours, split, link detection + link providers, profiles picker, terminal/context menus, editor-area terminals",
+   "have": "multiple PTY tabs, rename, extension-named terminals, key row; no icons/colours/links/split/profiles UI",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/WorkspaceTerminals.kt:30",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/WorkspaceTerminals.kt:79",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/TerminalKeyRow.kt:49"
+   ],
+   "tablet": "bottom panel with tab strip; `terminal://` stage document",
+   "phone": "sheet or full-screen document; key row above keyboard; long-press = terminal/context",
+   "change": "tab icon/colour, URL + path:line link detection with tap to open, profile picker, terminal menus",
+   "effort": "M",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.auth-ui",
+   "vscode": "Accounts menu, session consent dialogs, sign in/out",
+   "have": "none (only a git credential dialog)",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/GitCredentialDialog.kt:1 (git token dialog only; no auth-provider UI)"
+   ],
+   "tablet": "Accounts entry in Settings + consent KitDialog",
+   "phone": "same, in a sheet; OAuth via Custom Tabs + env.uri-handler",
+   "change": "auth provider UI shell",
+   "effort": "M",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.extensions-ui",
+   "vscode": "marketplace browse/search, details (README, changelog, contributions), install/enable/disable, recommendations",
+   "have": "Extensions panel + page (details, contributions, capabilities) over the easyIDE registry; `.vsix` accepted only for icon themes",
+   "status": "Partial",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/BrowseState.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionPage.kt:1",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/VsCodeIconThemeAdapter.kt:18"
+   ],
+   "tablet": "panel list + stage page",
+   "phone": "panel sheet + full-screen page",
+   "change": "Open VSX source, README/CHANGELOG render, host.run capability prompt",
+   "effort": "M",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.semantic-highlighting",
+   "vscode": "semantic tokens coloured by theme semanticTokenColors / tokenColors fallback",
+   "have": "SemanticTokensController + SemanticStyler + SemanticOverlay",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/SemanticTokensController.kt:35",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/SemanticTokenColors.kt:115"
+   ],
+   "tablet": "same",
+   "phone": "same",
+   "change": "exthost semanticTokens providers via router",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.minimap",
+   "vscode": "minimap (out of scope)",
+   "have": "none",
+   "status": "Not-planned",
+   "rendering": "not-planned",
+   "evidence": [
+    "docs/ux-overhaul/arch.md:208"
+   ],
+   "tablet": "-",
+   "phone": "-",
+   "change": "-",
+   "effort": "L",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.notebook",
+   "vscode": "notebooks (out of scope)",
+   "have": "none",
+   "status": "Not-planned",
+   "rendering": "not-planned",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md (Consequences)"
+   ],
+   "tablet": "-",
+   "phone": "-",
+   "change": "-",
+   "effort": "XL",
+   "risk": "High"
+  },
+  {
+   "id": "ui.debug",
+   "vscode": "debug UI (out of scope)",
+   "have": "none",
+   "status": "Not-planned",
+   "rendering": "not-planned",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md (Consequences)"
+   ],
+   "tablet": "-",
+   "phone": "-",
+   "change": "-",
+   "effort": "XL",
+   "risk": "High"
+  },
+  {
+   "id": "ui.testing",
+   "vscode": "(new id) Test Explorer, gutter run icons, results peek, testing/* menus",
+   "have": "none",
+   "status": "Missing-both",
+   "rendering": "native",
+   "evidence": [
+    "absence: no TestController/testing view under services/mobile/app/src/main"
+   ],
+   "tablet": "sidebar container Testing",
+   "phone": "nav item via More sheet",
+   "change": "TestController UI (tree + gutter + results)",
+   "effort": "L",
+   "risk": "Med"
+  },
+  {
+   "id": "ui.folding",
+   "vscode": "(new id) fold gutter chevrons, fold/unfold commands, folding ranges",
+   "have": "none; LSP foldingRange withheld from client capabilities",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/lsp/LspRuntime.kt:145",
+    "docs/ux-overhaul/arch.md:66"
+   ],
+   "tablet": "gutter chevrons (PE1)",
+   "phone": "same, larger hit slop",
+   "change": "PE1 line-virtualised editor",
+   "effort": "XL",
+   "risk": "High"
+  },
+  {
+   "id": "ui.language-status",
+   "vscode": "(new id) languages.createLanguageStatusItem",
+   "have": "LSP status items only (LspStatusItems)",
+   "status": "Missing-UI",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/LspChrome.kt:82"
+   ],
+   "tablet": "`{}` language item in status strip opens a popup",
+   "phone": "same, sheet",
+   "change": "reuse LspStatusItems popup",
+   "effort": "S",
+   "risk": "Low"
+  },
+  {
+   "id": "ui.outline",
+   "vscode": "(new id) Outline view",
+   "have": "Outline container (secondary sidebar) from document symbols",
+   "status": "Have",
+   "rendering": "native",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/CoreShell.kt:52",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/lsp/WorkspaceLspController.kt:57"
+   ],
+   "tablet": "secondary sidebar",
+   "phone": "nav Outline -> sheet",
+   "change": "feed exthost documentSymbol",
+   "effort": "S",
+   "risk": "Low"
+  }
+ ],
+ "menus": [
+  {
+   "location": "commandPalette",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/MenuModel.kt:97",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceExtensionUi.kt:56",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:39"
+   ],
+   "note": "palette filter by `when`",
+   "tablet": "palette",
+   "phone": "palette via nav Commands",
+   "proposed": null
+  },
+  {
+   "location": "touchBar",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:45"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "editor/title",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/WorkspaceScreen.kt:461",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionSlots.kt:51",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:51"
+   ],
+   "note": "`navigation` group inline (max EDITOR_TITLE_MAX_INLINE) + overflow; icon only for easyIDE tokens, else text; no `alt`, no toggled",
+   "tablet": "icon buttons at the end of the tab strip + overflow",
+   "phone": "overflow `...` on the switcher row",
+   "proposed": null
+  },
+  {
+   "location": "modalEditor/editorTitle",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:56"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "editor/title/run",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:61"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "run button split at tab strip end",
+   "phone": "same in switcher row",
+   "proposed": null
+  },
+  {
+   "location": "editor/context",
+   "status": "Partial",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/FileDocument.kt:60",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/ExtensionSlots.kt:79",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:66"
+   ],
+   "note": "secondary-click menu in the editor; also inside the editor/title overflow for touch (long-press on text is hover)",
+   "tablet": "right-click at pointer",
+   "phone": "editor/title overflow `...` (long-press = hover), or selection toolbar",
+   "proposed": null
+  },
+  {
+   "location": "editor/context/copy",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:71"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "editor/context/share",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:76"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribShareMenu"
+  },
+  {
+   "location": "explorer/context",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceExtensionUi.kt:77",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/FileContextMenu.kt:95",
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:82"
+   ],
+   "note": "scoped resource* keys + explorerFocus; appended after built-ins; no multi-select",
+   "tablet": "right-click on row",
+   "phone": "long-press on row / row `...`",
+   "proposed": null
+  },
+  {
+   "location": "explorer/context/share",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:87"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribShareMenu"
+  },
+  {
+   "location": "editor/title/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:93",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:7",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/TabMenuPlan.kt:8",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/host/TabMenu.kt:29"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; tab menu is fixed actions",
+   "tablet": "append after TabMenu sections",
+   "phone": "long-press tab / switcher row",
+   "proposed": null
+  },
+  {
+   "location": "editor/title/context/share",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:98"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribShareMenu"
+  },
+  {
+   "location": "debug/callstack/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:104"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "debug/variables/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:109"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "debug/watch/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:114"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "debug/toolBar",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:119"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "debug/createConfiguration",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:124"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribDebugCreateConfiguration"
+  },
+  {
+   "location": "notebook/variables/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:130"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "menuBar/home",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:135"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribMenuBarHome"
+  },
+  {
+   "location": "menuBar/edit/copy",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:142"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "chat/input/status",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:147"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "scm/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:153",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:15",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/ScmHeader.kt:1"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; SCM header actions fixed",
+   "tablet": "SCM header icon buttons + overflow",
+   "phone": "header `...`",
+   "proposed": null
+  },
+  {
+   "location": "scm/sourceControl",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:158"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "repository row menu",
+   "phone": "long-press repo row",
+   "proposed": null
+  },
+  {
+   "location": "scm/repositories/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:163"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribSourceControlTitleMenu"
+  },
+  {
+   "location": "scm/repository",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:169"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "repository row inline",
+   "phone": "same",
+   "proposed": null
+  },
+  {
+   "location": "scm/resourceState/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:174",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:16",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/ChangeRow.kt:1"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; change rows have fixed actions",
+   "tablet": "right-click change row; inline group as hover buttons",
+   "phone": "long-press row",
+   "proposed": null
+  },
+  {
+   "location": "scm/resourceFolder/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:179"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "tree folder rows",
+   "phone": "long-press folder",
+   "proposed": null
+  },
+  {
+   "location": "scm/resourceGroup/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:184"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "group header buttons",
+   "phone": "group header `...`",
+   "proposed": null
+  },
+  {
+   "location": "scm/change/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:189"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "diff document title actions",
+   "phone": "switcher `...`",
+   "proposed": null
+  },
+  {
+   "location": "scm/inputBox",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:194"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "buttons inside commit box",
+   "phone": "same",
+   "proposed": "contribSourceControlInputBoxMenu"
+  },
+  {
+   "location": "scm/history/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:200"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribSourceControlHistoryTitleMenu"
+  },
+  {
+   "location": "scm/historyItem/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:206",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/git/CommitMenu.kt:44",
+    "docs/ui-redesign/vscode-parity-git.md:30"
+   ],
+   "note": "commit menu fixed; doc names this hook as not built",
+   "tablet": "after a divider at end of commitMenuItems",
+   "phone": "same via long-press",
+   "proposed": "contribSourceControlHistoryItemMenu"
+  },
+  {
+   "location": "scm/historyItemRef/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:212"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "ref chip menu",
+   "phone": "long-press chip",
+   "proposed": "contribSourceControlHistoryItemMenu"
+  },
+  {
+   "location": "scm/artifactGroup/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:218"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribSourceControlArtifactGroupMenu"
+  },
+  {
+   "location": "scm/artifact/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:224"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribSourceControlArtifactMenu"
+  },
+  {
+   "location": "statusBar/remoteIndicator",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:230"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "terminal/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:236",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:17",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:18"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; MenuIds also defines `terminal/title` which is not a VS Code id (VS Code: terminal/title/context)",
+   "tablet": "right-click terminal",
+   "phone": "long-press terminal (select mode conflicts: use key-row `...`)",
+   "proposed": null
+  },
+  {
+   "location": "terminal/title/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:241",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:18"
+   ],
+   "note": "easyIDE spells it `terminal/title`; terminal tab long-press only renames",
+   "tablet": "terminal tab right-click",
+   "phone": "long-press terminal tab",
+   "proposed": null
+  },
+  {
+   "location": "view/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:246",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:13",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ExtRenderers.kt:57"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; R4 container header has no action slot",
+   "tablet": "icon buttons in view section header + overflow",
+   "phone": "header `...` button",
+   "proposed": null
+  },
+  {
+   "location": "viewContainer/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:251"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "container header actions",
+   "phone": "header `...`",
+   "proposed": "contribViewContainerTitle"
+  },
+  {
+   "location": "view/item/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:257",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:14",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/ext/ViewDataNodes.kt:96"
+   ],
+   "note": "id known to MenuIds (loads without warning) but never rendered; R4 tree rows have no menu",
+   "tablet": "right-click row; `inline` group as row buttons",
+   "phone": "long-press row / row `...` -> menu",
+   "proposed": null
+  },
+  {
+   "location": "comments/comment/editorActions",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:262"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribCommentEditorActionsMenu"
+  },
+  {
+   "location": "comments/commentThread/title",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:268"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "comments/commentThread/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:273"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "comments/commentThread/additionalActions",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:279"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribCommentThreadAdditionalMenu"
+  },
+  {
+   "location": "comments/commentThread/title/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:286"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribCommentPeekContext"
+  },
+  {
+   "location": "comments/comment/title",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:292"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "comments/comment/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:297"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "comments/commentThread/comment/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:303"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribCommentPeekContext"
+  },
+  {
+   "location": "commentsView/commentThread/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:309"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribCommentsViewThreadMenus"
+  },
+  {
+   "location": "notebook/toolbar",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:315"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "notebook/kernelSource",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:320"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "notebookKernelSource"
+  },
+  {
+   "location": "notebook/cell/title",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:326"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "notebook/cell/execute",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:331"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "interactive/toolbar",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:336"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "interactive/cell/title",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:341"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "issue/reporter",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:346"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "testing/item/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:351"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "test tree row",
+   "phone": "long-press",
+   "proposed": null
+  },
+  {
+   "location": "testing/item/gutter",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:356"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "gutter glyph menu",
+   "phone": "gutter tap",
+   "proposed": null
+  },
+  {
+   "location": "testing/profiles/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:361"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "testing/item/result",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:366"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "testing/message/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:371"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "testing/message/content",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:376"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "extension/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:381",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionListRow.kt:1"
+   ],
+   "note": "Extensions page menus fixed",
+   "tablet": "extension row menu",
+   "phone": "long-press row",
+   "proposed": null
+  },
+  {
+   "location": "timeline/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:386"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "timeline header",
+   "phone": "header `...`",
+   "proposed": null
+  },
+  {
+   "location": "timeline/item/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:391"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "row right-click",
+   "phone": "long-press",
+   "proposed": null
+  },
+  {
+   "location": "ports/item/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:396"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "ports view row",
+   "phone": "long-press",
+   "proposed": null
+  },
+  {
+   "location": "ports/item/origin/inline",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:401"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "ports/item/port/inline",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:406"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "file/newFile",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:411",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/FileTreePane.kt:1"
+   ],
+   "note": "explorer toolbar new file/folder fixed",
+   "tablet": "explorer New... menu",
+   "phone": "same",
+   "proposed": null
+  },
+  {
+   "location": "webview/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:417"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "webview contextmenu event -> KitMenu",
+   "phone": "long-press in webview",
+   "proposed": null
+  },
+  {
+   "location": "file/share",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:422"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribShareMenu"
+  },
+  {
+   "location": "editor/inlineCompletions/actions",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:428"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "inlineCompletionsAdditions"
+  },
+  {
+   "location": "editor/content",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:435"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribEditorContentMenu"
+  },
+  {
+   "location": "editor/lineNumber/context",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:441",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/decor/DecorationPainters.kt:278",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:11"
+   ],
+   "note": "gutter tap goes to lens/diagnostic popup; easyIDE-own `editor/gutter` id unrendered",
+   "tablet": "right-click gutter",
+   "phone": "long-press gutter",
+   "proposed": null
+  },
+  {
+   "location": "mergeEditor/result/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:446"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribMergeEditorMenus"
+  },
+  {
+   "location": "multiDiffEditor/content",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:452"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribEditorContentMenu"
+  },
+  {
+   "location": "multiDiffEditor/resource/title",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:458"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribMultiDiffEditorMenus"
+  },
+  {
+   "location": "diffEditor/gutter/hunk",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:464",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/diff/DiffProvider.kt:30"
+   ],
+   "note": "native hunk actions exist (stage/unstage/discard), not extensible",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribDiffEditorGutterToolBarMenus"
+  },
+  {
+   "location": "diffEditor/gutter/selection",
+   "status": "Missing-UI",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:470"
+   ],
+   "note": "no equivalent menu",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribDiffEditorGutterToolBarMenus"
+  },
+  {
+   "location": "searchPanel/aiResults/commands",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:476"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  },
+  {
+   "location": "editor/context/chat",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:481"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatParticipantPrivate"
+  },
+  {
+   "location": "chat/input/editing/sessionToolbar",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:488"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "chat/input/editing/sessionTitleToolbar",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:494"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "chat/chatSessions",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:501"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "chatSessions/item/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:508"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "chatSessions/newSession",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:515"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "chat/multiDiff/context",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:522"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "chat/customizations/create",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:529"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionCustomizationProvider"
+  },
+  {
+   "location": "chat/customizations/item",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:536"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionCustomizationProvider"
+  },
+  {
+   "location": "chat/editor/inlineGutter",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:543"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "contribChatEditorInlineGutterMenu"
+  },
+  {
+   "location": "chat/contextUsage/actions",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:550"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatParticipantAdditions"
+  },
+  {
+   "location": "chat/newSession",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:556"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "agents/changes/actions",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:562"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "agents/changes/actions/primary",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:568"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "agents/change/inline",
+   "status": "Not-planned",
+   "evidence": [
+    "vscode/src/vs/workbench/services/actions/common/menusExtensionPoint.ts:574"
+   ],
+   "note": "out-of-scope track (debug/notebook/chat/comments/remote/macOS)",
+   "tablet": "",
+   "phone": "",
+   "proposed": "chatSessionsProvider"
+  },
+  {
+   "location": "editor/touchToolbar (easyIDE)",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/shell/workspace/InputDock.kt:40",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:9"
+   ],
+   "note": "touch toolbar in input dock",
+   "tablet": "input dock when no hardware keyboard",
+   "phone": "input dock above soft keyboard",
+   "proposed": null
+  },
+  {
+   "location": "keyRow (easyIDE)",
+   "status": "Have",
+   "evidence": [
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/KeyRows.kt:92",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:20"
+   ],
+   "note": "key row keys",
+   "tablet": "input dock",
+   "phone": "input dock",
+   "proposed": null
+  },
+  {
+   "location": "editor/selectionToolbar (easyIDE)",
+   "status": "Missing-UI",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:10"
+   ],
+   "note": "declared, not rendered",
+   "tablet": "floating bar over selection",
+   "phone": "floating bar over selection",
+   "proposed": null
+  },
+  {
+   "location": "editor/gutter (easyIDE)",
+   "status": "Missing-UI",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:11"
+   ],
+   "note": "declared, not rendered",
+   "tablet": "",
+   "phone": "",
+   "proposed": null
+  }
+ ],
+ "colorIds": {
+  "count": 92,
+  "vscodeRegistered": "968 ids via registerColor() in vscode/src/vs (main 0b16cb97, 2026-09-25) + 16 terminal.ansi* registered in a loop + gitDecoration.* contributed by the built-in git extension",
+  "matchedToVsCodeRegistry": 71,
+  "coveragePercent": 9.3,
+  "evidence": [
+   "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:17",
+   "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ThemeColorMap.kt:118",
+   "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ColorThemes.kt:82",
+   "services/mobile/app/src/main/java/dev/easyide/app/ui/theme/ColorCustomizations.kt:64"
+  ],
+  "sample": [
+   "editor.background",
+   "editor.foreground",
+   "editorCursor.foreground",
+   "editor.selectionBackground",
+   "editor.lineHighlightBackground",
+   "sideBar.background",
+   "panel.background",
+   "statusBar.background",
+   "tab.activeBackground",
+   "list.activeSelectionBackground",
+   "button.background",
+   "focusBorder",
+   "editorError.foreground",
+   "editorInlayHint.foreground",
+   "editorCodeLens.foreground",
+   "terminal.ansiRed",
+   "gitDecoration.modifiedResourceForeground",
+   "scmGraph.foreground1"
+  ],
+  "missingExamples": [
+   "input.background",
+   "input.border",
+   "dropdown.background",
+   "badge.background",
+   "statusBarItem.errorBackground",
+   "statusBarItem.warningBackground",
+   "textLink.foreground",
+   "editorWidget.border",
+   "list.hoverBackground",
+   "widget.shadow",
+   "button.secondaryBackground",
+   "editorGutter.addedBackground"
+  ],
+  "note": "ThemeColorMap is lossy (several ids -> one token) and keeps no raw map, so `--vscode-*` webview variables and ThemeColor(id) cannot be produced for ~91% of ids today"
+ },
+ "whenKeys": [
+  {
+   "key": "editorLangId",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:34",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:141"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "resourceLangId",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:35",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:142"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "resourceExtname",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:36",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:146"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "resourceFilename",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:37",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:144"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "resourceDirname",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:38",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:145"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "resourcePath",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:39",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:143"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "resourceIsFolder",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:40",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:147"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "editorFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:41",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:110"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "editorTextFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:42",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:111"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "editorReadonly",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:43",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:148"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "activeEditorIsDirty",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:44",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:149"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "editorHasSelection",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:45",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:150"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "editorHasMultipleSelections",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:46",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:151"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "inSnippetMode",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:47"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": true
+  },
+  {
+   "key": "suggestWidgetVisible",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:48"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": true
+  },
+  {
+   "key": "hoverVisible",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:49"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": true
+  },
+  {
+   "key": "peekVisible",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:50"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": true
+  },
+  {
+   "key": "terminalFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:51",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:109"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "terminalProcessRunning",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:52",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:159"
+   ],
+   "status": "set",
+   "vscodeName": true
+  },
+  {
+   "key": "explorerFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:53",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceExtensionUi.kt:85"
+   ],
+   "status": "set only in explorer menu scope",
+   "vscodeName": true
+  },
+  {
+   "key": "scmFocus",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:54"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": true
+  },
+  {
+   "key": "focusedView",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:55"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": true
+  },
+  {
+   "key": "focusedStage",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:56"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": false
+  },
+  {
+   "key": "hardwareKeyboard",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:57",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:112"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "inputMode",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:58",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:113"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "windowSizeClass",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:59",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:114"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "devicePosture",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:60"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": false
+  },
+  {
+   "key": "envId",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:61",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:160"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "envState",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:62",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:161"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "envBackend",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:63",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:162"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "envDistro",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:64",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:165"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "envArch",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:65",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:163"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "gitRepo",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:66",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:167"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "gitBranch",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:67",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:168"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "gitDirty",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:68",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/workspace/ext/WorkspaceContextFeed.kt:169"
+   ],
+   "status": "set",
+   "vscodeName": false
+  },
+  {
+   "key": "isOffline",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:69"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": false
+  },
+  {
+   "key": "isSafeMode",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:70"
+   ],
+   "status": "declared, never set (always undefined)",
+   "vscodeName": false
+  },
+  {
+   "key": "stageVisible:<id>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:72"
+   ],
+   "status": "prefix; set WorkspaceContextFeed.kt:115",
+   "vscodeName": false
+  },
+  {
+   "key": "envHasCommand:<cmd>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:73"
+   ],
+   "status": "prefix; never set",
+   "vscodeName": false
+  },
+  {
+   "key": "lspReady:<lang>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:74"
+   ],
+   "status": "prefix; set WorkspaceContextFeed.kt:247",
+   "vscodeName": false
+  },
+  {
+   "key": "lspState:<lang>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:75"
+   ],
+   "status": "prefix; set WorkspaceContextFeed.kt:248",
+   "vscodeName": false
+  },
+  {
+   "key": "lspSupports:<lang>:<feature>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:76"
+   ],
+   "status": "prefix; set WorkspaceContextFeed.kt:249",
+   "vscodeName": false
+  },
+  {
+   "key": "extensionEnabled:<id>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:77"
+   ],
+   "status": "prefix; set services/mobile/extensions/src/main/kotlin/dev/easyide/extensions/ExtensionsRuntime.kt:181",
+   "vscodeName": false
+  },
+  {
+   "key": "config.<key>",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/whenclause/ContextKeys.kt:79"
+   ],
+   "status": "resolved from settings, ContextKeyService.kt:34",
+   "vscodeName": true
+  }
+ ],
+ "kit": {
+  "density": [
+   "services/mobile/app/src/main/java/dev/easyide/app/ui/props/Appearance.kt:13",
+   "docs/ui-redesign/density.md"
+  ],
+  "windowSize": [
+   "services/mobile/app/src/main/java/dev/easyide/app/ui/foundation/WindowSize.kt:13"
+  ]
+ }
+}

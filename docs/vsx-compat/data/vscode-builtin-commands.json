@@ -1,0 +1,2328 @@
+{
+	"meta": {
+		"vscodeCommit": "0b16cb97868058754d545e5f9ced99211ccc290b",
+		"vscodeCommitDate": "2026-09-25T16:19:08+02:00",
+		"vscodeVersion": "1.140.0",
+		"generatedBy": "tools/vsx-audit/extract-vscode.mjs (typescript 5.9.3)",
+		"source": [
+			{
+				"url": "https://code.visualstudio.com/api/references/commands",
+				"rawUrl": "https://code.visualstudio.com/raw/api/references/commands.md",
+				"sha256": "313980ba9164d810acfa6bc8734a708c94e33cf70e40009f03767eb8e673939f"
+			},
+			"src/vs/workbench/api/common/extHostApiCommands.ts",
+			"src/vs/** registerCommand / id: literals"
+		],
+		"summary": {
+			"documented": 87,
+			"inExtHostApiCommands": 43,
+			"withDefinitionRef": 71,
+			"noSourceRef": [],
+			"apiCommandsInSourceNotDocumented": [
+				"vscode.executeNotebookVariableProvider",
+				"vscode.experimental.editSession.continue",
+				"vscode.experimental.executeDeclarationProvider_recursive",
+				"vscode.experimental.executeDefinitionProvider_recursive",
+				"vscode.experimental.executeHoverProvider_recursive",
+				"vscode.experimental.executeImplementationProvider_recursive",
+				"vscode.experimental.executeReferenceProvider",
+				"vscode.experimental.executeTypeDefinitionProvider_recursive",
+				"vscode.extensionPromptFileProvider",
+				"vscode.startContinuousTestRun",
+				"vscode.stopContinuousTestRun"
+			]
+		}
+	},
+	"items": [
+		{
+			"id": "_interactive.open",
+			"description": "Open Interactive Window",
+			"section": "Commands",
+			"docsMdLine": 428,
+			"args": [
+				{
+					"name": "showOptions",
+					"description": "Show Options"
+				},
+				{
+					"name": "resource",
+					"description": "Interactive resource Uri"
+				},
+				{
+					"name": "controllerId",
+					"description": "Notebook controller Id"
+				},
+				{
+					"name": "title",
+					"description": "Notebook editor title"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/interactive/browser/interactive.contribution.ts:337 (id-property)"
+			],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostInteractive.ts:24",
+				"src/vs/workbench/contrib/interactive/browser/interactive.contribution.ts:337"
+			]
+		},
+		{
+			"id": "copyActiveEditor",
+			"description": "Copy the active editor by groups",
+			"section": "Commands",
+			"docsMdLine": 471,
+			"args": [
+				{
+					"name": "Active editor copy argument",
+					"description": "Argument Properties:"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:60"
+			]
+		},
+		{
+			"id": "cursorMove",
+			"description": "Move cursor to a logical position in the view",
+			"section": "Commands",
+			"docsMdLine": 300,
+			"args": [
+				{
+					"name": "Cursor move argument object",
+					"description": "Property-value pairs that can be passed through this argument:"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/editor/browser/coreCommands.ts:592"
+			]
+		},
+		{
+			"id": "editor.action.goToLocations",
+			"description": "Go to locations from a position in a file",
+			"section": "Commands",
+			"docsMdLine": 368,
+			"args": [
+				{
+					"name": "uri",
+					"description": "The text document in which to start"
+				},
+				{
+					"name": "position",
+					"description": "The position at which to start"
+				},
+				{
+					"name": "locations",
+					"description": "An array of locations."
+				},
+				{
+					"name": "multiple",
+					"description": "Define what to do when having multiple results, either `peek`, `gotoAndPeek`, or `goto"
+				},
+				{
+					"name": "noResultsMessage",
+					"description": "Human readable message that shows when locations is empty."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:769 (registerCommand)",
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:770 (id-property)"
+			],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:770",
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:824"
+			]
+		},
+		{
+			"id": "editor.action.peekLocations",
+			"description": "Peek locations from a position in a file",
+			"section": "Commands",
+			"docsMdLine": 376,
+			"args": [
+				{
+					"name": "uri",
+					"description": "The text document in which to start"
+				},
+				{
+					"name": "position",
+					"description": "The position at which to start"
+				},
+				{
+					"name": "locations",
+					"description": "An array of locations."
+				},
+				{
+					"name": "multiple",
+					"description": "Define what to do when having multiple results, either `peek`, `gotoAndPeek`, or `goto"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:812 (registerCommand)",
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:813 (id-property)"
+			],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:813",
+				"src/vs/editor/contrib/gotoSymbol/browser/goToCommands.ts:859"
+			]
+		},
+		{
+			"id": "editor.actions.findWithArgs",
+			"description": "Open a new In-Editor Find Widget with specific options.",
+			"section": "Commands",
+			"docsMdLine": 358,
+			"args": [],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/editor/contrib/find/browser/findModel.ts:63"
+			]
+		},
+		{
+			"id": "editor.fold",
+			"description": "Fold the content in the editor",
+			"section": "Commands",
+			"docsMdLine": 348,
+			"args": [
+				{
+					"name": "Fold editor argument",
+					"description": "Property-value pairs that can be passed through this argument:"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/editor/contrib/folding/browser/folding.ts:722 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/editor/contrib/folding/browser/folding.ts:722"
+			]
+		},
+		{
+			"id": "editor.toggleFold",
+			"description": "Folds or unfolds the content in the editor depending on its current state",
+			"section": "Commands",
+			"docsMdLine": 356,
+			"args": [],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/editor/contrib/folding/browser/folding.ts:793 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/editor/contrib/folding/browser/folding.ts:793"
+			]
+		},
+		{
+			"id": "editor.unfold",
+			"description": "Unfold the content in the editor",
+			"section": "Commands",
+			"docsMdLine": 340,
+			"args": [
+				{
+					"name": "Unfold editor argument",
+					"description": "Property-value pairs that can be passed through this argument:"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/editor/contrib/folding/browser/folding.ts:639 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/editor/contrib/folding/browser/folding.ts:639"
+			]
+		},
+		{
+			"id": "editorScroll",
+			"description": "Scroll editor in the given direction",
+			"section": "Commands",
+			"docsMdLine": 317,
+			"args": [
+				{
+					"name": "Editor scroll argument object",
+					"description": "Property-value pairs that can be passed through this argument:"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/editor/browser/coreCommands.ts:1313"
+			]
+		},
+		{
+			"id": "interactive.execute",
+			"description": "Execute the Contents of the Input Box",
+			"section": "Commands",
+			"docsMdLine": 435,
+			"args": [
+				{
+					"name": "resource",
+					"description": "Interactive resource Uri"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/interactive/browser/interactive.contribution.ts:455 (id-property)"
+			],
+			"literalRefCount": 3,
+			"literalRefs": [
+				"src/vs/workbench/contrib/interactive/browser/interactive.contribution.ts:455",
+				"src/vs/workbench/contrib/interactive/browser/interactive.contribution.ts:456",
+				"src/vs/workbench/contrib/interactive/browser/replInputHintContentWidget.ts:136"
+			]
+		},
+		{
+			"id": "interactive.open",
+			"description": "Open interactive window and return notebook editor and input URI",
+			"section": "Commands",
+			"docsMdLine": 36,
+			"args": [
+				{
+					"name": "showOptions",
+					"description": "Show Options"
+				},
+				{
+					"name": "resource",
+					"description": "Interactive resource Uri"
+				},
+				{
+					"name": "controllerId",
+					"description": "Notebook controller Id"
+				},
+				{
+					"name": "title",
+					"description": "Interactive editor title"
+				},
+				{
+					"name": "(returns)",
+					"description": "Notebook and input URI"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostInteractive.ts:22 (ApiCommand)"
+			],
+			"literalRefCount": 3,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostInteractive.ts:23",
+				"src/vs/workbench/contrib/interactive/browser/interactive.contribution.ts:338",
+				"src/vs/workbench/contrib/interactive/browser/interactive.contribution.ts:342"
+			]
+		},
+		{
+			"id": "moveActiveEditor",
+			"description": "Move the active editor by tabs or groups",
+			"section": "Commands",
+			"docsMdLine": 464,
+			"args": [
+				{
+					"name": "Active editor move argument",
+					"description": "Argument Properties:"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:59"
+			]
+		},
+		{
+			"id": "notebook.cell.cancelExecution",
+			"description": "Stop Cell Execution",
+			"section": "Commands",
+			"docsMdLine": 420,
+			"args": [
+				{
+					"name": "options",
+					"description": "The cell range options"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/controller/executeActions.ts:35"
+			]
+		},
+		{
+			"id": "notebook.cell.changeLanguage",
+			"description": "Change Cell Language",
+			"section": "Commands",
+			"docsMdLine": 403,
+			"args": [
+				{
+					"name": "range",
+					"description": "The cell range"
+				},
+				{
+					"name": "language",
+					"description": "The target cell language"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/notebookBrowser.ts:41"
+			]
+		},
+		{
+			"id": "notebook.cell.execute",
+			"description": "Execute Cell",
+			"section": "Commands",
+			"docsMdLine": 412,
+			"args": [
+				{
+					"name": "options",
+					"description": "The cell range options"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/notebookBrowser.ts:39",
+				"src/vs/workbench/services/actions/common/menusExtensionPoint.ts:333"
+			]
+		},
+		{
+			"id": "notebook.cell.executeAndFocusContainer",
+			"description": "Execute Cell and Focus Container",
+			"section": "Commands",
+			"docsMdLine": 416,
+			"args": [
+				{
+					"name": "options",
+					"description": "The cell range options"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/controller/executeActions.ts:36",
+				"src/vs/workbench/contrib/notebook/browser/notebookAccessibilityHelp.ts:43"
+			]
+		},
+		{
+			"id": "notebook.cell.toggleOutputs",
+			"description": "Toggle Outputs",
+			"section": "Commands",
+			"docsMdLine": 387,
+			"args": [
+				{
+					"name": "options",
+					"description": "The cell range options"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/contrib/cellCommands/cellCommands.ts:356"
+			]
+		},
+		{
+			"id": "notebook.execute",
+			"description": "Run All",
+			"section": "Commands",
+			"docsMdLine": 408,
+			"args": [
+				{
+					"name": "uri",
+					"description": "The document uri"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/controller/executeActions.ts:32"
+			]
+		},
+		{
+			"id": "notebook.fold",
+			"description": "Fold Cell",
+			"section": "Commands",
+			"docsMdLine": 391,
+			"args": [
+				{
+					"name": "index",
+					"description": "The cell index"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/notebook/browser/controller/foldingController.ts:188 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/controller/foldingController.ts:188"
+			]
+		},
+		{
+			"id": "notebook.selectKernel",
+			"description": "Trigger kernel picker for specified notebook editor widget",
+			"section": "Commands",
+			"docsMdLine": 31,
+			"args": [
+				{
+					"name": "options",
+					"description": "Select kernel options"
+				},
+				{
+					"name": "(returns)",
+					"description": "no result"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostNotebookKernels.ts:68 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostNotebookKernels.ts:69"
+			]
+		},
+		{
+			"id": "notebook.selectKernel",
+			"description": "Notebook Kernel Args",
+			"section": "Commands",
+			"docsMdLine": 399,
+			"args": [
+				{
+					"name": "kernelInfo",
+					"description": "The kernel info"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostNotebookKernels.ts:68 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostNotebookKernels.ts:69"
+			]
+		},
+		{
+			"id": "notebook.unfold",
+			"description": "Unfold Cell",
+			"section": "Commands",
+			"docsMdLine": 395,
+			"args": [
+				{
+					"name": "index",
+					"description": "The cell index"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/notebook/browser/controller/foldingController.ts:258 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/notebook/browser/controller/foldingController.ts:258"
+			]
+		},
+		{
+			"id": "revealLine",
+			"description": "Reveal the given line at the given logical position",
+			"section": "Commands",
+			"docsMdLine": 331,
+			"args": [
+				{
+					"name": "Reveal line argument object",
+					"description": "Property-value pairs that can be passed through this argument:"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/editor/browser/coreCommands.ts:1835"
+			]
+		},
+		{
+			"id": "search.action.openEditor",
+			"description": "Open a new search editor. Arguments passed can include variables like ${relativeFileDirname}.",
+			"section": "Commands",
+			"docsMdLine": 443,
+			"args": [
+				{
+					"name": "Open new Search Editor args",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/searchEditor/browser/constants.ts:19"
+			]
+		},
+		{
+			"id": "search.action.openNewEditor",
+			"description": "Open a new search editor. Arguments passed can include variables like ${relativeFileDirname}.",
+			"section": "Commands",
+			"docsMdLine": 439,
+			"args": [
+				{
+					"name": "Open new Search Editor args",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/searchEditor/browser/constants.ts:18"
+			]
+		},
+		{
+			"id": "search.action.openNewEditorToSide",
+			"description": "Open a new search editor. Arguments passed can include variables like ${relativeFileDirname}.",
+			"section": "Commands",
+			"docsMdLine": 447,
+			"args": [
+				{
+					"name": "Open new Search Editor args",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/searchEditor/browser/searchEditor.contribution.ts:46"
+			]
+		},
+		{
+			"id": "setContext",
+			"description": "Set a custom context key value that can be used in when clauses.",
+			"section": "Commands",
+			"docsMdLine": 294,
+			"args": [
+				{
+					"name": "name",
+					"description": "The context key name"
+				},
+				{
+					"name": "value",
+					"description": "The context key value"
+				},
+				{
+					"name": "(returns)",
+					"description": "no result"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:531",
+			"internalCommand": "_setContext",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:531 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:532"
+			]
+		},
+		{
+			"id": "vscode.changes",
+			"description": "Opens a list of resources in the changes editor to compare their contents.",
+			"section": "Commands",
+			"docsMdLine": 268,
+			"args": [
+				{
+					"name": "title",
+					"description": "Human readable title for the changes editor"
+				},
+				{
+					"name": "resourceList",
+					"description": "List of resources to compare"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:467",
+			"internalCommand": "_workbench.changes",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:467 (ApiCommand)",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:557 (registerCommand)",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:558 (id-property)"
+			],
+			"literalRefCount": 3,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:468",
+				"src/vs/workbench/api/common/extHostSCM.ts:485",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:558"
+			]
+		},
+		{
+			"id": "vscode.diff",
+			"description": "Opens the provided resources in the diff editor to compare their contents.",
+			"section": "Commands",
+			"docsMdLine": 261,
+			"args": [
+				{
+					"name": "left",
+					"description": "Left-hand side resource of the diff editor"
+				},
+				{
+					"name": "right",
+					"description": "Right-hand side resource of the diff editor"
+				},
+				{
+					"name": "title",
+					"description": "Human readable title for the diff editor"
+				},
+				{
+					"name": "options",
+					"description": "(optional) Either the column in which to open, or editor options (see vscode.TextDocumentShowOptions)"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:454",
+			"internalCommand": "_workbench.diff",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:454 (ApiCommand)",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:503 (registerCommand)",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:504 (id-property)",
+				"src/vs/workbench/contrib/editSessions/browser/editSessionsViews.ts:284 (id-property)"
+			],
+			"literalRefCount": 4,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:455",
+				"src/vs/workbench/api/common/extHostSCM.ts:485",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:504",
+				"src/vs/workbench/contrib/editSessions/browser/editSessionsViews.ts:284"
+			]
+		},
+		{
+			"id": "vscode.editorChat.start",
+			"description": "Invoke a new editor chat session",
+			"section": "Commands",
+			"docsMdLine": 44,
+			"args": [
+				{
+					"name": "Run arguments",
+					"description": ""
+				},
+				{
+					"name": "(returns)",
+					"description": "no result"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:540",
+			"internalCommand": "inlineChat.start",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:540 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:541"
+			]
+		},
+		{
+			"id": "vscode.executeCodeActionProvider",
+			"description": "Execute code action provider.",
+			"section": "Commands",
+			"docsMdLine": 206,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "rangeOrSelection",
+					"description": "Range in a text document. Some refactoring provider requires Selection object."
+				},
+				{
+					"name": "kind",
+					"description": "(optional) Code action kind to return code actions for"
+				},
+				{
+					"name": "itemResolveCount",
+					"description": "(optional) Number of code actions to resolve (too large numbers slow down code actions)"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Command-instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:310",
+			"internalCommand": "_executeCodeActionProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:310 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:311"
+			]
+		},
+		{
+			"id": "vscode.executeCodeLensProvider",
+			"description": "Execute code lens provider.",
+			"section": "Commands",
+			"docsMdLine": 200,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "itemResolveCount",
+					"description": "(optional) Number of lenses that should be resolved and returned. Will only return resolved lenses, will impact performance"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of CodeLens-instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:300",
+			"internalCommand": "_executeCodeLensProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:300 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:301"
+			]
+		},
+		{
+			"id": "vscode.executeColorPresentationProvider",
+			"description": "Execute color presentation provider.",
+			"section": "Commands",
+			"docsMdLine": 219,
+			"args": [
+				{
+					"name": "color",
+					"description": "The color to show and insert"
+				},
+				{
+					"name": "context",
+					"description": "Context object with uri and range"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of ColorPresentation objects."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:353",
+			"internalCommand": "_executeColorPresentationProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:353 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:354"
+			]
+		},
+		{
+			"id": "vscode.executeCompletionItemProvider",
+			"description": "Execute completion item provider.",
+			"section": "Commands",
+			"docsMdLine": 185,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "triggerCharacter",
+					"description": "(optional) Trigger completion when the user types the character, like `,` or `(`"
+				},
+				{
+					"name": "itemResolveCount",
+					"description": "(optional) Number of completions to resolve (too large numbers slow down completions)"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to a CompletionList-instance."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:272",
+			"internalCommand": "_executeCompletionItemProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:272 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:273"
+			]
+		},
+		{
+			"id": "vscode.executeDataToNotebook",
+			"description": "Invoke notebook serializer",
+			"section": "Commands",
+			"docsMdLine": 19,
+			"args": [
+				{
+					"name": "notebookType",
+					"description": "A notebook type"
+				},
+				{
+					"name": "data",
+					"description": "Bytes to convert to data"
+				},
+				{
+					"name": "(returns)",
+					"description": "Notebook Data"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostNotebook.ts:729 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostNotebook.ts:730"
+			]
+		},
+		{
+			"id": "vscode.executeDeclarationProvider",
+			"description": "Execute all declaration providers.",
+			"section": "Commands",
+			"docsMdLine": 93,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Location or LocationLink instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:108",
+			"internalCommand": "_executeDeclarationProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:108 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:109"
+			]
+		},
+		{
+			"id": "vscode.executeDefinitionProvider",
+			"description": "Execute all definition providers.",
+			"section": "Commands",
+			"docsMdLine": 81,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Location or LocationLink instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:88",
+			"internalCommand": "_executeDefinitionProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:88 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:89"
+			]
+		},
+		{
+			"id": "vscode.executeDocumentColorProvider",
+			"description": "Execute document color provider.",
+			"section": "Commands",
+			"docsMdLine": 214,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of ColorInformation objects."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:343",
+			"internalCommand": "_executeDocumentColorProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:343 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:344"
+			]
+		},
+		{
+			"id": "vscode.executeDocumentHighlights",
+			"description": "Execute document highlight provider.",
+			"section": "Commands",
+			"docsMdLine": 49,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of DocumentHighlight-instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:32",
+			"internalCommand": "_executeDocumentHighlights",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:32 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:33"
+			]
+		},
+		{
+			"id": "vscode.executeDocumentRenameProvider",
+			"description": "Execute rename provider.",
+			"section": "Commands",
+			"docsMdLine": 150,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "newName",
+					"description": "The new symbol name"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to a WorkspaceEdit."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:201",
+			"internalCommand": "_executeDocumentRenameProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:201 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:202"
+			]
+		},
+		{
+			"id": "vscode.executeDocumentSymbolProvider",
+			"description": "Execute document symbol provider.",
+			"section": "Commands",
+			"docsMdLine": 55,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of SymbolInformation and DocumentSymbol instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:38",
+			"internalCommand": "_executeDocumentSymbolProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:38 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:39"
+			]
+		},
+		{
+			"id": "vscode.executeFoldingRangeProvider",
+			"description": "Execute folding range provider",
+			"section": "Commands",
+			"docsMdLine": 231,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of FoldingRange objects"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:375",
+			"internalCommand": "_executeFoldingRangeProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:375 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:376"
+			]
+		},
+		{
+			"id": "vscode.executeFormatDocumentProvider",
+			"description": "Execute document format provider.",
+			"section": "Commands",
+			"docsMdLine": 60,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "options",
+					"description": "Formatting options"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of TextEdits."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:72",
+			"internalCommand": "_executeFormatDocumentProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:72 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:73"
+			]
+		},
+		{
+			"id": "vscode.executeFormatOnTypeProvider",
+			"description": "Execute format on type provider.",
+			"section": "Commands",
+			"docsMdLine": 73,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "ch",
+					"description": "Trigger character"
+				},
+				{
+					"name": "options",
+					"description": "Formatting options"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of TextEdits."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:82",
+			"internalCommand": "_executeFormatOnTypeProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:82 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:83"
+			]
+		},
+		{
+			"id": "vscode.executeFormatRangeProvider",
+			"description": "Execute range format provider.",
+			"section": "Commands",
+			"docsMdLine": 66,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "range",
+					"description": "A range in a text document"
+				},
+				{
+					"name": "options",
+					"description": "Formatting options"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of TextEdits."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:77",
+			"internalCommand": "_executeFormatRangeProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:77 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:78"
+			]
+		},
+		{
+			"id": "vscode.executeHoverProvider",
+			"description": "Execute all hover providers.",
+			"section": "Commands",
+			"docsMdLine": 111,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Hover-instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:139",
+			"internalCommand": "_executeHoverProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:139 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:140"
+			]
+		},
+		{
+			"id": "vscode.executeImplementationProvider",
+			"description": "Execute all implementation providers.",
+			"section": "Commands",
+			"docsMdLine": 99,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Location or LocationLink instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:118",
+			"internalCommand": "_executeImplementationProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:118 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:119"
+			]
+		},
+		{
+			"id": "vscode.executeInlayHintProvider",
+			"description": "Execute inlay hints provider",
+			"section": "Commands",
+			"docsMdLine": 225,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "range",
+					"description": "A range in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Inlay objects"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:367",
+			"internalCommand": "_executeInlayHintProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:367 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:368"
+			]
+		},
+		{
+			"id": "vscode.executeInlineValueProvider",
+			"description": "Execute inline value provider",
+			"section": "Commands",
+			"docsMdLine": 240,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "range",
+					"description": "A range in a text document"
+				},
+				{
+					"name": "context",
+					"description": "An InlineValueContext"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of InlineValue objects"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:418",
+			"internalCommand": "_executeInlineValueProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:418 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:419"
+			]
+		},
+		{
+			"id": "vscode.executeLinkProvider",
+			"description": "Execute document link provider.",
+			"section": "Commands",
+			"docsMdLine": 157,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "linkResolveCount",
+					"description": "(optional) Number of links that should be resolved, only when links are unresolved."
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of DocumentLink-instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:215",
+			"internalCommand": "_executeLinkProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:215 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:216"
+			]
+		},
+		{
+			"id": "vscode.executeNotebookToData",
+			"description": "Invoke notebook serializer",
+			"section": "Commands",
+			"docsMdLine": 25,
+			"args": [
+				{
+					"name": "notebookType",
+					"description": "A notebook type"
+				},
+				{
+					"name": "NotebookData",
+					"description": "Notebook data to convert to bytes"
+				},
+				{
+					"name": "(returns)",
+					"description": "Bytes"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostNotebook.ts:735 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostNotebook.ts:736"
+			]
+		},
+		{
+			"id": "vscode.executeReferenceProvider",
+			"description": "Execute all reference providers.",
+			"section": "Commands",
+			"docsMdLine": 105,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Location-instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:128",
+			"internalCommand": "_executeReferenceProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:128 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:129"
+			]
+		},
+		{
+			"id": "vscode.executeSelectionRangeProvider",
+			"description": "Execute selection range provider.",
+			"section": "Commands",
+			"docsMdLine": 117,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of ranges."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:150",
+			"internalCommand": "_executeSelectionRangeProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:150 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:151"
+			]
+		},
+		{
+			"id": "vscode.executeSignatureHelpProvider",
+			"description": "Execute signature help provider.",
+			"section": "Commands",
+			"docsMdLine": 193,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "triggerCharacter",
+					"description": "(optional) Trigger signature help when the user types the character, like `,` or `(`"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to SignatureHelp."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:289",
+			"internalCommand": "_executeSignatureHelpProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:289 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:290"
+			]
+		},
+		{
+			"id": "vscode.executeTypeDefinitionProvider",
+			"description": "Execute all type definition providers.",
+			"section": "Commands",
+			"docsMdLine": 87,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of Location or LocationLink instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:98",
+			"internalCommand": "_executeTypeDefinitionProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:98 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:99"
+			]
+		},
+		{
+			"id": "vscode.executeWorkspaceSymbolProvider",
+			"description": "Execute all workspace symbol providers.",
+			"section": "Commands",
+			"docsMdLine": 123,
+			"args": [
+				{
+					"name": "query",
+					"description": "Search string"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of SymbolInformation-instances."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:164",
+			"internalCommand": "_executeWorkspaceSymbolProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:164 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:165"
+			]
+		},
+		{
+			"id": "vscode.getEditorLayout",
+			"description": "Get Editor Layout",
+			"section": "Commands",
+			"docsMdLine": 477,
+			"args": [
+				{
+					"name": "(returns)",
+					"description": "An editor layout object, in the same format as vscode.setEditorLayout"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:413 (registerCommand)",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:414 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:414"
+			]
+		},
+		{
+			"id": "vscode.newWindow",
+			"description": "Opens an new window depending on the newWindow argument.",
+			"section": "Commands",
+			"docsMdLine": 456,
+			"args": [
+				{
+					"name": "options",
+					"description": "(optional) Options. Object with the following properties: `reuseWindow`: Whether to open a new window or the same. Defaults to opening in a new window."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:238 (registerCommand)",
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:239 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:239"
+			]
+		},
+		{
+			"id": "vscode.open",
+			"description": "Opens the provided resource in the editor. Can be a text or binary file, or an http(s) URL. If you need more control over the options for opening a text file, use `vscode.window.showTextDocument` instead.",
+			"section": "Commands",
+			"docsMdLine": 247,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text or binary file, or an http(s) URL"
+				},
+				{
+					"name": "columnOrOptions",
+					"description": "(optional) Either the column in which to open, or editor options, see `vscode.TextDocumentShowOptions`"
+				},
+				{
+					"name": "label",
+					"description": "Editor label (optional)"
+				},
+				{
+					"name": "(returns)",
+					"description": "no result"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:430",
+			"internalCommand": "_workbench.open",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:430 (ApiCommand)",
+				"src/vs/workbench/api/common/extHostTypeConverters.ts:2923 (id-property)",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:444 (registerCommand)",
+				"src/vs/workbench/browser/parts/editor/editorCommands.ts:445 (id-property)"
+			],
+			"literalRefCount": 9,
+			"literalRefs": [
+				"src/vs/editor/contrib/inlineCompletions/browser/model/inlineCompletionsModel.ts:653",
+				"src/vs/sessions/contrib/chat/browser/newChatInput.ts:343",
+				"src/vs/workbench/api/common/extHostApiCommands.ts:431",
+				"src/vs/workbench/api/common/extHostSCM.ts:485",
+				"src/vs/workbench/api/common/extHostTypeConverters.ts:2923"
+			]
+		},
+		{
+			"id": "vscode.openFolder",
+			"description": "Open a folder or workspace in the current window or new window depending on the newWindow argument. Note that opening in the same window will shutdown the current extension host process and start a new one on the given folder/workspace unless the newWindow parameter is set to true.",
+			"section": "Commands",
+			"docsMdLine": 451,
+			"args": [
+				{
+					"name": "uri",
+					"description": "(optional) Uri of the folder or workspace file to open. If not provided, a native dialog will ask the user for the folder"
+				},
+				{
+					"name": "options",
+					"description": "(optional) Options. Object with the following properties: `forceNewWindow`: Whether to open the folder/workspace in a new window or the same. Defaults to opening in the same window. `forceReuseWindow`: Whether to force opening the folder/workspace in the same window.  Defaults to false. `noRecentEntry`: Whether the opened URI will appear in the 'Open Recent' list. Defaults to false. Note, for backward compatibility, options can also be of type boolean, representing the `forceNewWindow` setting."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:166 (registerCommand)",
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:167 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:167"
+			]
+		},
+		{
+			"id": "vscode.openIssueReporter",
+			"description": "Open the issue reporter and optionally prefill part of the form.",
+			"section": "Commands",
+			"docsMdLine": 506,
+			"args": [
+				{
+					"name": "options",
+					"description": "Data to use to prefill the issue reporter with."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/contrib/issue/common/issue.contribution.ts:19"
+			]
+		},
+		{
+			"id": "vscode.openWith",
+			"description": "Opens the provided resource with a specific editor.",
+			"section": "Commands",
+			"docsMdLine": 254,
+			"args": [
+				{
+					"name": "resource",
+					"description": "Resource to open"
+				},
+				{
+					"name": "viewId",
+					"description": "Custom editor view id or 'default' to use VS Code's default editor"
+				},
+				{
+					"name": "columnOrOptions",
+					"description": "(optional) Either the column in which to open or editor options, see vscode.TextDocumentShowOptions"
+				},
+				{
+					"name": "(returns)",
+					"description": "no result"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:442",
+			"internalCommand": "_workbench.openWith",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:442 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:443"
+			]
+		},
+		{
+			"id": "vscode.prepareCallHierarchy",
+			"description": "Prepare call hierarchy at a position inside a document",
+			"section": "Commands",
+			"docsMdLine": 128,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of CallHierarchyItem-instances"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:172",
+			"internalCommand": "_executePrepareCallHierarchy",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:172 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:173"
+			]
+		},
+		{
+			"id": "vscode.prepareRename",
+			"description": "Execute the prepareRename of rename provider.",
+			"section": "Commands",
+			"docsMdLine": 144,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to a range and placeholder text."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:188",
+			"internalCommand": "_executePrepareRename",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:188 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:189"
+			]
+		},
+		{
+			"id": "vscode.prepareTypeHierarchy",
+			"description": "Prepare type hierarchy at a position inside a document",
+			"section": "Commands",
+			"docsMdLine": 273,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "position",
+					"description": "A position in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of TypeHierarchyItem-instances"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:493",
+			"internalCommand": "_executePrepareTypeHierarchy",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:493 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:494"
+			]
+		},
+		{
+			"id": "vscode.provideDocumentRangeSemanticTokens",
+			"description": "Provide semantic tokens for a document range",
+			"section": "Commands",
+			"docsMdLine": 179,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "range",
+					"description": "A range in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to SemanticTokens."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:256",
+			"internalCommand": "_provideDocumentRangeSemanticTokens",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:256 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:257"
+			]
+		},
+		{
+			"id": "vscode.provideDocumentRangeSemanticTokensLegend",
+			"description": "Provide semantic tokens legend for a document range",
+			"section": "Commands",
+			"docsMdLine": 173,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "range",
+					"description": "(optional) A range in a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to SemanticTokensLegend."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:246",
+			"internalCommand": "_provideDocumentRangeSemanticTokensLegend",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:246 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:247"
+			]
+		},
+		{
+			"id": "vscode.provideDocumentSemanticTokens",
+			"description": "Provide semantic tokens for a document",
+			"section": "Commands",
+			"docsMdLine": 168,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to SemanticTokens."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:231",
+			"internalCommand": "_provideDocumentSemanticTokens",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:231 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:232"
+			]
+		},
+		{
+			"id": "vscode.provideDocumentSemanticTokensLegend",
+			"description": "Provide semantic tokens legend for a document",
+			"section": "Commands",
+			"docsMdLine": 163,
+			"args": [
+				{
+					"name": "uri",
+					"description": "Uri of a text document"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to SemanticTokensLegend."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:221",
+			"internalCommand": "_provideDocumentSemanticTokensLegend",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:221 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:222"
+			]
+		},
+		{
+			"id": "vscode.provideIncomingCalls",
+			"description": "Compute incoming calls for an item",
+			"section": "Commands",
+			"docsMdLine": 134,
+			"args": [
+				{
+					"name": "item",
+					"description": "A call hierarchy item"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of CallHierarchyIncomingCall-instances"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:177",
+			"internalCommand": "_executeProvideIncomingCalls",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:177 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:178"
+			]
+		},
+		{
+			"id": "vscode.provideOutgoingCalls",
+			"description": "Compute outgoing calls for an item",
+			"section": "Commands",
+			"docsMdLine": 139,
+			"args": [
+				{
+					"name": "item",
+					"description": "A call hierarchy item"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of CallHierarchyOutgoingCall-instances"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:182",
+			"internalCommand": "_executeProvideOutgoingCalls",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:182 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:183"
+			]
+		},
+		{
+			"id": "vscode.provideSubtypes",
+			"description": "Compute subtypes for an item",
+			"section": "Commands",
+			"docsMdLine": 284,
+			"args": [
+				{
+					"name": "item",
+					"description": "A type hierarchy item"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of TypeHierarchyItem-instances"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:503",
+			"internalCommand": "_executeProvideSubtypes",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:503 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:504"
+			]
+		},
+		{
+			"id": "vscode.provideSupertypes",
+			"description": "Compute supertypes for an item",
+			"section": "Commands",
+			"docsMdLine": 279,
+			"args": [
+				{
+					"name": "item",
+					"description": "A type hierarchy item"
+				},
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of TypeHierarchyItem-instances"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:498",
+			"internalCommand": "_executeProvideSupertypes",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:498 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:499"
+			]
+		},
+		{
+			"id": "vscode.removeFromRecentlyOpened",
+			"description": "Removes an entry with the given path from the recently opened list.",
+			"section": "Commands",
+			"docsMdLine": 460,
+			"args": [
+				{
+					"name": "path",
+					"description": "URI or URI string to remove from recently opened."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:270 (registerCommand)",
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:271 (id-property)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/browser/actions/workspaceCommands.ts:271"
+			]
+		},
+		{
+			"id": "vscode.resolveNotebookContentProviders",
+			"description": "Resolve Notebook Content Providers",
+			"section": "Commands",
+			"docsMdLine": 236,
+			"args": [
+				{
+					"name": "(returns)",
+					"description": "A promise that resolves to an array of NotebookContentProvider static info objects."
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:387",
+			"internalCommand": "_resolveNotebookContentProvider",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:387 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:388"
+			]
+		},
+		{
+			"id": "vscode.revealTestInExplorer",
+			"description": "Reveals a test instance in the explorer",
+			"section": "Commands",
+			"docsMdLine": 289,
+			"args": [
+				{
+					"name": "testItem",
+					"description": "A VS Code TestItem."
+				},
+				{
+					"name": "(returns)",
+					"description": "no result"
+				}
+			],
+			"inExtHostApiCommands": true,
+			"extHostApiCommandsRef": "src/vs/workbench/api/common/extHostApiCommands.ts:509",
+			"internalCommand": "_revealTestInExplorer",
+			"definitionRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:509 (ApiCommand)"
+			],
+			"literalRefCount": 1,
+			"literalRefs": [
+				"src/vs/workbench/api/common/extHostApiCommands.ts:510"
+			]
+		},
+		{
+			"id": "workbench.action.files.newUntitledFile",
+			"description": "New Untitled Text File",
+			"section": "Commands",
+			"docsMdLine": 481,
+			"args": [
+				{
+					"name": "New Untitled Text File arguments",
+					"description": "The editor view type or language ID if known"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/browser/parts/editor/editorGroupWatermark.ts:41 (id-property)",
+				"src/vs/workbench/contrib/welcomeViews/common/newFile.contribution.ts:216 (id-property)"
+			],
+			"literalRefCount": 5,
+			"literalRefs": [
+				"src/vs/platform/menubar/electron-main/menubar.ts:125",
+				"src/vs/platform/menubar/electron-main/menubar.ts:126",
+				"src/vs/workbench/browser/parts/editor/editorGroupWatermark.ts:41",
+				"src/vs/workbench/contrib/files/browser/fileConstants.ts:48",
+				"src/vs/workbench/contrib/welcomeViews/common/newFile.contribution.ts:216"
+			]
+		},
+		{
+			"id": "workbench.action.findInFiles",
+			"description": "Open a workspace search",
+			"section": "Commands",
+			"docsMdLine": 424,
+			"args": [
+				{
+					"name": "A set of options for the search",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/browser/parts/editor/editorGroupWatermark.ts:42 (id-property)"
+			],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/workbench/browser/parts/editor/editorGroupWatermark.ts:42",
+				"src/vs/workbench/contrib/search/common/constants.ts:9"
+			]
+		},
+		{
+			"id": "workbench.action.openIssueReporter",
+			"description": "Open the issue reporter and optionally prefill part of the form.",
+			"section": "Commands",
+			"docsMdLine": 502,
+			"args": [
+				{
+					"name": "options",
+					"description": "Data to use to prefill the issue reporter with."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/issue/common/issue.contribution.ts:70 (registerCommand)",
+				"src/vs/workbench/contrib/issue/common/issue.contribution.ts:71 (id-property)"
+			],
+			"literalRefCount": 9,
+			"literalRefs": [
+				"src/vs/platform/menubar/electron-main/menubar.ts:151",
+				"src/vs/workbench/contrib/issue/browser/issueQuickAccess.ts:133",
+				"src/vs/workbench/contrib/issue/browser/issueQuickAccess.ts:51",
+				"src/vs/workbench/contrib/issue/browser/issueQuickAccess.ts:61",
+				"src/vs/workbench/contrib/issue/common/issue.contribution.ts:18"
+			]
+		},
+		{
+			"id": "workbench.action.openLogFile",
+			"description": "workbench.action.openLogFile",
+			"section": "Commands",
+			"docsMdLine": 510,
+			"args": [
+				{
+					"name": "logFile",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/output/browser/output.contribution.ts:579 (id-property)"
+			],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/workbench/contrib/output/browser/output.contribution.ts:579",
+				"src/vs/workbench/contrib/output/browser/output.contribution.ts:586"
+			]
+		},
+		{
+			"id": "workbench.action.openWalkthrough",
+			"description": "Open the walkthrough.",
+			"section": "Commands",
+			"docsMdLine": 514,
+			"args": [
+				{
+					"name": "walkthroughID",
+					"description": "ID of the walkthrough to open."
+				},
+				{
+					"name": "toSide",
+					"description": "Opens the walkthrough in a new editor group to the side."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStarted.contribution.ts:43 (id-property)"
+			],
+			"literalRefCount": 7,
+			"literalRefs": [
+				"src/vs/workbench/browser/actions/helpActions.ts:334",
+				"src/vs/workbench/contrib/notebook/browser/contrib/gettingStarted/notebookGettingStarted.ts:60",
+				"src/vs/workbench/contrib/notebook/browser/controller/layoutActions.ts:58",
+				"src/vs/workbench/contrib/remote/browser/remote.ts:382",
+				"src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStarted.contribution.ts:248"
+			]
+		},
+		{
+			"id": "workbench.action.quickOpen",
+			"description": "Quick access",
+			"section": "Commands",
+			"docsMdLine": 383,
+			"args": [
+				{
+					"name": "prefix",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/browser/actions/quickAccessActions.ts:128 (id-property)",
+				"src/vs/workbench/browser/parts/editor/editorGroupWatermark.ts:36 (id-property)",
+				"src/vs/workbench/contrib/files/browser/fileActions.contribution.ts:675 (id-property)",
+				"src/vs/workbench/contrib/files/browser/fileActions.contribution.ts:759 (id-property)"
+			],
+			"literalRefCount": 7,
+			"literalRefs": [
+				"src/vs/sessions/contrib/editor/browser/emptyFileEditor.ts:21",
+				"src/vs/workbench/browser/actions/quickAccessActions.ts:128",
+				"src/vs/workbench/browser/parts/editor/editorGroupWatermark.ts:36",
+				"src/vs/workbench/contrib/files/browser/fileActions.contribution.ts:675",
+				"src/vs/workbench/contrib/files/browser/fileActions.contribution.ts:759"
+			]
+		},
+		{
+			"id": "workbench.action.tasks.runTask",
+			"description": "Run Task",
+			"section": "Commands",
+			"docsMdLine": 498,
+			"args": [
+				{
+					"name": "args",
+					"description": "Filters the tasks shown in the Quick Pick"
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/tasks/browser/abstractTaskService.ts:588 (registerCommand)",
+				"src/vs/workbench/contrib/tasks/browser/abstractTaskService.ts:589 (id-property)",
+				"src/vs/workbench/contrib/tasks/browser/task.contribution.ts:168 (id-property)",
+				"src/vs/workbench/contrib/tasks/browser/task.contribution.ts:268 (id-property)",
+				"src/vs/workbench/contrib/terminal/browser/terminalMenus.ts:394 (id-property)"
+			],
+			"literalRefCount": 6,
+			"literalRefs": [
+				"src/vs/workbench/contrib/tasks/browser/abstractTaskService.ts:589",
+				"src/vs/workbench/contrib/tasks/browser/task.contribution.ts:168",
+				"src/vs/workbench/contrib/tasks/browser/task.contribution.ts:268",
+				"src/vs/workbench/contrib/terminal/browser/terminalMenus.ts:394",
+				"src/vs/workbench/contrib/terminal/browser/terminalMenus.ts:395"
+			]
+		},
+		{
+			"id": "workbench.extensions.installExtension",
+			"description": "Install the given extension",
+			"section": "Commands",
+			"docsMdLine": 485,
+			"args": [
+				{
+					"name": "extensionIdOrVSIXUri",
+					"description": "Extension id or VSIX resource uri"
+				},
+				{
+					"name": "options",
+					"description": "(optional) Options for installing the extension. Object with the following properties: `installOnlyNewlyAddedFromExtensionPackVSIX`: When enabled, VS Code installs only newly added extensions from the extension pack VSIX. This option is considered only when installing VSIX."
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts:437 (registerCommand)",
+				"src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts:438 (id-property)"
+			],
+			"literalRefCount": 5,
+			"literalRefs": [
+				"src/vs/workbench/contrib/chat/browser/actions/chatAgentRecommendationActions.ts:90",
+				"src/vs/workbench/contrib/chat/browser/aiCustomization/aiCustomizationManagement.contribution.ts:457",
+				"src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts:438",
+				"src/vs/workbench/contrib/terminalContrib/voice/browser/terminalVoiceActions.ts:72",
+				"src/vs/workbench/services/extensions/browser/extensionUrlHandler.ts:276"
+			]
+		},
+		{
+			"id": "workbench.extensions.search",
+			"description": "Search for a specific extension",
+			"section": "Commands",
+			"docsMdLine": 494,
+			"args": [
+				{
+					"name": "Query to use in search",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/chat/browser/widget/input/editor/chatInputCompletions.ts:604 (id-property)",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:104 (id-property)",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:112 (id-property)",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:123 (id-property)",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:135 (id-property)"
+			],
+			"literalRefCount": 10,
+			"literalRefs": [
+				"src/vs/workbench/contrib/chat/browser/widget/input/editor/chatInputCompletions.ts:604",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:104",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:112",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:123",
+				"src/vs/workbench/contrib/chat/common/promptSyntax/languageProviders/promptCodeActions.ts:135"
+			]
+		},
+		{
+			"id": "workbench.extensions.uninstallExtension",
+			"description": "Uninstall the given extension",
+			"section": "Commands",
+			"docsMdLine": 490,
+			"args": [
+				{
+					"name": "Id of the extension to uninstall",
+					"description": ""
+				}
+			],
+			"inExtHostApiCommands": false,
+			"definitionRefs": [
+				"src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts:533 (registerCommand)",
+				"src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts:534 (id-property)"
+			],
+			"literalRefCount": 2,
+			"literalRefs": [
+				"src/vs/workbench/contrib/chat/common/plugins/agentPluginServiceImpl.ts:1247",
+				"src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts:534"
+			]
+		}
+	]
+}

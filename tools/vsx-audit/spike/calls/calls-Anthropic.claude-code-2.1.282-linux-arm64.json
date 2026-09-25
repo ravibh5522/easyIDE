@@ -1,0 +1,516 @@
+{
+ "summary": {
+  "totalMainThreadCalls": 78,
+  "distinctMethods": 27,
+  "msgIn": 88,
+  "msgOut": 161,
+  "bytesIn": 19490,
+  "bytesOut": 1787,
+  "byActor": {
+   "MainThreadLogger": {
+    "$registerLogger": 3
+   },
+   "MainThreadWindow": {
+    "$getInitialState": 1
+   },
+   "MainThreadCommands": {
+    "$registerCommand": 31,
+    "$fireCommandActivationEvent": 3,
+    "$executeCommand": 3
+   },
+   "MainThreadTerminalService": {
+    "$registerProcessSupport": 1,
+    "$setEnvironmentVariableCollection": 1
+   },
+   "MainThreadSearch": {
+    "$registerTextSearchProvider": 1
+   },
+   "MainThreadTask": {
+    "$registerSupportedExecutions": 2,
+    "$registerTaskSystem": 1
+   },
+   "MainThreadLanguageModelTools": {
+    "$getTools": 1
+   },
+   "MainThreadConsole": {
+    "$logExtensionHostMessage": 5
+   },
+   "MainThreadExtensionService": {
+    "$onWillActivateExtension": 1,
+    "$onDidActivateExtension": 1,
+    "$setPerformanceMarks": 1
+   },
+   "MainThreadDebugService": {
+    "$registerDebugTypes": 1
+   },
+   "MainThreadTelemetry": {
+    "$publicLog2": 3
+   },
+   "MainThreadStorage": {
+    "$initializeExtensionStorage": 2,
+    "$setValue": 1
+   },
+   "MainThreadFileSystem": {
+    "$ensureActivation": 2,
+    "$registerFileSystemProvider": 4
+   },
+   "MainThreadLanguageFeatures": {
+    "$registerDocumentLinkProvider": 1
+   },
+   "MainThreadDocumentContentProviders": {
+    "$registerTextContentProvider": 1
+   },
+   "MainThreadFileSystemEventService": {
+    "$watch": 2
+   },
+   "MainThreadWebviewViews": {
+    "$registerWebviewViewProvider": 3
+   },
+   "MainThreadWebviewPanels": {
+    "$registerSerializer": 1
+   },
+   "MainThreadUrls": {
+    "$registerUriHandler": 1
+   }
+  }
+ },
+ "calls": [
+  {
+   "t": 391,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadWindow",
+   "method": "$getInitialState"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "__vsc7aeef402-883e-4929-9b30-c072c5e191b1"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadTerminalService",
+   "method": "$registerProcessSupport"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadSearch",
+   "method": "$registerTextSearchProvider"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadTask",
+   "method": "$registerTaskSystem",
+   "arg0": "file"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadLanguageModelTools",
+   "method": "$getTools"
+  },
+  {
+   "t": 391,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 399,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 399,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 406,
+   "actor": "MainThreadExtensionService",
+   "method": "$onWillActivateExtension"
+  },
+  {
+   "t": 406,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugTypes"
+  },
+  {
+   "t": 785,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "activatePlugin"
+  },
+  {
+   "t": 785,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 785,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 785,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "extHostDeprecatedApiUsage"
+  },
+  {
+   "t": 814,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadLanguageFeatures",
+   "method": "$registerDocumentLinkProvider"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadFileSystem",
+   "method": "$registerFileSystemProvider"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadFileSystem",
+   "method": "$registerFileSystemProvider"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadDocumentContentProviders",
+   "method": "$registerTextContentProvider"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.acceptProposedDiff"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.rejectProposedDiff"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.acceptProposedHunk"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.rejectProposedHunk"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.acceptProposedHunkFromBar"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.rejectProposedHunkFromBar"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadFileSystemEventService",
+   "method": "$watch",
+   "arg0": "Anthropic.claude-code"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadFileSystemEventService",
+   "method": "$watch",
+   "arg0": "Anthropic.claude-code"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.insertAtMention"
+  },
+  {
+   "t": 875,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.blur"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.focus"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.focusLastMessage"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadFileSystem",
+   "method": "$registerFileSystemProvider"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadFileSystem",
+   "method": "$registerFileSystemProvider"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-code.acceptProposedDiff"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-code.rejectProposedDiff"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-code.insertAtMentioned"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.terminal.open"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.terminal.open.keyboard"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$fireCommandActivationEvent",
+   "arg0": "setContext"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$executeCommand",
+   "arg0": "_setContext"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadWebviewViews",
+   "method": "$registerWebviewViewProvider"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadWebviewPanels",
+   "method": "$registerSerializer",
+   "arg0": "claudeVSCodePanel"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.editor.open"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.primaryEditor.open"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.editor.openLast"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.newConversation"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.reopenClosedSession"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.toggleDictation"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.markSessionUnread"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.renameSessionTab"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.addSessionTabToGroup"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.toggleFocusView"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.sidebar.open"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.window.open"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.logout"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.showLogs"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "claude-vscode.openWalkthrough"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadUrls",
+   "method": "$registerUriHandler"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadExtensionService",
+   "method": "$onDidActivateExtension"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "extensionActivationTimes"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadExtensionService",
+   "method": "$setPerformanceMarks"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadTerminalService",
+   "method": "$setEnvironmentVariableCollection",
+   "arg0": "Anthropic.claude-code"
+  },
+  {
+   "t": 876,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 879,
+   "actor": "MainThreadStorage",
+   "method": "$setValue"
+  },
+  {
+   "t": 893,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 893,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  }
+ ]
+}

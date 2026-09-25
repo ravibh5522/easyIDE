@@ -1,0 +1,202 @@
+{
+ "summary": {
+  "totalMainThreadCalls": 27,
+  "distinctMethods": 16,
+  "msgIn": 37,
+  "msgOut": 59,
+  "bytesIn": 11024,
+  "bytesOut": 1281,
+  "byActor": {
+   "MainThreadLogger": {
+    "$registerLogger": 2
+   },
+   "MainThreadWindow": {
+    "$getInitialState": 1
+   },
+   "MainThreadCommands": {
+    "$registerCommand": 7
+   },
+   "MainThreadTerminalService": {
+    "$registerProcessSupport": 1
+   },
+   "MainThreadSearch": {
+    "$registerTextSearchProvider": 1
+   },
+   "MainThreadTask": {
+    "$registerSupportedExecutions": 2,
+    "$registerTaskSystem": 1
+   },
+   "MainThreadLanguageModelTools": {
+    "$getTools": 1
+   },
+   "MainThreadConsole": {
+    "$logExtensionHostMessage": 2
+   },
+   "MainThreadExtensionService": {
+    "$onWillActivateExtension": 1,
+    "$onDidActivateExtension": 1,
+    "$setPerformanceMarks": 1
+   },
+   "MainThreadDebugService": {
+    "$registerDebugTypes": 1
+   },
+   "MainThreadTelemetry": {
+    "$publicLog2": 2
+   },
+   "MainThreadStorage": {
+    "$initializeExtensionStorage": 2
+   },
+   "MainThreadFileSystem": {
+    "$ensureActivation": 1
+   }
+  }
+ },
+ "calls": [
+  {
+   "t": 343,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 343,
+   "actor": "MainThreadWindow",
+   "method": "$getInitialState"
+  },
+  {
+   "t": 343,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "__vsc39a9a532-96ac-4b8e-ab87-3f562469d2af"
+  },
+  {
+   "t": 343,
+   "actor": "MainThreadTerminalService",
+   "method": "$registerProcessSupport"
+  },
+  {
+   "t": 343,
+   "actor": "MainThreadSearch",
+   "method": "$registerTextSearchProvider"
+  },
+  {
+   "t": 343,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 343,
+   "actor": "MainThreadTask",
+   "method": "$registerTaskSystem",
+   "arg0": "file"
+  },
+  {
+   "t": 343,
+   "actor": "MainThreadTask",
+   "method": "$registerSupportedExecutions"
+  },
+  {
+   "t": 348,
+   "actor": "MainThreadLanguageModelTools",
+   "method": "$getTools"
+  },
+  {
+   "t": 348,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 348,
+   "actor": "MainThreadLogger",
+   "method": "$registerLogger"
+  },
+  {
+   "t": 348,
+   "actor": "MainThreadConsole",
+   "method": "$logExtensionHostMessage"
+  },
+  {
+   "t": 359,
+   "actor": "MainThreadExtensionService",
+   "method": "$onWillActivateExtension"
+  },
+  {
+   "t": 359,
+   "actor": "MainThreadDebugService",
+   "method": "$registerDebugTypes"
+  },
+  {
+   "t": 406,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "activatePlugin"
+  },
+  {
+   "t": 406,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 406,
+   "actor": "MainThreadStorage",
+   "method": "$initializeExtensionStorage"
+  },
+  {
+   "t": 410,
+   "actor": "MainThreadFileSystem",
+   "method": "$ensureActivation",
+   "arg0": "file"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "eslint.executeAutofix"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "eslint.showOutputChannel"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "eslint.migrateSettings"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "eslint.restart"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "eslint.revalidate"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadCommands",
+   "method": "$registerCommand",
+   "arg0": "eslint.createConfig"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadExtensionService",
+   "method": "$onDidActivateExtension"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadTelemetry",
+   "method": "$publicLog2",
+   "arg0": "extensionActivationTimes"
+  },
+  {
+   "t": 420,
+   "actor": "MainThreadExtensionService",
+   "method": "$setPerformanceMarks"
+  }
+ ]
+}
