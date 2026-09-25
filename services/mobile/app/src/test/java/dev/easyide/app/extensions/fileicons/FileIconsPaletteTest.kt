@@ -56,8 +56,8 @@ class FileIconsPaletteTest {
             val onDark = !id.endsWith("-light")
             if (onDark) dark.forEach { if (contrast(fill, it) < 3.0) failures += "$id fill ${all.first()} on dark ${"%.2f".format(contrast(fill, it))}" }
             if (onLight) light.forEach { if (contrast(fill, it) < 3.0) failures += "$id fill ${all.first()} on light ${"%.2f".format(contrast(fill, it))}" }
-            // Folders and pages overlay white at partial opacity on the fill; the glyph is the non-white ink.
-            all.drop(1).filter { it.lowercase() != "#ffffff" || all.first().lowercase() == "#ffffff" }.distinct().forEach { ink ->
+            // Every other opaque colour in the file is glyph ink (a folder repeats its fill for the front panel).
+            all.drop(1).filter { it.lowercase() != all.first().lowercase() }.distinct().forEach { ink ->
                 val r = contrast(rgb(ink), fill)
                 if (r < 4.5) failures += "$id ink $ink on ${all.first()} ${"%.2f".format(r)}"
             }
