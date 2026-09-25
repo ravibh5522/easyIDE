@@ -31,7 +31,7 @@ The program target is now >= 99% usage-weighted compatibility with the Open VSX 
 
 **Route 2b.** Ship VS Code's node extension host as an unmodified bundle built from a pinned stable
 VS Code tag, and a thin JavaScript **main-thread adapter** in the guest, built from the same tag, that
-implements the in-scope `MainThread*Shape` methods (about 328 of 524 methods, 53 of 87 shapes) and
+implements the in-scope `MainThread*Shape` methods (about 328 of 524 methods across 53 in-scope shapes; 44 shapes need real work, the rest are deliberate no-ops or proposal-only, [design.md](../vsx-compat/design.md) section 6) and
 forwards them as semantic JSON-RPC calls to the Kotlin side over stdio. Kotlin owns every UI surface
 and all Android state. Out-of-scope shapes (debug, notebooks, chat/lm/mcp, testing UI until planned)
 are stubbed in the adapter with a typed "not supported on easyIDE" error or a documented no-op.
