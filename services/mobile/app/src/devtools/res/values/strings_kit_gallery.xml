@@ -214,6 +214,8 @@
     <string name="gallery_crop_corners">Crop corners</string>
     <string name="gallery_file_icons_title">File icons</string>
     <string name="gallery_file_icons_note">The active icon theme across the families it draws. Colours are the theme\'s own and must read on light and dark.</string>
+    <string name="gallery_icon_tree_title">Project tree icons</string>
+    <string name="gallery_icon_tree_note">A sample project as the explorer lists it, drawn by the active icon theme at 16 and 24 dp.</string>
     <string name="gallery_file_icons_size">%1$d dp</string>
     <string name="gallery_icons_title">Icons</string>
     <string name="gallery_icons_note">The 24 custom glyphs, drawn on the 24 grid with a 1.5 stroke, tinted by tone. Names are the resolver tokens.</string>

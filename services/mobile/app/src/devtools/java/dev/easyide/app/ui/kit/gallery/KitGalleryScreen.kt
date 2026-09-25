@@ -71,6 +71,7 @@ private fun GalleryPage(config: GalleryConfig, onConfig: (GalleryConfig) -> Unit
             item(key = "motifs") { MotifsSection() }
             item(key = "icons") { IconsSection() }
             item(key = "file-icons") { FileIconsSection() }
+            item(key = "icon-tree") { IconTreeSection() }
         }
     }
 }

@@ -1,6 +1,6 @@
 # 0028 - File icons are drawn in-house, not vendored
 
-Status: Accepted (2026-09-25)
+Status: Accepted (2026-09-25); the Material Icon Theme is now the default and is vendored, see [0029](0029-material-icon-theme-default-and-icon-customisation.md). This pack remains as "EasyIDE Simple Icons".
 
 ## Context
 
