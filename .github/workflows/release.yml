@@ -100,7 +100,10 @@ jobs:
           The attached \`NOTICE.md\` carries the attribution and how to obtain their source.
           EOF
           )
-          gh release create "${{ steps.assets.outputs.tag }}" \
+          TAG="${{ steps.assets.outputs.tag }}"
+          # A tag with a hyphen (v0.2.0-beta.1) is a pre-release, so it never becomes "latest".
+          PRE=""; case "$TAG" in *-*) PRE="--prerelease";; esac
+          gh release create "$TAG" $PRE \
             --title "easyIDE ${{ steps.assets.outputs.tag }}" \
             --notes "$NOTES" \
             --generate-notes \

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import dev.easyide.app.ui.screens.workspace.syntax.SemanticOverlay
 import dev.easyide.app.ui.screens.workspace.syntax.SemanticPaint
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
+import dev.easyide.app.ui.screens.workspace.syntax.carryStyles
 import dev.easyide.app.ui.theme.EditorColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -158,9 +159,11 @@ internal fun rememberHighlightTransformation(
     val highlighted = pass.styled
     return remember(highlighted) {
         VisualTransformation { current ->
-            // A pass that finished against an older buffer must not be applied:
-            // VisualTransformation requires the text to match the field exactly.
-            val styled = if (highlighted.text == current.text) highlighted else current
+            // A pass that finished against an older buffer cannot be applied as is:
+            // VisualTransformation requires the text to match the field exactly. Its
+            // colours are carried over the edit until the next pass lands, so typing
+            // does not flash the whole file grey between keystroke and pass.
+            val styled = if (highlighted.text == current.text) highlighted else carryStyles(highlighted, current.text)
             TransformedText(styled, OffsetMapping.Identity)
         }
     }

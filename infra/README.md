@@ -28,9 +28,9 @@ Set in one place at the top of [services/mobile/app/build.gradle.kts](../service
 
 ```
 versionCode = 1 + EASYIDE_BUILD_NUMBER      # CI run number; must rise monotonically
-versionName = 0.1.0                          # release
-              0.1.0-canary.<run>+<sha7>      # canary
-              0.1.0-debug                    # local
+versionName = 0.2.0-beta.1                   # release
+              0.2.0-beta.1-canary.<run>+<sha7>  # canary
+              0.2.0-beta.1-debug             # local
 ```
 
 A local build with no environment set gets `versionCode = 1` and `+local`, so the build
@@ -68,6 +68,8 @@ gh secret set EASYIDE_KEYSTORE_BASE64 < /dev/stdin
 git tag v0.2.0
 git push origin v0.2.0
 ```
+
+A tag with a hyphen, such as `v0.2.0-beta.1`, is published as a GitHub pre-release.
 
 The tag triggers [release.yml](../.github/workflows/release.yml), which builds, signs,
 attaches `LICENSE` and `NOTICE.md`, and publishes a GitHub Release with a SHA-256.
