@@ -1,0 +1,785 @@
+{
+ "generatedBy": "tools/vsx-audit/build-matrix.mjs",
+ "snapshotAt": "2026-09-25T14:49:49.567Z",
+ "scanVersion": "0638c27e3a2b",
+ "vscode": "1.140.0",
+ "corpus": {
+  "extensions": 156,
+  "E_in": 150,
+  "E_in_weightShare": 0.9036
+ },
+ "gapCounts": {
+  "capabilities": {
+   "Missing-both": 55,
+   "Not-planned": 16,
+   "Missing-backend": 75,
+   "Partial": 8,
+   "Have": 7,
+   "Missing-UI": 7
+  },
+  "apiStable": {
+   "Missing-backend": 305,
+   "Missing-both": 266,
+   "Missing-UI": 2,
+   "Not-planned": 170
+  },
+  "apiStableUsed": {
+   "Missing-backend": 183,
+   "Missing-both": 124,
+   "Missing-UI": 1,
+   "Not-planned": 80
+  },
+  "contributes": {
+   "Missing-both": 3,
+   "Not-planned": 35,
+   "Missing-UI": 5,
+   "Partial": 8,
+   "Have": 6,
+   "Missing-backend": 16
+  },
+  "activation": {
+   "Missing-backend": 7,
+   "Missing-both": 8,
+   "Not-planned": 26,
+   "Missing-UI": 1
+  },
+  "menus": {
+   "Not-planned": 57,
+   "Have": 4,
+   "Missing-both": 23,
+   "Missing-UI": 14,
+   "Partial": 2
+  },
+  "whenCorpusKeys": {
+   "Missing-UI": 118,
+   "Have": 309,
+   "Not-planned": 66,
+   "Missing-both": 696
+  }
+ },
+ "rows": {
+  "apiStable": 743,
+  "apiNonStable": 64,
+  "apiNoise": 21,
+  "contributes": 73,
+  "activation": 42,
+  "menus": 100,
+  "whenVsReferenced": 208,
+  "whenExtension": 1015,
+  "whenSourceOnly": 1073,
+  "shapes": 169
+ },
+ "today": {
+  "codeExtensions": {
+   "S_in": 0,
+   "S_all": 0,
+   "note": "no extension host exists: g1/g3 fail for every code extension"
+  },
+  "declarativeStrict": {
+   "extensions": [],
+   "g2ShareOfEin": 0,
+   "S_in_contribution": 0,
+   "note": "raw .vsix accepts only iconThemes today"
+  },
+  "declarativeEngine": {
+   "extensions": 6,
+   "g2ShareOfEin": 0.011,
+   "S_in_contribution": 0.0027,
+   "note": "all in-scope points have an engine (gap Have) once ext.manifest lands"
+  }
+ },
+ "projected": {
+  "M1": {
+   "S_in": 0.01,
+   "S_all": 0.009,
+   "extensions": 5
+  },
+  "M2": {
+   "S_in": 0.0318,
+   "S_all": 0.0287,
+   "extensions": 16
+  },
+  "M3": {
+   "S_in": 0.0586,
+   "S_all": 0.053,
+   "extensions": 25
+  },
+  "M4": {
+   "S_in": 0.1151,
+   "S_all": 0.104,
+   "extensions": 47
+  },
+  "M5": {
+   "S_in": 0.9919,
+   "S_all": 0.8962,
+   "extensions": 143
+  }
+ },
+ "never": [
+  {
+   "id": "svelte.svelte-vscode",
+   "w_in": 0.0021,
+   "blocking": [
+    "contrib:typescriptServerPlugins"
+   ]
+  },
+  {
+   "id": "MermaidChart.vscode-mermaid-chart",
+   "w_in": 0.0019,
+   "blocking": [
+    "contrib:markdown.markdownItPlugins",
+    "contrib:markdown.previewScripts"
+   ]
+  },
+  {
+   "id": "astro-build.astro-vscode",
+   "w_in": 0.0011,
+   "blocking": [
+    "contrib:typescriptServerPlugins"
+   ]
+  },
+  {
+   "id": "zhuangtongfa.material-theme",
+   "w_in": 0.0009,
+   "blocking": [
+    "contrib:markdown.previewStyles"
+   ]
+  },
+  {
+   "id": "bierner.markdown-mermaid",
+   "w_in": 0.0008,
+   "blocking": [
+    "contrib:markdown.markdownItPlugins",
+    "contrib:markdown.previewScripts"
+   ]
+  },
+  {
+   "id": "yzhang.markdown-all-in-one",
+   "w_in": 0.0007,
+   "blocking": [
+    "contrib:markdown.markdownItPlugins",
+    "contrib:markdown.previewStyles"
+   ]
+  },
+  {
+   "id": "nrwl.angular-console",
+   "w_in": 0.0007,
+   "blocking": [
+    "contrib:typescriptServerPlugins"
+   ]
+  }
+ ],
+ "tracks": {
+  "OOS-CHAT": {
+   "extensions": 31,
+   "weightShareAll": 0.2858,
+   "weightShareEin": 0.2899
+  },
+  "OOS-DAP": {
+   "extensions": 76,
+   "weightShareAll": 0.6853,
+   "weightShareEin": 0.6616
+  },
+  "OOS-MS": {
+   "extensions": 2,
+   "weightShareAll": 0.001,
+   "weightShareEin": 0.0012
+  },
+  "OOS-NB": {
+   "extensions": 70,
+   "weightShareAll": 0.5627,
+   "weightShareEin": 0.6129
+  },
+  "OOS-PROP": {
+   "extensions": 14,
+   "weightShareAll": 0.2664,
+   "weightShareEin": 0.2339
+  },
+  "fork": {
+   "extensions": 5,
+   "weightShareAll": 0.0247,
+   "weightShareEin": 0.0274
+  }
+ },
+ "topBlockers": [
+  {
+   "capability": "ext.manifest",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "L",
+   "wp": [
+    "WP-HOST-9",
+    "WP-REG-4",
+    "WP-REG-8"
+   ],
+   "extensions": 150,
+   "useW_in": 1,
+   "criticalW_in": 0.01,
+   "soleW_in": 0
+  },
+  {
+   "capability": "host.process",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "L",
+   "wp": [
+    "WP-HOST-2",
+    "WP-HOST-3",
+    "WP-HOST-4"
+   ],
+   "extensions": 150,
+   "useW_in": 1,
+   "criticalW_in": 0.01,
+   "soleW_in": 0
+  },
+  {
+   "capability": "commands.registry",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "M",
+   "wp": [
+    "WP-API-17"
+   ],
+   "extensions": 145,
+   "useW_in": 0.9907,
+   "criticalW_in": 0.0022,
+   "soleW_in": 0
+  },
+  {
+   "capability": "host.core-types",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "S",
+   "wp": [
+    "WP-HOST-1"
+   ],
+   "extensions": 136,
+   "useW_in": 0.9705,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "config.model",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "M",
+   "wp": [
+    "WP-API-2"
+   ],
+   "extensions": 139,
+   "useW_in": 0.9644,
+   "criticalW_in": 0.0015,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.notifications",
+   "gap": "Missing-both",
+   "milestone": "M2",
+   "effort": "M",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4",
+    "WP-SEC-10"
+   ],
+   "extensions": 130,
+   "useW_in": 0.9611,
+   "criticalW_in": 0.0201,
+   "soleW_in": 0.0049
+  },
+  {
+   "capability": "ui.text-editor",
+   "gap": "Missing-both",
+   "milestone": "M2",
+   "effort": "L",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-6"
+   ],
+   "extensions": 127,
+   "useW_in": 0.9579,
+   "criticalW_in": 0.0036,
+   "soleW_in": 0
+  },
+  {
+   "capability": "doc.model",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "L",
+   "wp": [
+    "WP-API-3"
+   ],
+   "extensions": 124,
+   "useW_in": 0.9497,
+   "criticalW_in": 0.0021,
+   "soleW_in": 0
+  },
+  {
+   "capability": "workspace.folders",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-2",
+    "WP-API-3"
+   ],
+   "extensions": 122,
+   "useW_in": 0.9377,
+   "criticalW_in": 0.0073,
+   "soleW_in": 0
+  },
+  {
+   "capability": "log.output",
+   "gap": "Missing-both",
+   "milestone": "M2",
+   "effort": "M",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4",
+    "WP-HOST-12"
+   ],
+   "extensions": 111,
+   "useW_in": 0.927,
+   "criticalW_in": 0.0076,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "S",
+   "wp": [
+    "WP-HOST-9",
+    "WP-HOST-12"
+   ],
+   "extensions": 101,
+   "useW_in": 0.926,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "env.info",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "S",
+   "wp": [
+    "WP-API-15"
+   ],
+   "extensions": 107,
+   "useW_in": 0.9169,
+   "criticalW_in": 0.0015,
+   "soleW_in": 0
+  },
+  {
+   "capability": "workspace.edit",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-3"
+   ],
+   "extensions": 94,
+   "useW_in": 0.8572,
+   "criticalW_in": 0.0007,
+   "soleW_in": 0
+  },
+  {
+   "capability": "fs.api",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-HOST-1",
+    "WP-API-4"
+   ],
+   "extensions": 108,
+   "useW_in": 0.8456,
+   "criticalW_in": 0.0015,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.progress",
+   "gap": "Missing-both",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "extensions": 94,
+   "useW_in": 0.845,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "diagnostics",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 84,
+   "useW_in": 0.8122,
+   "criticalW_in": 0.0015,
+   "soleW_in": 0
+  },
+  {
+   "capability": "fs.watch",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "M",
+   "wp": [
+    "WP-API-5"
+   ],
+   "extensions": 91,
+   "useW_in": 0.7931,
+   "criticalW_in": 0.0017,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.menus",
+   "gap": "Partial",
+   "milestone": "M3",
+   "effort": "M",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "extensions": 108,
+   "useW_in": 0.7511,
+   "criticalW_in": 0.0923,
+   "soleW_in": 0.0106
+  },
+  {
+   "capability": "lang.code-action",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 75,
+   "useW_in": 0.7502,
+   "criticalW_in": 0.0007,
+   "soleW_in": 0
+  },
+  {
+   "capability": "env.openExternal",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "S",
+   "wp": [
+    "WP-API-18",
+    "WP-SEC-11"
+   ],
+   "extensions": 98,
+   "useW_in": 0.7494,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.quick-pick",
+   "gap": "Missing-both",
+   "milestone": "M2",
+   "effort": "M",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "extensions": 98,
+   "useW_in": 0.7304,
+   "criticalW_in": 0.0089,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.code-lens",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 76,
+   "useW_in": 0.6987,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.input-box",
+   "gap": "Missing-both",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "extensions": 86,
+   "useW_in": 0.6933,
+   "criticalW_in": 0.0089,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.completion",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 79,
+   "useW_in": 0.6836,
+   "criticalW_in": 0.0025,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.status-bar",
+   "gap": "Missing-both",
+   "milestone": "M2",
+   "effort": "M",
+   "wp": [
+    "WP-API-18",
+    "WP-UI-4"
+   ],
+   "extensions": 81,
+   "useW_in": 0.6654,
+   "criticalW_in": 0.0055,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.symbols",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 72,
+   "useW_in": 0.6511,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.hover",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 73,
+   "useW_in": 0.6497,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.tree-view",
+   "gap": "Missing-both",
+   "milestone": "M3",
+   "effort": "L",
+   "wp": [
+    "WP-API-20",
+    "WP-UI-5"
+   ],
+   "extensions": 73,
+   "useW_in": 0.6409,
+   "criticalW_in": 0.0118,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.languages",
+   "gap": "Have",
+   "milestone": "M1",
+   "effort": "S",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "extensions": 79,
+   "useW_in": 0.6396,
+   "criticalW_in": 0.0008,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.command-palette",
+   "gap": "Have",
+   "milestone": "M1",
+   "effort": "S",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "extensions": 84,
+   "useW_in": 0.6213,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.definition",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 78,
+   "useW_in": 0.6079,
+   "criticalW_in": 0.0015,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.tabs",
+   "gap": "Missing-backend",
+   "milestone": "M3",
+   "effort": "S",
+   "wp": [
+    "WP-API-19",
+    "WP-UI-6"
+   ],
+   "extensions": 77,
+   "useW_in": 0.6046,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.dialogs",
+   "gap": "Missing-both",
+   "milestone": "M3",
+   "effort": "M",
+   "wp": [
+    "WP-API-18"
+   ],
+   "extensions": 62,
+   "useW_in": 0.5921,
+   "criticalW_in": 0.0034,
+   "soleW_in": 0
+  },
+  {
+   "capability": "telemetry",
+   "gap": "Missing-backend",
+   "milestone": "M1",
+   "effort": "S",
+   "wp": [
+    "WP-API-15",
+    "WP-SEC-17"
+   ],
+   "extensions": 43,
+   "useW_in": 0.5879,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.links",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 64,
+   "useW_in": 0.5754,
+   "criticalW_in": 0.0007,
+   "soleW_in": 0
+  },
+  {
+   "capability": "ui.codicons",
+   "gap": "Missing-UI",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "extensions": 60,
+   "useW_in": 0.571,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.folding",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 61,
+   "useW_in": 0.5703,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.signature-help",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 59,
+   "useW_in": 0.5686,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.highlight",
+   "gap": "Missing-backend",
+   "milestone": "M2",
+   "effort": "S",
+   "wp": [
+    "WP-API-12",
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 59,
+   "useW_in": 0.5685,
+   "criticalW_in": 0,
+   "soleW_in": 0
+  },
+  {
+   "capability": "lang.color",
+   "gap": "Missing-both",
+   "milestone": "M5",
+   "effort": "M",
+   "wp": [
+    "WP-API-13",
+    "WP-UI-10"
+   ],
+   "extensions": 59,
+   "useW_in": 0.5681,
+   "criticalW_in": 0.5642,
+   "soleW_in": 0.0008
+  }
+ ],
+ "files": [
+  "activation-events.md",
+  "api-1.md",
+  "api-2.md",
+  "api.md",
+  "contributes.md",
+  "extHost-shapes.md",
+  "menus.md",
+  "milestone-coverage.md",
+  "when-context-all-1.md",
+  "when-context-all-2.md",
+  "when-context-all.md",
+  "when-context-corpus-1.md",
+  "when-context-corpus-2.md",
+  "when-context-corpus.md",
+  "when-context.md"
+ ]
+}

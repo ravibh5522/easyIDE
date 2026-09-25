@@ -1,5 +1,5 @@
 {
- "_doc": "Ordered rules mapping a vscode API id (namespace.member or TypeName) to a capability id (see capabilities.json). First match wins. Patterns are anchored JS regexes. Ids not in stable vscode.d.ts are classed proposed.api by the matrix builder unless an earlier rule assigns an OOS track; fork.api = APIs of VS Code forks (Cursor, Antigravity), Not-planned; ids that are ALL_CAPS or plain JS members (length, slice) are extractor noise and dropped.",
+ "_doc": "Ordered rules mapping a vscode API id (namespace.member or TypeName) to a capability id (see capabilities.json). First match wins. Patterns are anchored JS regexes. Ids not in stable vscode.d.ts are classed proposed.api by the matrix builder unless an earlier rule assigns an OOS track; fork.api = APIs of VS Code forks (Cursor, Antigravity), Not-planned; ids that are ALL_CAPS or plain JS members (length, slice) are extractor noise and dropped. Normalisation and noise filter (applied by build-matrix.mjs before matching, see its header): a leading `default.` (ESM interop `vscode.default.X`) is stripped; `<stableNonNamespaceId>.<member>` (e.g. `version.split`) folds to the stable id; ids matching /^[A-Z][A-Z0-9_]*$/ that are not stable, and bare lower-case identifiers that are not stable ids and match no fork rule (e.g. length, slice, indexOf, message), are dropped as noise. Rule fixes 2026-09-25 (matrix builder): RelativePattern moved out of tasks.api (it is a core type), CommentRule excluded from comments.api (language configuration), chat option types without a LanguageModel/Chat prefix added to chat.lm, workspace.encode/decode mapped to doc.encoding.",
  "rules": [
   [
    "^(debug\\.|Debug|Breakpoint|SourceBreakpoint|FunctionBreakpoint|DataBreakpoint|InlineValue(?!sProvider)|StackFrame|Thread|EvaluatableExpression(?!Provider)|DebugAdapter|DebugConsole|DebugSession|DebugConfiguration|DebugProtocol)",
@@ -10,7 +10,7 @@
    "notebook.api"
   ],
   [
-   "^(lm\\.|chat\\.|LanguageModel|Chat|McpServer|McpStdio|McpHttp|lm$|chat$)",
+   "^(lm\\.|chat\\.|LanguageModel|Chat|McpServer|McpStdio|McpHttp|lm$|chat$|PrepareLanguageModel|PreparedToolInvocation$|ProvideLanguageModel|ExtendedLanguageModel)",
    "chat.lm"
   ],
   [
@@ -18,7 +18,7 @@
    "tests.api"
   ],
   [
-   "^(comments\\.|Comment)",
+   "^(comments\\.|Comment(?!Rule$))",
    "comments.api"
   ],
   [
@@ -30,7 +30,7 @@
    "scm.api"
   ],
   [
-   "^(tasks\\.|Task|ShellExecution|ProcessExecution|CustomExecution|ShellQuoting|ShellQuotedString|ShellExecutionOptions|ProcessExecutionOptions|RelativePattern$)",
+   "^(tasks\\.|Task|ShellExecution|ProcessExecution|CustomExecution|ShellQuoting|ShellQuotedString|ShellExecutionOptions|ProcessExecutionOptions)",
    "tasks.api"
   ],
   [
@@ -188,6 +188,10 @@
   [
    "^workspace\\.(registerTaskProvider)$",
    "tasks.api"
+  ],
+  [
+   "^workspace\\.(encode|decode)$",
+   "doc.encoding"
   ],
   [
    "^workspace\\.",

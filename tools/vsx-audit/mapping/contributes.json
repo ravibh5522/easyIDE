@@ -1,0 +1,952 @@
+{
+ "_doc": "Every contribution point in data/vscode-contributes.json (points) plus contribution keys seen only in the corpus (corpusOnly: extension-defined points read by other extensions via packageJSON, built-in-consumed points, scanner artefacts). gap/milestone are for the contribution itself (a point can differ from its capability, e.g. themes). Contribution points of every .vsix additionally need ext.manifest (M1). milestone OOS = not scheduled; for track-in capabilities that blocks the extension in milestone-coverage.md.",
+ "points": {
+  "authentication": {
+   "capability": "auth.api",
+   "gap": "Missing-both",
+   "change": "register provider ids; onAuthenticationRequest activation",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-API-11"
+   ],
+   "milestone": "M5",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "breakpoints": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "ignored (OOS-DAP)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "chatAgents": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatContext": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatInstructions": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatOutputRenderers": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatParticipants": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatPlugins": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatPromptFiles": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatSessions": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatSkills": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "chatViewsWelcome": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "colors": {
+   "capability": "ui.theme-colors",
+   "gap": "Missing-UI",
+   "change": "colour registry + contributed defaults (ui.md §4.2)",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "milestone": "M2",
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ]
+  },
+  "commands": {
+   "capability": "commands.registry",
+   "gap": "Partial",
+   "change": "accept codicon/{light,dark} icons, category; execution via host",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9",
+    "WP-API-17"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:39-50",
+    "services/shared/extension-schema/manifest.schema.json:128"
+   ]
+  },
+  "configuration": {
+   "capability": "config.model",
+   "gap": "Have",
+   "change": "engine Have (unvalidated keywords warn); complex types edit in settings.json until WP-UI-12",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-2",
+    "WP-UI-12"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:79-110",
+    "services/mobile/app/src/main/java/dev/easyide/app/data/settings/ContributedSettings.kt:21-60"
+   ]
+  },
+  "configurationDefaults": {
+   "capability": "config.defaults",
+   "gap": "Have",
+   "change": "none for the engine",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-2"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:112-121"
+   ]
+  },
+  "continueEditSession": {
+   "capability": "ms-services",
+   "gap": "Not-planned",
+   "change": "edit sessions need Settings Sync (OOS-MS)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS"
+  },
+  "css": {
+   "capability": "proposed.api",
+   "gap": "Not-planned",
+   "change": "proposal `css`",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS"
+  },
+  "customEditors": {
+   "capability": "ui.custom-editor",
+   "gap": "Missing-both",
+   "change": "documentOpeners + webview document; Open With",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-21",
+    "WP-UI-9"
+   ],
+   "milestone": "M4",
+   "ourStatus": "Missing",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md:73-74"
+   ]
+  },
+  "debugVisualizers": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "OOS-DAP",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS"
+  },
+  "debuggers": {
+   "capability": "debug.dap",
+   "gap": "Not-planned",
+   "change": "OOS-DAP (the rest of a mixed extension stays in scope)",
+   "effort": "XL",
+   "risk": "High",
+   "wp": [
+    "WP-OOS-DAP"
+   ],
+   "milestone": "OOS",
+   "ourStatus": "Missing",
+   "evidence": [
+    "docs/decision/0030-vscode-extension-host-in-sandbox.md:73"
+   ]
+  },
+  "grammars": {
+   "capability": "lang.grammar",
+   "gap": "Have",
+   "change": "none (injectTo, embeddedLanguages, tokenTypes supported)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:140-147"
+   ]
+  },
+  "iconThemes": {
+   "capability": "ui.icon-theme",
+   "gap": "Have",
+   "change": "none; already installs from a raw .vsix",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [],
+   "milestone": "M1",
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:159-162",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/install/VsCodeIconThemeAdapter.kt:25-59"
+   ]
+  },
+  "icons": {
+   "capability": "ui.icons",
+   "gap": "Missing-UI",
+   "change": "load font glyphs, $(id) (ui.md §4.3)",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "milestone": "M2",
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ]
+  },
+  "jsonValidation": {
+   "capability": "lang.json-validation",
+   "gap": "Missing-backend",
+   "change": "applied by the json-language-features built-in (design.md §7.2, M5 candidate)",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "milestone": "M5",
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ]
+  },
+  "jsonValidationRegistry": {
+   "capability": "lang.json-validation",
+   "gap": "Missing-backend",
+   "change": "same as jsonValidation",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "milestone": "M5"
+  },
+  "keybindings": {
+   "capability": "ui.keybindings",
+   "gap": "Partial",
+   "change": "linux key used, mac/win ignored (as on Linux); <=2-press chords; when needs WP-UI-2 keys",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-2"
+   ],
+   "milestone": "M3",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:71-76",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ContributedKeybindings.kt:13-42"
+   ]
+  },
+  "languageModelChatProviders": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "languageModelToolSets": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "languageModelTools": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "languages": {
+   "capability": "lang.languages",
+   "gap": "Have",
+   "change": "accept `icon`",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:123-137",
+    "services/shared/extension-schema/manifest.schema.json:84"
+   ]
+  },
+  "linkPresentationProviders": {
+   "capability": "proposed.api",
+   "gap": "Not-planned",
+   "change": "proposal-gated",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS"
+  },
+  "localizations": {
+   "capability": "l10n",
+   "gap": "Missing-backend",
+   "change": "language packs (0 corpus use)",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-API-15"
+   ],
+   "milestone": "M5",
+   "ourStatus": "Missing",
+   "evidence": [
+    "docs/extension-sdk/m8-gap-analysis.md:34"
+   ]
+  },
+  "mcpServerDefinitionProviders": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "menus": {
+   "capability": "ui.menus",
+   "gap": "Partial",
+   "change": "menu engine M1-M7 (ui.md §3); per-location status in menus.json",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:52-69",
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/contrib/MenuIds.kt:4-26",
+    "services/shared/extension-schema/manifest.schema.json:137"
+   ]
+  },
+  "notebookPreload": {
+   "capability": "notebook.api",
+   "gap": "Not-planned",
+   "change": "OOS-NB",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS"
+  },
+  "notebookRenderer": {
+   "capability": "notebook.api",
+   "gap": "Not-planned",
+   "change": "OOS-NB",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS"
+  },
+  "notebooks": {
+   "capability": "notebook.api",
+   "gap": "Not-planned",
+   "change": "OOS-NB",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS"
+  },
+  "problemMatchers": {
+   "capability": "tasks.problem-matchers",
+   "gap": "Partial",
+   "change": "parse-only today; engine in the adapter task system",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-7"
+   ],
+   "milestone": "M5",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:235-246",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/Tasks.kt:38"
+   ]
+  },
+  "problemPatterns": {
+   "capability": "tasks.problem-matchers",
+   "gap": "Missing-backend",
+   "change": "point rejected today; engine in the adapter",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-7"
+   ],
+   "milestone": "M5",
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48",
+    "services/shared/extension-schema/manifest.schema.json:220"
+   ]
+  },
+  "productIconThemes": {
+   "capability": "ui.product-icon-theme",
+   "gap": "Not-planned",
+   "change": "no corpus use",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [],
+   "milestone": "OOS",
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ]
+  },
+  "remoteCodingAgents": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "remoteHelp": {
+   "capability": "ms-services",
+   "gap": "Not-planned",
+   "change": "Remote-* (OOS-MS)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-MS"
+   ],
+   "milestone": "OOS"
+  },
+  "resourceLabelFormatters": {
+   "capability": "ui.resource-labels",
+   "gap": "Not-planned",
+   "change": "accepted, recorded, no effect (LabelService N)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-25"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "semanticTokenModifiers": {
+   "capability": "ui.semantic-highlighting",
+   "gap": "Missing-backend",
+   "change": "custom semantic token modifiers into the styler (WP-UI-10)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "semanticTokenScopes": {
+   "capability": "ui.semantic-highlighting",
+   "gap": "Missing-backend",
+   "change": "scope maps into the styler (WP-UI-10)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "semanticTokenTypes": {
+   "capability": "ui.semantic-highlighting",
+   "gap": "Missing-backend",
+   "change": "custom semantic token types into the styler (WP-UI-10)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-10"
+   ],
+   "milestone": "M2",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "snippets": {
+   "capability": "lang.snippets",
+   "gap": "Have",
+   "change": "none",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:149-152"
+   ]
+  },
+  "speechProviders": {
+   "capability": "chat.lm",
+   "gap": "Not-planned",
+   "change": "OOS-CHAT",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-CHAT"
+   ],
+   "milestone": "OOS"
+  },
+  "statusBarItems": {
+   "capability": "ui.status-bar",
+   "gap": "Not-planned",
+   "change": "proposal contribStatusBarItems (0 corpus use)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS"
+  },
+  "submenus": {
+   "capability": "ui.submenus",
+   "gap": "Missing-UI",
+   "change": "accept {submenu} items; KitMenu cascades exist",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-3"
+   ],
+   "milestone": "M3",
+   "ourStatus": "Missing",
+   "evidence": [
+    "services/shared/extension-schema/manifest.schema.json:48"
+   ]
+  },
+  "taskDefinitions": {
+   "capability": "tasks.api",
+   "gap": "Partial",
+   "change": "parse-only; adapter task system",
+   "effort": "M",
+   "risk": "Med",
+   "wp": [
+    "WP-API-7"
+   ],
+   "milestone": "M5",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:228-233"
+   ]
+  },
+  "terminal": {
+   "capability": "terminal.profiles",
+   "gap": "Missing-both",
+   "change": "terminal profiles contribution",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-8",
+    "WP-UI-13"
+   ],
+   "milestone": "M5",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "terminalQuickFixes": {
+   "capability": "proposed.api",
+   "gap": "Not-planned",
+   "change": "proposal terminalQuickFixProvider",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-PROP"
+   ],
+   "milestone": "OOS"
+  },
+  "themes": {
+   "capability": "ui.color-theme",
+   "gap": "Partial",
+   "change": "92 workbench ids mapped, tokenColors collapsed; keep raw colour map (WP-UI-1)",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-1"
+   ],
+   "milestone": "M1",
+   "ourStatus": "Have",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:154-157",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/ColorThemes.kt"
+   ]
+  },
+  "typescriptServerPlugins": {
+   "capability": "ext.builtins",
+   "gap": "Not-planned",
+   "change": "consumed by typescript-language-features, which design.md §7.2 keeps absent (open question 11.4)",
+   "effort": "L",
+   "risk": "High",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "milestone": "OOS",
+   "ourStatus": "Missing",
+   "evidence": []
+  },
+  "views": {
+   "capability": "ui.tree-view",
+   "gap": "Partial",
+   "change": "R4 view or legacy list; TreeDataProvider via host (WP-UI-5)",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-API-20",
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:204-217",
+    "services/mobile/app/src/main/java/dev/easyide/app/extensions/adapters/LegacyView.kt"
+   ]
+  },
+  "viewsContainers": {
+   "capability": "ui.view-container",
+   "gap": "Partial",
+   "change": "map .vsix containers without the easyIDE gate",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:164-202"
+   ]
+  },
+  "viewsWelcome": {
+   "capability": "ui.views-welcome",
+   "gap": "Missing-UI",
+   "change": "render when the view is empty",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-5"
+   ],
+   "milestone": "M3",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:224-226",
+    "services/mobile/app/src/main/java/dev/easyide/app/ui/screens/extensions/ExtensionsViewModel.kt:257"
+   ]
+  },
+  "walkthroughs": {
+   "capability": "ui.walkthroughs",
+   "gap": "Missing-UI",
+   "change": "walkthrough document",
+   "effort": "M",
+   "risk": "Low",
+   "wp": [
+    "WP-UI-12"
+   ],
+   "milestone": "M3",
+   "ourStatus": "Partial",
+   "evidence": [
+    "services/shared/extension-schema/src/main/kotlin/dev/easyide/extensions/manifest/ContributesDecoder.kt:248-270"
+   ]
+  }
+ },
+ "corpusOnly": {
+  "javaExtensions": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "extension-defined point read via packageJSON by redhat.java",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "javaShortcuts": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "extension-defined (read via packageJSON)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "javaBuildFilePatterns": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "extension-defined (read via packageJSON)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "javaBuildTools": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "extension-defined (read via packageJSON)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "yamlValidation": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "extension-defined, read by redhat.vscode-yaml via packageJSON",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "jupyterVariableViewers": {
+   "capability": "notebook.api",
+   "gap": "Not-planned",
+   "change": "Jupyter extension point (OOS-NB)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-OOS-NB"
+   ],
+   "milestone": "OOS",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "capabilities": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "scanner artefact: `capabilities` read from contributes by the corpus scanner (top-level manifest field in VS Code)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "[cloudformation]": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "scanner artefact (malformed contributes key)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "markdown.markdownItPlugins": {
+   "capability": "ext.builtins",
+   "gap": "Not-planned",
+   "change": "consumed by markdown-language-features, \"not now\" (design.md §7.2)",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "milestone": "OOS",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "markdown.previewScripts": {
+   "capability": "ext.builtins",
+   "gap": "Not-planned",
+   "change": "consumed by markdown-language-features, \"not now\" (design.md §7.2)",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "milestone": "OOS",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "markdown.previewStyles": {
+   "capability": "ext.builtins",
+   "gap": "Not-planned",
+   "change": "consumed by markdown-language-features, \"not now\" (design.md §7.2)",
+   "effort": "L",
+   "risk": "Med",
+   "wp": [
+    "WP-HOST-13"
+   ],
+   "milestone": "OOS",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "codeActions": {
+   "capability": "lang.code-action",
+   "gap": "Missing-backend",
+   "change": "code action metadata (documentation/refactor kinds); accepted",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-API-13"
+   ],
+   "milestone": "M2",
+   "source": "corpus-only (not a VS Code contribution point)"
+  },
+  "netbeans.iconMapping": {
+   "capability": "ext.api",
+   "gap": "Missing-backend",
+   "change": "extension-defined (read via packageJSON)",
+   "effort": "S",
+   "risk": "Low",
+   "wp": [
+    "WP-HOST-9"
+   ],
+   "milestone": "M1",
+   "source": "corpus-only (not a VS Code contribution point)"
+  }
+ }
+}
