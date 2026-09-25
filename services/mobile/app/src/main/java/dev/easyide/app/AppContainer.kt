@@ -1,10 +1,16 @@
 package dev.easyide.app
 
+import android.app.Application
 import android.content.Context
 import dev.easyide.sandbox.git.GitCredentials
+import dev.easyide.sandbox.git.GitRemote
+import dev.easyide.sandbox.service.SandboxForegroundService
+import dev.easyide.app.ui.screens.onboarding.InstallKeepAlive
+import dev.easyide.app.ui.screens.workspace.git.AppForeground
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.app.data.UiPreferences
+import dev.easyide.app.data.ShellStateStore
 import dev.easyide.app.data.preferencesStore
 import dev.easyide.app.data.settings.DataStoreUserLayer
 import dev.easyide.app.data.settings.FileKeybindings
@@ -16,13 +22,29 @@ import dev.easyide.app.data.settings.ProfileManager
 import dev.easyide.app.data.settings.ProjectFileIo
 import dev.easyide.app.data.settings.ProjectTrust
 import dev.easyide.app.data.settings.SafeModeState
+import dev.easyide.app.data.settings.IconSettingsSchema
 import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.extensions.ActiveIconTheme
 import dev.easyide.app.data.settings.SettingsDirWatcher
 import dev.easyide.app.data.settings.SettingsRegistry
 import dev.easyide.app.data.settings.SettingsSchema
+import dev.easyide.app.data.settings.SettingsSnapshot
+import dev.easyide.app.data.settings.WorkspaceSettingsSchema
+import dev.easyide.app.diagnostics.AppLog
+import dev.easyide.app.diagnostics.BuildInfo
+import dev.easyide.app.diagnostics.ExtensionLogBridge
+import dev.easyide.app.diagnostics.LspStatusBridge
+import dev.easyide.app.diagnostics.readBuildInfo
+import dev.easyide.app.diagnostics.CrashReports
+import dev.easyide.app.session.SessionStore
+import dev.easyide.app.session.WorkspaceRegistry
+import dev.easyide.app.ui.WorkspaceViewModelFactory
+import dev.easyide.app.ui.screens.workspace.session.WorkspaceHandle
+import dev.easyide.sandbox.service.SandboxKeepAlive
+import dev.easyide.sandbox.service.SessionHost
 import dev.easyide.app.data.settings.SettingsStore
 import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.extensions.adapters.IconOverrides
 import dev.easyide.app.data.settings.SettingsTransfer
 import dev.easyide.app.ui.commands.CommandIds
 import dev.easyide.app.ui.commands.KeybindingsFile
@@ -48,6 +70,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -73,6 +99,9 @@ class AppContainer(context: Context) {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val uiPreferences: UiPreferences = UiPreferences(appContext)
+
+    /** The app-scope shell snapshot: last destination and its selection. */
+    val shellState: ShellStateStore = ShellStateStore(appContext)
 
     private val defaultUserLayer = DataStoreUserLayer(appContext.preferencesStore)
 
@@ -135,7 +164,10 @@ class AppContainer(context: Context) {
 
     val gitCredentials = GitCredentials(appContext)
 
-    private val paths = SandboxPaths(appContext.filesDir)
+    val paths = SandboxPaths(appContext.filesDir)
+
+    /** Visible-or-not, for work (auto-fetch) that must not run in the background. */
+    val appForeground = AppForeground(appContext as Application)
 
     private val store: SandboxStore = SandboxStore.create(appContext.filesDir, applicationScope)
 
@@ -172,6 +204,20 @@ class AppContainer(context: Context) {
         guestBinds = EnvironmentExtensionBinds(paths) { envId, id -> extensions.isEnabledIn(envId, id.value) },
     )
 
+    /** Network git (clone, pull, push) through the guest's own `git`; tokens come from [gitCredentials]. */
+    val gitRemote = GitRemote(linuxEnvironment, gitCredentials, Dispatchers.IO)
+
+    /** Holds the sandbox foreground service open while an install runs, so backgrounding the app does not kill it. */
+    val installKeepAlive: InstallKeepAlive = object : InstallKeepAlive {
+        // Starting a foreground service can be refused (background-start limits on Android 12+, a
+        // missing permission); the install then simply runs unprotected, which is what it did before.
+        override fun start() {
+            runCatching { SandboxForegroundService.start(appContext) }
+        }
+
+        override fun stop() = SandboxForegroundService.stop(appContext)
+    }
+
     /** The extension platform; started by [EasyIdeApplication] before any screen exists. */
     val extensions: ExtensionsContainer = ExtensionsContainer(
         context = appContext,
@@ -200,6 +246,9 @@ class AppContainer(context: Context) {
     val iconTheme = ActiveIconTheme(
         iconThemes = extensions.themes.iconThemes,
         selection = settingsStore.observe(ThemeSettingsSchema.iconTheme),
+        overrides = combine(
+            settingsStore.observe(IconSettingsSchema.fileAssociations), settingsStore.observe(IconSettingsSchema.folderAssociations), IconOverrides::of,
+        ),
         io = Dispatchers.IO,
         scope = applicationScope,
         warn = { Log.w(LOG_TAG, it) },
@@ -213,6 +262,70 @@ class AppContainer(context: Context) {
         lsp.extensionProviders.register(extensions.wasm)
     }
 
+    /** The app's own log file and the crash reports written by the uncaught-exception handler. */
+    val logDir = File(appContext.filesDir, LOG_DIR)
+
+    val appLog = AppLog(logDir)
+
+    val crashReports = CrashReports(File(appContext.filesDir, CRASH_DIR))
+
+    val buildInfo: BuildInfo = readBuildInfo(appContext)
+
+    /** Hot-exit snapshots and unsaved-buffer backups, one directory per project. */
+    val sessionsDir = File(appContext.filesDir, SESSIONS_DIR)
+
+    val sessionStore = SessionStore(sessionsDir)
+
+    init {
+        // Subsystems that own a log port are read through their public state, never edited.
+        ExtensionLogBridge.start(extensions.log.entries, appLog, applicationScope)
+        LspStatusBridge.start(lsp.manager, appLog, applicationScope)
+    }
+
+    /** The user layer only (the `workspace.*` settings are global), kept as a value for the registry's synchronous reads. */
+    private val globalSettings = settingsStore.snapshot.stateIn(applicationScope, SharingStarted.Eagerly, SettingsSnapshot.DEFAULTS)
+
+    /**
+     * The live workspaces of the process, parked or on screen (decision 0023). Main-confined
+     * like every UI owner: workspace view models are created and cleared on the main thread.
+     */
+    val workspaces = WorkspaceRegistry<WorkspaceHandle>(
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
+        clock = System::currentTimeMillis,
+        parkLimit = { globalSettings.value[WorkspaceSettingsSchema.maxParkedProjects] },
+        open = { projectId, environmentId, settled ->
+            WorkspaceHandle.open(WorkspaceViewModelFactory(this, projectId, environmentId, settled))
+        },
+    )
+
+    init {
+        // Sessions keep the app process at foreground priority; the notification's "Stop all" ends them.
+        val keepAliveHost = SessionHost { workspaces.endAll() }
+        applicationScope.launch(Dispatchers.Main) {
+            workspaces.liveIds.collect { SandboxKeepAlive.update(appContext, it.size, keepAliveHost) }
+        }
+        // A deleted project takes its live session and stored session with it. Compared between
+        // emissions, never against an empty list on its own: the store reports an unreadable file as
+        // "no projects", and that must not erase every user's saved work.
+        applicationScope.launch(Dispatchers.Main) {
+            var known: Set<String>? = null
+            projectManager.projects.collect { list ->
+                val ids = list.mapTo(HashSet()) { it.id }
+                val previous = known
+                known = ids
+                val gone = when {
+                    previous != null -> previous - ids
+                    ids.isEmpty() -> emptySet()
+                    else -> withContext(Dispatchers.IO) { sessionStore.storedIds() } - ids
+                }
+                gone.forEach { id ->
+                    workspaces.close(id)
+                    withContext(Dispatchers.IO) { sessionStore.clear(id) }
+                }
+            }
+        }
+    }
+
     /**
      * The keymap: built-ins, then the enabled extensions' keybindings, then the active
      * profile's keybindings.json (whose `-command` entries can remove either), plus its
@@ -223,7 +336,7 @@ class AppContainer(context: Context) {
         extensions.keybindings,
         extensions.runtime.contributions.commands.entries,
     ) { text, layer, commands ->
-        KeymapResolver.resolve(Keymap.DEFAULT + layer, KeybindingsFile.parse(text), CommandIds.ALL + commands.map { it.value.command })
+        KeymapResolver.resolve(Keymap.DEFAULT + layer, KeybindingsFile.parse(text), CommandIds.KNOWN + commands.map { it.value.command })
     }
 
     /**
@@ -242,6 +355,9 @@ class AppContainer(context: Context) {
 
     private companion object {
         const val LOG_TAG = "Settings"
+        const val LOG_DIR = "logs"
+        const val CRASH_DIR = "crashes"
+        const val SESSIONS_DIR = "sessions"
         const val USER_DIR = "user"
         const val PROFILES_DIR = "profiles"
         const val KEYBINDINGS_FILE = "keybindings.json"

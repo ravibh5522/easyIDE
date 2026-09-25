@@ -25,10 +25,22 @@ class GitCredentials(context: Context) {
 
     private val file = File(context.filesDir, FILE_NAME)
 
-    fun tokenFor(host: String): String? = readAll()[host.lowercase()]
+    fun tokenFor(host: String): String? = readAll()[host.lowercase()]?.token
 
-    fun store(host: String, token: String) {
-        writeAll(readAll() + (host.lowercase() to token))
+    /** The username to present with [host]'s token; [GitCredentialsFormat.DEFAULT_USERNAME] when none was given. */
+    fun usernameFor(host: String): String =
+        readAll()[host.lowercase()]?.username ?: GitCredentialsFormat.DEFAULT_USERNAME
+
+    /**
+     * Saves [token] for [host]. Returns false, storing nothing, when a value
+     * cannot be represented (blank token, control characters).
+     */
+    fun store(host: String, token: String, username: String = GitCredentialsFormat.DEFAULT_USERNAME): Boolean {
+        val user = username.trim().ifEmpty { GitCredentialsFormat.DEFAULT_USERNAME }
+        val key = host.trim().lowercase()
+        if (!GitCredentialsFormat.isStorable(key, token, user)) return false
+        writeAll(readAll() + (key to GitCredential(key, user, token)))
+        return true
     }
 
     fun forget(host: String) {
@@ -38,12 +50,22 @@ class GitCredentials(context: Context) {
     fun hosts(): Set<String> = readAll().keys
 
     /**
+     * Host and username of every stored token - never the tokens, so a screen
+     * listing them cannot leak one by accident.
+     */
+    fun entries(): List<GitCredentialEntry> =
+        readAll().values.map { GitCredentialEntry(it.host, it.username) }.sortedBy { it.host }
+
+    /**
      * Tokens are keyed by host so a URL resolves without the caller knowing
      * which forge it points at.
      */
     fun tokenForUrl(url: String): String? = hostOf(url)?.let { tokenFor(it) }
 
-    private fun readAll(): Map<String, String> {
+    fun usernameForUrl(url: String): String =
+        hostOf(url)?.let { usernameFor(it) } ?: GitCredentialsFormat.DEFAULT_USERNAME
+
+    private fun readAll(): Map<String, GitCredential> {
         if (!file.isFile) return emptyMap()
         return runCatching {
             val raw = file.readBytes()
@@ -51,16 +73,12 @@ class GitCredentials(context: Context) {
             val cipher = Cipher.getInstance(TRANSFORMATION).apply {
                 init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(TAG_BITS, raw, 0, IV_LENGTH))
             }
-            cipher.doFinal(raw, IV_LENGTH, raw.size - IV_LENGTH)
-                .decodeToString()
-                .lineSequence()
-                .filter { it.contains('\t') }
-                .associate { it.substringBefore('\t') to it.substringAfter('\t') }
+            GitCredentialsFormat.decode(cipher.doFinal(raw, IV_LENGTH, raw.size - IV_LENGTH).decodeToString())
         }.getOrDefault(emptyMap())
     }
 
-    private fun writeAll(entries: Map<String, String>) {
-        val plain = entries.entries.joinToString("\n") { "${it.key}\t${it.value}" }
+    private fun writeAll(entries: Map<String, GitCredential>) {
+        val plain = GitCredentialsFormat.encode(entries.values)
         val cipher = Cipher.getInstance(TRANSFORMATION).apply { init(Cipher.ENCRYPT_MODE, key()) }
         file.writeBytes(cipher.iv + cipher.doFinal(plain.encodeToByteArray()))
     }

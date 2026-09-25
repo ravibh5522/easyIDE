@@ -32,6 +32,8 @@ icon-themes/*.json + svg/png      optional; VS Code file icon theme JSON
 wasm/*.wasm                       optional; L2 modules, referenced from easyide.wasm
 l10n/package.nls[.<locale>].json  optional; `%key%` substitution for manifest strings
 media/                            optional; walkthrough images (png, webp, svg)
+bin/                              optional; scripts the pack runs in the environment (`sh ${extensionPath}/bin/x.sh`); not a reference from the manifest
+views/, docs/, icons/             conventional homes of view files (`viewSchema: 1`), document view files and pack SVG icons; see [views.md](views.md)
 ```
 
 Rules (checked by `easyide-ext validate` and again at install):
@@ -81,6 +83,7 @@ VS Code tooling.
 | `actions`, `inputs` | object, array | `commandId -> Action` bindings for `contributes.commands` (see Action vocabulary); VS Code `inputs` (`promptString`, `pickString`, `command`) resolving `${input:id}`. |
 | `languageServers`, `sandbox` | array, object | LSP server definitions; toolchain requires/install/verify (see Contribution points). |
 | `stages`, `keyRows`, `statusBarItems`, `viewData` | arrays/object | Tablet-native contribution points. |
+| `navigation`, `viewBadge`, `documents`, `documentOpeners`, `layoutPresets` | arrays | Shell contribution points: navigation items, badges, document types, file openers and layout presets ([views.md](views.md)); need `ui.contribute`. |
 | `wasm` | object | `{ "module": "wasm/main.wasm", "abi": 1, "memoryMb"?: int, "providers"?: [{kind, languages}] }`. |
 | `memoryBudgetMb` | int | Sum budget the pack asks for (servers + wasm); shown before install. |
 
@@ -166,13 +169,13 @@ user override; overrides always beat extension values (layering in [Settings key
 | `languageConfiguration` | file referenced by `languages[].configuration`: `comments, brackets, autoClosingPairs, surroundingPairs, colorizedBracketPairs, folding.markers, indentationRules, onEnterRules, wordPattern, autoCloseBefore` | same | `editor.autoClosingBrackets`, `editor.autoIndent`, `[lang]` |
 | `snippets` | `language, path`; file: `{name: {prefix, body, description, scope?}}` | same (TextMate snippet syntax incl. `${1:x}`, `${1\|a,b\|}`, `$TM_*` vars) | user snippets `snippets/<lang>.json`, `editor.snippetSuggestions` |
 | `themes` | `label, uiTheme (vs, vs-dark, hc-black, hc-light), path`; file: `colors, tokenColors, semanticTokenColors, semanticHighlighting` | subset: `colors` keys without an easyIDE token are ignored and listed by validate; `tokenColors` scopes collapse onto the 21 roles of `ScopeRules` (0010) | `workbench.colorTheme`, `workbench.colorCustomizations`, `editor.tokenColorCustomizations`, `editor.semanticTokenColorCustomizations` |
-| `iconThemes` | `id, label, path`; file: `iconDefinitions, file, folder, fileExtensions, fileNames, languageIds` | subset: `fonts` (icon fonts) ignored; SVG/PNG only | `workbench.iconTheme` |
+| `iconThemes` | `id, label, path`; file: `iconDefinitions, file, folder, fileExtensions, fileNames, languageIds` | subset: `fonts` (icon fonts) ignored; SVG/PNG only, see [icon-themes.md](icon-themes.md) | `workbench.iconTheme` |
 | `keybindings` | `command, key, mac?, linux?, when?, args?` | same (`win` ignored; `cmd` maps to Meta) | `keybindings.json` entries; `-command` removes |
 | `commands` | `command, title, category?, icon?, enablement?, shortTitle?` | subset: `icon` must be an easyIDE icon token or an SVG in the package (monochrome, theme-tinted) | hide/order via `workbench.contributions.*`; rebind via keybindings |
 | `menus` | per menu id: `[{command, when?, group?, alt?}]` | subset (ids below; unknown ids warn) | `workbench.contributions.hidden/order` |
 | `configuration` | `title, order?, properties{key: JSON Schema + default, scope, enum, enumDescriptions, markdownDescription, deprecationMessage}` | same; `scope` adds `environment` and `project`; `configurationDefaults` (`{key: value}`, `{"[lang]": {...}}`) same | any settings layer |
-| `views` | per container id: `[{id, name, when?, type: tree}]` | subset: content from `easyide.viewData` or WASM, not a JS TreeDataProvider | hide/move via `workbench.contributions.*` |
-| `viewsContainers`, `viewsWelcome` | `activitybar` or `panel`: `[{id, title, icon}]`; `view, contents, when?` | same; `activitybar` = left rail, `panel` = bottom stage | hide/order rail entries |
+| `views` | per container id: `[{id, name, when?, type: tree, schema?}]` | subset: content from `schema` (a `viewSchema: 1` file, needs `ui.contribute`), `easyide.viewData` or WASM, not a JS TreeDataProvider | hide/move via `workbench.contributions.*` |
+| `viewsContainers`, `viewsWelcome` | `activitybar`, `panel`, `sidebar` or `secondarySidebar`: `[{id, title, icon, scope?, locations?}]`; `view, contents, when?` | same; a bare `activitybar` or `panel` entry keeps its VS Code meaning and becomes a sidebar container with a navigation item; `sidebar`, `secondarySidebar`, `scope` (`app`, `workspace`, `both`) and `locations` are easyIDE's and need `ui.contribute`; ids `<publisher>.<name>.<part>`, titles at most 40 characters, icons on the 24 grid, one colour | hide/order rail entries, `shell.containers.*` |
 | `taskDefinitions`, `problemMatchers` | `type, required, properties`; `name, owner, pattern, fileLocation, background?` | same | user `.easyide/tasks.json` (may define matchers) |
 | `walkthroughs` | `id, title, description, steps[{id, title, description, media{image,markdown}, completionEvents}]` | subset: `media.svg` ok, `media.video` ignored | `workbench.welcome.enabled` |
 | `easyide.stages` | `id, title, icon, defaultStage (left, main, right, bottom), views[], when?` | easyIDE | `workbench.stages.placement`, hide |
@@ -180,7 +183,12 @@ user override; overrides always beat extension values (layering in [Settings key
 | `easyide.keyRows` | `id, title, when?, keys[{label, insert? , snippet?, key?, command?, longPress?}]` (exactly one of insert/snippet/key/command) | easyIDE | `keyRows.layouts`, `keyRows.active` |
 | `easyide.languageServers` | see below | easyIDE | `lsp.servers.<id>` (override or disable) |
 | `easyide.sandbox` | see below | easyIDE | per-env install log; `extensions.sandbox.confirmEachStep` |
-| `easyide.viewData` | `{viewId: {kind: list or tree, from: Action (output capture, JSON), refreshOn[]}}` | easyIDE | `workbench.contributions.hidden` |
+| `easyide.viewData` | `{viewId: {kind: list, tree or object, from: Action (output capture, JSON), refreshOn[], intervalSec?}}`; `object` merges the JSON into a schema view's data, `intervalSec` (at least 2) re-runs it while the view is on screen | easyIDE | `workbench.contributions.hidden` |
+| `easyide.navigation` | `[{id, title (max 14), icon, target {container} or {command}, scope?, order?, when?, badge? {view, path, kind?}}]`, at most 3 per pack | easyIDE | `shell.navigation.order`, `.hidden`, `.pinned`; `shell.extensions.contribute` |
+| `easyide.viewBadge` | `[{nav, view, path, kind: count or dot}]` | easyIDE | as navigation |
+| `easyide.documents` | `[{type: "<ext id>/<name>", title, icon, schema, multiple?, supportsSplit?, state? {provider, intervalSec?}}]`, at most 10 | easyIDE | `workbench.editorAssociations` |
+| `easyide.documentOpeners` | `[{glob, type, priority: default or option}]` (`builtin` is core's and refused) | easyIDE | `workbench.editorAssociations` |
+| `easyide.layoutPresets` | `[{id, title, sizeClass[], containers{sidebar, secondarySidebar, panel}, panels{...}, stage {split, groups}}]` | easyIDE | `shell.layout.preset` |
 
 Menu ids: `commandPalette`, `editor/title` (tab bar), `editor/title/context` (tab long-press),
 `editor/context` (long-press / secondary click), `editor/touchToolbar` (bar above the touch key
@@ -267,6 +275,7 @@ never a runtime surprise.
 | `showInputBox` | `id`, `prompt?`, `value?`, `placeHolder?`, `validate?` (regex), `password?` | string; binds `${input:id}` | none |
 | `showMessage` | `text`, `severity`: `info`, `warning`, `error`, `actions?: [{title, action}]` | chosen title or null | none |
 | `revealStage` | `stage` (id), `view?`, `focus?` | none | `ui.stage` for contributed stages |
+| `openDocument` | `uri` (`ext://<own extension id>/<type>/<key>` only), `group?`: `active` (default), `beside`, `new`; `preview?` | none | `ui.stage` |
 | `sequence` | `steps: [Action]`, `continueOnError?` (false) | last step's result | union of steps |
 
 Example: format then save only if the server is up.
@@ -293,6 +302,7 @@ VS Code variable syntax. Path values are **guest paths**. Unresolvable variable 
 | `${config:key}`, `${command:id}` | Resolved setting value; result of executing a command. |
 | `${input:id}` | Bound by a prompt step, else resolved by the matching `easyide.inputs` entry. |
 | `${result:name}` | Result bound by a previous step's `as` (easyIDE-only). |
+| `${arg:name}`, `${arg:a.b}` | A field of the `args` the command was invoked with: a view event's `args` ([views.md](views.md#5-events)), a keybinding's `args` (easyIDE-only). A missing field is a step error. |
 | `${extensionPath}`, `${envId}`, `${envName}` | `/opt/easyide/extensions/<publisher.name>`; active environment (easyIDE-only). |
 
 ## WASM host API
@@ -415,7 +425,8 @@ anything running in the sandbox can do what any process in the sandbox can do.
 | `lsp.spawn` | Start the declared language servers | n/a | disclosure (servers are sandbox processes) | "Starts language servers: <commands> (up to <N> MB)." |
 | `lsp.request` | Send arbitrary LSP requests to running servers | enforced | enforced (in-app) | "Can query language servers about your code." |
 | `clipboard` | Read and write the clipboard | enforced | enforced | "Can read and change your clipboard." |
-| `ui.stage` | Own a stage or fill contributed views | enforced | enforced | "Adds a panel: <title>." |
+| `ui.stage` | Own a stage, fill contributed views from `viewData`, `openDocument` | enforced | enforced | "Adds a panel: <title>." |
+| `ui.contribute` | Navigation items, `sidebar`/`secondarySidebar` containers, schema views, documents, openers and layout presets | enforced | enforced | "Adds screens and navigation items." |
 | `ui.settings` | Change settings it does not own | enforced | enforced | "Can change editor settings outside its own." |
 | `secrets.read` | Secrets the user enters for this extension | enforced | n/a | "Can use secrets you give it. It never sees git credentials." |
 

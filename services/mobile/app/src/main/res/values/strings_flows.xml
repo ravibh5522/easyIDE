@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding, Install Linux and New project (docs/ui-redesign/screens.md 6-7, identity.md 9).
+     Terse, sentence case, no exclamation marks. No string here calls proot or chroot an
+     isolation boundary: both are single-tenant. "Get started" is also the baseline-profile
+     selector (BaselineProfileGenerator.ONBOARDING_CONTINUE): change both together. -->
+<resources>
+    <!-- Onboarding: steps -->
+    <string name="onboarding_title">Code on this device</string>
+    <string name="onboarding_body">Editor, terminal, git and a Linux sandbox. Everything runs on-device and works offline.</string>
+    <string name="onboarding_continue">Get started</string>
+    <string name="onboarding_footnote">Theme and environments live in Settings.</string>
+    <string name="onboarding_next">Continue</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_skip_environment">Skip for now</string>
+    <string name="onboarding_finish">Start using easyIDE</string>
+    <string name="onboarding_battery_title">Keep the sandbox running</string>
+    <string name="onboarding_battery_body">Android pauses background apps to save power. That stops a dev server or a long build when the screen turns off. Exempt easyIDE from battery optimisation.</string>
+    <string name="onboarding_battery_allow">Allow</string>
+    <string name="onboarding_battery_allowed">Allowed. Android will not pause easyIDE to save power.</string>
+    <string name="onboarding_battery_not_allowed">Not allowed. Change it later in Android settings.</string>
+    <string name="onboarding_notifications_title">Show a notification while it runs</string>
+    <string name="onboarding_notifications_body">Android requires a visible notification while the sandbox runs in the background and while Linux downloads. Without the permission it cannot be shown, and Android may stop the work sooner.</string>
+    <string name="onboarding_notifications_allow">Allow notifications</string>
+    <string name="onboarding_notifications_allowed">Allowed. The notification can be shown.</string>
+    <string name="onboarding_notifications_not_allowed">Not allowed.</string>
+    <string name="onboarding_notifications_refused">Notifications are off. Turn them on in Android settings, or skip.</string>
+    <string name="onboarding_notifications_open_settings">Open settings</string>
+    <string name="onboarding_environment_title">Install Linux</string>
+    <string name="onboarding_done_title">Ready.</string>
+    <string name="onboarding_done_battery_on">Runs in the background</string>
+    <string name="onboarding_done_battery_off">Background running is off. Android may pause the sandbox with the screen off.</string>
+    <string name="onboarding_done_notifications_on">Notifications allowed</string>
+    <string name="onboarding_done_notifications_off">Notifications are off. Turn them on in Android settings.</string>
+    <string name="onboarding_done_linux_on">Linux installed</string>
+    <string name="onboarding_done_linux_off">Linux not installed. Home offers to install it.</string>
+    <string name="onboarding_done_settings_note">Change any of this later in Settings.</string>
+
+    <!-- Onboarding: side rail (wide windows) and state tags -->
+    <string name="flow_rail_header">Setup</string>
+    <string name="flow_step_welcome">Welcome</string>
+    <string name="flow_step_battery">Battery</string>
+    <string name="flow_step_notifications">Notifications</string>
+    <string name="flow_step_environment">Linux</string>
+    <string name="flow_step_done">Ready</string>
+    <string name="flow_tag_done">done</string>
+    <string name="flow_tag_now">now</string>
+    <string name="flow_tag_on">on</string>
+    <string name="flow_tag_off">off</string>
+    <string name="flow_tag_ready">ready</string>
+
+    <!-- Install Linux (onboarding step and standalone screen) -->
+    <string name="setup_screen_title">Install Linux</string>
+    <string name="setup_choose_body">Pick a preset. The download needs a network and can be cancelled and resumed.</string>
+    <string name="setup_presets_header">Preset</string>
+    <string name="setup_install">Install</string>
+    <string name="setup_installing_title">Installing %1$s</string>
+    <string name="setup_installing_note">A notification keeps the install running if you leave the app.</string>
+    <string name="setup_progress_description">Install progress: %1$s</string>
+    <string name="setup_phase_preparing">Preparing…</string>
+    <string name="setup_phase_downloading">Downloading %1$s of %2$s</string>
+    <string name="setup_phase_downloading_resumed">Downloading %1$s of %2$s (resumed from %3$s)</string>
+    <string name="setup_phase_downloading_unknown">Downloading %1$s</string>
+    <string name="setup_phase_extracting">Unpacking the system…</string>
+    <string name="setup_phase_setup">Installing packages, step %1$d of %2$d…</string>
+    <string name="setup_ready_title">%1$s installed</string>
+    <string name="setup_already_installed_title">Linux is already installed</string>
+    <string name="setup_ready_body">Terminals and git now run in it.</string>
+    <string name="setup_done">Done</string>
+    <string name="setup_retry">Try again</string>
+    <string name="setup_resume">Resume download</string>
+    <string name="setup_choose_another">Choose a different preset</string>
+    <string name="setup_fail_network_title">Download interrupted</string>
+    <string name="setup_fail_network_advice">Check the connection. What was downloaded is kept, so resuming continues from there.</string>
+    <string name="setup_fail_server_title">Download server error</string>
+    <string name="setup_fail_server_advice">The server did not return the file. Try again in a few minutes.</string>
+    <string name="setup_fail_corrupt_title">Download did not verify</string>
+    <string name="setup_fail_corrupt_advice">The file did not match its published checksum and was discarded. Trying again downloads it fresh.</string>
+    <string name="setup_fail_storage_full_title">Not enough storage</string>
+    <string name="setup_fail_storage_full_advice">Free some space on the tablet, then try again. Linux needs a few hundred megabytes.</string>
+    <string name="setup_fail_storage_title">Could not write to storage</string>
+    <string name="setup_fail_storage_advice">Android refused a write to app storage. Try again; if it repeats, restart the app.</string>
+    <string name="setup_fail_unsupported_title">Device not supported</string>
+    <string name="setup_fail_unsupported_advice">The Linux runtime is built for 64-bit ARM and x86-64 devices only.</string>
+    <string name="setup_fail_setup_title">Package install failed</string>
+    <string name="setup_fail_setup_advice">Linux is installed, but the preset\'s packages are not. Try again, or pick the plain Ubuntu preset and install packages from the terminal.</string>
+    <string name="setup_fail_unknown_title">Install failed</string>
+    <string name="setup_fail_unknown_advice">Try again. If it keeps failing, the details below help when reporting it.</string>
+
+    <!-- New project -->
+    <string name="new_project_title">New project</string>
+    <string name="new_project_name_label">Project name</string>
+    <string name="new_project_storage_section">Storage</string>
+    <string name="new_project_storage_app_default">App storage</string>
+    <string name="new_project_storage_app_body">Fast and always available. Not visible in a file manager.</string>
+    <string name="new_project_storage_choose">Choose a folder</string>
+    <string name="new_project_storage_change">Change folder</string>
+    <string name="new_project_storage_body">A working copy stays in app storage. Saves are also mirrored to the folder, visible in a file manager.</string>
+    <string name="new_project_environment_section">Environment</string>
+    <string name="new_project_reuse">Reuse an environment</string>
+    <string name="new_project_reuse_body">Shares an installed toolchain. Fast, no extra disk.</string>
+    <string name="new_project_create_new">Create a new environment</string>
+    <string name="new_project_create_new_body">A separate Linux install for this project, set up from scratch.</string>
+    <string name="new_project_existing_section">Environments</string>
+    <string name="new_project_environment_label">Environment name</string>
+    <string name="new_project_backend_label">Backend</string>
+    <string name="new_project_image_label">Preset</string>
+    <string name="new_project_backend_chroot_warning">chroot runs as real root, outside Android\'s app sandbox. Faster, but a weaker boundary.</string>
+    <string name="new_project_error_folder">Couldn\'t get access to that folder. Choose it again.</string>
+    <string name="new_project_error_generic">Couldn\'t create the project. Retry.</string>
+
+    <!-- Diagnostics -->
+    <string name="diag_env_section">Sandbox: %1$s</string>
+    <string name="diag_tag_verified">verified</string>
+    <string name="diag_tag_mismatch">mismatch</string>
+</resources>

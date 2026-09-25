@@ -1,0 +1,71 @@
+{
+  "name": "sample-docker",
+  "publisher": "easyide",
+  "version": "0.1.0",
+  "displayName": "Docker (sample)",
+  "description": "Lists, starts, stops and removes containers of the docker CLI inside the environment, with a details document per container.",
+  "license": "Apache-2.0",
+  "engines": { "easyide": "^0.3.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "commands": [
+      { "command": "easyide.sample-docker.start", "title": "Start container", "category": "Docker (sample)" },
+      { "command": "easyide.sample-docker.stop", "title": "Stop container", "category": "Docker (sample)" },
+      { "command": "easyide.sample-docker.restart", "title": "Restart container", "category": "Docker (sample)" },
+      { "command": "easyide.sample-docker.remove", "title": "Remove container", "category": "Docker (sample)" },
+      { "command": "easyide.sample-docker.containerState", "title": "Read container state", "category": "Docker (sample)" }
+    ],
+    "viewsContainers": {
+      "sidebar": [
+        { "id": "easyide.sample-docker.main", "title": "Docker", "icon": "./icons/docker.svg", "scope": "workspace", "locations": ["sidebar", "secondarySidebar"] }
+      ]
+    },
+    "views": {
+      "easyide.sample-docker.main": [
+        { "id": "easyide.sample-docker.containers", "name": "Containers", "schema": "./views/containers.json" },
+        { "id": "easyide.sample-docker.images", "name": "Images", "schema": "./views/images.json" }
+      ]
+    }
+  },
+  "easyide": {
+    "capabilities": ["ui.contribute", "ui.stage", "sandbox.exec"],
+    "actions": {
+      "easyide.sample-docker.start": { "type": "sandboxExec", "command": ["docker", "start", "${arg:id}"], "output": "capture", "timeoutSec": 60 },
+      "easyide.sample-docker.stop": { "type": "sandboxExec", "command": ["docker", "stop", "${arg:id}"], "output": "capture", "timeoutSec": 60 },
+      "easyide.sample-docker.restart": { "type": "sandboxExec", "command": ["docker", "restart", "${arg:id}"], "output": "capture", "timeoutSec": 60 },
+      "easyide.sample-docker.remove": { "type": "sandboxExec", "command": ["docker", "rm", "-f", "${arg:id}"], "output": "capture", "timeoutSec": 60 },
+      "easyide.sample-docker.containerState": { "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/container.sh", "${arg:key}"], "output": "capture", "timeoutSec": 20 }
+    },
+    "navigation": [
+      {
+        "id": "easyide.sample-docker.nav", "title": "Docker", "icon": "./icons/docker.svg",
+        "target": { "container": "easyide.sample-docker.main" }, "scope": "workspace", "order": 300,
+        "badge": { "view": "easyide.sample-docker.containers", "path": "runningCount" }
+      }
+    ],
+    "documents": [
+      {
+        "type": "easyide.sample-docker/container", "title": "{name}", "icon": "./icons/container.svg", "schema": "./docs/container.json",
+        "state": { "provider": "easyide.sample-docker.containerState", "intervalSec": 3 }
+      }
+    ],
+    "layoutPresets": [
+      {
+        "id": "easyide.sample-docker.ops", "title": "Docker ops", "sizeClass": ["expanded"],
+        "containers": { "sidebar": "easyide.sample-docker.main", "panel": "terminal" },
+        "panels": { "sidebar": true, "panel": true },
+        "stage": { "split": "row", "groups": 2 }
+      }
+    ],
+    "viewData": {
+      "easyide.sample-docker.containers": {
+        "kind": "object", "intervalSec": 5,
+        "from": { "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/containers.sh"], "output": "capture", "timeoutSec": 20 }
+      },
+      "easyide.sample-docker.images": {
+        "kind": "object", "intervalSec": 15,
+        "from": { "type": "sandboxExec", "command": ["sh", "${extensionPath}/bin/images.sh"], "output": "capture", "timeoutSec": 20 }
+      }
+    }
+  }
+}

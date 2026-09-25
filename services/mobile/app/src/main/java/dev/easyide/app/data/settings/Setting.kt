@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
 
 /**
@@ -43,8 +44,11 @@ enum class SettingCategory(@StringRes val title: Int) {
     APPEARANCE(R.string.settings_theme_section),
     EDITOR(R.string.settings_category_editor),
     TERMINAL(R.string.settings_category_terminal),
+    GIT(R.string.settings_category_git),
     LANGUAGE_SERVERS(R.string.settings_category_language_servers),
     EXTENSIONS(R.string.settings_category_extensions),
+    LAYOUT(R.string.settings_category_layout),
+    WORKSPACE(R.string.settings_category_workspace),
 }
 
 /** Where a setting is listed: a built-in category, or one contributed `configuration` section. */
@@ -99,21 +103,36 @@ sealed class Setting<T>(
         override fun encode(value: Int): JsonElement = JsonPrimitive(value)
     }
 
+    /** A fractional number within [min]..[max]: line height as a multiplier, letter spacing. */
+    class Decimal(
+        key: String, category: SettingCategory, @StringRes title: Int, @StringRes description: Int,
+        default: Double, scope: SettingScope, val min: Double, val max: Double,
+    ) : Setting<Double>(key, SettingGroup.BuiltIn(category), Text.Res(title), Text.Res(description), default, scope) {
+        override fun decode(value: JsonElement): Double? =
+            (value as? JsonPrimitive)?.takeIf { !it.isString }?.doubleOrNull?.takeIf { it in min..max }
+        override fun encode(value: Double): JsonElement = JsonPrimitive(value)
+    }
+
     /**
      * Stored as the constant's name, so reordering [values] never remaps a saved choice.
      * [aliases] also accepts other spellings of a value, such as VS Code's `true` /
      * `"configuredByTheme"`, so a settings.json copied from VS Code keeps working.
+     * [id] replaces the constant name for enums whose stored form must survive R8 renaming.
      */
     class Enum<E : kotlin.Enum<E>>(
         key: String, category: SettingCategory, @StringRes title: Int, @StringRes description: Int,
         default: E, scope: SettingScope, val values: List<E>, val label: (E) -> Int,
         private val aliases: (JsonElement) -> E? = { null },
+        val id: (E) -> String = { it.name },
     ) : Setting<E>(key, SettingGroup.BuiltIn(category), Text.Res(title), Text.Res(description), default, scope) {
+        /** The stored spellings, in display order. */
+        val ids: List<String> get() = values.map(id)
+
         override fun decode(value: JsonElement): E? {
             val name = SchemaValidator.stringOrNull(value) ?: return aliases(value)
-            return values.find { it.name == name } ?: aliases(value)
+            return values.find { id(it) == name } ?: aliases(value)
         }
-        override fun encode(value: E): JsonElement = JsonPrimitive(value.name)
+        override fun encode(value: E): JsonElement = JsonPrimitive(id(value))
     }
 
     class Str(

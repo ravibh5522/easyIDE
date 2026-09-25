@@ -4,6 +4,7 @@ import android.net.Uri
 import dev.easyide.sandbox.external.ExternalFolderSync
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.sandbox.files.ProjectFiles
+import dev.easyide.sandbox.files.SafeTree
 import dev.easyide.sandbox.model.EnvironmentState
 import dev.easyide.sandbox.model.ProjectRecord
 import dev.easyide.sandbox.store.SandboxStore
@@ -14,7 +15,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * Creates and re-homes projects. A project's directory lives outside every
+ * Creates, renames, duplicates, deletes and re-homes projects. A project's directory lives outside every
  * rootfs, so attaching it to a different environment is a metadata change plus
  * a different bind mount - no copying. See
  * docs/decision/0005-sandbox-environment-sharing-model.md.
@@ -39,20 +40,18 @@ class ProjectManager(
      *   the project's files should be mirrored to. If that folder already has
      *   files in it, they are imported as the project's starting content
      *   instead of the usual starter files.
+     * @param seedStarterFiles false leaves the directory empty, for callers that
+     *   fill it themselves (a `git clone` refuses a non-empty target).
      */
     suspend fun create(
         name: String,
         environmentId: String,
         externalFolderUri: String? = null,
+        seedStarterFiles: Boolean = true,
     ): Result<ProjectRecord> = runCatching {
-        val trimmed = name.trim()
-        require(trimmed.isNotEmpty()) { "Project name must not be blank" }
-
         val state = store.current()
+        val trimmed = validName(state.projects, name)
         state.environment(environmentId) ?: throw SandboxError.EnvironmentNotFound(environmentId)
-        if (state.projects.any { it.name.equals(trimmed, ignoreCase = true) }) {
-            throw SandboxError.DuplicateName(trimmed)
-        }
 
         val now = clock()
         val project = ProjectRecord(
@@ -81,7 +80,7 @@ class ProjectManager(
             // Starter files so the editor opens onto something real rather than
             // an empty tree - unless the linked folder already had content,
             // which takes priority over inventing placeholder files on top of it.
-            if (!importedFromExternal) {
+            if (!importedFromExternal && seedStarterFiles) {
                 projectFiles.seedStarterFiles(project.id, trimmed)
                 externalFolderUri?.let { mirrorProjectOut(project.id, Uri.parse(it)) }
             }
@@ -89,7 +88,7 @@ class ProjectManager(
             // The import the user asked for did not happen - leaving a
             // half-populated directory nobody references would be silent
             // garbage, not a recoverable project.
-            withContext(ioDispatcher) { paths.projectDir(project.id).deleteRecursively() }
+            withContext(ioDispatcher) { SafeTree.deleteRecursively(paths.projectDir(project.id)) }
             throw cause
         }
 
@@ -179,16 +178,80 @@ class ProjectManager(
             updated
         }
 
+    /**
+     * Renames a project. Metadata only: the directory is named by id, so nothing
+     * on disk moves and open workspaces keep working.
+     */
+    suspend fun rename(projectId: String, newName: String): Result<ProjectRecord> = runCatching {
+        val state = store.current()
+        val project = state.project(projectId) ?: throw SandboxError.ProjectNotFound(projectId)
+        val trimmed = validName(state.projects.filter { it.id != projectId }, newName)
+
+        val updated = project.copy(name = trimmed)
+        store.update { it.upsertProject(updated) }
+        updated
+    }
+
+    /**
+     * Copies a project - files, git history and all - under a new id, attached
+     * to the same environment. Environments are shared by reference, so nothing
+     * of the rootfs is copied.
+     *
+     * The copy is deliberately not linked to the original's external folder:
+     * two projects mirroring into one folder would overwrite each other.
+     */
+    suspend fun duplicate(projectId: String, newName: String): Result<ProjectRecord> = runCatching {
+        val state = store.current()
+        val source = state.project(projectId) ?: throw SandboxError.ProjectNotFound(projectId)
+        val trimmed = validName(state.projects, newName)
+
+        val now = clock()
+        val copy = ProjectRecord(
+            id = idGenerator(),
+            name = trimmed,
+            environmentId = source.environmentId,
+            createdAtEpochMs = now,
+            lastOpenedAtEpochMs = now,
+        )
+        withContext(ioDispatcher) {
+            val target = paths.projectDir(copy.id)
+            try {
+                paths.ensureBaseDirs()
+                SafeTree.copyRecursively(paths.projectDir(source.id), target)
+            } catch (cause: Exception) {
+                // A half-copied directory nobody references is silent garbage.
+                SafeTree.deleteRecursively(target)
+                throw SandboxError.StorageFailure("copy project '${source.name}'", cause)
+            }
+        }
+        store.update { it.upsertProject(copy) }
+        copy
+    }
+
+    /**
+     * Removes the project record and, when [deleteFiles], its app-private
+     * working copy. Never touches an environment - projects only reference
+     * them - and never follows a symlink out of the project directory. A linked
+     * external folder is released, not emptied: it belongs to the user.
+     */
     suspend fun delete(projectId: String, deleteFiles: Boolean): Result<Unit> = runCatching {
         val project = store.current().project(projectId) ?: throw SandboxError.ProjectNotFound(projectId)
         if (deleteFiles) {
-            withContext(ioDispatcher) { paths.projectDir(projectId).deleteRecursively() }
+            withContext(ioDispatcher) { SafeTree.deleteRecursively(paths.projectDir(projectId)) }
         }
         // Release the grant rather than leaving it held forever - it is
         // otherwise invisible to the user and to Android's permission list.
         project.externalFolderUri?.let { externalFolderSync.releaseAccess(Uri.parse(it)) }
         store.update { it.removeProject(projectId) }
     }
+
+    /** The trimmed name, or the [SandboxError]/[IllegalArgumentException] for why it is unusable. */
+    private fun validName(others: List<ProjectRecord>, name: String): String =
+        when (ProjectNames.problem(name, others.map { it.name })) {
+            ProjectNames.Problem.BLANK -> throw IllegalArgumentException("Project name must not be blank")
+            ProjectNames.Problem.DUPLICATE -> throw SandboxError.DuplicateName(name.trim())
+            null -> name.trim()
+        }
 
     suspend fun markOpened(projectId: String) {
         store.update { state ->

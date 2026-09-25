@@ -2,7 +2,6 @@ package dev.easyide.app.ui.screens.settings
 
 import dev.easyide.app.data.settings.LayerId
 import dev.easyide.app.data.settings.Setting
-import dev.easyide.app.data.settings.SettingCategory
 import dev.easyide.app.data.settings.SettingGroup
 import dev.easyide.app.data.settings.SettingsSnapshot
 
@@ -39,49 +38,49 @@ data class SettingsFilter(val text: String, val modifiedOnly: Boolean, val exten
     val isActive: Boolean get() = text.isNotEmpty() || modifiedOnly || extension != null || language != null
 }
 
-/** One header plus its rows; [owner] is null for built-in categories. */
-data class SettingsSection(val id: String, val category: SettingCategory?, val title: String?, val owner: String?, val rows: List<Setting<*>>)
+/** One titled block of rows; [owner] is null for built-in rows, which come first and carry no title. */
+data class SettingsSection(val id: String, val title: String?, val owner: String?, val rows: List<Setting<*>>)
 
 object SettingsSearch {
 
     /**
-     * Rows that match [filter], grouped: built-in categories in their declared
-     * order, then contributed sections by `order` and title. [textOf] resolves a
-     * setting's title and description (string resources need a Context).
+     * Settings that match [filter]. [textOf] resolves a setting's title and description (string
+     * resources need a Context); [hidden] are keys another control already edits.
      */
-    fun sections(
+    fun matching(
         settings: List<Setting<*>>,
         filter: SettingsFilter,
         snapshot: SettingsSnapshot,
         layer: LayerId,
         hidden: Set<String>,
         textOf: (Setting<*>) -> List<String>,
-    ): List<SettingsSection> {
-        val visible = settings.filter { s ->
-            s.key !in hidden &&
-                (filter.language == null || s.scope.languageOverridable) &&
-                (filter.extension == null || (s as? Setting.Contributed)?.owner == filter.extension) &&
-                (!filter.modifiedOnly || snapshot.isSetIn(s, layer, filter.language)) &&
-                matches(s, filter.text, textOf)
-        }
-        val builtIn = SettingCategory.entries.mapNotNull { category ->
-            val rows = visible.filter { (it.group as? SettingGroup.BuiltIn)?.category == category }
-            rows.takeIf { it.isNotEmpty() }?.let { SettingsSection(category.name, category, null, null, it) }
-        }
-        val contributed = visible.filterIsInstance<Setting.Contributed>()
+    ): List<Setting<*>> = settings.filter { s ->
+        s.key !in hidden &&
+            (filter.language == null || s.scope.languageOverridable) &&
+            (filter.extension == null || (s as? Setting.Contributed)?.owner == filter.extension) &&
+            (!filter.modifiedOnly || snapshot.isSetIn(s, layer, filter.language)) &&
+            matches(s, filter.text, textOf)
+    }
+
+    /** Search results across pages: page order first, declared order within a page. */
+    fun ranked(matches: List<Setting<*>>): List<Setting<*>> = matches.sortedBy { SettingsCategory.of(it).ordinal }
+
+    /** The rows of one page: the built-in rows as one section, then contributed sections by `order` and title. */
+    fun sections(rows: List<Setting<*>>): List<SettingsSection> {
+        val builtIn = rows.filter { it.group is SettingGroup.BuiltIn }
+        val contributed = rows.filterIsInstance<Setting.Contributed>()
             .groupBy { it.group as SettingGroup.Contributed }
             .entries
             .sortedWith(compareBy<Map.Entry<SettingGroup.Contributed, List<Setting.Contributed>>>({ it.key.order ?: Int.MAX_VALUE }, { it.key.title }, { it.key.owner }))
-            .map { (group, rows) ->
+            .map { (group, list) ->
                 SettingsSection(
                     id = "${group.owner}/${group.title}",
-                    category = null,
                     title = group.title,
                     owner = group.owner,
-                    rows = rows.sortedWith(compareBy({ it.order ?: Int.MAX_VALUE }, { it.key })),
+                    rows = list.sortedWith(compareBy({ it.order ?: Int.MAX_VALUE }, { it.key })),
                 )
             }
-        return builtIn + contributed
+        return listOfNotNull(builtIn.takeIf { it.isNotEmpty() }?.let { SettingsSection("builtin", null, null, it) }) + contributed
     }
 
     /** Title, description, keywords and key, as in VS Code's settings search. */

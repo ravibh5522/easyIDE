@@ -3,43 +3,38 @@ package dev.easyide.app.ui.screens.settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import dev.easyide.app.R
-import dev.easyide.app.ui.theme.Spacing
 import dev.easyide.app.data.settings.ImportMode
 import dev.easyide.app.data.settings.ImportPreview
 import dev.easyide.app.data.settings.SettingsPolicy
+import dev.easyide.app.ui.kit.Kit
+import dev.easyide.app.ui.kit.KitAction
+import dev.easyide.app.ui.kit.KitButton
+import dev.easyide.app.ui.kit.KitButtonStyle
+import dev.easyide.app.ui.kit.KitDialog
+import dev.easyide.app.ui.kit.KitField
+import dev.easyide.app.ui.kit.KitIconButton
+import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.kit.KitToggle
+import dev.easyide.app.ui.kit.ToggleKind
+import dev.easyide.app.ui.kit.Tone
 
 /**
- * Profiles list (LLD 14): switch by tapping, create (empty or a copy of the
- * active one), rename and delete. `default` and the active profile cannot be
- * renamed or deleted, which [dev.easyide.app.data.settings.ProfileManager] enforces too.
+ * Profiles list (LLD 14): switch by tapping, create (empty or a copy of the active one), rename and
+ * delete. `default` and the active profile cannot be renamed or deleted, which
+ * [dev.easyide.app.data.settings.ProfileManager] enforces too.
  */
 @Composable
 fun ProfilesDialog(
@@ -55,110 +50,95 @@ fun ProfilesDialog(
     var copyActive by remember { mutableStateOf(true) }
     var renaming by remember { mutableStateOf<String?>(null) }
     val all = listOf(SettingsPolicy.DEFAULT_PROFILE) + profiles
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_profiles_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                LazyColumn(modifier = Modifier.heightIn(max = LIST_MAX_HEIGHT_DP.dp)) {
-                    items(all, key = { it }) { name ->
-                        val mutable = name != SettingsPolicy.DEFAULT_PROFILE && name != active
-                        ListItem(
-                            headlineContent = { Text(name) },
-                            leadingContent = { RadioButton(selected = name == active, onClick = { onSwitch(name) }) },
-                            trailingContent = {
-                                if (mutable) {
-                                    Row {
-                                        IconButton(onClick = { renaming = name; newName = name }) {
-                                            Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.settings_profile_rename))
-                                        }
-                                        IconButton(onClick = { onDelete(name) }) {
-                                            Icon(Icons.Filled.DeleteOutline, contentDescription = stringResource(R.string.settings_profile_delete))
-                                        }
-                                    }
-                                }
-                            },
-                        )
+    val valid = SettingsPolicy.PROFILE_NAME.matches(newName.trim()) && newName.trim() !in all
+    val creating = renaming == null
+
+    KitDialog(
+        title = stringResource(R.string.settings_profiles_title),
+        onDismiss = onDismiss,
+        confirm = KitAction(stringResource(R.string.action_done), onDismiss),
+    ) {
+        all.forEach { name ->
+            val mutable = name != SettingsPolicy.DEFAULT_PROFILE && name != active
+            KitRow(
+                title = name,
+                mono = true,
+                leading = { KitToggle(name == active, null, kind = ToggleKind.Radio) },
+                trailing = {
+                    if (mutable) {
+                        Row {
+                            KitIconButton(Icons.Filled.Edit, stringResource(R.string.settings_profile_rename), { renaming = name; newName = name })
+                            KitIconButton(Icons.Filled.DeleteOutline, stringResource(R.string.settings_profile_delete), { onDelete(name) })
+                        }
                     }
-                }
-                val valid = SettingsPolicy.PROFILE_NAME.matches(newName.trim()) && newName.trim() !in all
-                OutlinedTextField(
-                    value = newName,
-                    onValueChange = { newName = it },
-                    singleLine = true,
-                    isError = newName.isNotEmpty() && !valid,
-                    label = { Text(stringResource(if (renaming != null) R.string.settings_profile_new_name else R.string.settings_profile_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (renaming == null) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = copyActive, onCheckedChange = { copyActive = it })
-                        Text(stringResource(R.string.settings_profile_copy_active, active))
-                    }
-                }
-                TextButton(
-                    enabled = valid,
-                    onClick = {
-                        val from = renaming
-                        if (from != null) onRename(from, newName) else onCreate(newName, active.takeIf { copyActive })
-                        renaming = null
-                        newName = ""
-                    },
-                ) { Text(stringResource(if (renaming != null) R.string.settings_profile_rename else R.string.settings_profile_create)) }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_done)) } },
-    )
+                },
+                onClick = { onSwitch(name) },
+            )
+        }
+        KitField(
+            value = newName,
+            onValueChange = { newName = it },
+            label = stringResource(if (creating) R.string.settings_profile_name else R.string.settings_profile_new_name),
+            error = if (newName.isNotEmpty() && !valid) stringResource(R.string.settings_profile_name_invalid) else null,
+            mono = true,
+            modifier = Modifier.padding(top = Kit.space.m),
+        )
+        if (creating) {
+            KitRow(
+                title = stringResource(R.string.settings_profile_copy_active, active),
+                leading = { KitToggle(copyActive, null, kind = ToggleKind.Check) },
+                onClick = { copyActive = !copyActive },
+            )
+        }
+        KitButton(
+            stringResource(if (creating) R.string.settings_profile_create else R.string.settings_profile_rename),
+            {
+                val from = renaming
+                if (from != null) onRename(from, newName) else onCreate(newName, active.takeIf { copyActive })
+                renaming = null
+                newName = ""
+            },
+            style = KitButtonStyle.Secondary,
+            enabled = valid,
+        )
+    }
 }
 
-/** What an import would do, before anything is written (LLD 15 "preview"). */
+/** What an import would do, before anything is written (LLD 15 "preview"). Replace is the destructive way, so it is not the primary. */
 @Composable
 fun ImportPreviewDialog(preview: ImportPreview, onConfirm: (ImportMode) -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_import_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                Text(pluralStringResource(R.plurals.settings_import_settings, preview.settingCount, preview.settingCount))
-                Text(pluralStringResource(R.plurals.settings_import_keybindings, preview.keybindingCount, preview.keybindingCount))
-                if (preview.profileNames.isNotEmpty()) {
-                    Text(stringResource(R.string.settings_import_profiles, preview.profileNames.joinToString()))
-                }
-                if (preview.clashes.isNotEmpty()) {
-                    Text(stringResource(R.string.settings_import_clashes, preview.clashes.joinToString()), color = MaterialTheme.colorScheme.tertiary)
-                }
-                val invalid = preview.bundle.diagnostics.size
-                if (invalid > 0) {
-                    Text(pluralStringResource(R.plurals.settings_import_invalid, invalid, invalid), color = MaterialTheme.colorScheme.error)
-                }
-                if (preview.bundle.extensions.isNotEmpty()) {
-                    Text(pluralStringResource(R.plurals.settings_import_extensions, preview.bundle.extensions.size, preview.bundle.extensions.size))
-                }
-                if (preview.bundle.ignored.isNotEmpty()) {
-                    Text(stringResource(R.string.settings_import_ignored, preview.bundle.ignored.joinToString()))
-                }
-                Text(stringResource(R.string.settings_import_modes), style = MaterialTheme.typography.bodySmall)
-            }
-        },
-        confirmButton = {
-            Row {
-                TextButton(onClick = { onConfirm(ImportMode.MERGE) }) { Text(stringResource(R.string.settings_import_merge)) }
-                TextButton(onClick = { onConfirm(ImportMode.REPLACE) }) { Text(stringResource(R.string.settings_import_replace)) }
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
-    )
+    val invalid = preview.bundle.diagnostics.size
+    KitDialog(
+        title = stringResource(R.string.settings_import_title),
+        onDismiss = onDismiss,
+        confirm = KitAction(stringResource(R.string.settings_import_merge)) { onConfirm(ImportMode.MERGE) },
+        dismiss = KitAction(stringResource(R.string.action_cancel), onDismiss),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
+            BodyText(pluralStringResource(R.plurals.settings_import_settings, preview.settingCount, preview.settingCount))
+            BodyText(pluralStringResource(R.plurals.settings_import_keybindings, preview.keybindingCount, preview.keybindingCount))
+            if (preview.profileNames.isNotEmpty()) BodyText(stringResource(R.string.settings_import_profiles, preview.profileNames.joinToString()))
+            if (preview.clashes.isNotEmpty()) BodyText(stringResource(R.string.settings_import_clashes, preview.clashes.joinToString()), tone = Tone.Warning)
+            if (invalid > 0) BodyText(pluralStringResource(R.plurals.settings_import_invalid, invalid, invalid), tone = Tone.Danger)
+            val extensions = preview.bundle.extensions.size
+            if (extensions > 0) BodyText(pluralStringResource(R.plurals.settings_import_extensions, extensions, extensions))
+            if (preview.bundle.ignored.isNotEmpty()) BodyText(stringResource(R.string.settings_import_ignored, preview.bundle.ignored.joinToString()))
+            BodyText(stringResource(R.string.settings_import_modes), tone = Tone.Neutral)
+            KitButton(stringResource(R.string.settings_import_replace), { onConfirm(ImportMode.REPLACE) }, style = KitButtonStyle.Danger)
+        }
+    }
 }
 
+/** The question names the layer and the consequence, as a destructive confirm does (ux-rules U-CMP-04). */
 @Composable
 fun ResetAllDialog(layerName: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_reset_all_title)) },
-        text = { Text(stringResource(R.string.settings_reset_all_body, layerName)) },
-        confirmButton = { TextButton(onClick = { onConfirm(); onDismiss() }) { Text(stringResource(R.string.settings_reset_all_confirm)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
-    )
+    KitDialog(
+        title = stringResource(R.string.settings_reset_all_question, layerName),
+        onDismiss = onDismiss,
+        confirm = KitAction(stringResource(R.string.settings_reset_all_confirm)) { onConfirm(); onDismiss() },
+        dismiss = KitAction(stringResource(R.string.action_cancel), onDismiss),
+        tone = Tone.Danger,
+    ) {
+        BodyText(stringResource(R.string.settings_reset_all_body, layerName))
+    }
 }
-
-private const val LIST_MAX_HEIGHT_DP = 240

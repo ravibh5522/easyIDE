@@ -1,0 +1,114 @@
+# Build, config, CI and tool files (mostly matched by name). Format: see icons-code.txt.
+
+# --- containers and infrastructure
+docker sky g:container e=dockerfile,containerfile n=dockerfile,containerfile,dockerfile.dev,dockerfile.prod,dockerfile.test,dockerfile.build l=docker,dockerfile
+docker-compose sky g:stack n=docker-compose.yml,docker-compose.yaml,docker-compose.override.yml,docker-compose.override.yaml,docker-compose.dev.yml,docker-compose.dev.yaml,docker-compose.prod.yml,docker-compose.prod.yaml,docker-compose.test.yml,docker-compose.test.yaml,docker-compose.ci.yml,docker-compose.staging.yml,compose.yml,compose.yaml,compose.override.yml,compose.override.yaml,docker-bake.hcl
+docker-ignore gray g:ban n=.dockerignore,.containerignore
+kubernetes blue g:cube n=kustomization.yaml,kustomization.yml,skaffold.yaml,skaffold.yml,tiltfile,kubeconfig
+helm sky g:package n=chart.yaml,chart.lock,values.yaml,values.yml,.helmignore,helmfile.yaml,helmfile.yml e=tpl,gotmpl
+ansible red g:gear n=ansible.cfg,playbook.yml,playbook.yaml,site.yml,inventory,galaxy.yml,.ansible-lint
+vagrant blue g:cube n=vagrantfile
+packer sky g:package e=pkr.hcl,pkrvars.hcl,pkr.json
+nix sky g:puzzle e=nix l=nix
+nix-lock sky g:lock n=flake.lock
+nix-flake sky g:package n=flake.nix,shell.nix,default.nix,configuration.nix,home.nix
+make orange g:wrench e=mk,mak,make n=makefile,gnumakefile,makefile.am,makefile.in,bsdmakefile l=make
+just slate g:wrench n=justfile,.justfile l=just
+taskfile blue g:play n=taskfile.yml,taskfile.yaml
+cmake green g:wrench e=cmake l=cmake
+cmake-lists green g:gear n=cmakelists.txt,cmakecache.txt,cmakepresets.json,cmakeuserpresets.json,conanfile.txt,conanfile.py,vcpkg.json,vcpkg-configuration.json,meson.build,meson_options.txt
+ninja slate g:wrench e=ninja n=build.ninja
+autotools slate g:gear e=am,ac,m4 n=configure,configure.ac,aclocal.m4,autogen.sh,config.status,config.log
+bazel green g:package e=bzl,bazel,bzlmod n=build,build.bazel,workspace,workspace.bazel,module.bazel,.bazelrc,.bazelversion,.bazelignore,buck,.buckconfig
+scons green g:wrench n=sconstruct,sconscript,wscript
+jenkins red g:play n=jenkinsfile
+procfile violet t:PF n=procfile,heroku.yml
+# --- CI and deployment
+github-actions slate g:play n=action.yml,action.yaml,dependabot.yml,dependabot.yaml,release-drafter.yml,labeler.yml,.mergify.yml,pull_request_template.md,issue_template.md
+gitlab-ci orange g:play n=.gitlab-ci.yml,.gitlab-ci.yaml
+travis green g:play n=.travis.yml,appveyor.yml,.appveyor.yml,.drone.yml,.woodpecker.yml,bitrise.yml,.cirrus.yml,.semaphore.yml,codemagic.yaml,buildkite.yml
+circleci amber g:play n=circle.yml,cloudbuild.yaml,cloudbuild.yml,cloudbuild.json,buildspec.yml
+azure-pipelines blue g:play n=azure-pipelines.yml,azure-pipelines.yaml,bitbucket-pipelines.yml
+codecov purple g:chart n=codecov.yml,.codecov.yml,.coveralls.yml,.codeclimate.yml,sonar-project.properties,.nycrc,.nycrc.json,.c8rc,.c8rc.json
+renovate pink g:gear n=renovate.json,renovate.json5,.renovaterc,.renovaterc.json
+serverless red g:cloud n=serverless.yml,serverless.yaml,serverless.ts,sam.yaml,samconfig.toml,cdk.json,pulumi.yaml,amplify.yml,cloudformation.yml,cloudformation.yaml
+vercel slate g:mesh n=vercel.json,.vercelignore,now.json
+netlify teal g:cloud n=netlify.toml,_redirects,_headers
+cloud-config sky g:cloud n=app.yaml,.gcloudignore,wrangler.toml,wrangler.json,wrangler.jsonc,fly.toml,render.yaml,railway.json,firebase.json,.firebaserc,firestore.rules,firestore.indexes.json,storage.rules,captain-definition,nixpacks.toml
+nginx green g:server n=nginx.conf,.htaccess,.htpasswd,httpd.conf,apache2.conf,caddyfile,haproxy.cfg,traefik.yml,traefik.toml,envoy.yaml,lighttpd.conf,mime.types,default.vcl e=vcl,nginx
+systemd slate g:gear e=service,socket,timer,mount,automount,swap,target,path,slice,scope,netdev,network,link,nspawn n=crontab,anacrontab l=systemd
+ssh-key red g:key n=id_rsa,id_dsa,id_ecdsa,id_ed25519,id_rsa.pub,id_ed25519.pub,id_ecdsa.pub,authorized_keys,known_hosts,ssh_host_rsa_key,ssh_host_ed25519_key,.netrc,_netrc,.pgpass
+system-config gray g:sliders n=hosts,fstab,passwd,group,shadow,sudoers,resolv.conf,sshd_config,ssh_config,sysctl.conf,limits.conf,logrotate.conf,rsyslog.conf,profile,motd,hostname,environment,inputrc,exports,ld.so.conf,nsswitch.conf,.wgetrc,.curlrc,.screenrc,.tmux.conf,tmux.conf,.inputrc,.xinitrc,.xresources,.xprofile,.xdefaults
+shell-config green g:terminal n=.bashrc,.bash_profile,.bash_logout,.bash_aliases,.bash_history,.bash_functions,.zshrc,.zshenv,.zprofile,.zlogin,.zlogout,.profile,.login,.cshrc,.tcshrc,.kshrc,.aliases,.exports,.functions,.p10k.zsh,.zsh_history,.zsh_aliases,config.fish,.direnvrc,.python_history,.node_repl_history,.lesshst,.viminfo,.wget-hsts,.psql_history,.mysql_history,.sqlite_history,.irb_history,.gdbinit,.lldbinit,.dir_colors,.hushlogin e=zsh,bash,ksh,csh,tcsh,command,tool,zsh-theme,bats,ebuild,eclass,bashrc,zshrc l=shellscript,shellsession
+shell green g:terminal e=sh,ash,dash,mksh,run,fish l=fish
+powershell blue g:terminal e=ps1,psm1,psd1,ps1xml,psc1,pssc,cdxml,pssproj l=powershell
+batch gray g:terminal e=bat,cmd,btm,nt l=bat
+nushell teal g:terminal e=nu l=nushell
+# --- JavaScript tooling
+npm red g:package n=package.json,.npmrc,npm-shrinkwrap.json,.nvmrc,.node-version,.yarnrc,.yarnrc.yml,.pnpmfile.cjs,pnpm-workspace.yaml,.pnp.cjs,.pnp.js,lerna.json,nx.json,turbo.json,rush.json,bunfig.toml,deno.json,deno.jsonc,import_map.json,binding.gyp
+lock-yarn sky g:lock n=yarn.lock,.yarn-integrity
+lock-npm red g:lock n=package-lock.json
+lock-pnpm amber g:lock n=pnpm-lock.yaml
+lock-bun gray g:lock n=bun.lockb,bun.lock
+lock-cargo brown g:lock n=cargo.lock
+lock-ruby red g:lock n=gemfile.lock,gems.locked
+lock-python blue g:lock n=poetry.lock,pipfile.lock,pdm.lock,uv.lock,pixi.lock
+lock-php indigo g:lock n=composer.lock
+lock-swift orange g:lock n=podfile.lock,cartfile.resolved
+lock-jvm teal g:lock n=gradle.lockfile,packages.lock.json,paket.lock,deno.lock
+lock-terraform violet g:lock n=.terraform.lock.hcl
+lock-generic slate g:lock e=lock,lockfile,lck,lockb
+tsconfig blue g:gear n=tsconfig.json,tsconfig.base.json,tsconfig.build.json,tsconfig.app.json,tsconfig.lib.json,tsconfig.spec.json,tsconfig.node.json,tsconfig.tsbuildinfo,tslint.json,typedoc.json,api-extractor.json,tsup.config.ts,tsup.config.js e=tsbuildinfo
+jsconfig yellow g:gear n=jsconfig.json,.jshintrc,.jscsrc,.jsbeautifyrc,.jsdoc.json,jsdoc.json
+babel yellow g:wand n=.babelrc,.babelrc.js,.babelrc.json,.babelrc.cjs,.babelrc.mjs,babel.config.js,babel.config.json,babel.config.cjs,babel.config.mjs,babel.config.ts,.swcrc,.browserslistrc,browserslist
+eslint indigo g:shield n=.eslintrc,.eslintrc.js,.eslintrc.cjs,.eslintrc.mjs,.eslintrc.json,.eslintrc.yaml,.eslintrc.yml,eslint.config.js,eslint.config.cjs,eslint.config.mjs,eslint.config.ts,eslint.config.mts,eslint.config.cts,.eslintcache,biome.json,biome.jsonc,.oxlintrc.json,oxlintrc.json
+ignore-file gray g:ban n=.eslintignore,.stylelintignore,.prettierignore,.markdownlintignore,.biomeignore,.textlintignore,.jshintignore,.tslintignore,.commitlintignore,.gitleaksignore,.trivyignore,.snykignore,.cfignore,.vscodeignore,.npmignore,.yarnignore,.hgignore,.bzrignore,.p4ignore,.cvsignore,.ignore,.rgignore,.agignore,.fdignore,.slugignore,.sqlfluffignore,.solhintignore,.styluaignore,.ocamlformat-ignore,.fantomasignore,.csharpierignore,.gcloudignore.local
+prettier pink g:sparkle n=.prettierrc,.prettierrc.json,.prettierrc.yml,.prettierrc.yaml,.prettierrc.json5,.prettierrc.js,.prettierrc.cjs,.prettierrc.mjs,.prettierrc.toml,.prettierrc.ts,.prettierrc.mts,.prettierrc.cts,prettier.config.js,prettier.config.cjs,prettier.config.mjs,prettier.config.ts,prettier.config.mts,prettier.config.cts,dprint.json,.dprint.json
+linter slate g:shield n=.stylelintrc,.stylelintrc.json,.stylelintrc.yml,.stylelintrc.yaml,.stylelintrc.js,.stylelintrc.cjs,.stylelintrc.mjs,stylelint.config.js,stylelint.config.cjs,stylelint.config.mjs,stylelint.config.ts,.markdownlint.json,.markdownlint.yaml,.markdownlint.yml,.markdownlint.jsonc,.markdownlint-cli2.jsonc,.markdownlint-cli2.yaml,.textlintrc,.remarkrc,.remarkrc.js,.remarkrc.json,.yamllint,.yamllint.yml,.yamllint.yaml,.hadolint.yaml,.hadolint.yml,.shellcheckrc,.golangci.yml,.golangci.yaml,.golangci.toml,.golangci.json,.rubocop.yml,.rubocop_todo.yml,.erb-lint.yml,.reek.yml,.haml-lint.yml,.credo.exs,.sqlfluff,.solhint.json,.scalafmt.conf,.scalafix.conf,.swiftlint.yml,.swiftformat,detekt.yml,.detekt.yml,.luacheckrc,.luarc.json,.luarc.jsonc,.vale.ini,.htmlhintrc,.csslintrc,.clang-tidy,.clangd,.cmake-format.yaml,.cmake-format.json,.jscpd.json
+formatter gray g:sliders n=.editorconfig,.clang-format,.stylua.toml,stylua.toml,.ocamlformat,.ocp-indent,.goreleaser.yml,.goreleaser.yaml,goreleaser.yml,goreleaser.yaml,.air.toml,air.toml,.tool-versions,.sdkmanrc,.python-version,.ruby-version,.java-version,.go-version,.php-version,.terraform-version,.mise.toml,mise.toml,.asdfrc,.pyenv-version,.rbenv-version,.nodenv-version
+webpack sky g:cube n=webpack.config.js,webpack.config.ts,webpack.config.cjs,webpack.config.mjs,webpack.config.babel.js,webpack.config.dev.js,webpack.config.prod.js,webpack.config.common.js,webpack.dev.js,webpack.prod.js,webpack.common.js,webpack.mix.js,rspack.config.js,rspack.config.ts,rsbuild.config.ts,rsbuild.config.js
+vite violet g:bolt n=vite.config.js,vite.config.ts,vite.config.mjs,vite.config.mts,vite.config.cjs,vite.config.cts,vitest.config.js,vitest.config.ts,vitest.config.mjs,vitest.config.mts,vitest.workspace.ts,vitest.workspace.js,vitest.workspace.json,vite-env.d.ts
+rollup red g:arrow-down n=rollup.config.js,rollup.config.ts,rollup.config.mjs,rollup.config.cjs
+parcel amber g:package n=.parcelrc,esbuild.config.js,esbuild.config.mjs,esbuild.config.ts,snowpack.config.js,snowpack.config.mjs,ember-cli-build.js,.ember-cli,tsdx.config.js,microbundle.config.js
+gulp red g:wand n=gulpfile.js,gulpfile.ts,gulpfile.mjs,gulpfile.cjs,gulpfile.babel.js,gruntfile.js,gruntfile.coffee,gruntfile.ts,brocfile.js,cakefile,jakefile,jakefile.js
+jest red g:flask n=jest.config.js,jest.config.ts,jest.config.mjs,jest.config.cjs,jest.config.json,jest.setup.js,jest.setup.ts,jest-e2e.json,jest.preset.js
+test-runner green g:flask n=karma.conf.js,karma.conf.ts,protractor.conf.js,mocha.opts,.mocharc.js,.mocharc.cjs,.mocharc.json,.mocharc.yml,.mocharc.yaml,.mocharc.jsonc,ava.config.js,ava.config.cjs,ava.config.mjs,.taprc,codecept.conf.js,wdio.conf.js,wdio.conf.ts,nightwatch.conf.js,nightwatch.json,jasmine.json,web-test-runner.config.js,.testcaferc.json,.rspec
+cypress slate g:flask n=cypress.config.js,cypress.config.ts,cypress.config.mjs,cypress.config.cjs,cypress.json,cypress.env.json,playwright.config.js,playwright.config.ts,playwright.config.mjs,playwright.config.cjs,playwright-ct.config.ts,puppeteer.config.js,puppeteer.config.cjs,.puppeteerrc.js,.puppeteerrc.cjs,.puppeteerrc.json,lighthouserc.js,lighthouserc.json,.lighthouserc.js,.lighthouserc.json
+tailwind cyan g:wave n=tailwind.config.js,tailwind.config.ts,tailwind.config.cjs,tailwind.config.mjs,tailwind.config.mts,tailwind.config.cts,windi.config.js,windi.config.ts,uno.config.ts,uno.config.js,unocss.config.ts,unocss.config.js,panda.config.ts,panda.config.js
+postcss-config red g:hash n=postcss.config.js,postcss.config.ts,postcss.config.cjs,postcss.config.mjs,postcss.config.json,.postcssrc,.postcssrc.js,.postcssrc.json,.postcssrc.yml,.postcssrc.yaml,.postcssrc.cjs,.postcssrc.mjs,.cssnanorc,.cssnanorc.js,.cssnanorc.json,.autoprefixerrc,.sassrc,.sassrc.js,.sassrc.json,.lessrc
+site-config slate t:NX n=next.config.js,next.config.ts,next.config.mjs,next.config.cjs,next-env.d.ts,remix.config.js,remix.config.ts,remix.env.d.ts,gatsby-config.js,gatsby-config.ts,gatsby-node.js,gatsby-node.ts,gatsby-browser.js,gatsby-browser.tsx,gatsby-ssr.js,gatsby-ssr.tsx,blitz.config.js,blitz.config.ts,redwood.toml,eleventy.config.js,.eleventy.js,eleventy.config.cjs,eleventy.config.mjs,docusaurus.config.js,docusaurus.config.ts,sidebars.js,sidebars.ts,mkdocs.yml,mkdocs.yaml,book.toml,hugo.toml,hugo.yaml,hugo.json,_config.yml,_config.yaml,_config.toml,antora.yml,antora-playbook.yml,conf.py,.readthedocs.yml,.readthedocs.yaml
+nuxt green t:NU n=nuxt.config.js,nuxt.config.ts,nuxt.config.mjs,nuxt.config.cjs,app.config.ts,app.config.js,.nuxtrc,.nuxtignore,nitro.config.ts,nitro.config.js,quasar.config.js,quasar.config.ts,quasar.conf.js,vue.config.js,vue.config.ts,vue.config.cjs,vue.config.mjs,.vuerc,vitepress.config.ts,vitepress.config.js,vitepress.config.mts
+svelte-config orange g:gear n=svelte.config.js,svelte.config.ts,svelte.config.cjs,svelte.config.mjs,mdsvex.config.js
+astro-config violet g:gear n=astro.config.js,astro.config.ts,astro.config.mjs,astro.config.cjs,astro.config.mts,astro.config.cts
+angular-json red t:NG n=angular.json,.angular-cli.json,angular-cli.json,nest-cli.json,ng-package.json,proxy.conf.json,proxy.conf.js,workspace.json,project.json,ionic.config.json,capacitor.config.json,capacitor.config.ts,capacitor.config.js
+mobile-js cyan g:phone n=metro.config.js,react-native.config.js,expo.json,eas.json,.flowconfig,expo-env.d.ts
+electron blue g:monitor n=electron-builder.yml,electron-builder.json,electron-builder.json5,electron-builder.config.js,electron.vite.config.ts,electron.vite.config.js,forge.config.js,forge.config.ts,tauri.conf.json,tauri.conf.json5,wails.json
+nodemon green g:play n=nodemon.json,.nodemonignore,pm2.config.js,ecosystem.config.js,ecosystem.config.cjs,supervisord.conf,supervisor.conf
+git-hooks gray g:wrench n=.husky,.huskyrc,.huskyrc.json,.huskyrc.js,.lintstagedrc,.lintstagedrc.json,.lintstagedrc.yml,.lintstagedrc.yaml,.lintstagedrc.js,.lintstagedrc.cjs,.lintstagedrc.mjs,lint-staged.config.js,lint-staged.config.cjs,lint-staged.config.mjs,.commitlintrc,.commitlintrc.json,.commitlintrc.yml,.commitlintrc.yaml,.commitlintrc.js,.commitlintrc.cjs,commitlint.config.js,commitlint.config.cjs,commitlint.config.mjs,commitlint.config.ts,.czrc,.cz.json,.cz.toml,lefthook.yml,lefthook.yaml,.lefthook.yml,pre-commit,commit-msg,pre-push,post-merge,prepare-commit-msg,.pre-commit-hooks.yaml,.overcommit.yml
+# --- git and VCS
+git orange g:git n=.gitkeep,.gitconfig,.gitmessage,.gitmodules,.git-blame-ignore-revs,.gitsigners,.gitreview,.git,.git-credentials
+git-ignore orange g:ban n=.gitignore,.gitignore_global,.git-ignore,.gitignore-global,.gitexclude
+git-attributes orange g:tag n=.gitattributes
+git-lfs orange g:package e=lfs n=.lfsconfig
+mercurial gray g:git n=.hgrc,.hgtags,.hgsub,.hgsubstate,.hg,.hgeol
+svn gray g:git n=.svn,.svnrc,.cvsrc,.bzr,.bzrrc,.fossil-settings
+# --- editors, IDEs and OS files
+vscode blue g:gear n=.vscode,launch.json,tasks.json,extensions.json,keybindings.json,cspell.json,cspell.config.js,cspell.config.yaml,cspell.config.yml,cspell.yaml,cspell.yml,.cspell.json,.vscode-test.js,.vscode-test.mjs,devcontainer.json,.devcontainer.json,.devcontainer,.cursorrules,.cursorignore,.windsurfrules,.aider.conf.yml,.aiderignore,copilot-instructions.md e=code-workspace
+jetbrains slate g:gear n=.idea,.idea.iml,workspace.xml,misc.xml,modules.xml,vcs.xml,compiler.xml,encodings.xml,jarrepositories.xml,gradle.xml,.fleet e=iml,ipr,iws,idea
+eclipse orange g:gear n=.project,.classpath,.settings,.factorypath,.springbeans,.checkstyle,.pmd,.fbprefs,.metadata,.buildpath,.pydevproject,.cproject,eclipse.ini e=launch
+visual-studio purple g:gear n=.vs,.vsconfig,.vsmdi,.runsettings,.testsettings,.vspscc,.vssscc,.dotsettings e=suo,user,userprefs,vspscc,vssscc,dotsettings,testrunconfig,vsmdi,psess,vsp
+xcode-user blue g:cube n=.swiftpm,.build,.xcode-version,xcuserdata,contents.xcworkspacedata,project.pbxproj,.xcodegen.yml,xcodegen.yml,.tuist-version,tuist.swift,fastlane
+os-junk gray g:dot n=.ds_store,thumbs.db,desktop.ini,ehthumbs.db,.spotlight-v100,.trashes,.fseventsd,.temporaryitems,.appledouble,.apdisk,.directory,.trash,.localized,autorun.inf
+# --- platform and language tooling names
+android-manifest green g:phone n=androidmanifest.xml
+android-values green g:font n=strings.xml,plurals.xml,arrays.xml,array.xml,attrs.xml,integers.xml,bools.xml,ids.xml,public.xml
+android-style green g:shader n=colors.xml,styles.xml,themes.xml,dimens.xml,drawables.xml,color.xml,style.xml,theme.xml,dimen.xml,shape.xml,selector.xml,animator.xml,anim.xml,transition.xml,navigation.xml,nav_graph.xml,menu.xml,activity_main.xml,fragment_main.xml,content_main.xml,network_security_config.xml,file_paths.xml,backup_rules.xml,data_extraction_rules.xml,locales_config.xml,shortcuts.xml,preferences.xml,root_preferences.xml
+android-build green g:gear n=local.properties,gradle-wrapper.properties,gradle-wrapper.jar,libs.versions.toml,lint.xml,lint-baseline.xml,detekt-baseline.xml,keystore.properties,signing.properties,google-services.json,googleservice-info.plist,mapping.txt,r8-rules.pro,baseline-prof.txt
+android-native green g:chip e=aidl,hal,bp,rsh,arsc
+smali green t:SM e=smali,baksmali,jasmin
+java-config red g:sliders n=logback.xml,logback-test.xml,log4j.properties,log4j2.xml,log4j2.properties,log4j.xml,application.properties,application.yml,application.yaml,application-dev.yml,application-dev.properties,application-prod.yml,application-prod.properties,application-test.yml,application-test.properties,bootstrap.yml,bootstrap.properties,persistence.xml,web.xml,beans.xml,faces-config.xml,context.xml,server.xml,hibernate.cfg.xml,hibernate.properties,liquibase.properties,flyway.conf,checkstyle.xml,pmd.xml,spotbugs.xml,findbugs.xml,jacoco.xml,spring.factories,manifest.mf,quarkus.properties,application.conf,reference.conf,logging.properties,ivy.xml,ivysettings.xml,build.xml,pom.properties,jitpack.yml,catalog-info.yaml,.jvmopts,.sbtopts,jvmopts,sbtopts
+go-config cyan g:sliders n=gqlgen.yml,sqlc.yaml,sqlc.yml,sqlc.json,buf.yaml,buf.gen.yaml,buf.work.yaml,buf.lock,.ko.yaml,ko.yaml,tools.go,doc.go,wire.go,wire_gen.go
+python-env blue g:sliders n=environment.yml,environment.yaml,conda.yaml,conda.yml,.condarc,condarc,pip.conf,pip.ini,.pypirc,pyrightconfig.json,.pyre_configuration,.pytype.cfg,pytype.cfg,.style.yapf,.yapfignore,.pycodestyle,pydocstyle.ini,gunicorn.conf.py,uwsgi.ini,celeryconfig.py,alembic.ini,manage.py,wsgi.py,asgi.py,settings.py,urls.py,ipython_config.py,jupyter_notebook_config.py,jupyter_lab_config.py,jupyter_server_config.py
+ruby-config red g:sliders n=.ruby-gemset,.rvmrc,.irbrc,.pryrc,.gemrc,.rubocop.local.yml,config.ru,rack.ru,application.rb,environment.rb,routes.rb,schema.rb,seeds.rb,database.yml,secrets.yml,credentials.yml.enc,master.key,puma.rb,unicorn.rb,sidekiq.yml,newrelic.yml,cable.yml,storage.yml,importmap.rb,boot.rb,.solargraph.yml,solargraph.yml,.standard.yml
+php-config indigo g:sliders n=php.ini,php.ini-development,php.ini-production,.user.ini,php-fpm.conf,www.conf,artisan,wp-config.php,wp-config-sample.php,phpcs.xml,phpcs.xml.dist,.phpcs.xml,phpmd.xml,rector.php,ecs.php,pint.json,infection.json5,infection.json,.php_cs,.php_cs.dist,.php-cs-fixer.dist.php,.phan,psalm-baseline.xml,psalm.xml.dist,deptrac.yaml,_ide_helper.php,.phpstorm.meta.php
+dotnet-config purple g:sliders n=launchsettings.json,appsettings.development.json,appsettings.production.json,appsettings.staging.json,appsettings.test.json,appsettings.local.json,secrets.json,machine.config,.csharpierrc,.csharpierrc.json,.csharpierrc.yaml,stylecop.json,.globalconfig,dotnet-tools.json,paket.dependencies,paket.references,fsharplint.json,fantomas.json,.nuget,.paket,.ionide

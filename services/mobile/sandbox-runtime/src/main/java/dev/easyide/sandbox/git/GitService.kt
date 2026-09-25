@@ -35,6 +35,24 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
 
     suspend fun status(projectDir: File): GitResult<GitStatus> = run(projectDir) { it.status() }
 
+    /**
+     * Branch and change count without opening a workspace, for project lists.
+     * Reuses a handle the workspace already holds, but never caches a new one:
+     * a list of many projects would otherwise pin a JGit repository per row.
+     */
+    suspend fun summary(projectDir: File): GitResult<GitSummary> = withContext(ioDispatcher) {
+        runCatching {
+            if (!GitRepository.isRepository(projectDir)) return@runCatching null
+            val cached = synchronized(openRepositories) {
+                openRepositories[projectDir.absolutePath]?.takeIf { it.gitDirExists() }
+            }
+            cached?.summary() ?: GitRepository.open(projectDir)?.use { it.summary() }
+        }.fold(
+            onSuccess = { value -> if (value == null) GitResult.NotARepository else GitResult.Success(value) },
+            onFailure = { GitResult.Failure(it.message ?: it::class.java.simpleName) },
+        )
+    }
+
     suspend fun stage(projectDir: File, paths: Collection<String>): GitResult<GitStatus> =
         run(projectDir) { it.stage(paths); it.status() }
 
@@ -49,13 +67,119 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
         message: String,
         authorName: String,
         authorEmail: String,
+        amend: Boolean = false,
     ): GitResult<GitStatus> = run(projectDir) {
-        it.commit(message, authorName, authorEmail)
+        it.commit(message, authorName, authorEmail, amend)
         it.status()
     }
 
+    /** The saved commit-message draft; empty when there is none or the project is not a repository. */
+    suspend fun readDraft(projectDir: File): String = run(projectDir) { it.readDraft() }.valueOrNull().orEmpty()
+
+    suspend fun writeDraft(projectDir: File, text: String): GitResult<Unit> =
+        run(projectDir) { it.writeDraft(text) }
+
+    /** True when HEAD is already on some remote, so amending it would rewrite shared history. */
+    suspend fun isHeadPushed(projectDir: File): GitResult<Boolean> = run(projectDir) { it.isHeadPushed() }
+
+    suspend fun fileDiff(projectDir: File, path: String, source: DiffSource): GitResult<FileDiff> =
+        run(projectDir) { it.fileDiff(path, source) }
+
+    /** One comparison of a path between any two ends: two revisions, a revision and the index or working tree, or the index and the working tree. */
+    suspend fun compare(projectDir: File, path: String, base: DiffEnd, head: DiffEnd): GitResult<FileDiff> =
+        run(projectDir) { it.fileDiff(path, base, head) }
+
+    /** The commit [rev] names with the files it changed; a failure when [rev] resolves to nothing. */
+    suspend fun commitDetail(projectDir: File, rev: String): GitResult<GitCommitDetail> =
+        run(projectDir) { it.commitDetail(rev) ?: throw IllegalArgumentException("Unknown revision: $rev") }
+
+    suspend fun stageHunk(projectDir: File, path: String, hunk: DiffHunk): GitResult<GitStatus> =
+        run(projectDir) { it.stageHunk(path, hunk); it.status() }
+
+    suspend fun unstageHunk(projectDir: File, path: String, hunk: DiffHunk): GitResult<GitStatus> =
+        run(projectDir) { it.unstageHunk(path, hunk); it.status() }
+
+    suspend fun discardHunk(projectDir: File, path: String, hunk: DiffHunk): GitResult<GitStatus> =
+        run(projectDir) { it.discardHunk(path, hunk); it.status() }
+
+    suspend fun branches(projectDir: File): GitResult<List<GitBranch>> = run(projectDir) { it.branchInfos() }
+
+    suspend fun createBranch(
+        projectDir: File,
+        name: String,
+        startPoint: String?,
+        checkout: Boolean,
+    ): GitResult<GitStatus> = run(projectDir) { it.createBranch(name, startPoint, checkout); it.status() }
+
+    suspend fun switchBranch(projectDir: File, name: String): GitResult<GitStatus> =
+        run(projectDir) { it.switchBranch(name); it.status() }
+
+    suspend fun deleteBranch(projectDir: File, name: String, force: Boolean): GitResult<GitStatus> =
+        run(projectDir) { it.deleteBranch(name, force); it.status() }
+
+    suspend fun renameBranch(projectDir: File, oldName: String, newName: String): GitResult<GitStatus> =
+        run(projectDir) { it.renameBranch(oldName, newName); it.status() }
+
+    suspend fun remotes(projectDir: File): GitResult<List<GitRemoteInfo>> = run(projectDir) { it.remoteInfos() }
+
+    suspend fun addRemote(projectDir: File, name: String, url: String): GitResult<List<GitRemoteInfo>> =
+        run(projectDir) { it.addRemote(name, url); it.remoteInfos() }
+
+    suspend fun removeRemote(projectDir: File, name: String): GitResult<List<GitRemoteInfo>> =
+        run(projectDir) { it.removeRemote(name); it.remoteInfos() }
+
+    suspend fun stashes(projectDir: File): GitResult<List<GitStashEntry>> = run(projectDir) { it.stashEntries() }
+
+    /** Success carries the new status; a nothing-to-stash outcome is a [GitResult.Failure], not a silent no-op. */
+    suspend fun stash(projectDir: File, message: String?, includeUntracked: Boolean): GitResult<GitStatus> =
+        run(projectDir) {
+            check(it.stashPush(message, includeUntracked)) { "No local changes to stash" }
+            it.status()
+        }
+
+    suspend fun stashPop(projectDir: File, index: Int): GitResult<GitStatus> =
+        run(projectDir) { it.stashPop(index); it.status() }
+
+    suspend fun stashApply(projectDir: File, index: Int): GitResult<GitStatus> =
+        run(projectDir) { it.stashApply(index); it.status() }
+
+    suspend fun stashDrop(projectDir: File, index: Int): GitResult<GitStatus> =
+        run(projectDir) { it.stashDrop(index); it.status() }
+
     suspend fun log(projectDir: File, limit: Int = LOG_LIMIT): GitResult<List<GitCommit>> =
         run(projectDir) { it.logAllRefs(limit) }
+
+    suspend fun refsByCommit(projectDir: File): GitResult<Map<String, List<GitRef>>> =
+        run(projectDir) { it.refsByCommit() }
+
+    /** A blank [message] makes a lightweight tag; otherwise an annotated one by the given tagger. */
+    suspend fun createTag(
+        projectDir: File,
+        name: String,
+        rev: String,
+        message: String?,
+        taggerName: String,
+        taggerEmail: String,
+    ): GitResult<Unit> = run(projectDir) { it.createTag(name, rev, message, taggerName, taggerEmail) }
+
+    suspend fun checkoutDetached(projectDir: File, rev: String): GitResult<GitStatus> =
+        run(projectDir) { it.checkoutDetached(rev); it.status() }
+
+    /** A conflicting pick is a [GitResult.Failure] that leaves the conflict in the tree for the merge banner. */
+    suspend fun cherryPick(projectDir: File, rev: String, authorName: String, authorEmail: String): GitResult<GitStatus> =
+        run(projectDir) { it.cherryPick(rev, authorName, authorEmail); it.status() }
+
+    /** Success carries null when the two revisions share no history. */
+    suspend fun mergeBase(projectDir: File, a: String, b: String): GitResult<String?> =
+        // run() reads a null block result as "not a repository", so the id travels in a list.
+        when (val r = run(projectDir) { listOfNotNull(it.mergeBase(a, b)) }) {
+            is GitResult.Success -> GitResult.Success(r.value.firstOrNull())
+            is GitResult.Failure -> r
+            GitResult.NotARepository -> GitResult.NotARepository
+        }
+
+    suspend fun changedBetween(projectDir: File, base: String, head: String): GitResult<List<GitCommitFile>> =
+        run(projectDir) { it.changedBetween(base, head) }
 
     /**
      * Runs [block] against the project's cached repository, creating one when
@@ -74,7 +198,7 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
             onSuccess = { value ->
                 if (value == null) GitResult.NotARepository else GitResult.Success(value)
             },
-            onFailure = { GitResult.Failure(it.message ?: it::class.java.simpleName) },
+            onFailure = { failureOf(it) },
         )
     }
 
@@ -85,7 +209,7 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
                 remember(projectDir, GitRepository.init(projectDir)).status()
             }.fold(
                 onSuccess = { GitResult.Success(it) },
-                onFailure = { GitResult.Failure(it.message ?: it::class.java.simpleName) },
+                onFailure = { failureOf(it) },
             )
         }
 
@@ -118,8 +242,21 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
  */
 sealed interface GitResult<out T> {
     data class Success<T>(val value: T) : GitResult<T>
-    data class Failure(val message: String) : GitResult<Nothing>
+    data class Failure(
+        val message: String,
+        val kind: GitFailureKind = GitFailureKind.UNKNOWN,
+    ) : GitResult<Nothing>
     data object NotARepository : GitResult<Nothing>
 
     fun valueOrNull(): T? = (this as? Success)?.value
 }
+
+/** Boundary translation of a JGit exception; the two typed cases are ones the UI offers a recovery for. */
+internal fun failureOf(error: Throwable): GitResult.Failure = GitResult.Failure(
+    message = error.message ?: error::class.java.simpleName,
+    kind = when (error) {
+        is org.eclipse.jgit.api.errors.CheckoutConflictException -> GitFailureKind.DIRTY_TREE
+        is org.eclipse.jgit.api.errors.NotMergedException -> GitFailureKind.UNMERGED_BRANCH
+        else -> GitFailureKind.UNKNOWN
+    },
+)

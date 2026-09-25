@@ -1,51 +1,27 @@
 package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import dev.easyide.app.R
 import dev.easyide.sandbox.files.FileNode
 
-/** Which naming dialog is open, if any. */
+/** Which dialog is open, if any. Names for files and folders are typed into the tree ([InlineEdit]), not asked for here. */
 internal sealed interface PendingPrompt {
-    data class NewFile(val parentDir: String) : PendingPrompt
-    data class NewFolder(val parentDir: String) : PendingPrompt
-    data class Rename(val node: FileNode) : PendingPrompt
     data class Delete(val node: FileNode) : PendingPrompt
     data class RenameTerminal(val tabId: String, val currentTitle: String) : PendingPrompt
     data class CloseDirtyTab(val tab: EditorTab) : PendingPrompt
-    data class LeaveWithUnsaved(val dirtyTabs: List<EditorTab>) : PendingPrompt
+    data class CloseWithUnsaved(val dirtyTabs: List<EditorTab>) : PendingPrompt
 }
 
 @Composable
 internal fun PromptDialogs(
     prompt: PendingPrompt?,
     callbacks: WorkspaceCallbacks,
+    onCloseProject: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     when (prompt) {
         null -> Unit
-
-        is PendingPrompt.NewFile -> NameInputDialog(
-            title = "New file",
-            initialValue = "",
-            confirmLabel = "Create",
-            onConfirm = { name -> callbacks.onCreateFile(prompt.parentDir, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.NewFolder -> NameInputDialog(
-            title = "New folder",
-            initialValue = "",
-            confirmLabel = "Create",
-            onConfirm = { name -> callbacks.onCreateFolder(prompt.parentDir, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
-
-        is PendingPrompt.Rename -> NameInputDialog(
-            title = "Rename",
-            initialValue = prompt.node.name,
-            confirmLabel = "Rename",
-            onConfirm = { name -> callbacks.onRename(prompt.node, name); onDismiss() },
-            onDismiss = onDismiss,
-        )
 
         is PendingPrompt.Delete -> ConfirmDeleteDialog(
             node = prompt.node,
@@ -54,9 +30,9 @@ internal fun PromptDialogs(
         )
 
         is PendingPrompt.RenameTerminal -> NameInputDialog(
-            title = "Rename terminal",
+            title = stringResource(R.string.wp_rename_terminal),
             initialValue = prompt.currentTitle,
-            confirmLabel = "Rename",
+            confirmLabel = stringResource(R.string.wp_rename),
             onConfirm = { name -> callbacks.onRenameTerminal(prompt.tabId, name); onDismiss() },
             onDismiss = onDismiss,
         )
@@ -72,11 +48,11 @@ internal fun PromptDialogs(
             )
         }
 
-        is PendingPrompt.LeaveWithUnsaved -> UnsavedChangesDialog(
+        is PendingPrompt.CloseWithUnsaved -> UnsavedChangesDialog(
             fileName = prompt.dirtyTabs.singleOrNull()?.name,
             fileCount = prompt.dirtyTabs.size,
-            onSave = { onDismiss(); callbacks.onSaveTabs(prompt.dirtyTabs.map { it.relativePath }, callbacks.onBack) },
-            onDiscard = { onDismiss(); callbacks.onBack() },
+            onSave = { onDismiss(); callbacks.onSaveTabs(prompt.dirtyTabs.map { it.relativePath }, onCloseProject) },
+            onDiscard = { onDismiss(); onCloseProject() },
             onDismiss = onDismiss,
         )
     }

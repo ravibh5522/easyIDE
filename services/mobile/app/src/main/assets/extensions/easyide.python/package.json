@@ -241,13 +241,13 @@
         {
           "id": "tools",
           "title": "Install pyright and ruff",
-          "run": "npm install -g pyright && pipx install ruff && pipx ensurepath"
+          "run": "npm install -g pyright && PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install ruff"
         }
       ],
       "verify": "command -v pyright-langserver && command -v ruff",
       "uninstall": [
         "npm uninstall -g pyright",
-        "pipx uninstall ruff"
+        "PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx uninstall ruff"
       ]
     },
     "statusBarItems": [

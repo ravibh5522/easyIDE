@@ -8,8 +8,12 @@ import dev.easyide.extensions.manifest.SemVer
 /** One contribution with its owner, identity and manifest location (for the inspector). */
 data class Owned<T>(val owner: Owner, val ref: ContributionRef, val pointer: String, val value: T)
 
-/** An enabled extension as the registry sees it; list order is `EnabledSet` order (earliest installed first). */
-data class RegisteredExtension(val id: ExtensionId, val version: SemVer, val contributions: Contributions)
+/**
+ * An enabled extension as the registry sees it; list order is `EnabledSet` order (earliest installed first).
+ * [uiGranted] is whether `ui.contribute` is granted: without it the shell points (navigation, documents, presets,
+ * schema views and the shell's container forms) are left out, while everything an older pack contributes stays.
+ */
+data class RegisteredExtension(val id: ExtensionId, val version: SemVer, val contributions: Contributions, val uiGranted: Boolean = true)
 
 /** A collision resolved by the extension-runtime.md sec 7.1 rules; logged and shown by the inspector. */
 data class ContributionConflict(val ref: ContributionRef, val winner: Owner, val loser: Owner, val code: String, val message: String)
@@ -40,6 +44,11 @@ data class ContributionSnapshot(
     val languageServers: List<Owned<LanguageServerContribution>> = emptyList(),
     val sandbox: List<Owned<SandboxContribution>> = emptyList(),
     val viewData: List<Owned<ViewDataContribution>> = emptyList(),
+    val navigation: List<Owned<NavigationContribution>> = emptyList(),
+    val viewBadges: List<Owned<ViewBadgeContribution>> = emptyList(),
+    val documents: List<Owned<DocumentContribution>> = emptyList(),
+    val documentOpeners: List<Owned<DocumentOpenerContribution>> = emptyList(),
+    val layoutPresets: List<Owned<LayoutPresetContribution>> = emptyList(),
     val conflicts: List<ContributionConflict> = emptyList(),
 )
 
@@ -52,7 +61,7 @@ data class ContributionSnapshot(
 internal object ContributionResolver {
 
     fun resolve(version: Long, builtIn: Contributions, enabled: List<RegisteredExtension>): ContributionSnapshot {
-        val sources = listOf<Pair<Owner, Contributions>>(Owner.BuiltIn to builtIn) + enabled.map { Owner.Ext(it.id) to it.contributions }
+        val sources = listOf<Pair<Owner, Contributions>>(Owner.BuiltIn to builtIn) + enabled.map { Owner.Ext(it.id) to if (it.uiGranted) it.contributions else it.contributions.withoutShellPoints() }
         val conflicts = ArrayList<ContributionConflict>()
 
         fun <T> all(kind: ContributionRef.Kind, point: String, pick: (Contributions) -> List<T>, id: (T) -> String, location: (T) -> String? = { null }) =
@@ -136,6 +145,11 @@ internal object ContributionResolver {
                     }
                 }
             },
+            navigation = firstWins(all(Kind.NAVIGATION, "/easyide/navigation", { it.navigation }, { it.id }), { it.value.id }),
+            viewBadges = all(Kind.VIEW_BADGE, "/easyide/viewBadge", { it.viewBadges }, { it.nav }),
+            documents = firstWins(all(Kind.DOCUMENT, "/easyide/documents", { it.documents }, { it.type }), { it.value.type }),
+            documentOpeners = all(Kind.DOCUMENT_OPENER, "/easyide/documentOpeners", { it.documentOpeners }, { "${it.glob}=>${it.type}" }),
+            layoutPresets = firstWins(all(Kind.LAYOUT_PRESET, "/easyide/layoutPresets", { it.layoutPresets }, { it.id }), { it.value.id }),
             conflicts = conflicts,
         )
     }

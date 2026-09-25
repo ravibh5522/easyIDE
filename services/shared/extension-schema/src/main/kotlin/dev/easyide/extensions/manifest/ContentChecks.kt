@@ -77,10 +77,22 @@ internal class ContentChecks(private val ctx: DecodeContext) {
         }
     }
 
-    /** Resolves [ref] against the directory of [base], the way VS Code resolves theme-relative paths. */
+    /**
+     * Resolves [ref] against the directory of [base], the way VS Code resolves theme-relative paths:
+     * `..` steps up (Material's `./../icons/x.svg` from `dist/`). A reference that climbs out of the
+     * package keeps its `..`, which [PackagePaths.normalize] then rejects.
+     */
     private fun resolveRelative(base: PackageFile, ref: String): String {
-        val dir = base.path.substringBeforeLast('/', "")
-        return if (dir.isEmpty()) ref else "$dir/$ref"
+        if (ref.startsWith("/") || ref.contains('\\')) return ref
+        val parts = base.path.split('/').dropLast(1).toMutableList()
+        for (seg in ref.split('/')) {
+            when (seg) {
+                "", "." -> Unit
+                ".." -> if (parts.isEmpty()) return ".." else parts.removeAt(parts.lastIndex)
+                else -> parts += seg
+            }
+        }
+        return parts.joinToString("/")
     }
 
     /** I/O boundary: an unreadable file is an E_CONTENT error for that file. */

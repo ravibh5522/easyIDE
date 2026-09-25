@@ -31,7 +31,7 @@ data class DynamicStatusItem(val item: StatusItem, val priority: Int)
 /**
  * UI that WASM extensions publish at runtime, beside their static contributions: status
  * bar items (merged into the workspace status bar with the contributed ones) and view data.
- * No contributed view is rendered anywhere yet, so [viewData] is kept for when one is.
+ * Views draw from the shell's own data hub ([onViewData]); [viewData] keeps the last value per view for the Extension page.
  * Everything of an extension is dropped when its instance goes ([clear]).
  */
 class WasmUiState {
@@ -47,7 +47,13 @@ class WasmUiState {
     fun setStatus(extensionId: String, item: DynamicStatusItem?, id: String) =
         status.update { if (item == null) it - (extensionId to id) else it + ((extensionId to id) to item) }
 
-    fun setView(extensionId: String, viewId: String, items: JsonElement) = views.update { it + ((extensionId to viewId) to items) }
+    /** Told of every `ui.setViewData`, so the shell's view data merges it (extension-ui.md section 4.4); null until wired. */
+    @Volatile var onViewData: ((viewId: String, update: JsonElement) -> Unit)? = null
+
+    fun setView(extensionId: String, viewId: String, items: JsonElement) {
+        views.update { it + ((extensionId to viewId) to items) }
+        onViewData?.invoke(viewId, items)
+    }
 
     fun clear(extensionId: String) {
         status.update { m -> m.filterKeys { it.first != extensionId } }

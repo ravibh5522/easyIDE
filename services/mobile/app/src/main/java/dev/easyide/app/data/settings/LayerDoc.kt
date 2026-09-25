@@ -43,6 +43,7 @@ enum class DiagnosticCode(val severity: Severity, @StringRes val message: Int) {
     KEY_ROW_LAYOUT(Severity.WARNING, R.string.settings_diag_key_row_layout),
     LSP_SERVER_INCOMPLETE(Severity.WARNING, R.string.settings_diag_lsp_incomplete),
     LSP_SERVER_FIELD(Severity.WARNING, R.string.settings_diag_lsp_field),
+    UNKNOWN_ICON(Severity.WARNING, R.string.settings_diag_unknown_icon),
 }
 
 /**

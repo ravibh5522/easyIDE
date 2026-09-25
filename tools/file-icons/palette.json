@@ -1,0 +1,25 @@
+{
+  "_doc": "Icon colours. dark is the fill on dark surfaces; light, when present, replaces it on light surfaces. Every fill must reach 3:1 against the editor and panel surfaces of the built-in palettes of its mode, and the auto-picked ink (white or near-black) 4.5:1 against the fill. FileIconsPaletteTest enforces both.",
+  "ink_light": "#ffffff",
+  "ink_dark": "#111318",
+  "colors": {
+    "red":     {"dark": "#cc3d3d"},
+    "orange":  {"dark": "#c05218"},
+    "amber":   {"dark": "#f0a020", "light": "#a85f00"},
+    "yellow":  {"dark": "#e6b800", "light": "#8c6d00"},
+    "lime":    {"dark": "#9ccc2e", "light": "#4e7a0a"},
+    "green":   {"dark": "#23874a"},
+    "teal":    {"dark": "#0f8078"},
+    "cyan":    {"dark": "#22c4e6", "light": "#0e7490"},
+    "sky":     {"dark": "#2a78c4"},
+    "blue":    {"dark": "#2f6fd8"},
+    "indigo":  {"dark": "#5a5fdb"},
+    "violet":  {"dark": "#8455d0"},
+    "purple":  {"dark": "#9c4fb8"},
+    "magenta": {"dark": "#b83b96"},
+    "pink":    {"dark": "#cc3f78"},
+    "brown":   {"dark": "#8f6040"},
+    "slate":   {"dark": "#66768c"},
+    "gray":    {"dark": "#6f747d"}
+  }
+}

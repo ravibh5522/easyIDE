@@ -1,0 +1,43 @@
+{
+  "viewSchema": 1,
+  "state": { "name": "", "image": "", "state": "", "logs": [], "env": [], "error": "" },
+  "root": {
+    "type": "column",
+    "children": [
+      { "type": "banner", "value": "{error}", "tone": "warning", "when": "error" },
+      {
+        "type": "row", "gap": "s", "align": "center", "padding": "m",
+        "children": [
+          { "type": "text", "value": "{name}", "role": "title", "weight": 1 },
+          { "type": "tag", "value": "{state}", "tone": "accent" }
+        ]
+      },
+      { "type": "text", "value": "{image}", "role": "mono", "tone": "neutral" },
+      {
+        "type": "row", "gap": "s", "padding": "m",
+        "children": [
+          { "type": "button", "label": "Start", "style": "primary", "when": "state != running", "action": "easyide.sample-docker.start", "args": { "id": "{key}" } },
+          { "type": "button", "label": "Stop", "when": "state == running", "action": "easyide.sample-docker.stop", "args": { "id": "{key}" }, "confirm": { "title": "Stop {name}?", "body": "The container stops. Its data is kept." } },
+          { "type": "button", "label": "Restart", "when": "state == running", "action": "easyide.sample-docker.restart", "args": { "id": "{key}" } },
+          {
+            "type": "button", "label": "Remove", "style": "danger", "action": "easyide.sample-docker.remove", "args": { "id": "{key}" },
+            "confirm": { "title": "Remove {name}?", "body": "The container is stopped and deleted. Its volumes stay.", "destructive": true }
+          }
+        ]
+      },
+      {
+        "type": "tabs",
+        "children": [
+          { "type": "tab", "title": "Logs", "children": [{ "type": "logStream", "bind": "logs", "follow": true }] },
+          {
+            "type": "tab", "title": "Environment",
+            "children": [{
+              "type": "table", "bind": "env", "key": "name",
+              "columns": [{ "title": "Name", "field": "name", "mono": true }, { "title": "Value", "field": "value", "weight": 2, "mono": true }]
+            }]
+          }
+        ]
+      }
+    ]
+  }
+}

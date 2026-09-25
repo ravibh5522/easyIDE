@@ -5,7 +5,7 @@
   toolbar, an inline editor-title button). Kept apart from strings.xml to avoid collisions.
 -->
 <resources>
-    <string name="command_toggle_line_comment">Toggle Line Comment</string>
+    <string name="command_toggle_line_comment">Toggle line comment</string>
 
     <string name="command_short_show_commands">Commands</string>
     <string name="command_short_toggle_line_comment">Comment</string>

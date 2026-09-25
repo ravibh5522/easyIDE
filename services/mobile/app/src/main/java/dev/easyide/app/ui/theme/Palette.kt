@@ -99,11 +99,15 @@ fun Palette.toTokens(): ThemeTokens {
             ColorToken.TEXT_DISABLED, ColorToken.LINE_NUMBER -> n.textFaint
 
             ColorToken.ACCENT, ColorToken.FOCUS_BORDER, ColorToken.TAB_ACTIVE_BORDER,
-            ColorToken.ACTIVITY_BAR_ACTIVE_BORDER, ColorToken.CURSOR, ColorToken.TERMINAL_CURSOR -> a
+            ColorToken.ACTIVITY_BAR_ACTIVE_BORDER, ColorToken.TERMINAL_CURSOR -> a
+            // The caret is neutral like VS Code's editorCursor.foreground: an accent caret on an accent selection vanishes.
+            ColorToken.CURSOR -> n.text
             ColorToken.ON_ACCENT -> accent.onAccent
             ColorToken.SELECTION -> a.copy(alpha = e.selection)
             ColorToken.CURRENT_LINE -> n.text.copy(alpha = e.currentLine)
-            ColorToken.BRACKET_MATCH -> a.copy(alpha = e.bracketMatch)
+            ColorToken.BRACKET_MATCH -> n.text.copy(alpha = e.bracketMatch)
+            ColorToken.BRACKET_MATCH_BORDER, ColorToken.SCROLLBAR_SLIDER -> n.textFaint
+            ColorToken.CURRENT_LINE_BORDER -> n.hairline
             // Opaque, so a row's own background never shows through the pill.
             ColorToken.LIST_ACTIVE_SELECTION -> a.copy(alpha = e.listSelection).compositeOver(n.panel)
 
@@ -123,6 +127,7 @@ fun Palette.toTokens(): ThemeTokens {
             ColorToken.HIGHLIGHT_WRITE -> s.info.copy(alpha = e.wordHighlight * 2)
             ColorToken.SEARCH_MATCH -> s.warning.copy(alpha = e.searchMatch)
             ColorToken.SEARCH_MATCH_CURRENT -> s.warning.copy(alpha = e.searchMatchCurrent)
+            ColorToken.SEARCH_MATCH_CURRENT_BORDER -> s.warning
             ColorToken.INLAY_HINT_BACKGROUND -> n.text.copy(alpha = e.inlayBackground)
 
             ColorToken.ANSI_BLACK, ColorToken.ANSI_RED, ColorToken.ANSI_GREEN, ColorToken.ANSI_YELLOW,

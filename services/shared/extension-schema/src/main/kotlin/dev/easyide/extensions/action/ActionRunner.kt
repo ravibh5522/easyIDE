@@ -106,6 +106,7 @@ class ActionRunner(
                 is Action.ShowQuickPick -> steps.quickPick(ctx, action)
                 is Action.ShowInputBox -> steps.inputBox(ctx, action)
                 is Action.RevealStage -> steps.revealStage(action)
+                is Action.OpenDocument -> steps.openDocument(ctx, action)
                 is Action.ExecuteCommand -> executeCommand(ctx, action)
                 is Action.ShowMessage -> showMessage(ctx, action, path)
                 is Action.Sequence -> sequence(ctx, action, path)

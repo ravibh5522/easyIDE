@@ -100,6 +100,37 @@ object CommandIds {
     const val SHOW_OUTLINE = "outline.focus"
     const val RESTART_LANGUAGE_SERVERS = "easyide.lsp.restartServers"
 
+    const val UNDO = "edit.undo"
+    const val REDO = "edit.redo"
+    const val FIND = "actions.find"
+    const val REPLACE = "editor.action.startFindReplace"
+    const val FIND_NEXT = "editor.action.nextMatchFindAction"
+    const val FIND_PREVIOUS = "editor.action.previousMatchFindAction"
+    const val GO_TO_LINE = "workbench.action.gotoLine"
+    const val QUICK_OPEN = "workbench.action.quickOpen"
+
+    /**
+     * Editing commands that live in the workspace but are not yet part of [ALL]: [ALL] is held
+     * equal to the shared list packs resolve against (`builtin-commands.json`) and to the
+     * pack-facing table, so adding these there is the extension side's change. Until then they
+     * are palette commands and keybinding targets ([KNOWN]) that a manifest cannot name.
+     */
+    val EDITING: Set<String> = setOf(UNDO, REDO, FIND, REPLACE, FIND_NEXT, FIND_PREVIOUS, GO_TO_LINE, QUICK_OPEN)
+
+    /**
+     * The stage's own commands (open beside, split, close a group, move a document). Like [EDITING] they
+     * are palette commands and keybinding targets that a manifest cannot name yet.
+     */
+    const val OPEN_TO_SIDE = "explorer.openToSide"
+    const val SPLIT_EDITOR = "workbench.action.splitEditor"
+    const val CLOSE_GROUP = "easyide.workspace.closeEditorGroup"
+    const val MOVE_EDITOR_TO_NEXT_GROUP = "workbench.action.moveEditorToNextGroup"
+
+    val STAGE: Set<String> = setOf(OPEN_TO_SIDE, SPLIT_EDITOR, CLOSE_GROUP, MOVE_EDITOR_TO_NEXT_GROUP)
+
+    /** Undo and redo, which a focused text field of an overlay (find, palette) must keep for itself. */
+    val HISTORY: Set<String> = setOf(UNDO, REDO)
+
     /**
      * Every built-in id: keybindings.json entries naming anything else get an "unknown command"
      * warning, and manifests referencing these resolve (ParseOptions.builtInCommands).
@@ -112,4 +143,7 @@ object CommandIds {
         GO_TO_TYPE_DEFINITION, GO_TO_IMPLEMENTATION, GO_TO_REFERENCES, RENAME, QUICK_FIX, FORMAT_DOCUMENT,
         FORMAT_SELECTION, TOGGLE_LINE_COMMENT, GOTO_SYMBOL, SHOW_ALL_SYMBOLS, SHOW_PROBLEMS, SHOW_OUTLINE, RESTART_LANGUAGE_SERVERS,
     )
+
+    /** Every id a keybindings.json entry may name without an "unknown command" warning. */
+    val KNOWN: Set<String> = ALL + EDITING + STAGE
 }

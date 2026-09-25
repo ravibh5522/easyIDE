@@ -1,6 +1,6 @@
 # 0019 - Visual identity: graphite neutrals, iris accent, Geist type, one token system
 
-Status: Proposed (implemented in `ui/theme/`; the accent hue awaits owner confirmation)
+Status: Proposed (accent default and motif amended by [0026](0026-identity-ui-kit-and-properties.md), also Proposed) (implemented in `ui/theme/`; the accent hue awaits owner confirmation)
 
 ## Context
 

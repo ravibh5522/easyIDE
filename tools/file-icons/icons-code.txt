@@ -1,0 +1,211 @@
+# One icon per line: id color content [e=extensions] [n=file names] [l=language ids]
+# content is t:XX (two-letter monogram, 3x5 pixel font) or g:name (a glyph from glyphs.json).
+# Lists are comma separated, no spaces. Keys are lower-cased by the generator.
+
+# --- JVM
+java orange t:JV e=java,jav l=java
+kotlin violet t:KT e=kt,ktm,kts l=kotlin
+scala red t:SC e=scala,sc,sbt,kojo l=scala
+groovy teal t:GR e=groovy,gvy,gy,gsh,jenkinsfile l=groovy,nextflow-groovy
+clojure green t:CJ e=clj,cljs,cljc,cljx,edn,bb l=clojure
+gradle teal g:gear e=gradle n=build.gradle,settings.gradle,gradle.properties,init.gradle
+gradle-kts violet g:gear n=build.gradle.kts,settings.gradle.kts
+gradle-wrapper teal g:terminal n=gradlew,gradlew.bat
+maven red g:package n=pom.xml,mvnw,mvnw.cmd,maven.config,jvm.config,extensions.xml,settings-security.xml
+sbt-build red g:gear n=build.sbt,build.properties
+proguard green g:shield n=proguard-rules.pro,proguard.cfg,consumer-rules.pro,proguard-android.txt
+# --- Apple
+swift orange t:SW e=swift l=swift
+objc sky t:OC e=m l=objective-c
+objcpp sky t:O+ e=mm l=objective-cpp
+swiftpm orange g:package n=package.swift,package.resolved
+cocoapods red g:package e=podspec n=podfile,cartfile
+xcode blue g:cube e=pbxproj,xcodeproj,xcworkspace
+xcode-config blue g:sliders e=xcconfig,entitlements
+xcode-scheme blue g:play e=xcscheme,xctestplan
+interface-builder blue g:layers e=storyboard,xib,nib
+plist sky g:table e=plist,strings,stringsdict,mobileconfig n=info.plist
+apple-script gray t:AP e=applescript,scpt,scptd l=applescript
+# --- C family
+c blue t:C e=c,i l=c
+cheader indigo t:H e=h
+cpp sky t:C+ e=cpp,cc,cxx,c++,cp,ino,ipp,tpp,inl,pde l=cpp,cpp-macro
+cppheader indigo t:H+ e=hpp,hh,hxx,h++
+csharp purple t:CS e=cs,csx,cake l=csharp
+fsharp cyan t:FS e=fs,fsi,fsx,fsscript,fsl,fsy l=fsharp
+vb violet t:VB e=vb,bas,frm,vba l=vb
+vbscript slate t:VS e=vbs,wsf,wsh,vbe
+razor purple g:tag e=cshtml,razor,vbhtml l=razor
+xaml blue g:layers e=xaml,axaml,mauiproj
+dotnet-project purple g:gear e=csproj,vbproj,fsproj,vcxproj,vcproj,sqlproj,dbproj,proj,nfproj,shproj,dotnet
+dotnet-solution purple g:stack e=sln,slnx,slnf
+dotnet-props purple g:sliders e=props,targets,ruleset,nuspec,resx n=global.json,nuget.config,directory.build.props,directory.build.targets,directory.packages.props,appsettings.json,web.config,app.config,packages.config
+objective-lib sky g:package e=framework,xcframework
+# --- systems
+go cyan t:GO e=go l=go
+go-mod cyan g:package n=go.mod,go.work
+go-sum cyan g:lock n=go.sum,go.work.sum
+rust brown t:RS e=rs l=rust
+rust-ron brown t:RN e=ron l=ron
+cargo brown g:package n=cargo.toml,rust-toolchain,rust-toolchain.toml,rustfmt.toml,.rustfmt.toml,clippy.toml,.clippy.toml
+zig amber t:ZG e=zig,zon l=zig
+nim yellow t:NM e=nim,nims,nimble,nimf
+crystal slate t:CR e=cr l=crystal
+vlang blue t:V e=vsh l=v
+dlang red t:D e=d,di l=d
+odin blue t:OD e=odin l=odin
+carbon slate t:CN e=carbon
+c3 sky t:C3 e=c3,c3i,c3t l=c3
+chapel green t:CH e=chpl l=chapel
+mojo red t:MJ e=mojo l=mojo
+moonbit pink t:MB e=mbt,mbti l=moonbit
+hare slate t:HR e=ha
+vala teal t:VA e=vala,vapi,gs l=vala,genie
+ada green t:AD e=ads,adb,ada,gpr
+pascal blue t:PA e=pas,lpr,dpr,dfm,lfm l=pascal
+fortran violet t:FT e=f,f90,f95,f03,f08,for,ftn,fpp,f77,f18 l=fortran-fixed-form,fortran-free-form
+cobol blue t:CB e=cob,cbl,cpy,cobol,pco l=cobol
+assembly slate g:chip e=asm,s,nasm,masm,inc,a51,x86 l=asm,mipsasm,riscv
+llvm blue t:LL e=ll,mir
+verilog green t:VL e=v,vh,sv,svh,svi,vlog,vl l=verilog,system-verilog
+vhdl teal t:VH e=vhd,vhdl,vho,vht l=vhdl
+wasm violet t:WA e=wasm l=wasm
+wat violet t:WT e=wat,wast l=wit
+# --- scripting
+python blue t:PY e=py,pyw,pyx,pxd,pxi,rpy,gyp,gypi,sage,pyde,pyp,pyt,xpy,wsgi,tac,smk,star l=python
+python-typing sky t:PI e=pyi
+python-compiled gray t:PC e=pyc,pyo,pyd
+python-init blue g:dot n=__init__.py
+python-main blue g:play n=__main__.py
+python-project blue g:package n=pyproject.toml,setup.py,pipfile,poetry.toml,manifest.in,setup.cfg,pdm.toml,hatch.toml,uv.toml
+python-req blue g:lines n=requirements.txt,requirements-dev.txt,requirements-test.txt,requirements.in,constraints.txt,dev-requirements.txt,test-requirements.txt,runtime.txt
+python-lint blue g:shield n=.flake8,pylintrc,.pylintrc,mypy.ini,.mypy.ini,ruff.toml,.ruff.toml,.pre-commit-config.yaml,.bandit,.isort.cfg
+ruby red t:RB e=rb,rbw,rake,gemspec,ru,rbi,thor,jbuilder l=ruby
+ruby-sig red t:RS e=rbs l=rbs
+erb red g:tag e=erb,rhtml,eruby l=erb
+gem red g:diamond n=gemfile,gems.rb,rakefile,guardfile,capfile,berksfile,dangerfile,brewfile,fastfile,appfile,matchfile,snapfile
+php indigo t:PH e=php,php3,php4,php5,php7,php8,phps,phpt,phtml,ctp,inc.php l=php,hack
+blade red t:BL e=blade.php l=blade
+twig green t:TW e=twig l=twig
+composer indigo g:package n=composer.json,composer.phar,phpunit.xml,phpunit.xml.dist,.php-cs-fixer.php,psalm.xml,phpstan.neon,phpstan.neon.dist
+perl sky t:PL e=pl,pm,pod,t,plx,psgi,al l=perl
+raku teal t:RK e=raku,rakumod,rakudoc,rakutest,p6,pm6,pl6 l=raku
+lua blue t:LU e=lua,rockspec,luau l=lua
+r sky t:R e=r,rprofile l=r
+julia purple t:JL e=jl l=julia
+dart cyan t:DA e=dart l=dart
+dart-generated cyan g:gear e=g.dart,freezed.dart,gr.dart,mocks.dart
+pubspec cyan g:package n=pubspec.yaml,pubspec.lock,analysis_options.yaml
+elixir violet t:EX e=ex,exs,eex,heex,leex,sface
+mix violet g:package n=mix.exs,mix.lock,.formatter.exs
+erlang red t:ER e=erl,hrl,escript,yrl,xrl,beam l=erlang
+rebar red g:package n=rebar.config,rebar.lock,relx.config,sys.config,vm.args
+gleam pink t:GL e=gleam l=gleam
+elm teal t:EL e=elm l=elm
+haskell violet t:HS e=hs,lhs,hsc,hs-boot,hsig l=haskell
+cabal violet g:package e=cabal n=stack.yaml,cabal.project,package.yaml
+ocaml orange t:ML e=ml,mli,mll,mly,mlt l=ocaml
+reason red t:RE e=re,rei
+purescript slate t:PS e=purs
+idris red t:ID e=idr,lidr
+agda blue t:AG e=agda,lagda
+lean teal t:LN e=lean l=lean
+coq amber t:CQ e=coq l=coq
+lisp gray t:LS e=lisp,lsp,cl,asd,ny,podsl l=common-lisp
+elisp purple t:EL e=el,elc l=emacs-lisp
+scheme slate t:SM e=scm,ss,sld,sls,sps,sch l=scheme
+racket red t:RK e=rkt,rktl,rktd,scrbl
+fennel green t:FN e=fnl l=fennel
+hy blue t:HY e=hy l=hy
+prolog slate t:PG e=prolog,pro,lgt,logtalk l=prolog
+smalltalk cyan t:ST e=st l=smalltalk
+stata blue t:SA e=do,ado,dta,mata,sthlp l=stata
+sas blue t:SS e=sas l=sas
+matlab amber t:MA e=mlx,matlab,slx
+wolfram red t:WL e=wl,wls,wlt,nb,wlnb
+tcl amber t:TC e=tcl,tk,itcl,tm
+awk slate t:AW e=awk,gawk l=awk
+vim green t:VI e=vim,vimrc,gvimrc l=viml n=.vimrc,_vimrc,.gvimrc,.ideavimrc
+autohotkey green t:AH e=ahk,ah1,ahkl,ah2 l=ahk
+applescript-lib gray t:AS e=osa
+actionscript red t:AS e=as,mxml l=actionscript-3
+haxe orange t:HX e=hx,hxsl,hxml,hxproj l=haxe,hxml
+coffee brown t:CF e=coffee,cson,iced,litcoffee,_coffee l=coffee
+imba pink t:IM e=imba l=imba
+jison slate t:JI e=jison,jisonlex l=jison
+gdscript blue t:GD e=gd l=gdscript
+godot-resource blue g:cube e=tscn,tres,godot,import,escn l=gdresource
+gdshader blue g:shader e=gdshader,gdshaderinc l=gdshader
+berry slate t:BE e=be l=berry
+beancount green t:BC e=beancount,bean l=beancount
+bicep sky t:BI e=bicep,bicepparam l=bicep
+bird2 slate t:BD l=bird2
+ballerina green t:BA e=bal l=ballerina
+cadence green t:CD e=cdc l=cadence
+cairo red t:CA e=cairo l=cairo
+clarity amber t:CL e=clar l=clarity
+move blue t:MV e=move l=move
+solidity slate t:SO e=sol l=solidity
+vyper blue t:VY e=vy l=vyper
+codeql purple t:QL e=ql,qll l=codeql
+fluent teal t:FL e=ftl l=fluent
+gherkin green t:GK e=feature l=gherkin
+gn slate t:GN e=gn,gni l=gn
+hlsl purple g:shader e=hlsl,fx,fxh,cginc,compute,shader l=hlsl,shaderlab
+wgsl sky g:shader e=wgsl l=wgsl
+glsl magenta g:shader e=glsl,vert,frag,geom,tesc,tese,comp,fsh,glslv,glslf,rgen,rint,rahit,rchit,rmiss l=es-tag-glsl
+metal-shader slate g:shader e=metal,msl
+cuda green t:CU e=cu,cuh
+nextflow green t:NF e=nf l=nextflow
+pkl amber t:PK e=pkl l=pkl
+polar teal t:PL l=polar
+puppet amber t:PU e=pp,epp l=puppet
+qml green t:QM e=qml,qmltypes,qmlproject l=qml,qmldir
+rosmsg slate t:RM l=rosmsg
+sdbl slate t:SD l=sdbl
+smithy teal t:SM e=smithy l=smithy
+soy sky t:SY e=soy l=soy
+splunk green t:SP l=splunk
+talon slate t:TL e=talon l=talonscript
+tasl slate t:TA l=tasl
+wenyan slate t:WY e=wy l=wenyan
+zenscript slate t:ZS e=zs l=zenscript
+logo slate t:LG e=lg,logo l=logo
+jssm slate t:FS e=jssm,jssm_state l=jssm
+openscad amber g:cube e=scad l=openscad
+edge purple t:ED e=edge l=edge
+# --- JavaScript and friends
+javascript yellow t:JS e=js,mjs,cjs,es,es6,jsm,pac,jsb l=javascript
+jsx cyan t:JX e=jsx l=jsx,javascriptreact
+typescript blue t:TS e=ts,mts,cts l=typescript
+tsx sky t:TX e=tsx l=tsx,typescriptreact
+ts-defs indigo t:DT e=d.ts,d.mts,d.cts
+js-min yellow g:lines e=min.js,min.mjs,min.cjs
+css-min sky g:lines e=min.css
+sourcemap gray g:map e=map,js.map,css.map,mjs.map
+js-test yellow g:flask e=test.js,spec.js,test.mjs,spec.mjs,test.cjs,spec.cjs,test.jsx,spec.jsx
+ts-test blue g:flask e=test.ts,spec.ts,test.tsx,spec.tsx,test.mts,spec.mts,test.cts,spec.cts,e2e-spec.ts,e2e.ts
+py-test blue g:flask n=conftest.py,pytest.ini,tox.ini,noxfile.py,.coveragerc
+flow amber t:FW e=flow,js.flow
+node-native green t:ND e=node
+ng-component red t:NG e=component.ts,directive.ts,pipe.ts,service.ts,module.ts,guard.ts,resolver.ts,interceptor.ts,component.html,component.css,component.scss,component.less l=angular-html,angular-ts,angular-expression,angular-inline-style,angular-inline-template,angular-let-declaration,angular-template,angular-template-blocks
+vue green t:VU e=vue l=vue,vue-html,vue-vine,vue-directives,vue-interpolations,vue-sfc-style-variable-injection,markdown-vue
+svelte orange t:SV e=svelte l=svelte
+astro violet t:AR e=astro l=astro
+glimmer orange t:GM l=glimmer-js,glimmer-ts
+marko pink t:MK e=marko l=marko
+handlebars orange t:HB e=hbs,handlebars,mustache,hjs l=handlebars
+pug brown t:PG e=pug,jade l=pug
+haml amber t:HM e=haml l=haml
+ejs yellow t:EJ e=ejs
+liquid sky t:LQ e=liquid l=liquid
+jinja red t:JJ e=jinja,jinja2,j2,jnj l=jinja,jinja-html
+nunjucks green t:NJ e=njk,nunjucks
+templ cyan t:TP e=templ l=templ
+mdc violet t:MC e=mdc l=mdc
+
+# --- remaining grammar languages
+typespec indigo t:TP e=tsp l=typespec
+ara purple t:AR e=ara l=ara
+bsl amber t:BS e=bsl,os l=bsl
+narrat slate t:NR e=narrat l=narrat

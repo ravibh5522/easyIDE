@@ -254,6 +254,25 @@ class LocalInstaller(
         inventory.rescan()
     }
 
+    /**
+     * Records or withdraws the user's approval of one declared capability of the active version
+     * of [pkg] (the extension page's per-capability revoke). Withdrawing leaves the pack in
+     * "needs approval" (enablement rule 5) until the capability is granted again. A package with
+     * no install record has nothing to edit: it already needs approval as a whole.
+     */
+    suspend fun setApproved(pkg: InstalledPackage, capability: String, approved: Boolean) {
+        require(pkg.source != Source.BUILT_IN) { "built-in extensions are trusted with what they declare" }
+        val id = pkg.directory.parentFile?.name ?: return
+        writeLock.withLock { withContext(io) {
+            state.update { s ->
+                val entry = s.entryFor(id, pkg.scope, pkg.envId)?.takeIf { it.version == pkg.directory.name } ?: return@update s
+                val next = if (approved) entry.approvedCapabilities + capability else entry.approvedCapabilities - capability
+                s.copy(installs = s.installs.map { if (it === entry) entry.copy(approvedCapabilities = next) else it })
+            }
+        } }
+        inventory.rescan()
+    }
+
     private suspend fun stage(adjust: (File) -> Unit, fill: (File) -> Unit): StageResult = withContext(io) {
         val dir = File(paths.extensionStagingDir, UUID.randomUUID().toString())
         try {

@@ -11,16 +11,14 @@
     <string name="setting_key_rows_active_desc">A key row id, or auto for the first row that applies to the file.</string>
 
     <string name="key_row_terminal_title">Terminal</string>
-    <string name="command_insert_snippet">Insert Snippet</string>
-    <string name="command_run_task">Run Task</string>
+    <string name="command_insert_snippet">Insert snippet</string>
+    <string name="command_run_task">Run task</string>
     <string name="command_show_extensions">Extensions</string>
 
     <string name="ext_manage_title">Manage extensions</string>
     <string name="ext_manage_desc">Installed and built-in extensions, install from a folder, the extension log.</string>
     <string name="ext_screen_title">Extensions</string>
     <string name="ext_install">Install</string>
-    <string name="ext_install_folder">Install from folder…</string>
-    <string name="ext_install_file">Install .easyext file…</string>
     <string name="ext_install_checking">Checking package…</string>
     <string name="ext_install_refused">Package refused</string>
     <string name="ext_install_failed">Install failed</string>
@@ -37,16 +35,12 @@
     <string name="ext_install_approve">Install</string>
     <string name="ext_env_this">this environment</string>
 
-    <string name="ext_safe_mode_title">Safe mode</string>
     <string name="ext_safe_mode_setting">Installed extensions are off because the safe mode setting is on.</string>
     <string name="ext_safe_mode_launcher">Installed extensions are off for this session (started in safe mode).</string>
     <string name="ext_safe_mode_auto">Installed extensions are off for this session: the app stopped twice in a row while loading extensions.</string>
     <string name="ext_safe_mode_suspects">Loading when it stopped: %1$s</string>
     <string name="ext_safe_mode_exit">Exit safe mode</string>
 
-    <string name="ext_source_builtin">built in</string>
-    <string name="ext_source_local">unsigned, local</string>
-    <string name="ext_source_registry">registry</string>
     <string name="ext_source_open_vsx">Open VSX, not signed by an easyIDE-registry publisher</string>
     <string name="ext_state_invalid">Invalid package</string>
     <string name="ext_state_other_env">Installed in another environment</string>
@@ -63,8 +57,6 @@
     <string name="ext_state_failed">Activation failed</string>
     <string name="ext_state_crashed">Crashed; restarts on next use</string>
     <string name="ext_state_enabled">Enabled</string>
-    <string name="ext_errors">Errors</string>
-    <string name="ext_warnings">Warnings</string>
     <string name="ext_capabilities">Capabilities</string>
     <string name="ext_capabilities_none">None</string>
     <string name="ext_scope_global">Installed for every environment</string>
@@ -112,6 +104,7 @@
     <string name="cap_lsp_request">Can query language servers about your code.</string>
     <string name="cap_clipboard">Can read and change your clipboard.</string>
     <string name="cap_ui_stage">Adds a panel.</string>
+    <string name="cap_ui_contribute">Adds screens and navigation items.</string>
     <string name="cap_ui_settings">Can change editor settings outside its own.</string>
     <string name="cap_secrets_read">Can use secrets you give it. It never sees git credentials.</string>
 </resources>

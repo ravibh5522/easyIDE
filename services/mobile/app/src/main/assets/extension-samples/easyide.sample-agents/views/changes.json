@@ -1,0 +1,22 @@
+{
+  "viewSchema": 1,
+  "state": { "files": [], "error": "" },
+  "root": {
+    "type": "column",
+    "children": [
+      { "type": "banner", "value": "{error}", "tone": "warning", "when": "error" },
+      {
+        "type": "list", "bind": "files", "key": "path",
+        "item": {
+          "type": "row", "padding": "s", "align": "center", "gap": "s",
+          "action": { "type": "openFile", "path": "${arg:path}" }, "args": { "path": "{path}" },
+          "children": [
+            { "type": "tag", "value": "{status}", "tone": "accent" },
+            { "type": "text", "value": "{path}", "role": "mono", "maxLines": 1, "weight": 1 }
+          ]
+        },
+        "empty": { "type": "emptyState", "message": "No changes." }
+      }
+    ]
+  }
+}

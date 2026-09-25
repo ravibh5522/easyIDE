@@ -1,6 +1,7 @@
 package dev.easyide.app
 
 import android.app.Application
+import dev.easyide.app.diagnostics.CrashHandler
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 
 class EasyIdeApplication : Application() {
@@ -11,6 +12,8 @@ class EasyIdeApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        // Before anything that can crash: an uncaught exception is written to disk, then handled as usual.
+        CrashHandler.install(container.crashReports, container.appLog, container.buildInfo)
         TextMateHighlighter.init(this)
         // Before any activity: the crash-journal verdict must hold before contributions register.
         container.extensions.start()
@@ -22,5 +25,6 @@ class EasyIdeApplication : Application() {
         super.onTrimMemory(level)
         container.lsp.onTrimMemory(level)
         container.extensions.wasm.onTrimMemory(level)
+        container.workspaces.onTrimMemory(level)
     }
 }

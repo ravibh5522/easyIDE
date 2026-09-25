@@ -11,10 +11,8 @@
 
     <string name="ext_tab_installed">Installed</string>
     <string name="ext_tab_browse">Browse</string>
-    <string name="ext_tab_browse_updates">Browse (%1$d updates)</string>
 
     <string name="reg_refresh">Refresh registries</string>
-    <string name="reg_none_title">No registry configured</string>
     <string name="reg_none_body">easyIDE has no public extension registry yet. Add one in settings.json under extensions.registries as {\"id\", \"url\", \"rootKey\"}, or install a package from a file or folder with +.</string>
     <string name="reg_config_problem">extensions.registries: %1$s</string>
     <string name="reg_refreshing">%1$s: refreshing…</string>
@@ -34,10 +32,8 @@
     <string name="reg_installed">installed %1$s</string>
     <string name="reg_update_available">Update available: %1$s</string>
     <string name="reg_incompatible">No version is compatible with this app.</string>
-    <string name="reg_capabilities_count">%1$d capabilities</string>
     <string name="reg_install">Install</string>
     <string name="reg_update">Update to %1$s</string>
-    <string name="reg_reinstalled">This version is installed</string>
     <string name="reg_detail_versions">Versions: %1$s</string>
     <string name="reg_detail_license">License: %1$s</string>
     <string name="reg_detail_categories">Categories: %1$s</string>

@@ -70,7 +70,9 @@
           "type": "object", "additionalProperties": false,
           "properties": {
             "activitybar": {"type": "array", "items": {"$ref": "#/$defs/viewContainer"}},
-            "panel": {"type": "array", "items": {"$ref": "#/$defs/viewContainer"}}
+            "panel": {"type": "array", "items": {"$ref": "#/$defs/viewContainer"}},
+            "sidebar": {"type": "array", "items": {"$ref": "#/$defs/viewContainer"}},
+            "secondarySidebar": {"type": "array", "items": {"$ref": "#/$defs/viewContainer"}}
           }
         },
         "viewsWelcome": {"type": "array", "items": {"$ref": "#/$defs/viewWelcome"}},
@@ -166,14 +168,17 @@
       "properties": {
         "id": {"$ref": "#/$defs/id"}, "name": {"type": "string", "minLength": 1}, "when": {"$ref": "#/$defs/when"},
         "type": {"enum": ["tree"]}, "icon": {"type": "string"}, "contextualTitle": {"type": "string"},
-        "visibility": {"enum": ["visible", "hidden", "collapsed"]}
+        "visibility": {"enum": ["visible", "hidden", "collapsed"]},
+        "schema": {"$ref": "#/$defs/path", "description": "A viewSchema 1 file (extension-ui.md section 4); needs ui.contribute"}
       }
     },
     "viewContainer": {
       "type": "object", "required": ["id", "title", "icon"], "additionalProperties": false,
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+$"}, "title": {"type": "string", "minLength": 1},
-        "icon": {"type": "string", "minLength": 1}
+        "icon": {"type": "string", "minLength": 1},
+        "scope": {"enum": ["app", "workspace", "both"]},
+        "locations": {"type": "array", "items": {"enum": ["sidebar", "secondarySidebar", "panel"]}}
       }
     },
     "viewWelcome": {
@@ -260,6 +265,11 @@
         "keyRows": {"type": "array", "items": {"$ref": "#/$defs/keyRow"}},
         "statusBarItems": {"type": "array", "items": {"$ref": "#/$defs/statusBarItem"}},
         "viewData": {"type": "object", "additionalProperties": {"$ref": "#/$defs/viewData"}},
+        "navigation": {"type": "array", "items": {"$ref": "#/$defs/navigationItem"}},
+        "viewBadge": {"type": "array", "items": {"$ref": "#/$defs/viewBadge"}},
+        "documents": {"type": "array", "items": {"$ref": "#/$defs/documentType"}},
+        "documentOpeners": {"type": "array", "items": {"$ref": "#/$defs/documentOpener"}},
+        "layoutPresets": {"type": "array", "items": {"$ref": "#/$defs/layoutPreset"}},
         "wasm": {"$ref": "#/$defs/wasm"}, "memoryBudgetMb": {"type": "integer", "minimum": 1}
       }
     },
@@ -352,8 +362,81 @@
     "viewData": {
       "type": "object", "required": ["kind", "from"], "additionalProperties": false,
       "properties": {
-        "kind": {"enum": ["list", "tree"]}, "from": {"$ref": "#/$defs/action"},
-        "refreshOn": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        "kind": {"enum": ["list", "tree", "object"]}, "from": {"$ref": "#/$defs/action"},
+        "refreshOn": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "intervalSec": {"type": "integer", "minimum": 2}
+      }
+    },
+    "badge": {
+      "type": "object", "required": ["view", "path"], "additionalProperties": false,
+      "properties": {
+        "view": {"type": "string", "minLength": 1}, "path": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["count", "dot"]}
+      }
+    },
+    "navigationItem": {
+      "type": "object", "required": ["id", "title", "icon", "target"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1},
+        "icon": {"type": "string", "minLength": 1},
+        "target": {
+          "type": "object", "additionalProperties": false,
+          "properties": {"container": {"type": "string", "minLength": 1}, "command": {"type": "string", "minLength": 1}}
+        },
+        "scope": {"enum": ["app", "workspace", "both"]}, "order": {"type": "integer"}, "when": {"$ref": "#/$defs/when"},
+        "badge": {"$ref": "#/$defs/badge"}
+      }
+    },
+    "viewBadge": {
+      "type": "object", "required": ["nav", "view", "path"], "additionalProperties": false,
+      "properties": {
+        "nav": {"type": "string", "minLength": 1}, "view": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1}, "kind": {"enum": ["count", "dot"]}
+      }
+    },
+    "documentType": {
+      "type": "object", "required": ["type", "title", "icon", "schema"], "additionalProperties": false,
+      "properties": {
+        "type": {"type": "string", "pattern": "^[^\\s/]+/[^\\s/]+$"}, "title": {"type": "string", "minLength": 1},
+        "icon": {"type": "string", "minLength": 1}, "schema": {"$ref": "#/$defs/path"},
+        "multiple": {"type": "boolean"}, "supportsSplit": {"type": "boolean"},
+        "state": {
+          "type": "object", "required": ["provider"], "additionalProperties": false,
+          "properties": {
+            "provider": {"type": "string", "minLength": 1}, "intervalSec": {"type": "integer", "minimum": 2}
+          }
+        }
+      }
+    },
+    "documentOpener": {
+      "type": "object", "required": ["glob", "type"], "additionalProperties": false,
+      "properties": {
+        "glob": {"type": "string", "minLength": 1, "maxLength": 256}, "type": {"type": "string", "minLength": 1},
+        "priority": {"enum": ["default", "option", "builtin"], "description": "builtin is reserved for core and refused"}
+      }
+    },
+    "layoutPreset": {
+      "type": "object", "required": ["id", "title"], "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1},
+        "sizeClass": {"type": "array", "items": {"enum": ["compact", "medium", "expanded"]}},
+        "containers": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "sidebar": {"type": "string", "minLength": 1}, "secondarySidebar": {"type": "string", "minLength": 1},
+            "panel": {"type": "string", "minLength": 1}
+          }
+        },
+        "panels": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "sidebar": {"type": "boolean"}, "secondarySidebar": {"type": "boolean"}, "panel": {"type": "boolean"}
+          }
+        },
+        "stage": {
+          "type": "object", "additionalProperties": false,
+          "properties": {"split": {"enum": ["row", "column"]}, "groups": {"type": "integer", "minimum": 1, "maximum": 4}}
+        }
       }
     },
     "wasm": {
@@ -417,7 +500,7 @@
         {"$ref": "#/$defs/insertSnippet"}, {"$ref": "#/$defs/setConfig"}, {"$ref": "#/$defs/toggleConfig"},
         {"$ref": "#/$defs/lspRequest"}, {"$ref": "#/$defs/executeCommand"}, {"$ref": "#/$defs/showQuickPick"},
         {"$ref": "#/$defs/showInputBox"}, {"$ref": "#/$defs/showMessage"}, {"$ref": "#/$defs/revealStage"},
-        {"$ref": "#/$defs/sequence"}
+        {"$ref": "#/$defs/openDocument"}, {"$ref": "#/$defs/sequence"}
       ]
     },
     "runInTerminal": {
@@ -577,6 +660,13 @@
         "type": {"const": "revealStage"}, "as": {"$ref": "#/$defs/bindName"},
         "stage": {"type": "string", "minLength": 1}, "view": {"type": "string", "minLength": 1},
         "focus": {"type": "boolean"}
+      }
+    },
+    "openDocument": {
+      "type": "object", "required": ["type", "uri"], "additionalProperties": false,
+      "properties": {
+        "type": {"const": "openDocument"}, "as": {"$ref": "#/$defs/bindName"}, "uri": {"type": "string", "minLength": 1},
+        "group": {"enum": ["active", "beside", "new"]}, "preview": {"type": "boolean"}
       }
     },
     "sequence": {

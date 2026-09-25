@@ -26,6 +26,8 @@ import dev.easyide.lsp.session.ServerKey
 import dev.easyide.lsp.session.SessionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -256,7 +258,20 @@ class WorkspaceLspController(
     fun install(status: ServerStatusUi) {
         val recipe = status.install ?: return
         ws.host.runInTerminal(recipe.script())
+        // The recipe runs in the user's shell, so nothing tells us when it ends: probe again on a
+        // timer until nothing is left uninstalled, so the notice goes away by itself.
+        reprobe?.cancel()
+        reprobe = scope.launch {
+            repeat(REPROBE_TRIES) {
+                delay(REPROBE_INTERVAL_MS)
+                val pending = statuses.value.filter { it.kind == ServerStatusKind.NOT_INSTALLED }
+                if (pending.isEmpty()) return@launch
+                pending.forEach { retryProbe(it.key) }
+            }
+        }
     }
+
+    private var reprobe: Job? = null
 
     fun retryProbe(key: ServerKey) = runtime.manager.retryProbe(key)
 
@@ -374,3 +389,7 @@ class WorkspaceLspController(
         stderrTail = s.stderrTail(),
     )
 }
+
+/** How often, and how many times, an install in progress is re-probed (about ten minutes). */
+private const val REPROBE_INTERVAL_MS = 4_000L
+private const val REPROBE_TRIES = 150

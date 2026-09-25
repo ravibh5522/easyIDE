@@ -2,7 +2,12 @@
 <!-- Theme and colour customization strings (customization.md sec 8-9). -->
 <resources>
     <string name="setting_icon_theme_title">File icon theme</string>
-    <string name="setting_icon_theme_desc">Icons in the explorer from an installed icon theme (PNG icons; SVG icons are not shown yet).</string>
+    <string name="setting_icon_file_assoc_title">File icon associations</string>
+    <string name="setting_icon_file_assoc_desc">Your own file icons, ahead of the icon theme: a file name, an extension or a glob mapped to an icon id of the active theme, for example {\"*.foo\": \"python\", \"Jenkinsfile\": \"docker\"}. Edit in settings.json.</string>
+    <string name="setting_icon_folder_assoc_title">Folder icon associations</string>
+    <string name="setting_icon_folder_assoc_desc">Your own folder icons: a folder name mapped to a folder icon id of the active theme, for example {\"api\": \"folder-api\"}. The open folder uses the id with -open added when the theme has it. Edit in settings.json.</string>
+    <string name="setting_icon_theme_desc">File and folder icons from an installed icon theme, in the explorer, quick open, search and source control.</string>
+    <string name="icon_theme_font_unsupported">This icon theme draws its icons from a font, which easyIDE cannot show. File rows keep the built-in icons; pick a theme with SVG or PNG icons.</string>
     <string name="icon_theme_builtin">Built-in icons</string>
     <string name="icon_theme_none_installed">No icon themes installed. Extensions can contribute one.</string>
     <string name="icon_theme_missing">%1$s (not installed)</string>

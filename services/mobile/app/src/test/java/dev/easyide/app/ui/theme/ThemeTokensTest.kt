@@ -51,8 +51,9 @@ class ThemeTokensTest {
 
     @Test fun `the accent marks focus everywhere and translucent tints stay translucent`() {
         val a = GraphiteDarkPalette.accent.accent
-        listOf(ColorToken.FOCUS_BORDER, ColorToken.TAB_ACTIVE_BORDER, ColorToken.CURSOR, ColorToken.TERMINAL_CURSOR)
+        listOf(ColorToken.FOCUS_BORDER, ColorToken.TAB_ACTIVE_BORDER, ColorToken.TERMINAL_CURSOR)
             .forEach { assertEquals(it.name, a, dark[it]) }
+        assertEquals("the editor caret is neutral, not the accent", GraphiteDarkPalette.neutrals.text, dark[ColorToken.CURSOR])
         assertEquals(GraphiteDarkPalette.emphasis.selection, dark[ColorToken.SELECTION].alpha, ALPHA_TOLERANCE)
         assertEquals(1f, dark[ColorToken.LIST_ACTIVE_SELECTION].alpha, ALPHA_TOLERANCE)
     }

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Developer-only copy for the kit gallery (debug and canary builds); never shipped in release. -->
+<resources>
+    <string name="devtools_section">Developer tools</string>
+    <string name="devtools_kit_gallery">Kit gallery</string>
+    <string name="devtools_kit_gallery_hint">Every UI primitive in every state, with live appearance controls</string>
+
+    <string name="gallery_title">Kit gallery</string>
+    <string name="gallery_banner">Controls here only re-theme this page; your settings are not changed.</string>
+    <string name="gallery_to_controls">Back to controls</string>
+    <string name="gallery_pair" translatable="false">%1$s / %2$s</string>
+
+    <!-- Controls -->
+    <string name="gallery_controls_title">Live properties</string>
+    <string name="gallery_controls_note">Each change re-themes everything below at once. Font scale stands in for the system font size.</string>
+    <string name="gallery_density">Density</string>
+    <string name="gallery_density_auto">Auto</string>
+    <string name="gallery_density_dense">Dense</string>
+    <string name="gallery_density_comfortable">Comfortable</string>
+    <string name="gallery_density_spacious">Spacious</string>
+    <string name="gallery_corners">Corners</string>
+    <string name="gallery_corners_sharp">Sharp</string>
+    <string name="gallery_corners_soft">Soft</string>
+    <string name="gallery_corners_round">Round</string>
+    <string name="gallery_font_scale">Font scale</string>
+    <string name="gallery_font_scale_value" translatable="false">%1$.1fx</string>
+    <string name="gallery_accent">Accent</string>
+    <string name="gallery_accent_default">Default</string>
+    <string name="gallery_accent_blue">Blue</string>
+    <string name="gallery_accent_violet">Violet</string>
+    <string name="gallery_accent_teal">Teal</string>
+    <string name="gallery_accent_pink">Pink</string>
+    <string name="gallery_theme_mode">Theme mode</string>
+    <string name="gallery_mode_system">System</string>
+    <string name="gallery_mode_light">Light</string>
+    <string name="gallery_mode_dark">Dark</string>
+    <string name="gallery_mode_amoled">Amoled</string>
+    <string name="gallery_motif">Motif</string>
+    <string name="gallery_motif_off">Off</string>
+    <string name="gallery_motif_subtle">Subtle</string>
+    <string name="gallery_motif_full">Full</string>
+    <string name="gallery_reduce_motion">Reduce motion</string>
+    <string name="gallery_reduce_motion_hint">Off follows the system setting</string>
+    <string name="gallery_reset">Reset all controls</string>
+
+    <!-- Shared captions -->
+    <string name="gallery_tone_neutral">Neutral</string>
+    <string name="gallery_tone_accent">Accent</string>
+    <string name="gallery_tone_success">Success</string>
+    <string name="gallery_tone_warning">Warning</string>
+    <string name="gallery_tone_danger">Danger</string>
+    <string name="gallery_tone_info">Info</string>
+    <string name="gallery_state_enabled">Enabled</string>
+    <string name="gallery_state_disabled">Disabled</string>
+    <string name="gallery_state_loading">Loading</string>
+    <string name="gallery_state_error">Error</string>
+    <string name="gallery_long_text">Long text</string>
+    <string name="gallery_long_label">A deliberately long label that has to wrap or ellipsize without clipping its control</string>
+    <string name="gallery_long_body">Everything that can go wrong is described here in one sentence that keeps going on purpose, so a narrow window and a 200 percent font both have to wrap it onto several lines.</string>
+    <string name="gallery_action_save">Save</string>
+    <string name="gallery_action_add">Add</string>
+    <string name="gallery_action_cancel">Cancel</string>
+    <string name="gallery_action_retry">Retry</string>
+    <string name="gallery_icon_settings">Settings</string>
+    <string name="gallery_icon_delete">Delete</string>
+    <string name="gallery_sample_path" translatable="false">/home/user/projects/app/src/main/kotlin/Main.kt</string>
+    <string name="gallery_sample_version" translatable="false">0.1.0-debug</string>
+
+    <!-- Row anatomy and type (density.md) -->
+    <string name="gallery_anatomy_title">Row anatomy</string>
+    <string name="gallery_anatomy_note">The same rows at Dense (left) and Comfortable (right): one line, fixed columns, description inline, no cards.</string>
+    <string name="gallery_anatomy_dense">Dense</string>
+    <string name="gallery_anatomy_comfortable">Comfortable</string>
+    <string name="gallery_tree_title">Explorer</string>
+    <string name="gallery_tree_root" translatable="false">easyide</string>
+    <string name="gallery_tree_src" translatable="false">src</string>
+    <string name="gallery_tree_main" translatable="false">main</string>
+    <string name="gallery_tree_kit" translatable="false">Kit.kt</string>
+    <string name="gallery_tree_row" translatable="false">KitRow.kt</string>
+    <string name="gallery_tree_test" translatable="false">test</string>
+    <string name="gallery_tree_readme" translatable="false">README.md</string>
+    <string name="gallery_badge_modified" translatable="false">M</string>
+    <string name="gallery_badge_new" translatable="false">A</string>
+    <string name="gallery_changes_title">Changes</string>
+    <string name="gallery_staged_title">Staged</string>
+    <string name="gallery_list_desc_path" translatable="false">ui/kit</string>
+    <string name="gallery_list_desc_long" translatable="false">services/mobile/app/src/main/java/dev/easyide/app/ui/kit</string>
+    <string name="gallery_list_title_long" translatable="false">KitTwoColumnRow.kt</string>
+    <string name="gallery_ext_name">Docker</string>
+    <string name="gallery_ext_desc">Containers, images and compose files in the sidebar</string>
+    <string name="gallery_ext_version" translatable="false">1.4.2</string>
+    <string name="gallery_ext_agents">Agents</string>
+    <string name="gallery_ext_agents_desc">Run a coding agent against the open project</string>
+    <string name="gallery_setting_wrap">Word wrap</string>
+    <string name="gallery_setting_wrap_desc">Wrap long lines in the editor instead of scrolling sideways</string>
+    <string name="gallery_setting_font">Editor font size</string>
+    <string name="gallery_setting_font_desc">In points; independent of the interface density</string>
+    <string name="gallery_setting_home">Home folder</string>
+    <string name="gallery_setting_home_desc">Where new projects are created</string>
+    <string name="gallery_type_title">Type</string>
+    <string name="gallery_type_note">Every role of Kit.text at Dense and Comfortable. The editor and terminal font sizes are user settings and are not in this set.</string>
+    <string name="gallery_type_sample">Sphinx of black quartz 0123</string>
+    <string name="gallery_type_role" translatable="false">%1$s %2$s sp</string>
+    <string name="gallery_role_display">display</string>
+    <string name="gallery_role_heading">heading</string>
+    <string name="gallery_role_title">title</string>
+    <string name="gallery_role_body">body</string>
+    <string name="gallery_role_caption">caption</string>
+    <string name="gallery_role_label">label</string>
+    <string name="gallery_role_mono">mono</string>
+    <string name="gallery_role_mono_small">monoSmall</string>
+
+    <!-- Rows and groups -->
+    <string name="gallery_rows_title">KitRow</string>
+    <string name="gallery_rows_note">A row is tappable only when it has a handler. The tappable, selected and disabled rows do nothing here.</string>
+    <string name="gallery_row_default">Plain row</string>
+    <string name="gallery_row_support">Row with support text</string>
+    <string name="gallery_row_support_text">One muted line under the title.</string>
+    <string name="gallery_row_tappable">Tappable row with slots</string>
+    <string name="gallery_row_tappable_text">Leading icon and a chevron.</string>
+    <string name="gallery_row_value">Row with a mono value</string>
+    <string name="gallery_row_selected">Selected row</string>
+    <string name="gallery_row_disabled">Disabled row</string>
+    <string name="gallery_row_disabled_text">Muted, and it does not respond.</string>
+    <string name="gallery_row_mono_text">Mono title for paths and ids</string>
+    <string name="gallery_row_long_title">A row whose title is long enough that it has to wrap onto a second line at any font scale</string>
+    <string name="gallery_row_long_text">Support text is capped at two lines. This one keeps going well past that limit, so the third line and everything after it is cut off with an ellipsis instead of growing the row.</string>
+    <string name="gallery_row_toggle">Row with a toggle</string>
+    <string name="gallery_row_actions">Row with two icon buttons</string>
+    <string name="gallery_groups_title">KitGroup</string>
+    <string name="gallery_group_text">A group in this tone.</string>
+    <string name="gallery_group_outer">Outer group</string>
+    <string name="gallery_group_inner">Inner group, flattened: no card in a card</string>
+
+    <!-- Feedback -->
+    <string name="gallery_banners_title">KitBanner</string>
+    <string name="gallery_banner_text">Something you should know about.</string>
+    <string name="gallery_banner_action">Action and dismiss</string>
+    <string name="gallery_empty_title">KitEmptyState</string>
+    <string name="gallery_empty_note">The box art draws only at motif Full; the action is led by the prompt glyph unless motif is Off.</string>
+    <string name="gallery_empty_with_action">With an action</string>
+    <string name="gallery_empty_plain">Without an action</string>
+    <string name="gallery_empty_offline">Long message</string>
+    <string name="gallery_empty_message">Nothing here yet.</string>
+    <string name="gallery_empty_action">New file</string>
+    <string name="gallery_progress_title">KitProgress</string>
+    <string name="gallery_progress_fraction">Determinate, %1$d%%</string>
+    <string name="gallery_progress_indeterminate">Indeterminate (cursor sweep; static with reduce motion)</string>
+
+    <!-- Buttons and tags -->
+    <string name="gallery_buttons_title">KitButton</string>
+    <string name="gallery_style_primary">Primary</string>
+    <string name="gallery_style_secondary">Secondary</string>
+    <string name="gallery_style_ghost">Ghost</string>
+    <string name="gallery_style_danger">Danger</string>
+    <string name="gallery_button_large">Large (dialog size)</string>
+    <string name="gallery_icon_buttons_title">KitIconButton</string>
+    <string name="gallery_icon_buttons_note">Six tones in order, each in a 44dp hit box.</string>
+    <string name="gallery_tags_title">KitTag</string>
+    <string name="gallery_tags_note">Per row: static, selected, tappable, with an icon.</string>
+    <string name="gallery_tag_text">Tag</string>
+
+    <!-- Fields and toggles -->
+    <string name="gallery_fields_title">KitField</string>
+    <string name="gallery_field_empty">Empty with a hint</string>
+    <string name="gallery_field_label">Label and value</string>
+    <string name="gallery_field_readonly">Read only</string>
+    <string name="gallery_field_mono">Mono (paths, JSON)</string>
+    <string name="gallery_field_multiline">Multi-line</string>
+    <string name="gallery_field_hint">Type here</string>
+    <string name="gallery_field_label_text">Project name</string>
+    <string name="gallery_field_value">my-project</string>
+    <string name="gallery_field_error">This name is already in use.</string>
+    <string name="gallery_toggles_title">KitToggle</string>
+    <string name="gallery_toggles_note">Per row: interactive, disabled off, disabled on, display only (the row owns the tap).</string>
+    <string name="gallery_kind_switch">Switch</string>
+    <string name="gallery_kind_check">Check</string>
+    <string name="gallery_kind_radio">Radio</string>
+
+    <!-- Navigation -->
+    <string name="gallery_tabs_title">KitTabs</string>
+    <string name="gallery_tabs_underline">Underline</string>
+    <string name="gallery_tabs_segmented">Segmented</string>
+    <string name="gallery_tab_files">Files</string>
+    <string name="gallery_tab_search">Search</string>
+    <string name="gallery_tab_git">Git</string>
+    <string name="gallery_choice_title">KitChoice</string>
+    <string name="gallery_choice_note">Few short options sit as segments; anything else becomes radio rows.</string>
+    <string name="gallery_choice_segments">Segments</string>
+    <string name="gallery_choice_list">List</string>
+    <string name="gallery_stepper_title">KitStepper</string>
+    <string name="gallery_stepper_at">Step %1$d of %2$d</string>
+
+    <!-- Overlays -->
+    <string name="gallery_overlays_title">KitDialog and KitMenu</string>
+    <string name="gallery_overlays_note">The dialog is a bottom sheet on a phone-width window and a centred card on wider ones.</string>
+    <string name="gallery_dialog_title">Dialog</string>
+    <string name="gallery_dialog_plain">Plain</string>
+    <string name="gallery_dialog_danger">Destructive</string>
+    <string name="gallery_dialog_long">Long content</string>
+    <string name="gallery_dialog_plain_title">Rename project</string>
+    <string name="gallery_dialog_danger_title">Delete project</string>
+    <string name="gallery_dialog_long_body">First paragraph of a long dialog body that keeps going so the content has to scroll or wrap instead of pushing the buttons off screen. Second sentence of the same paragraph, again longer than one line. Third sentence, to be sure the sheet is taller than a small window at 200 percent font size. Fourth and last sentence, which exists only to add height.</string>
+    <string name="gallery_menu_title">Menu</string>
+    <string name="gallery_menu_open">Open menu</string>
+    <string name="gallery_menu_checked">Word wrap</string>
+    <string name="gallery_menu_hint" translatable="false">Ctrl+N</string>
+
+    <!-- Motifs -->
+    <string name="gallery_motifs_title">Motifs</string>
+    <string name="gallery_motifs_note">Drawn, not typed. The cursor states show at every motif level; crop corners are one per view in the app, two here only to compare tones.</string>
+    <string name="gallery_cursor">Cursor: solid, hollow, blinking</string>
+    <string name="gallery_prompt_glyph">Prompt glyph</string>
+    <string name="gallery_crop_corners">Crop corners</string>
+    <string name="gallery_file_icons_title">File icons</string>
+    <string name="gallery_file_icons_note">The active icon theme across the families it draws. Colours are the theme\'s own and must read on light and dark.</string>
+    <string name="gallery_icon_tree_title">Project tree icons</string>
+    <string name="gallery_icon_tree_note">A sample project as the explorer lists it, drawn by the active icon theme at 16 and 24 dp.</string>
+    <string name="gallery_file_icons_size">%1$d dp</string>
+    <string name="gallery_icons_title">Icons</string>
+    <string name="gallery_icons_note">The 24 custom glyphs, drawn on the 24 grid with a 1.5 stroke, tinted by tone. Names are the resolver tokens.</string>
+    <string name="gallery_icons_core">Core</string>
+    <string name="gallery_icons_work">Work</string>
+    <string name="gallery_icons_git">Git</string>
+    <string name="gallery_icons_system">System</string>
+    <string name="gallery_icons_tones">Prompt in every tone</string>
+    <string name="gallery_icons_sizes">Branch at 16, 20, 24 and 32</string>
+</resources>

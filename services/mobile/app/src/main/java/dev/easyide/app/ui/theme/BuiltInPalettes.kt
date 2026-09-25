@@ -21,7 +21,7 @@ val GraphiteDarkPalette = Palette(
         textMuted = Color(0xFF9AA3B0),
         textFaint = Color(0xFF7A8494),
     ),
-    accent = Accent(accent = Color(0xFF7C8CFF), onAccent = Color(0xFF0E1014)),
+    accent = Accent(accent = Color(0xFFFF8A3D), onAccent = Color(0xFF0E1014)),
     signals = Signals(
         error = Color(0xFFF87171),
         warning = Color(0xFFFBBF24),
@@ -67,12 +67,12 @@ val GraphiteDarkPalette = Palette(
     ),
     emphasis = Emphasis(
         selection = 0.22f,
-        currentLine = 0.05f,
+        currentLine = 0.04f,
         listSelection = 0.18f,
-        bracketMatch = 0.22f,
+        bracketMatch = 0.12f,
         wordHighlight = 0.1f,
-        searchMatch = 0.28f,
-        searchMatchCurrent = 0.4f,
+        searchMatch = 0.22f,
+        searchMatchCurrent = 0.38f,
         inlayBackground = 0.06f,
     ),
 )
@@ -90,7 +90,7 @@ val PaperLightPalette = Palette(
         textMuted = Color(0xFF555B66),
         textFaint = Color(0xFF656B76),
     ),
-    accent = Accent(accent = Color(0xFF4355D6), onAccent = Color(0xFFFFFFFF)),
+    accent = Accent(accent = Color(0xFFB04600), onAccent = Color(0xFFFFFFFF)),
     signals = Signals(
         error = Color(0xFFC62828),
         warning = Color(0xFF8F5F00),
@@ -136,12 +136,12 @@ val PaperLightPalette = Palette(
     ),
     emphasis = Emphasis(
         selection = 0.2f,
-        currentLine = 0.045f,
+        currentLine = 0.04f,
         listSelection = 0.16f,
-        bracketMatch = 0.2f,
+        bracketMatch = 0.1f,
         wordHighlight = 0.1f,
-        searchMatch = 0.28f,
-        searchMatchCurrent = 0.4f,
+        searchMatch = 0.22f,
+        searchMatchCurrent = 0.38f,
         inlayBackground = 0.06f,
     ),
 )

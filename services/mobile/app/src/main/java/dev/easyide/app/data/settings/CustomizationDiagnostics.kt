@@ -1,5 +1,6 @@
 package dev.easyide.app.data.settings
 
+import dev.easyide.app.extensions.adapters.IconOverrides
 import dev.easyide.app.extensions.adapters.UserKeyRows
 import dev.easyide.app.lsp.servers.ServerConfigMerge
 import dev.easyide.extensions.contrib.ContributionOverrides
@@ -18,12 +19,21 @@ import kotlinx.serialization.json.JsonPrimitive
  */
 object CustomizationDiagnostics {
 
-    fun check(key: String, value: JsonElement): List<SettingsDiagnostic> = when (key) {
+    /** [iconIds]: the active icon theme's icon ids, or null when the built-in icons are active (nothing to check against). */
+    fun check(key: String, value: JsonElement, iconIds: Set<String>? = null): List<SettingsDiagnostic> = when (key) {
         ExtensionSettings.WORKBENCH_HIDDEN -> hidden(key, value)
         WorkbenchSettingsSchema.keyRowLayouts.key ->
             UserKeyRows.decode(value).problems.map { p -> SettingsDiagnostic(DiagnosticCode.KEY_ROW_LAYOUT, key, "row ${p.index + 1}: ${p.message}") }
         LspSettingsSchema.servers.key -> servers(value)
+        IconOverrides.FILE_KEY -> unknownIcons(key, value, iconIds)
+        IconOverrides.FOLDER_KEY -> unknownIcons(key, value, iconIds)
         else -> emptyList()
+    }
+
+    private fun unknownIcons(key: String, value: JsonElement, iconIds: Set<String>?): List<SettingsDiagnostic> {
+        iconIds ?: return emptyList()
+        val (files, folders) = if (key == IconOverrides.FILE_KEY) value to JsonObject(emptyMap()) else JsonObject(emptyMap()) to value
+        return IconOverrides.of(files, folders).unknownIds(iconIds).map { (_, _, id) -> SettingsDiagnostic(DiagnosticCode.UNKNOWN_ICON, key, id) }
     }
 
     private fun hidden(key: String, value: JsonElement): List<SettingsDiagnostic> =

@@ -114,6 +114,8 @@ New ADRs required before landing (hard to reverse):
 - Source control: dense input + ghost-button variants for editor chrome instead of stock M3 field/purple button (`SourceControlPane.kt:162-189`); progress line + skeleton rows (`:77,111`).
 - Home: skeleton cards while loading (`HomeScreen.kt:88-89`).
 
+> **Superseded in part (2026-09-24):** the layout, navigation and adaptive plan of this pillar is replaced by the shell model in [docs/ui-redesign/](../ui-redesign/arch.md) (ADR 0025). The input, keymap and command-registry items stay valid.
+
 ### Pillar 4 — Layout, navigation, input
 
 **Home (EXPANDED; COMPACT collapses to one column + detail screen)**

@@ -132,6 +132,20 @@ class Keymap(val bindings: List<KeyBinding>) {
                 KeyBinding(ctrlShift(KeyEvent.KEYCODE_O), CommandIds.GOTO_SYMBOL, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrl(KeyEvent.KEYCODE_T), CommandIds.SHOW_ALL_SYMBOLS, KeyFocus.OUTSIDE_TERMINAL),
                 KeyBinding(ctrlShift(KeyEvent.KEYCODE_M), CommandIds.SHOW_PROBLEMS, KeyFocus.ANYWHERE),
+                // Ctrl+Z/Y/F/H/G/P are shell control bytes (suspend, yank, ...): outside the terminal only.
+                KeyBinding(ctrl(KeyEvent.KEYCODE_Z), CommandIds.UNDO, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrlShift(KeyEvent.KEYCODE_Z), CommandIds.REDO, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_Y), CommandIds.REDO, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_F), CommandIds.FIND, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_H), CommandIds.REPLACE, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F3), CommandIds.FIND_NEXT, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(KeyChord(KeyEvent.KEYCODE_F3, shift = true), CommandIds.FIND_PREVIOUS, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_G), CommandIds.GO_TO_LINE, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_P), CommandIds.QUICK_OPEN, KeyFocus.OUTSIDE_TERMINAL),
+                // Ctrl+\ is the shell's quit signal and Ctrl+Enter a line feed: outside the terminal only.
+                KeyBinding(ctrl(KeyEvent.KEYCODE_BACKSLASH), CommandIds.SPLIT_EDITOR, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_ENTER), CommandIds.OPEN_TO_SIDE, KeyFocus.OUTSIDE_TERMINAL),
+                KeyBinding(ctrl(KeyEvent.KEYCODE_DPAD_RIGHT), CommandIds.MOVE_EDITOR_TO_NEXT_GROUP, KeyFocus.OUTSIDE_TERMINAL, prefix = ctrl(KeyEvent.KEYCODE_K)),
             )
         )
 
@@ -141,6 +155,8 @@ class Keymap(val bindings: List<KeyBinding>) {
             KeyEvent.KEYCODE_TAB to "Tab",
             KeyEvent.KEYCODE_SPACE to "Space",
             KeyEvent.KEYCODE_PERIOD to ".",
+            KeyEvent.KEYCODE_BACKSLASH to "\\",
+            KeyEvent.KEYCODE_DPAD_RIGHT to "Right",
         )
 
         fun label(chord: KeyChord): String = buildList {

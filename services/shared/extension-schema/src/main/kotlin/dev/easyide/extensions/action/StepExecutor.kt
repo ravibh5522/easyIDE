@@ -164,6 +164,13 @@ internal class StepExecutor(
         return JsonPrimitive(text).also { ctx.inputs[a.id] = it }
     }
 
+    suspend fun openDocument(ctx: ActionContext, a: Action.OpenDocument): JsonElement {
+        val uri = vars.expand(a.uri, ctx, QuoteMode.PLAIN)
+        if (!uri.startsWith("ext://${ctx.owner.value}/")) fail(ActionError.CAPABILITY, "'$uri' is not a document of ${ctx.owner.value}")
+        if (!host.openDocument(uri, a.group, a.preview)) fail(ActionError.UNAVAILABLE, "no document type opens '$uri'")
+        return JsonNull
+    }
+
     suspend fun revealStage(a: Action.RevealStage): JsonElement {
         host.revealStage(a.stage, a.view, a.focus)
         return JsonNull

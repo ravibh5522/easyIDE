@@ -349,9 +349,12 @@ picker's preview cards (Pillar 5) resolve candidates without applying them.
 first hit wins: file: `fileNames` (case-insensitive) > `fileExtensions` (longest multi-part
 first, `d.ts` before `ts`) > `languageIds` (language from `GrammarCatalog`) > `file`;
 folder: `folderNames`/`folderNamesExpanded` > `folder`/`folderExpanded`; the `light`
-section applies when the resolved base is light. PNG decodes with `BitmapFactory`; SVG needs
-a renderer the app does not have (Open issues 2). Decoded icons are cached (LRU of
-`SettingsPolicy.ICON_CACHE_ENTRIES`).
+section applies when the resolved base is light. `rootFolder`/`rootFolderExpanded` are read too.
+PNG decodes with `BitmapFactory`; SVG goes through `SvgParser` (a subset, no library) and `SvgRaster`,
+which draws at the row's pixel size in the icon's own colours. Rasterised icons are cached (LRU of
+`SettingsPolicy.ICON_CACHE_ENTRIES`, keyed by path and size) and loaded off the main thread.
+The default value of `workbench.iconTheme` is the built-in pack's theme (`easyide-file-icons`); an empty
+value is the explicit choice of the built-in glyphs. Authoring: [icon-themes.md](../icon-themes.md).
 
 ## 10. Key rows
 
@@ -579,9 +582,8 @@ JVM tests for pure pieces; Robolectric where DataStore or `FileObserver` is invo
 
 ## 20. Open issues
 
-1. SVG for icon themes and command icons needs a renderer; any library (e.g. AndroidSVG)
-   must have its license and maintenance verified from its repository before adoption.
-   PNG-only until then.
+1. SVG for command icons is handled by the monochrome mask path (ui/shell/ext); icon themes use their
+   own coloured subset renderer (`SvgParser`/`SvgRaster`), so no SVG library was adopted.
 2. Per-project profile association (arch.md sec 5.5 "switch per project") has no settings key;
    v1 supports only the global `profiles.active`.
 3. `ColorToken` set depends on ADR-A (`EasyIdeColors`); `ThemeColorMap` is written against

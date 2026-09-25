@@ -11,7 +11,8 @@ import org.junit.runner.RunWith
 
 /**
  * Records the classes and methods touched on the two paths users feel most:
- * cold start to Home, and opening a workspace from Home.
+ * cold start to Home, and opening a workspace from Home (a project row, then the project
+ * page's Open button).
  *
  * Opening a workspace needs an existing project, and creating one downloads a
  * rootfs, so the generator does not create it: run it on a device that
@@ -32,10 +33,10 @@ class BaselineProfileGenerator {
         // in :app, which this module cannot reference.
         device.wait(Until.findObject(By.text(ONBOARDING_CONTINUE)), UI_TIMEOUT_MS)?.click()
 
-        // Home's project grid is the only scrollable node; its first child is
-        // the first project card.
-        val grid = device.wait(Until.findObject(By.scrollable(true)), UI_TIMEOUT_MS)
-        grid?.children?.firstOrNull()?.click() ?: return@collect
+        // A project row opens its page; the page's Open button enters the workspace.
+        // Both are found by the kit test tags the app exposes as resource ids.
+        device.wait(Until.findObject(By.res(PROJECT_ROW)), UI_TIMEOUT_MS)?.click() ?: return@collect
+        device.wait(Until.findObject(By.res(PROJECT_OPEN)), UI_TIMEOUT_MS)?.click() ?: return@collect
         device.waitForIdle()
     }
 
@@ -48,6 +49,9 @@ class BaselineProfileGenerator {
 
     private companion object {
         const val ONBOARDING_CONTINUE = "Get started"
+        // Mirror HomeMetrics.PROJECT_ROW_ID and PROJECT_OPEN_ID behind the kit's `kit:` tag prefix.
+        const val PROJECT_ROW = "kit:project-row"
+        const val PROJECT_OPEN = "kit:project-open"
         const val UI_TIMEOUT_MS = 5_000L
     }
 }

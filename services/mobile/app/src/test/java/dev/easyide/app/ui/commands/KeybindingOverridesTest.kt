@@ -86,7 +86,11 @@ class KeybindingOverridesTest {
         assertEquals(CommandIds.SAVE_ALL, bound.keymap.commandFor(ctrlS, terminalFocused = false, prefix = k))
         // The single press keeps its own binding: the two steps are one key.
         assertEquals(CommandIds.SAVE, bound.keymap.commandFor(ctrlS, terminalFocused = false))
-        val removed = resolve("[{\"key\": \"ctrl+k ctrl+i\", \"command\": \"-editor.action.showHover\"}]")
+        // Ctrl+K stops being a prefix once every chord behind it is removed (hover, and moving an editor to the next group).
+        val removed = resolve(
+            "[{\"key\": \"ctrl+k ctrl+i\", \"command\": \"-editor.action.showHover\"}," +
+                "{\"key\": \"ctrl+k ctrl+right\", \"command\": \"-workbench.action.moveEditorToNextGroup\"}]",
+        )
         assertNull(removed.keymap.commandFor(ctrl(KeyEvent.KEYCODE_I), terminalFocused = false, prefix = k))
         assertFalse(removed.keymap.isPrefix(k, terminalFocused = false))
         // Removing by the single press alone does not touch the two-press binding.

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings on the shell: panel, pages, Appearance and Layout (docs/ui-redesign/screens.md 5,
+     properties.md 7). Identity voice: terse, sentence case, names the object, no isolation claims. -->
+<resources>
+    <string name="settings_category_files">Files</string>
+    <string name="settings_category_sandbox">Sandbox</string>
+    <string name="settings_category_layout">Layout</string>
+    <string name="settings_category_advanced">Advanced</string>
+
+    <string name="settings_page_unknown">No settings page named %1$s.</string>
+    <string name="settings_results_title">Results</string>
+    <string name="settings_search_prompt">Type in the search box. Filters: @modified, @ext:id, @lang:id.</string>
+    <string name="settings_search_empty">No settings match.</string>
+    <string name="settings_search_clear">Clear search</string>
+    <string name="safe_mode_banner_text">Safe mode is on. %1$s</string>
+
+    <string name="settings_layer_no_environment">No environment yet. Install Linux to add one.</string>
+    <string name="settings_layer_no_project">No project yet. Create one to set project values.</string>
+    <string name="settings_language_override">Language override</string>
+    <string name="settings_language_override_hint">python</string>
+    <string name="setting_value_invalid">Not a valid value. It is not saved.</string>
+
+    <string name="setting_overridden_note">Overridden by the %1$s layer.</string>
+    <string name="setting_protected_note">Protected: extensions cannot change this.</string>
+    <string name="setting_protected_in_project">Ignored in project files: it decides what runs.</string>
+    <string name="setting_not_per_language">Cannot be set per language.</string>
+
+    <string name="settings_env_state_ready">ready</string>
+    <string name="settings_env_state_installing">installing</string>
+    <string name="settings_env_state_failed">failed</string>
+    <string name="settings_env_state_not_installed">not installed</string>
+
+    <string name="settings_files_section">Settings files</string>
+    <string name="settings_reset_section">Reset</string>
+    <string name="settings_reset_all_desc">Removes every value the selected layer holds.</string>
+    <string name="settings_reset_all_question">Reset all %1$s settings?</string>
+    <string name="settings_profile_name_invalid">Letters, digits, space, - and _ only, and not already used.</string>
+
+    <string name="keys_conflicts_section">Conflicts</string>
+    <string name="keys_conflict_tag">conflict</string>
+    <string name="keys_none">No shortcuts match.</string>
+    <string name="keys_show_more">Show %1$d more</string>
+    <string name="keys_form_key_invalid">Not a key sequence.</string>
+    <string name="keys_form_command_required">Enter a command.</string>
+    <string name="lsp_form_key_invalid">A name without /.</string>
+
+    <string name="appearance_theme_section">Theme</string>
+    <string name="appearance_accent_section">Accent</string>
+    <string name="appearance_shape_section">Shape and density</string>
+    <string name="appearance_motion_section">Motion and feedback</string>
+    <string name="appearance_interface_section">Interface</string>
+    <string name="appearance_reset">Reset appearance</string>
+    <string name="appearance_reset_question">Reset appearance in the %1$s layer?</string>
+    <string name="appearance_reset_body">Theme, accent, density and the other appearance values set in the %1$s layer are removed. Lower layers and defaults apply again.</string>
+
+    <string name="appearance_preview_project">my-app</string>
+    <string name="appearance_preview_project_detail">~/projects/my-app  3 changed</string>
+    <string name="appearance_preview_branch">main</string>
+    <string name="appearance_preview_row">Word wrap</string>
+    <string name="appearance_preview_row_detail">Wrap long lines in the editor.</string>
+    <string name="appearance_preview_dialog_title">Discard 4 changes?</string>
+    <string name="appearance_preview_dialog_body">They are not recoverable.</string>
+    <string name="appearance_preview_confirm">Discard</string>
+
+    <string name="accent_theme">From theme</string>
+    <string name="accent_wallpaper">From wallpaper</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_iris">Iris</string>
+    <string name="accent_violet">Violet</string>
+    <string name="accent_teal">Teal</string>
+    <string name="accent_sky">Sky</string>
+    <string name="accent_rose">Rose</string>
+    <string name="accent_mono">Mono</string>
+    <string name="accent_hex_label">Custom colour</string>
+    <string name="accent_hex_hint">#FF8A3D</string>
+    <string name="accent_hex_invalid">Use #RGB, #RGBA, #RRGGBB or #RRGGBBAA.</string>
+    <string name="accent_adjusted">Adjusted for contrast. This is the colour in use.</string>
+    <string name="accent_adjusted_swatch">Colour in use</string>
+    <string name="accent_near_signal">Close to a status colour. Applied; it may read as a warning or an error.</string>
+
+    <string name="setting_layout_preset_title">Layout preset</string>
+    <string name="setting_layout_preset_desc">The arrangement of panels and the stage. Auto picks one for the window size. A project may set it.</string>
+    <string name="setting_nav_position_title">Navigation position</string>
+    <string name="setting_nav_position_desc">Auto is the bottom bar on a phone and a rail on wider windows.</string>
+    <string name="setting_nav_labels_title">Navigation labels</string>
+    <string name="setting_nav_labels_desc">Text under navigation icons.</string>
+    <string name="setting_nav_order_title">Navigation order</string>
+    <string name="setting_nav_order_desc">Item ids in display order. Items not listed follow in default order.</string>
+    <string name="setting_nav_hidden_title">Hidden navigation items</string>
+    <string name="setting_nav_hidden_desc">Item ids that are not shown. At least one item always stays.</string>
+    <string name="setting_nav_pinned_title">Pinned navigation items</string>
+    <string name="setting_nav_pinned_desc">Item ids that stay among the visible cells of the phone bar.</string>
+    <string name="setting_container_placement_title">Panel positions</string>
+    <string name="setting_container_placement_desc">Container id to sidebar, secondarySidebar or panel.</string>
+    <string name="layout_packs_section">Extension screens</string>
+    <string name="layout_packs_hint">Turn off an extension\'s navigation items, panels and documents here. The extension stays enabled.</string>
+    <string name="setting_ext_contribute_title">Extension screens</string>
+    <string name="setting_ext_contribute_desc">Extension id to false hides that extension\'s navigation items, panels and documents; its data and commands stay.</string>
+    <string name="setting_container_hidden_title">Hidden panels</string>
+    <string name="setting_container_hidden_desc">Container ids that are not shown anywhere.</string>
+    <string name="nav_position_auto">Auto</string>
+    <string name="nav_position_left">Left</string>
+    <string name="nav_position_right">Right</string>
+    <string name="nav_position_bottom">Bottom</string>
+    <string name="nav_labels_auto">Auto</string>
+    <string name="nav_labels_always">Always</string>
+    <string name="nav_labels_never">Never</string>
+
+    <string name="layout_arrangement_section">Arrangement</string>
+    <string name="layout_nav_app">Navigation: app</string>
+    <string name="layout_nav_workspace">Navigation: workspace</string>
+    <string name="layout_panels_section">Panels</string>
+    <string name="layout_preset_auto">Auto</string>
+    <string name="layout_preset_missing">%1$s (not available)</string>
+    <string name="layout_hidden">hidden</string>
+    <string name="layout_pinned">pinned</string>
+    <string name="layout_move_up">Move %1$s up</string>
+    <string name="layout_move_down">Move %1$s down</string>
+    <string name="layout_placement_sidebar">Sidebar</string>
+    <string name="layout_placement_secondary">Secondary sidebar</string>
+    <string name="layout_placement_panel">Bottom panel</string>
+    <string name="layout_hide_panel">Hide this panel</string>
+    <string name="layout_show_panel">Show this panel</string>
+</resources>

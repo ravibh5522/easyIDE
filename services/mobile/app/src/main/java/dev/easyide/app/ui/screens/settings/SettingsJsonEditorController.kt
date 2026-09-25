@@ -54,6 +54,8 @@ class SettingsJsonEditorController(
     private val scope: CoroutineScope,
     private val store: SettingsStore,
     private val profiles: ProfileManager,
+    /** The active icon theme's icon ids (null: built-in icons), so unknown ids in icon associations are reported. */
+    private val iconIds: StateFlow<Set<String>?>,
 ) {
     private val _state = MutableStateFlow<JsonEditorState?>(null)
     val state: StateFlow<JsonEditorState?> = _state.asStateFlow()
@@ -137,8 +139,8 @@ class SettingsJsonEditorController(
         val document = _state.value?.document ?: return
         val diagnostics = withContext(Dispatchers.Default) {
             when (document) {
-                is JsonDocument.SettingsLayer -> SettingsJsonDiagnostics.check(text, document.target.layer, store.schema.first())
-                JsonDocument.Keybindings -> KeymapResolver.resolve(Keymap.DEFAULT, KeybindingsFile.parse(text), CommandIds.ALL).diagnostics
+                is JsonDocument.SettingsLayer -> SettingsJsonDiagnostics.check(text, document.target.layer, store.schema.first(), iconIds.value)
+                JsonDocument.Keybindings -> KeymapResolver.resolve(Keymap.DEFAULT, KeybindingsFile.parse(text), CommandIds.KNOWN).diagnostics
             }
         }
         _state.update { s -> s?.takeIf { it.text == text }?.copy(diagnostics = diagnostics) ?: s }

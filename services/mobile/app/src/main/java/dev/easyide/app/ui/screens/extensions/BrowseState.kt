@@ -28,6 +28,19 @@ data class BrowseItem(
     val pinnedKey: String?,
 )
 
+/** What a Browse row offers: the install button's label and whether it can be pressed at all. */
+enum class BrowseAction { Install, Update, Installed, Unavailable }
+
+/** No compatible signed entry or no registry to fetch it from means nothing can be installed. */
+internal fun browseAction(entryVersion: String?, registryId: String?, installedVersion: String?): BrowseAction = when {
+    entryVersion == null || registryId == null -> BrowseAction.Unavailable
+    installedVersion == entryVersion -> BrowseAction.Installed
+    installedVersion != null -> BrowseAction.Update
+    else -> BrowseAction.Install
+}
+
+fun BrowseItem.action(): BrowseAction = browseAction(entry?.version?.toString(), registryId, installedVersion)
+
 data class BrowseUiState(
     val configured: Boolean = false,
     val problems: List<String> = emptyList(),

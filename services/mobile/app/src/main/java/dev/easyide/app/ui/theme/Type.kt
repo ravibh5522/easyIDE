@@ -8,6 +8,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import dev.easyide.app.R
+import dev.easyide.app.ui.kit.KitText
+import dev.easyide.app.ui.props.Density
+import dev.easyide.app.ui.props.FontPairing
 
 /**
  * Bundled families (decision 0019): Geist for UI, Geist Mono for code and the
@@ -26,58 +29,49 @@ object EasyIdeFonts {
         Font(R.font.geist_mono_regular, FontWeight.Normal),
         Font(R.font.geist_mono_bold, FontWeight.Bold),
     )
+
+    /** The family the interface (not the editor) is set in for a pairing. The editor and terminal keep [mono]. */
+    fun chrome(pairing: FontPairing): FontFamily = when (pairing) {
+        FontPairing.GEIST -> sans
+        FontPairing.MONO_CHROME -> mono
+        FontPairing.SYSTEM -> FontFamily.Default
+    }
+
+    /** The interface's monospace face: measured values, paths, ids. */
+    fun chromeMono(pairing: FontPairing): FontFamily = if (pairing == FontPairing.SYSTEM) FontFamily.Monospace else mono
 }
 
 /**
- * The dense IDE scale from ux-overhaul Pillar 3: an IDE shows far more text per
- * screen than a consumer app, so Material's 14-16sp body sizes are stepped down.
+ * The five type steps of one density, in sp (density.md 2). Every role of [dev.easyide.app.ui.kit.KitText]
+ * maps onto exactly one step, so a caption is the same size on every screen. The editor and terminal
+ * sizes are user settings and are not part of this scale.
  */
-object TypeScale {
-    val label = 11.sp
-    val dense = 12.sp
-    val body = 13.sp
-    val title = 15.sp
-    val screenTitle = 20.sp
-    val display = 28.sp
+data class TypeSteps(val label: TextUnit, val caption: TextUnit, val body: TextUnit, val heading: TextUnit, val display: TextUnit) {
+    val all: List<TextUnit> get() = listOf(label, caption, body, heading, display)
+}
 
+object TypeScale {
     /** Tracking for all-caps section headers, so short caps words stay legible at 11sp. */
     val capsTracking = 0.6.sp
+
+    fun steps(density: Density): TypeSteps = when (density) {
+        Density.DENSE -> TypeSteps(11.sp, 12.sp, 13.sp, 15.sp, 20.sp)
+        Density.COMFORTABLE -> TypeSteps(12.sp, 13.sp, 14.sp, 16.sp, 20.sp)
+        Density.SPACIOUS -> TypeSteps(13.sp, 14.sp, 15.sp, 17.sp, 22.sp)
+    }
 }
 
-private fun style(size: TextUnit, lineHeight: TextUnit, weight: FontWeight) = TextStyle(
-    fontFamily = EasyIdeFonts.sans,
-    fontWeight = weight,
-    fontSize = size,
-    lineHeight = lineHeight,
-    letterSpacing = 0.sp,
-)
-
 /**
- * Material roles mapped onto [TypeScale]. Components pick roles (a TopAppBar
- * title is `titleLarge`, a ListItem headline `bodyLarge`), so the mapping, not
- * call sites, decides that a screen title is 20sp and body text 13sp.
+ * Material roles mapped onto the [dev.easyide.app.ui.kit.KitText] roles, so a stock Material
+ * component and a kit component agree on a size. The kit reads `Kit.text`, never these.
  */
-val EasyIdeTypography = Typography(
-    displayLarge = style(TypeScale.display, 34.sp, FontWeight.SemiBold),
-    displayMedium = style(TypeScale.display, 34.sp, FontWeight.SemiBold),
-    displaySmall = style(TypeScale.display, 34.sp, FontWeight.Medium),
-    headlineLarge = style(TypeScale.screenTitle, 26.sp, FontWeight.SemiBold),
-    headlineMedium = style(TypeScale.screenTitle, 26.sp, FontWeight.SemiBold),
-    headlineSmall = style(TypeScale.screenTitle, 26.sp, FontWeight.Medium),
-    titleLarge = style(TypeScale.screenTitle, 26.sp, FontWeight.Medium),
-    titleMedium = style(TypeScale.title, 20.sp, FontWeight.Medium),
-    titleSmall = style(TypeScale.body, 18.sp, FontWeight.Medium),
-    bodyLarge = style(TypeScale.body, 20.sp, FontWeight.Normal),
-    bodyMedium = style(TypeScale.body, 18.sp, FontWeight.Normal),
-    bodySmall = style(TypeScale.dense, 16.sp, FontWeight.Normal),
-    labelLarge = style(TypeScale.body, 18.sp, FontWeight.Medium),
-    labelMedium = style(TypeScale.dense, 16.sp, FontWeight.Medium),
-    labelSmall = style(TypeScale.label, 16.sp, FontWeight.Medium),
+fun easyIdeTypography(text: KitText): Typography = Typography(
+    displayLarge = text.display, displayMedium = text.display, displaySmall = text.display,
+    headlineLarge = text.display, headlineMedium = text.display, headlineSmall = text.display,
+    titleLarge = text.display, titleMedium = text.heading, titleSmall = text.title,
+    bodyLarge = text.body, bodyMedium = text.body, bodySmall = text.caption,
+    labelLarge = text.title, labelMedium = text.caption, labelSmall = text.label,
 )
-
-/** 11sp caps header ("SOURCE CONTROL", "STAGED CHANGES"); the caller uppercases the text. */
-val Typography.sectionHeader: TextStyle
-    get() = labelSmall.copy(letterSpacing = TypeScale.capsTracking)
 
 /** Tabular figures, so counts and Ln/Col in the status bar do not jitter as digits change. */
 fun TextStyle.tabular(): TextStyle = copy(fontFeatureSettings = TABULAR_FIGURES)

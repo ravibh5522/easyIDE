@@ -2,23 +2,21 @@ package dev.easyide.app.ui.screens.workspace
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FolderOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import dev.easyide.app.R
-import dev.easyide.app.ui.components.EmptyState
+import dev.easyide.app.ui.kit.EmptyArt
+import dev.easyide.app.ui.kit.KitAction
+import dev.easyide.app.ui.kit.KitEmptyState
+import dev.easyide.app.ui.kit.KitProgress
 
 /** Shown while the project list is still loading, before the workspace can start. */
 @Composable
 fun WorkspaceLoading() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
+        KitProgress(fraction = null)
     }
 }
 
@@ -28,13 +26,10 @@ fun WorkspaceLoading() {
  */
 @Composable
 fun ProjectNotFound(onBackHome: () -> Unit) {
-    EmptyState(
-        icon = Icons.Filled.FolderOff,
-        title = stringResource(R.string.workspace_project_not_found_title),
-        body = stringResource(R.string.workspace_project_not_found_body),
+    KitEmptyState(
+        art = EmptyArt.Search,
+        message = stringResource(R.string.workspace_project_not_found),
         modifier = Modifier.fillMaxSize(),
-        action = {
-            Button(onClick = onBackHome) { Text(stringResource(R.string.workspace_back_home)) }
-        },
+        action = KitAction(stringResource(R.string.workspace_back_home), onBackHome),
     )
 }

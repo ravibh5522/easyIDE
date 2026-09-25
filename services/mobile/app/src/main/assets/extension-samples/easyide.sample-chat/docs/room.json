@@ -1,0 +1,26 @@
+{
+  "viewSchema": 1,
+  "state": { "title": "", "messages": [], "draft": "" },
+  "root": {
+    "type": "column",
+    "children": [
+      {
+        "type": "row", "padding": "m", "align": "center", "gap": "s",
+        "children": [
+          { "type": "text", "value": "{title}", "role": "title", "weight": 1 },
+          {
+            "type": "iconButton", "icon": "delete", "label": "Clear this room", "tone": "danger",
+            "action": "easyide.sample-chat.clear", "args": { "room": "{key}" }, "as": ".",
+            "confirm": { "title": "Clear this room?", "body": "Every note in it is deleted.", "destructive": true }
+          }
+        ]
+      },
+      { "type": "chat", "bind": "messages", "follow": true },
+      {
+        "type": "composer", "bind": "draft", "hint": "Write a note", "sendLabel": "Add",
+        "action": "easyide.sample-chat.send", "args": { "room": "{key}", "text": "{draft}" }, "as": ".",
+        "before": [{ "op": "clear", "path": "draft" }]
+      }
+    ]
+  }
+}

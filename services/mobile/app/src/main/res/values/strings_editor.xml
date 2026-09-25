@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Editor workflows: undo/redo, find and replace, go to line, quick open, the welcome view
+  and the explorer's file filter. Kept apart from strings.xml to avoid collisions.
+-->
+<resources>
+    <string name="command_undo">Undo</string>
+    <string name="command_redo">Redo</string>
+    <string name="command_find">Find</string>
+    <string name="command_replace">Replace</string>
+    <string name="command_find_next">Find next</string>
+    <string name="command_find_previous">Find previous</string>
+    <string name="command_go_to_line">Go to line</string>
+    <string name="command_quick_open">Go to file</string>
+
+    <string name="find_hint">Find</string>
+    <string name="find_replace_hint">Replace with</string>
+    <string name="find_toggle_case">Match case</string>
+    <string name="find_toggle_word">Whole word</string>
+    <string name="find_toggle_regex">Regular expression</string>
+    <string name="find_toggle_case_label">Aa</string>
+    <string name="find_toggle_word_label">ab</string>
+    <string name="find_toggle_regex_label">.*</string>
+    <string name="find_toggle_replace">Show replace</string>
+    <string name="find_previous">Previous match</string>
+    <string name="find_next">Next match</string>
+    <string name="find_close">Close find</string>
+    <string name="find_replace_one">Replace</string>
+    <string name="find_replace_all">Replace all</string>
+    <string name="find_replace_all_short">All</string>
+    <string name="find_count">%1$d of %2$d</string>
+    <string name="find_count_capped">%1$d of %2$d+</string>
+    <string name="find_no_results">No results</string>
+    <string name="find_invalid_pattern">Invalid pattern</string>
+    <string name="find_timed_out">Pattern too slow</string>
+    <string name="find_replaced">%1$d replaced</string>
+
+    <string name="goto_line_hint">Line number, or line:column</string>
+    <string name="goto_line_preview">Go to line %1$d of %2$d</string>
+    <string name="goto_line_invalid">Enter a line from 1 to %1$d</string>
+
+    <string name="quick_open_hint">Search files by name</string>
+    <string name="quick_open_empty">No matching files</string>
+    <string name="quick_open_indexing">Indexing files...</string>
+    <string name="quick_open_truncated">Showing the first %1$d files of a large project</string>
+
+    <string name="welcome_start">Start</string>
+    <string name="welcome_recent">Recent</string>
+    <string name="welcome_shortcuts">Shortcuts</string>
+    <string name="welcome_no_recent">Files you open appear here</string>
+
+    <string name="explorer_filter">Filter files</string>
+    <string name="explorer_hide_hidden">Hide dotfiles</string>
+    <string name="explorer_hide_ignored">Hide git-ignored files</string>
+
+    <string name="setting_explorer_hide_hidden_title">Hide dotfiles</string>
+    <string name="setting_explorer_hide_hidden_desc">Leave files and folders whose names start with a dot out of the explorer and out of Go to File.</string>
+    <string name="setting_explorer_hide_ignored_title">Hide git-ignored files</string>
+    <string name="setting_explorer_hide_ignored_desc">Leave files that the project\'s .gitignore excludes out of the explorer. Go to File always skips them.</string>
+
+    <string name="setting_chrome_visibility_auto">Automatic</string>
+    <string name="setting_chrome_visibility_always">Always</string>
+    <string name="setting_chrome_visibility_never">Never</string>
+    <string name="setting_touch_toolbar_title">Touch toolbar visibility</string>
+    <string name="setting_touch_toolbar_desc">The editor actions behind the More button above the keyboard. Automatic shows them on a phone or without a hardware keyboard, while the keyboard is up.</string>
+    <string name="setting_key_row_title">Key row visibility</string>
+    <string name="setting_key_row_desc">Tab, arrows and brackets above the keyboard. Automatic shows them on a phone or without a hardware keyboard, while the keyboard is up.</string>
+    <string name="setting_breadcrumbs_title">Breadcrumbs</string>
+    <string name="setting_breadcrumbs_desc">Show the file path and the symbol at the caret under the tabs. Hidden on short windows.</string>
+    <string name="dock_more_actions">More editor actions</string>
+
+    <string name="setting_editor_font_family_title">Editor font</string>
+    <string name="setting_editor_font_family_desc">The typeface of code. Monospace is the platform monospace face, the one VS Code uses on Android.</string>
+    <string name="editor_font_monospace">Monospace</string>
+    <string name="editor_font_sans">Sans-serif</string>
+    <string name="editor_font_geist_mono">Geist Mono</string>
+
+    <string name="setting_editor_letter_spacing_title">Editor letter spacing</string>
+    <string name="setting_editor_letter_spacing_desc">Extra space between code characters, in sp. 0 is the font\'s own spacing.</string>
+
+    <string name="setting_editor_cursor_style_title">Cursor style</string>
+    <string name="setting_editor_cursor_style_desc">The shape of the caret in the editor.</string>
+    <string name="cursor_style_line">Line</string>
+    <string name="cursor_style_block">Block</string>
+    <string name="cursor_style_underline">Underline</string>
+
+    <string name="setting_editor_cursor_width_title">Cursor width</string>
+    <string name="setting_editor_cursor_width_desc">Width of the line cursor, in dp.</string>
+
+    <string name="setting_editor_line_numbers_title">Line numbers</string>
+    <string name="setting_editor_line_numbers_desc">Show line numbers in the gutter; relative counts lines from the caret.</string>
+    <string name="line_numbers_relative">Relative</string>
+
+    <string name="setting_editor_line_highlight_title">Current line highlight</string>
+    <string name="setting_editor_line_highlight_desc">How the line with the caret stands out. All adds a border and highlights the gutter too.</string>
+    <string name="line_highlight_gutter">Gutter</string>
+    <string name="line_highlight_line">Line</string>
+    <string name="line_highlight_all">All</string>
+
+    <string name="setting_editor_match_brackets_title">Match brackets</string>
+    <string name="setting_editor_match_brackets_desc">Outline the bracket at the caret and its partner. Always also outlines the pair around the caret.</string>
+    <string name="match_brackets_always">Always</string>
+    <string name="match_brackets_near">Near</string>
+
+    <string name="setting_editor_indent_guides_title">Indent guides</string>
+    <string name="setting_editor_indent_guides_desc">Draw vertical lines at each indent level.</string>
+
+    <string name="setting_editor_scrollbar_title">Vertical scrollbar</string>
+    <string name="setting_editor_scrollbar_desc">Auto shows a thin bar while scrolling and fades it out.</string>
+    <string name="scrollbar_auto">Auto</string>
+    <string name="scrollbar_visible">Visible</string>
+    <string name="scrollbar_hidden">Hidden</string>
+
+    <string name="setting_editor_word_wrap_title">Word wrap</string>
+    <string name="setting_editor_word_wrap_desc">Wrap long lines at the editor width instead of scrolling sideways.</string>
+</resources>

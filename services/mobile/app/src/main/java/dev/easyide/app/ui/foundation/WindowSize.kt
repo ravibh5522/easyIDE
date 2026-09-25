@@ -33,7 +33,8 @@ enum class HeightClass {
     val isCompact: Boolean get() = this == COMPACT
 }
 
-data class WindowSize(val width: WidthClass, val height: HeightClass)
+/** [fold] is the device's hinge when it has one (see [FoldPosture]); null on a rigid screen. */
+data class WindowSize(val width: WidthClass, val height: HeightClass, val fold: FoldPosture? = null)
 
 private const val MEDIUM_WIDTH_DP = 600
 private const val EXPANDED_WIDTH_DP = 840

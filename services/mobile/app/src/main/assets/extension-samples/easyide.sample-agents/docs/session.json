@@ -1,0 +1,27 @@
+{
+  "viewSchema": 1,
+  "state": { "title": "", "agent": "", "messages": [], "draft": "", "busy": false, "error": "" },
+  "root": {
+    "type": "column",
+    "children": [
+      { "type": "row", "gap": "s", "align": "center", "padding": "m", "children": [
+        { "type": "text", "value": "{title}", "role": "title", "weight": 1, "maxLines": 1 },
+        { "type": "tag", "value": "{agent}", "tone": "accent" }
+      ] },
+      { "type": "banner", "value": "{error}", "tone": "warning", "when": "error" },
+      { "type": "banner", "value": "The agent is working.", "tone": "info", "when": "busy" },
+      { "type": "chat", "bind": "messages", "follow": true },
+      {
+        "type": "composer", "bind": "draft", "hint": "Message the agent", "sendLabel": "Send",
+        "action": "easyide.sample-agents.send", "args": { "id": "{key}", "text": "{draft}" },
+        "before": [
+          { "op": "append", "path": "messages", "value": { "role": "user", "text": "{draft}" } },
+          { "op": "set", "path": "busy", "value": true },
+          { "op": "clear", "path": "draft" }
+        ],
+        "as": "messages", "mode": "append", "parse": "json",
+        "after": [{ "op": "set", "path": "busy", "value": false }]
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="kit_back">Back</string>
+    <string name="kit_section_expanded">Expanded</string>
+    <string name="kit_section_collapsed">Collapsed</string>
+    <string name="kit_loading">Loading</string>
+    <string name="kit_progress_percent">%1$d%%</string>
+    <!-- Empty-state art: box drawing in a monospace face; quoted so the leading spaces survive. -->
+    <string name="kit_art_prompt" translatable="false">" +----------+\n | >        |\n |   [_]    |\n +----------+"</string>
+    <string name="kit_art_search" translatable="false">" +----------+\n | ?        |\n |   ...    |\n +----------+"</string>
+    <string name="kit_art_offline" translatable="false">" +----------+\n | ~ ~ ~    |\n |   x      |\n +----------+"</string>
+</resources>

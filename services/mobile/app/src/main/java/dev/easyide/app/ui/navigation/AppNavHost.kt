@@ -1,33 +1,41 @@
 package dev.easyide.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import dev.easyide.app.AppContainer
 import dev.easyide.app.ui.AppViewModelFactory
-import dev.easyide.app.ui.WorkspaceViewModelFactory
 import dev.easyide.app.ui.appViewModel
+import dev.easyide.app.ui.devtools.devToolsEntries
+import dev.easyide.app.ui.devtools.devToolsRoutes
 import dev.easyide.app.ui.foundation.NavTransitions
-import dev.easyide.app.ui.screens.extensions.ExtensionsScreen
-import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
-import dev.easyide.app.ui.screens.home.HomeScreen
-import dev.easyide.app.ui.screens.home.HomeViewModel
+import dev.easyide.app.ui.screens.diagnostics.DiagnosticsScreen
+import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectScreen
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
+import dev.easyide.app.ui.screens.onboarding.InstallLinuxScreen
 import dev.easyide.app.ui.screens.onboarding.OnboardingScreen
 import dev.easyide.app.ui.screens.settings.ProjectSettingsScope
-import dev.easyide.app.ui.screens.settings.SettingsScreen
-import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.ProjectNotFound
 import dev.easyide.app.ui.screens.workspace.WorkspaceLoading
 import dev.easyide.app.ui.screens.workspace.WorkspaceScreen
-import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
+import dev.easyide.app.ui.screens.workspace.files.LocalIgnoreIndex
+import dev.easyide.app.ui.shell.ext.documentOpener
+import dev.easyide.app.ui.shell.host.AppRenderers
+import dev.easyide.app.ui.shell.host.ShellDeps
+import dev.easyide.app.ui.shell.host.ShellExits
+import dev.easyide.app.ui.shell.host.ShellHost
+import dev.easyide.app.ui.shell.host.ShellViewModel
 
 /**
  * Top-level nav graph. Home is the stack root; everything else is one level
@@ -39,10 +47,13 @@ fun AppNavHost(
     motionEnabled: Boolean,
     container: AppContainer,
     viewModelFactory: AppViewModelFactory,
+    shell: ShellViewModel,
     onOnboardingComplete: () -> Unit,
     navController: NavHostController = rememberNavController(),
 ) {
     val transitions = NavTransitions(motionEnabled)
+    LaunchRedirect(container, navController, startAtOnboarding)
+    CrashRecovery(container, navController, startAtOnboarding)
 
     NavHost(
         navController = navController,
@@ -54,7 +65,8 @@ fun AppNavHost(
     ) {
         composable(Destination.Onboarding.route) {
             OnboardingScreen(
-                onContinue = {
+                setup = appViewModel(viewModelFactory),
+                onFinished = {
                     onOnboardingComplete()
                     navController.navigate(Destination.Home.route) {
                         popUpTo(Destination.Onboarding.route) { inclusive = true }
@@ -63,23 +75,35 @@ fun AppNavHost(
             )
         }
 
-        composable(Destination.Home.route) {
-            val viewModel: HomeViewModel = appViewModel(viewModelFactory)
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        composable(Destination.InstallLinux.route) {
+            InstallLinuxScreen(setup = appViewModel(viewModelFactory), onBack = { navController.popBackStack() })
+        }
 
-            HomeScreen(
-                uiState = uiState,
-                onOpenProject = { item ->
-                    viewModel.onProjectOpened(item.project.id)
-                    navController.navigate(Destination.Workspace.routeFor(item.project.id))
-                },
-                onNewProject = { navController.navigate(Destination.NewProject.route) },
-                onOpenSettings = { navController.navigate(Destination.Settings.route) },
+        composable(Destination.Home.route) {
+            val deps = rememberShellDeps(container, viewModelFactory, navController, shell)
+            // Extensions open their own documents (`openDocument`, a view row's `open`) through the shell that is showing.
+            DisposableEffect(shell, container) {
+                val opener = documentOpener(shell::open)
+                container.extensions.host.documents = opener
+                onDispose { if (container.extensions.host.documents === opener) container.extensions.host.documents = null }
+            }
+            ShellHost(
+                shell, remember(deps) { AppRenderers.panels(deps) }, remember(deps) { AppRenderers.documents(deps) },
+                dialogs = { AppRenderers.Dialogs(deps) },
             )
         }
 
-        composable(Destination.Workspace.route) { backStackEntry ->
+        composable(
+            route = Destination.Workspace.route,
+            arguments = listOf(
+                navArgument(Destination.Workspace.ARG_OPEN_TERMINAL) {
+                    type = NavType.BoolType
+                    defaultValue = false
+                },
+            ),
+        ) { backStackEntry ->
             val projectId = backStackEntry.arguments?.getString(Destination.Workspace.ARG_PROJECT_ID).orEmpty()
+            val openTerminal = backStackEntry.arguments?.getBoolean(Destination.Workspace.ARG_OPEN_TERMINAL) == true
             // Straight from the repository rather than a second HomeViewModel:
             // null means the store has not emitted yet, which is distinct from
             // "loaded, and no such project".
@@ -94,14 +118,16 @@ fun AppNavHost(
                 ProjectNotFound(onBackHome = { navController.popBackStack(Destination.Home.route, inclusive = false) })
             } else {
             val environmentId = project.environmentId
-            val workspaceViewModel: WorkspaceViewModel = viewModel(
-                key = projectId,
-                factory = WorkspaceViewModelFactory(container, projectId, environmentId),
-            )
+            val workspaceViewModel = rememberWorkspace(container, projectId, environmentId) {
+                navController.popBackStack(Destination.Home.route, inclusive = false)
+            }
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
+            LaunchedEffect(projectId) { if (openTerminal) workspaceViewModel.revealTerminal() }
 
+            val ignoreIndex by workspaceViewModel.editing.files.ignore.collectAsStateWithLifecycle()
             ProjectSettingsScope(container, projectId, environmentId) {
+            CompositionLocalProvider(LocalIgnoreIndex provides ignoreIndex) {
             WorkspaceScreen(
                 projectName = project.name,
                 uiState = uiState,
@@ -111,7 +137,11 @@ fun AppNavHost(
                 extensionHost = workspaceViewModel.extensionHost,
                 extensions = container.extensions,
                 selections = workspaceViewModel.selections,
-                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
+                session = workspaceViewModel.sessionUi,
+                onCloseProject = { container.workspaces.close(projectId) },
+                editing = workspaceViewModel.editing,
+                shell = shell,
+                deps = rememberShellDeps(container, viewModelFactory, navController, shell),
                 gitCallbacks = dev.easyide.app.ui.screens.workspace.SourceControlCallbacks(
                     onMessageChanged = workspaceViewModel::onGitMessageChanged,
                     onCommit = workspaceViewModel::commitGit,
@@ -121,6 +151,7 @@ fun AppNavHost(
                     onInitRepository = workspaceViewModel::initGitRepository,
                     onRefresh = workspaceViewModel::refreshGit,
                     onOpenFile = workspaceViewModel::openFileByPath,
+                    git = workspaceViewModel.gitControllers,
                 ),
                 callbacks = dev.easyide.app.ui.screens.workspace.WorkspaceCallbacks(
                     onFileOpened = workspaceViewModel::onFileOpened,
@@ -150,22 +181,19 @@ fun AppNavHost(
             )
             }
             }
+            }
         }
 
-        composable(Destination.Settings.route) {
-            val viewModel: SettingsViewModel = appViewModel(viewModelFactory)
-            SettingsScreen(
+        composable(Destination.Diagnostics.route) {
+            val viewModel: DiagnosticsViewModel = appViewModel(viewModelFactory)
+            DiagnosticsScreen(
                 viewModel = viewModel,
-                externalFolderSync = container.externalFolderSync,
-                onOpenExtensions = { navController.navigate(Destination.Extensions.route) },
                 onBack = { navController.popBackStack() },
+                extraSections = { devToolsEntries(navController) },
             )
         }
 
-        composable(Destination.Extensions.route) {
-            val viewModel: ExtensionsViewModel = appViewModel(viewModelFactory)
-            ExtensionsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
-        }
+        devToolsRoutes(navController)
 
         composable(Destination.NewProject.route) {
             val viewModel: NewProjectViewModel = appViewModel(viewModelFactory)
@@ -197,4 +225,25 @@ fun AppNavHost(
             )
         }
     }
+}
+
+/** What the shell's panels and pages draw on, and the routes they leave for: the same for Home and for a workspace, whose Settings and Extensions pages are the app shell's. */
+@Composable
+private fun rememberShellDeps(
+    container: AppContainer,
+    viewModelFactory: AppViewModelFactory,
+    navController: NavHostController,
+    shell: ShellViewModel,
+): ShellDeps = remember(container, viewModelFactory, navController, shell) {
+    ShellDeps(
+        container, viewModelFactory,
+        ShellExits(
+            onOpenProject = { id, withTerminal -> navController.navigate(Destination.Workspace.routeFor(id, withTerminal)) },
+            onNewProject = { navController.navigate(Destination.NewProject.route) },
+            onInstallLinux = { navController.navigate(Destination.InstallLinux.route) },
+            onOpenDiagnostics = { navController.navigate(Destination.Diagnostics.route) },
+        ),
+        shell.effective,
+        shell.extensionPresets,
+    )
 }

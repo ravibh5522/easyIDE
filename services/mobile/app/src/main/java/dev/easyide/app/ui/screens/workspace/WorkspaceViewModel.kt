@@ -3,25 +3,41 @@ package dev.easyide.app.ui.screens.workspace
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.easyide.app.diagnostics.LogLevel
+import dev.easyide.app.diagnostics.LogSink
+import dev.easyide.app.diagnostics.LogSource
 import dev.easyide.app.extensions.ExtensionsContainer
+import dev.easyide.app.data.UiPreferences
 import dev.easyide.app.lsp.LspRuntime
+import dev.easyide.app.session.ExternalState
+import dev.easyide.app.session.SessionStore
 import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
 import dev.easyide.app.ui.screens.workspace.ext.EditorBuffers
 import dev.easyide.app.ui.screens.workspace.ext.WorkspaceExtensionHost
 import dev.easyide.app.ui.screens.workspace.lsp.LspWorkspaceHost
 import dev.easyide.app.ui.screens.workspace.lsp.WorkspaceLspController
+import dev.easyide.app.ui.screens.workspace.session.WorkspaceSession
+import dev.easyide.app.ui.screens.workspace.session.WorkspaceSessionHost
+import dev.easyide.app.ui.screens.workspace.session.WorkspaceSessionUi
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.LinuxEnvironment
 import dev.easyide.sandbox.ProjectManager
 import dev.easyide.sandbox.files.FileContent
 import dev.easyide.sandbox.files.FileNode
 import dev.easyide.sandbox.files.FilePolicy
+import dev.easyide.sandbox.git.GitCredentials
+import dev.easyide.sandbox.git.GitRemote
 import dev.easyide.sandbox.git.GitService
+import dev.easyide.app.data.settings.SettingsStore
+import dev.easyide.app.ui.screens.workspace.git.StoreGitSettings
+import dev.easyide.app.ui.screens.workspace.git.asRunner
+import dev.easyide.app.ui.screens.workspace.git.asSink
 import dev.easyide.sandbox.files.ProjectFileWatcher
 import dev.easyide.sandbox.files.ProjectFiles
 import dev.easyide.app.ui.screens.workspace.syntax.TextMateHighlighter
 import dev.easyide.sandbox.model.SandboxImage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,14 +60,32 @@ class WorkspaceViewModel(
     private val appContext: Context,
     private val imageProvider: suspend (String) -> SandboxImage,
     private val gitService: GitService,
+    gitRemote: GitRemote,
+    gitCredentials: GitCredentials,
+    settingsStore: SettingsStore,
+    appForeground: StateFlow<Boolean>,
     lspRuntime: LspRuntime,
     extensions: ExtensionsContainer,
+    sessionStore: SessionStore,
+    restoreOpenTabs: suspend () -> Boolean,
+    /** The previous session of this project, if it is still writing its last save; restore waits for it. */
+    settled: Job?,
+    private val log: LogSink,
+    uiPreferences: UiPreferences,
 ) : ViewModel(), EditorBuffers {
 
     private val _uiState = MutableStateFlow(WorkspaceUiState())
     val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
 
-    private val git = WorkspaceGitController(gitService, projectFiles.projectRoot(projectId), viewModelScope)
+    private val git = WorkspaceGitController(
+        gitService = gitService,
+        projectRoot = projectFiles.projectRoot(projectId),
+        scope = viewModelScope,
+        network = gitRemote.asRunner(environmentId),
+        settings = StoreGitSettings(settingsStore, environmentId, projectId),
+        tokens = gitCredentials.asSink(),
+        foreground = appForeground,
+    )
     val gitState: StateFlow<GitPanelState> = git.state
 
     /** Per-document editor decorations; producers (LSP, find) write, `EditorPane` paints. */
@@ -60,9 +94,46 @@ class WorkspaceViewModel(
     /** Caret/selection per open tab, shared by the editor and extension actions. */
     val selections = EditorSelections()
 
-    val terminals = WorkspaceTerminals(
-        _uiState, viewModelScope, appContext, linuxEnvironment, environmentId, projectFiles.projectRoot(projectId), ::setStatus,
+    /** Undo/redo, find and replace, quick open: the editing workflows over the state above. */
+    val editing: WorkspaceEditing = WorkspaceEditing(
+        scope = viewModelScope,
+        state = uiState,
+        selections = selections,
+        decorations = decorations,
+        setContent = ::onContentChanged,
+        projectId = projectId,
+        projectFiles = projectFiles,
+        preferences = uiPreferences,
     )
+
+    val terminals = WorkspaceTerminals(
+        _uiState, viewModelScope, appContext, linuxEnvironment, environmentId, projectFiles.projectRoot(projectId),
+    ) { message ->
+        log.log(LogLevel.WARN, LogSource.SANDBOX, "terminal: $message")
+        setStatus(message)
+    }
+
+    /** Scroll, layout, hot-exit persistence and restore, external file changes: everything that outlives a screen or the process. */
+    internal val session = WorkspaceSession(
+        projectId = projectId,
+        state = _uiState,
+        selections = selections,
+        scope = viewModelScope,
+        appContext = appContext,
+        host = object : WorkspaceSessionHost {
+            override fun refreshTree() = this@WorkspaceViewModel.refreshTree()
+            override fun syncFileWatcher() = this@WorkspaceViewModel.syncFileWatcher(_uiState.value.expandedDirs)
+            override fun showStatus(message: String) = setStatus(message)
+        },
+        projectFiles = projectFiles,
+        store = sessionStore,
+        io = Dispatchers.IO,
+        clock = System::currentTimeMillis,
+        log = log,
+        restoreOpenTabs = restoreOpenTabs,
+    )
+
+    val sessionUi: WorkspaceSessionUi = session.ui
 
     /** Language servers for this workspace's tabs: documents, decorations, popups, panels. */
     val lsp = WorkspaceLspController(
@@ -80,7 +151,7 @@ class WorkspaceViewModel(
         scope = viewModelScope,
         environmentId = environmentId,
         projectId = projectId,
-        projectRoot = projectFiles.projectRoot(projectId),
+        projectRoot = projectFiles.projectRoot(projectId).canonicalFile,
         rootfsDir = lspRuntime.rootfsDir(environmentId),
     )
 
@@ -121,11 +192,33 @@ class WorkspaceViewModel(
         }
         terminals.newShell()
         fileWatcher.watch(projectFiles.projectRoot(projectId), emptySet())
-        extensionHost.attach()
+        // Open tabs' folders must be watched even when collapsed, or outside edits go unseen.
+        viewModelScope.launch { session.tabDirectories.collect { syncFileWatcher(_uiState.value.expandedDirs) } }
+        session.start(settled)
     }
 
-    override fun onCleared() {
+    private var attached = false
+
+    /** On screen (again): extensions and commands target this workspace, and open files are re-checked against the disk. */
+    fun onResumed() {
+        extensionHost.attach()
+        attached = true
+        session.onResumed()
+    }
+
+    /** Off screen but alive: shells keep running, buffers stay in memory. */
+    fun onParked() {
         extensionHost.detach()
+        attached = false
+    }
+
+    suspend fun saveSession() = session.flush()
+
+    fun endSession(discardStored: Boolean) = session.end(discardStored)
+
+    override fun onCleared() {
+        // Detaching resets the extension runtime's scope, which would clobber whichever workspace is on screen instead.
+        if (attached) extensionHost.detach()
         terminals.release()
         fileWatcher.stop()
         lsp.release()
@@ -160,6 +253,7 @@ class WorkspaceViewModel(
      */
     private fun relistChangedDirs(dirs: Set<File>) {
         val root = projectFiles.projectRoot(projectId)
+        session.checkChangedDirs(dirs.mapTo(HashSet()) { it.relativeTo(root).path.replace(File.separatorChar, '/').let { rel -> if (rel == ".") "" else rel } })
         viewModelScope.launch {
             dirs.forEach { dir ->
                 val relative = dir.relativeTo(root).path.replace(File.separatorChar, '/')
@@ -200,7 +294,7 @@ class WorkspaceViewModel(
 
     private fun syncFileWatcher(expandedDirs: Set<String>) {
         val root = projectFiles.projectRoot(projectId)
-        fileWatcher.watch(root, expandedDirs.map { File(root, it) }.toSet())
+        fileWatcher.watch(root, (expandedDirs + session.openTabDirectories()).map { File(root, it) }.toSet())
     }
 
     // -------------------------------------------------------------- editor
@@ -251,7 +345,10 @@ class WorkspaceViewModel(
 
     override fun replaceContent(path: String, content: String): Boolean {
         val tab = _uiState.value.openTabs.find { it.relativePath == path }?.takeIf { it.editable } ?: return false
-        if (tab.content != content) updateTab(path) { it.copy(content = content) }
+        if (tab.content != content) {
+            editing.onContentChanged(path, tab.content, content)
+            updateTab(path) { it.copy(content = content) }
+        }
         return true
     }
 
@@ -262,51 +359,16 @@ class WorkspaceViewModel(
         (projectFiles.open(projectId, path).getOrNull() as? FileContent.Text)?.takeIf { it.editable && !it.truncated }?.text
 
     private fun openContent(node: FileNode, content: FileContent): Boolean {
-        val tab = when (content) {
-            is FileContent.Rejected -> {
-                setStatus(content.reason)
-                return false
-            }
-
-            is FileContent.BinaryPreview -> EditorTab(
-                relativePath = node.relativePath,
-                name = node.name,
-                content = content.hexDump,
-                savedContent = content.hexDump,
-                editable = false,
-                highlightingEnabled = false,
-                notice = "Binary (${FilePolicy.humanSize(content.totalBytes)}) - read-only preview",
-            )
-
-            is FileContent.Text -> EditorTab(
-                relativePath = node.relativePath,
-                name = node.name,
-                content = content.text,
-                savedContent = content.text,
-                editable = content.editable,
-                highlightingEnabled = content.highlightingEnabled,
-                notice = textNotice(content),
-                // Markdown opens in preview, matching how it is usually read.
-                showPreview = node.name.substringAfterLast('.', "").lowercase() in setOf("md", "markdown"),
-            )
-        }
+        val tab = editorTabFor(node, content, ::setStatus) ?: return false
         _uiState.update { it.copy(openTabs = it.openTabs + tab, activeTabPath = tab.relativePath) }
         return true
-    }
-
-    private fun textNotice(content: FileContent.Text): String? = when {
-        content.truncated -> "First ${FilePolicy.humanSize(FilePolicy.TEXT_VIEW_PREFIX_BYTES)} " +
-            "of ${FilePolicy.humanSize(content.totalBytes)} - read-only"
-
-        !content.editable -> "${FilePolicy.humanSize(content.totalBytes)} - read-only"
-        !content.highlightingEnabled -> "Large file - syntax highlighting off"
-        else -> null
     }
 
     fun onTabSelected(path: String) = _uiState.update { it.copy(activeTabPath = path) }
 
     fun onTabClosed(path: String) {
         decorations.remove(path)
+        editing.onTabClosed(path)
         selections.remove(path)
         _uiState.update { state ->
             val remaining = state.openTabs.filterNot { it.relativePath == path }
@@ -321,8 +383,12 @@ class WorkspaceViewModel(
         }
     }
 
-    fun onContentChanged(path: String, content: String) = updateTab(path) { tab ->
-        if (tab.editable) tab.copy(content = content) else tab
+    fun onContentChanged(path: String, content: String) {
+        // Every buffer change passes here (typing, language server, extensions, undo), which is
+        // what lets undo history see edits the text field never reported.
+        _uiState.value.openTabs.find { it.relativePath == path }?.takeIf { it.editable }
+            ?.let { editing.onContentChanged(path, it.content, content) }
+        updateTab(path) { tab -> if (tab.editable) tab.copy(content = content) else tab }
     }
 
     fun onTogglePreview() {
@@ -353,10 +419,14 @@ class WorkspaceViewModel(
 
     /** Save participants (format on save, code actions on save) run first and may change the text. */
     private suspend fun saveTab(tab: EditorTab): Boolean {
+        session.blockedSave(tab)?.let {
+            setStatus(it)
+            return false
+        }
         val text = lsp.beforeSave(tab)
         return projectFiles.writeText(projectId, tab.relativePath, text)
             .onSuccess {
-                updateTab(tab.relativePath) { it.copy(savedContent = text) }
+                updateTab(tab.relativePath) { it.copy(savedContent = text, externalState = ExternalState.InSync) }
                 lsp.afterSave(tab.relativePath, text)
                 setStatus("Saved ${tab.name}")
                 // No refreshTree(): only the root and expanded directories
@@ -383,78 +453,12 @@ class WorkspaceViewModel(
 
     // ------------------------------------------------------- file actions
 
-    fun onCreateFile(parentDir: String, name: String) {
-        val path = joinPath(parentDir, name)
-        runFileAction(name) {
-            projectFiles.createFile(projectId, path).onSuccess { externalMirror.write(path, ByteArray(0)) }
-        }
-    }
-
-    fun onCreateFolder(parentDir: String, name: String) {
-        val path = joinPath(parentDir, name)
-        runFileAction(name) {
-            projectFiles.createDirectory(projectId, path).onSuccess { externalMirror.createDirectory(path) }
-        }
-    }
-
-    fun onRename(node: FileNode, newName: String) {
-        viewModelScope.launch {
-            projectFiles.rename(projectId, node.relativePath, newName)
-                .onSuccess { newPath ->
-                    // An open tab still points at the old path; retarget it so
-                    // saving does not recreate the file under its old name.
-                    updateTab(node.relativePath) { it.copy(relativePath = newPath, name = newName) }
-                    decorations.rename(node.relativePath, newPath)
-                    selections.rename(node.relativePath, newPath)
-                    _uiState.update { state ->
-                        state.copy(
-                            activeTabPath = if (state.activeTabPath == node.relativePath) newPath else state.activeTabPath,
-                        )
-                    }
-                    refreshTree()
-                    externalMirror.delete(node.relativePath)
-                    externalMirror.path(newPath)
-                }
-                .onFailure { cause -> setStatus(cause.message ?: "Could not rename ${node.name}") }
-        }
-    }
-
-    fun onDelete(node: FileNode) {
-        viewModelScope.launch {
-            projectFiles.delete(projectId, node.relativePath)
-                .onSuccess {
-                    onTabClosed(node.relativePath)
-                    refreshTree()
-                    setStatus("Deleted ${node.name}")
-                    externalMirror.delete(node.relativePath)
-                }
-                .onFailure { cause -> setStatus(cause.message ?: "Could not delete ${node.name}") }
-        }
-    }
-
-    fun onCopyToClipboard(node: FileNode, cut: Boolean) {
-        _uiState.update { it.copy(clipboard = FileClipboard(node.relativePath, cut)) }
-        setStatus(if (cut) "Cut ${node.name}" else "Copied ${node.name}")
-    }
-
-    fun onPaste(targetDir: String) {
-        val clipboard = _uiState.value.clipboard ?: return
-        viewModelScope.launch {
-            val result = if (clipboard.isCut) {
-                projectFiles.move(projectId, clipboard.relativePath, targetDir)
-            } else {
-                projectFiles.copy(projectId, clipboard.relativePath, targetDir)
-            }
-            result
-                .onSuccess { newPath ->
-                    if (clipboard.isCut) _uiState.update { it.copy(clipboard = null) }
-                    refreshTree()
-                    if (clipboard.isCut) externalMirror.delete(clipboard.relativePath)
-                    externalMirror.path(newPath)
-                }
-                .onFailure { cause -> setStatus(cause.message ?: "Paste failed") }
-        }
-    }
+    fun onCreateFile(parentDir: String, name: String) = fileActions.createFile(parentDir, name)
+    fun onCreateFolder(parentDir: String, name: String) = fileActions.createFolder(parentDir, name)
+    fun onRename(node: FileNode, newName: String) = fileActions.rename(node, newName)
+    fun onDelete(node: FileNode) = fileActions.delete(node)
+    fun onCopyToClipboard(node: FileNode, cut: Boolean) = fileActions.copyToClipboard(node, cut)
+    fun onPaste(targetDir: String) = fileActions.paste(targetDir)
 
     // ---------------------------------------------------- external folder
 
@@ -469,21 +473,33 @@ class WorkspaceViewModel(
     fun absolutePathOf(node: FileNode): String =
         listOf(GUEST_WORKSPACE, node.relativePath).joinToString("/").replace("//", "/")
 
-    private fun runFileAction(name: String, action: suspend () -> Result<Unit>) {
-        if (name.isBlank()) return
-        viewModelScope.launch {
-            action()
-                .onSuccess { refreshTree() }
-                .onFailure { cause -> setStatus(cause.message ?: "Could not create $name") }
-        }
-    }
+    private val fileActions = WorkspaceFileActions(
+        projectId = projectId,
+        projectFiles = projectFiles,
+        state = _uiState,
+        scope = viewModelScope,
+        mirror = externalMirror,
+        host = object : FileActionHost {
+            override fun refreshTree() = this@WorkspaceViewModel.refreshTree()
+            override fun setStatus(message: String) = this@WorkspaceViewModel.setStatus(message)
+            override fun closeTab(path: String) = onTabClosed(path)
 
-    private fun joinPath(parentDir: String, name: String): String =
-        if (parentDir.isEmpty()) name else "$parentDir/$name"
+            // The per-path stores that live outside the session follow a tab that moved.
+            override fun followRename(from: String, to: String) = session.followRename(from, to) { old, new ->
+                decorations.rename(old, new)
+                selections.rename(old, new)
+                editing.onRenamed(old, new)
+            }
+
+            override fun forget(path: String) = editing.onDeleted(path)
+        },
+    )
 
     // ----------------------------------------------------------- terminals
 
     fun onNewTerminal() = terminals.newShell()
+
+    fun revealTerminal() = terminals.reveal()
 
     fun onRenameTerminal(id: String, title: String) = terminals.rename(id, title)
 
@@ -507,12 +523,16 @@ class WorkspaceViewModel(
 
     fun commitGit() = git.commit()
 
+    /** Remote, branch, stash, diff and commit-box actions beyond the basic callbacks above. */
+    val gitControllers get() = git.controllers
+
     // ------------------------------------------------------------- linux
 
     fun onInstallLinux() {
         if (_uiState.value.isInstalling || _uiState.value.linuxReady) return
         val targetTabId = _uiState.value.activeTerminalId
         _uiState.update { it.copy(isInstalling = true) }
+        log.log(LogLevel.INFO, LogSource.SANDBOX, "installing environment $environmentId")
 
         viewModelScope.launch {
             // Progress lines print straight into the terminal tab that was
@@ -527,10 +547,12 @@ class WorkspaceViewModel(
             }
                 .onSuccess {
                     environmentManager.markProvisioned(environmentId)
+                    log.log(LogLevel.INFO, LogSource.SANDBOX, "environment $environmentId installed")
                     setStatus("Linux ready. Open a new terminal tab to use it.")
                 }
                 .onFailure { cause ->
                     environmentManager.markProvisioned(environmentId, cause.message ?: INSTALL_FAILED)
+                    log.log(LogLevel.ERROR, LogSource.SANDBOX, "installing environment $environmentId failed: ${cause.message}")
                     setStatus("Install failed: ${cause.message}")
                 }
             val ready = linuxEnvironment.isReady(environmentId)

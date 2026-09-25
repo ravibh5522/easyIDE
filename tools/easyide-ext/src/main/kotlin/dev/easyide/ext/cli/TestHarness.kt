@@ -14,6 +14,7 @@ import dev.easyide.extensions.action.LogEntry
 import dev.easyide.extensions.action.LogLevel
 import dev.easyide.extensions.action.LspOutcome
 import dev.easyide.extensions.action.LspThen
+import dev.easyide.extensions.action.OpenGroup
 import dev.easyide.extensions.action.MessageRequest
 import dev.easyide.extensions.action.QuickPickRequest
 import dev.easyide.extensions.action.ResolvedTask
@@ -89,6 +90,7 @@ class TestHarness(private val d: ExtensionDescriptor) {
             val visible = visibleRefs(keys.snapshot.value)
             (want as? JsonArray)?.mapNotNull { it.stringOrNull }?.forEach { if (it in visible) problems += "visible but expected hidden: $it" }
         }
+        (expect["views"] as? JsonArray)?.let { problems += ViewScenario.check(d, it) }
         (expect["calls"] as? JsonArray)?.let { want -> problems += subsequence(want.filterIsInstance<JsonObject>(), host.calls) }
         (expect["messages"] as? JsonArray)?.let { want ->
             val got = host.calls.filter { it["type"]?.stringOrNull == "showMessage" }.map { it["text"]?.stringOrNull }
@@ -201,6 +203,9 @@ private class RecordingHost(editorFixture: JsonObject, fakes: JsonObject, settin
     override suspend fun confirmUrl(url: String): Boolean = true
     override suspend fun openUrl(url: String) { calls += rec("openUrl", "url" to JsonPrimitive(url)) }
     override suspend fun revealStage(stage: String, view: String?, focus: Boolean) { calls += rec("revealStage", "stage" to JsonPrimitive(stage)) }
+    override suspend fun openDocument(uri: String, group: OpenGroup, preview: Boolean): Boolean {
+        calls += rec("openDocument", "uri" to JsonPrimitive(uri), "group" to JsonPrimitive(group.wire)); return true
+    }
     override suspend fun lspRequest(owner: ExtensionId, language: String, method: String, params: JsonElement?, then: LspThen): LspOutcome {
         calls += rec("lspRequest", "language" to JsonPrimitive(language), "method" to JsonPrimitive(method)); return LspOutcome.Unavailable("no language server in tests")
     }

@@ -5,16 +5,10 @@
     <string name="nav_workspace">Workspace</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_onboarding">Welcome</string>
-    <string name="onboarding_title">A real dev environment, on your tablet</string>
-    <string name="onboarding_body">Editor, terminal, git and a Linux sandbox — all running on-device, offline.</string>
-    <string name="onboarding_continue">Get started</string>
-    <string name="onboarding_footnote">You can change the theme and manage sandbox environments in Settings.</string>
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_create">Create</string>
 
-    <string name="home_empty_title">No projects yet</string>
-    <string name="home_empty_body">Create a project to get a workspace and a Linux sandbox to run it in.</string>
     <string name="home_new_project">New project</string>
     <string name="home_environment_missing">Environment missing</string>
 
@@ -27,20 +21,6 @@
     <string name="workspace_toggle_bottom">Toggle terminal</string>
     <string name="workspace_stage_placeholder">This stage will host Theia widgets once the runtime lands.</string>
     <string name="workspace_main_placeholder">Editor, PDF, docs and video widgets all render in this stage.</string>
-
-    <string name="new_project_title">New project</string>
-    <string name="new_project_name_label">Project name</string>
-    <string name="new_project_environment_section">Sandbox environment</string>
-    <string name="new_project_reuse">Reuse an existing environment</string>
-    <string name="new_project_reuse_body">Shares an already-provisioned toolchain. Faster, and no extra disk.</string>
-    <string name="new_project_create_new">Create a new environment</string>
-    <string name="new_project_create_new_body">A clean, isolated rootfs for this project. Provisioned from scratch.</string>
-    <string name="new_project_environment_label">Environment name</string>
-    <string name="new_project_backend_label">Backend</string>
-    <string name="new_project_image_label">Preset</string>
-    <string name="new_project_storage_app_default">App storage (default)</string>
-    <string name="new_project_storage_body">Files always keep a working copy in app storage. Choosing a folder also mirrors saves there, visible in a normal file manager.</string>
-    <string name="new_project_backend_chroot_warning">chroot runs as real root, outside Android\'s app sandbox. Faster, but a weaker boundary.</string>
 
     <string name="settings_theme_section">Appearance</string>
     <string name="settings_sandbox_section">Sandbox environments</string>
@@ -58,6 +38,8 @@
     <string name="settings_storage_clear">Clear</string>
     <string name="terminal_stop">Stop</string>
     <string name="terminal_new">New terminal</string>
+    <string name="terminal_more">Terminal actions</string>
+    <string name="terminal_close">Close terminal</string>
     <string name="terminal_installing">Installing…</string>
     <string name="terminal_install_linux">Install Linux</string>
 
@@ -74,9 +56,9 @@
     <string name="setting_color_theme_desc">A color theme contributed by an extension; empty uses the built-in theme above.</string>
     <string name="theme_picker_extension_themes">From extensions</string>
     <string name="setting_editor_font_size_title">Editor font size</string>
-    <string name="setting_editor_font_size_desc">Code text size, in sp.</string>
+    <string name="setting_editor_font_size_desc">Code text size in sp. Pinch in the editor to change it; the line height follows.</string>
     <string name="setting_editor_line_height_title">Editor line height</string>
-    <string name="setting_editor_line_height_desc">Height of each code line, in sp. Never smaller than the font size.</string>
+    <string name="setting_editor_line_height_desc">0 is 1.35 times the font size. A number up to 8 multiplies the font size, a larger one is a height in sp. Never below the font size.</string>
     <string name="setting_terminal_font_size_title">Terminal font size</string>
     <string name="setting_terminal_font_size_desc">Terminal text size, in sp.</string>
     <string name="theme_mode_system_default">System default</string>
@@ -114,7 +96,6 @@
     <string name="unsaved_save_all">Save all</string>
     <string name="unsaved_discard">Discard</string>
 
-    <string name="workspace_project_not_found_title">Project not found</string>
-    <string name="workspace_project_not_found_body">This project may have been deleted.</string>
+    <string name="workspace_project_not_found">Project not found. It may have been deleted.</string>
     <string name="workspace_back_home">Back to projects</string>
 </resources>

@@ -9,6 +9,7 @@ import dev.easyide.extensions.action.JsonTemplate
 import dev.easyide.extensions.action.LspThen
 import dev.easyide.extensions.action.MessageAction
 import dev.easyide.extensions.action.MessageSeverity
+import dev.easyide.extensions.action.OpenGroup
 import dev.easyide.extensions.action.PickOption
 import dev.easyide.extensions.action.QuickPickItem
 import dev.easyide.extensions.action.QuickPickSource
@@ -81,6 +82,9 @@ internal class ActionDecoder(private val ctx: DecodeContext) {
                     MessageAction(ctx.template(a.reqStr("title"), JsonPointer.child(ap, "title")), a.obj("action")?.let { action(it, JsonPointer.child(ap, "action")) })
                 },
                 bindAs,
+            )
+            ActionType.OPEN_DOCUMENT -> Action.OpenDocument(
+                reqT("uri"), o.str("group")?.let(OpenGroup::parse) ?: OpenGroup.ACTIVE, o.bool("preview") ?: true, bindAs,
             )
             ActionType.REVEAL_STAGE -> Action.RevealStage(o.reqStr("stage"), o.str("view"), o.bool("focus") ?: true, bindAs)
             ActionType.SEQUENCE -> Action.Sequence(
@@ -187,6 +191,7 @@ internal class ActionDecoder(private val ctx: DecodeContext) {
             }
             is Action.ShowInputBox -> listOfNotNull(a.prompt, a.value, a.placeHolder)
             is Action.ShowMessage -> listOf(a.text) + a.actions.flatMap { m -> listOf(m.title) + (m.action?.let(::templates) ?: emptyList()) }
+            is Action.OpenDocument -> listOf(a.uri)
             is Action.RevealStage -> emptyList()
             is Action.Sequence -> a.steps.flatMap(::templates)
         }

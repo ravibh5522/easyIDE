@@ -36,7 +36,8 @@ data class LocationsUi(val kind: NavKind, val symbol: String, val groups: List<L
 
 enum class SymbolScope { DOCUMENT, WORKSPACE }
 
-data class SymbolRow(val name: String, val detail: String?, val kind: SymbolKind, val depth: Int, val location: NavLocation)
+/** [span] is the whole symbol (its body), where [location] is its name; null for a workspace symbol, which carries no body. */
+data class SymbolRow(val name: String, val detail: String?, val kind: SymbolKind, val depth: Int, val location: NavLocation, val span: Range? = null)
 
 /** The `@` / `#` quick pick. */
 data class SymbolPickerUi(val scope: SymbolScope, val query: String, val rows: List<SymbolRow>, val loading: Boolean)
@@ -261,7 +262,7 @@ class NavigationController(private val ws: LspWorkspace) {
         fun flatten(nodes: List<SymbolNode>, depth: Int, locate: (Range) -> NavLocation?): List<SymbolRow> =
             nodes.sortedWith(compareBy<SymbolNode> { it.selectionRange.start.line }.thenBy { it.selectionRange.start.character })
                 .flatMap { n ->
-                    val self = locate(n.selectionRange)?.let { SymbolRow(n.name, n.detail, n.kind, depth, it) }
+                    val self = locate(n.selectionRange)?.let { SymbolRow(n.name, n.detail, n.kind, depth, it, n.range) }
                     listOfNotNull(self) + flatten(n.children, depth + 1, locate)
                 }
     }

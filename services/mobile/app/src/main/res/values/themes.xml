@@ -13,11 +13,14 @@
 
     <!--
       Launch theme: holds the splash until MainActivity has read the theme and
-      onboarding preferences, then swaps to Theme.EasyIde.
+      onboarding preferences, then swaps to Theme.EasyIde. The background is the window
+      colour, so the splash hands over to the first frame without a flash; the mark's block
+      blinks once (ic_splash_animated).
     -->
     <style name="Theme.EasyIde.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/window_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_animated</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/Theme.EasyIde</item>
     </style>
 </resources>

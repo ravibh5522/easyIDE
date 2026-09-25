@@ -71,6 +71,11 @@ class ContributionRegistry(private val builtIn: Contributions = Contributions.EM
     val languageServers = ContributionStore<LanguageServerContribution>(ContributionRef.Kind.SERVER)
     val sandbox = ContributionStore<SandboxContribution>(ContributionRef.Kind.SANDBOX)
     val viewData = ContributionStore<ViewDataContribution>(ContributionRef.Kind.VIEW_DATA)
+    val navigation = ContributionStore<NavigationContribution>(ContributionRef.Kind.NAVIGATION)
+    val viewBadges = ContributionStore<ViewBadgeContribution>(ContributionRef.Kind.VIEW_BADGE)
+    val documents = ContributionStore<DocumentContribution>(ContributionRef.Kind.DOCUMENT)
+    val documentOpeners = ContributionStore<DocumentOpenerContribution>(ContributionRef.Kind.DOCUMENT_OPENER)
+    val layoutPresets = ContributionStore<LayoutPresetContribution>(ContributionRef.Kind.LAYOUT_PRESET)
 
     init { publish(state.value) }
 
@@ -142,6 +147,11 @@ class ContributionRegistry(private val builtIn: Contributions = Contributions.EM
         ContributionRef.Kind.SERVER -> s.languageServers
         ContributionRef.Kind.SANDBOX -> s.sandbox
         ContributionRef.Kind.VIEW_DATA -> s.viewData
+        ContributionRef.Kind.NAVIGATION -> s.navigation
+        ContributionRef.Kind.VIEW_BADGE -> s.viewBadges
+        ContributionRef.Kind.DOCUMENT -> s.documents
+        ContributionRef.Kind.DOCUMENT_OPENER -> s.documentOpeners
+        ContributionRef.Kind.LAYOUT_PRESET -> s.layoutPresets
     }
 
     private fun publish(s: ContributionSnapshot) {
@@ -153,5 +163,7 @@ class ContributionRegistry(private val builtIn: Contributions = Contributions.EM
         taskDefinitions.publish(s.taskDefinitions); problemMatchers.publish(s.problemMatchers); walkthroughs.publish(s.walkthroughs)
         stages.publish(s.stages); statusBarItems.publish(s.statusBarItems); keyRows.publish(s.keyRows)
         languageServers.publish(s.languageServers); sandbox.publish(s.sandbox); viewData.publish(s.viewData)
+        navigation.publish(s.navigation); viewBadges.publish(s.viewBadges); documents.publish(s.documents)
+        documentOpeners.publish(s.documentOpeners); layoutPresets.publish(s.layoutPresets)
     }
 }

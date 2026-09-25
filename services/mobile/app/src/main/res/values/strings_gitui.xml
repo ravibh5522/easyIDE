@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Source control and explorer, VS Code parity round: the commit split button, the change rows, the graph and
+     its commit menu, the compare list. Kept apart from strings_git.xml so this round is reviewed as one unit. -->
+<resources>
+    <!-- Commit split button -->
+    <string name="gitui_message_hint_branch">Message (commit on \"%1$s\")</string>
+    <string name="gitui_commit_more">More commit actions</string>
+    <string name="gitui_commit_amend">Commit (amend)</string>
+    <string name="gitui_commit_push">Commit and push</string>
+    <string name="gitui_commit_sync">Commit and sync</string>
+    <string name="gitui_needs_remote">Needs a remote</string>
+    <string name="gitui_needs_branch">Needs a branch</string>
+
+    <!-- Change sections and rows -->
+    <string name="gitui_discard_all">Discard all changes</string>
+    <string name="gitui_view_as_list">View as list</string>
+    <string name="gitui_view_as_tree">View as tree</string>
+    <string name="gitui_open_file_cd">Open file</string>
+    <string name="gitui_status_added">Added</string>
+    <string name="gitui_status_modified">Modified</string>
+    <string name="gitui_status_deleted">Deleted</string>
+    <string name="gitui_status_untracked">Untracked</string>
+    <string name="gitui_status_conflict">Conflict</string>
+
+    <!-- Graph -->
+    <string name="gitui_graph_fetch">Fetch</string>
+    <string name="gitui_ref_branch_cd">Branch %1$s</string>
+    <string name="gitui_ref_synced_cd">Branch %1$s, also on the remote</string>
+    <string name="gitui_ref_remote_cd">Remote branch %1$s</string>
+    <string name="gitui_ref_tag_cd">Tag %1$s</string>
+    <string name="gitui_commit_row_cd">%1$s, %2$s</string>
+    <string name="gitui_commit_actions">Commit actions</string>
+
+    <!-- Commit menu -->
+    <string name="gitui_h_open_changes">Open changes</string>
+    <string name="gitui_h_checkout">Checkout</string>
+    <string name="gitui_h_checkout_detached">Checkout (detached)</string>
+    <string name="gitui_h_create_branch">Create branch...</string>
+    <string name="gitui_h_delete_branch">Delete branch</string>
+    <string name="gitui_h_create_tag">Create tag...</string>
+    <string name="gitui_h_cherry_pick">Cherry-pick</string>
+    <string name="gitui_h_compare_remote">Compare with remote</string>
+    <string name="gitui_h_compare_merge_base">Compare with merge base</string>
+    <string name="gitui_h_compare_with">Compare with...</string>
+    <string name="gitui_h_copy_hash">Copy commit hash</string>
+    <string name="gitui_h_copy_message">Copy commit message</string>
+
+    <!-- Commit dialogs and compare list -->
+    <string name="gitui_branch_at_title">Create branch at %1$s</string>
+    <string name="gitui_tag_at_title">Create tag at %1$s</string>
+    <string name="gitui_tag_name">Tag name</string>
+    <string name="gitui_tag_message">Message (optional, makes an annotated tag)</string>
+    <string name="gitui_tag_create">Create tag</string>
+    <string name="gitui_compare_title">%1$s against %2$s</string>
+    <string name="gitui_compare_pick_title">Compare %1$s with</string>
+    <string name="gitui_compare_empty">No differences between these two.</string>
+    <string name="gitui_compare_no_remote">This branch does not track a remote branch.</string>
+    <string name="gitui_compare_no_base">These two commits share no history.</string>
+    <string name="gitui_compare_close">Close</string>
+    <string name="gitui_identity_required">Set your name and email in Settings > Git, then try again.</string>
+
+    <!-- Explorer -->
+    <string name="gitui_collapse_all">Collapse all</string>
+    <string name="gitui_open_beside">Open to the side</string>
+    <string name="gitui_modified_marker">Unsaved changes</string>
+    <string name="gitui_key_cut">Ctrl+X</string>
+    <string name="gitui_key_copy">Ctrl+C</string>
+    <string name="gitui_key_paste">Ctrl+V</string>
+    <string name="gitui_key_rename">F2</string>
+    <string name="gitui_key_delete">Del</string>
+</resources>

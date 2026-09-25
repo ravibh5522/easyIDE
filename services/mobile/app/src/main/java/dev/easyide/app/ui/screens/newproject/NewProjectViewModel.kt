@@ -6,6 +6,7 @@ import android.net.Uri
 import dev.easyide.app.data.SandboxImages
 import dev.easyide.sandbox.EnvironmentManager
 import dev.easyide.sandbox.ProjectManager
+import dev.easyide.sandbox.SandboxError
 import dev.easyide.sandbox.external.ExternalFolderSync
 import dev.easyide.sandbox.model.SandboxBackend
 import dev.easyide.sandbox.model.SandboxEnvironment
@@ -29,6 +30,14 @@ enum class EnvironmentChoice {
     REUSE_EXISTING,
 }
 
+/** Why creating a project failed, as data; the screen turns it into a sentence from string resources. */
+sealed interface NewProjectError {
+    data object NameTaken : NewProjectError
+    data object NameBlank : NewProjectError
+    data object FolderPickFailed : NewProjectError
+    data class Other(val detail: String?) : NewProjectError
+}
+
 data class NewProjectUiState(
     val projectName: String = "",
     val choice: EnvironmentChoice = EnvironmentChoice.REUSE_EXISTING,
@@ -47,7 +56,7 @@ data class NewProjectUiState(
     val externalFolderUri: String? = null,
     val externalFolderName: String? = null,
     val isSubmitting: Boolean = false,
-    val errorMessage: String? = null,
+    val error: NewProjectError? = null,
     val createdProjectId: String? = null,
 ) {
     /** Reuse is only offered once an environment exists to reuse. */
@@ -110,9 +119,9 @@ class NewProjectViewModel(
         }
     }
 
-    fun onProjectNameChanged(value: String) = _uiState.update { it.copy(projectName = value, errorMessage = null) }
+    fun onProjectNameChanged(value: String) = _uiState.update { it.copy(projectName = value, error = null) }
 
-    fun onChoiceChanged(choice: EnvironmentChoice) = _uiState.update { it.copy(choice = choice, errorMessage = null) }
+    fun onChoiceChanged(choice: EnvironmentChoice) = _uiState.update { it.copy(choice = choice, error = null) }
 
     fun onEnvironmentSelected(id: String) = _uiState.update { it.copy(selectedEnvironmentId = id) }
 
@@ -129,7 +138,7 @@ class NewProjectViewModel(
 
     fun onExternalFolderCleared() = _uiState.update { it.copy(externalFolderUri = null, externalFolderName = null) }
 
-    fun onExternalFolderPickFailed() = _uiState.update { it.copy(errorMessage = FOLDER_PICK_FAILED) }
+    fun onExternalFolderPickFailed() = _uiState.update { it.copy(error = NewProjectError.FolderPickFailed) }
 
     fun onImageSelected(imageId: String) = _uiState.update { it.copy(selectedImageId = imageId) }
 
@@ -137,7 +146,7 @@ class NewProjectViewModel(
         val state = _uiState.value
         if (!state.canSubmit) return
 
-        _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
+        _uiState.update { it.copy(isSubmitting = true, error = null) }
         viewModelScope.launch {
             resolveEnvironmentId(state)
                 .mapCatching { environmentId ->
@@ -151,9 +160,7 @@ class NewProjectViewModel(
                     _uiState.update { it.copy(isSubmitting = false, createdProjectId = project.id) }
                 }
                 .onFailure { cause ->
-                    _uiState.update {
-                        it.copy(isSubmitting = false, errorMessage = cause.message ?: DEFAULT_ERROR)
-                    }
+                    _uiState.update { it.copy(isSubmitting = false, error = errorOf(cause)) }
                 }
         }
     }
@@ -172,8 +179,9 @@ class NewProjectViewModel(
                 ).map { it.id }
         }
 
-    private companion object {
-        const val DEFAULT_ERROR = "Could not create the project"
-        const val FOLDER_PICK_FAILED = "Could not get access to that folder"
+    private fun errorOf(cause: Throwable): NewProjectError = when (cause) {
+        is SandboxError.DuplicateName -> NewProjectError.NameTaken
+        is IllegalArgumentException -> NewProjectError.NameBlank
+        else -> NewProjectError.Other(cause.message)
     }
 }

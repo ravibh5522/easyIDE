@@ -12,6 +12,8 @@ data class IconAssociations(
     val file: String? = null,
     val folder: String? = null,
     val folderExpanded: String? = null,
+    val rootFolder: String? = null,
+    val rootFolderExpanded: String? = null,
     /** Lower-cased keys. */
     val fileNames: Map<String, String> = emptyMap(),
     /** Lower-cased keys, without the leading dot (`d.ts`, `ts`). */
@@ -31,13 +33,17 @@ data class IconTheme(
     val icons: Map<String, String>,
     val dark: IconAssociations,
     val light: IconAssociations?,
+    val overrides: IconOverrides = IconOverrides.NONE,
+    /** Definitions drawn from an icon font (`fontCharacter`), which the app cannot render; dropped. */
+    val fontIcons: Int = 0,
 ) {
     /**
-     * The image for a file, first hit wins: `fileNames` (case-insensitive) > `fileExtensions`
+     * The image for a file, first hit wins: the user's [overrides], `fileNames` (case-insensitive) > `fileExtensions`
      * (longest multi-part first, `d.ts` before `ts`) > `languageIds` > `file`. With [light], the
      * `light` section is asked before the root section at each step.
      */
     fun fileIcon(fileName: String, languageId: String?, light: Boolean): String? {
+        overrides.fileIcon(fileName)?.let(icons::get)?.let { return it }
         val name = fileName.lowercase()
         val sections = sections(light)
         sections.firstNotNullOfOrNull { it.fileNames[name] }?.let(icons::get)?.let { return it }
@@ -46,8 +52,9 @@ data class IconTheme(
         return sections.firstNotNullOfOrNull { it.file }?.let(icons::get)
     }
 
-    /** The image for a folder: `folderNames`/`folderNamesExpanded` > `folder`/`folderExpanded`. */
+    /** The image for a folder: the user's [overrides] > `folderNames`/`folderNamesExpanded` > `folder`/`folderExpanded`. */
     fun folderIcon(folderName: String, expanded: Boolean, light: Boolean): String? {
+        overrides.folderIcon(folderName)?.let { id -> (if (expanded) icons["$id$OPEN_SUFFIX"] else null) ?: icons[id] }?.let { return it }
         val name = folderName.lowercase()
         val sections = sections(light)
         val byName = sections.firstNotNullOfOrNull { s -> if (expanded) s.folderNamesExpanded[name] ?: s.folderNames[name] else s.folderNames[name] }
@@ -56,9 +63,19 @@ data class IconTheme(
         return generic?.let(icons::get)
     }
 
+    /** The workspace root's image: `rootFolder`/`rootFolderExpanded`, then the generic folder. */
+    fun rootFolderIcon(expanded: Boolean, light: Boolean): String? {
+        val sections = sections(light)
+        val root = sections.firstNotNullOfOrNull { s -> if (expanded) s.rootFolderExpanded ?: s.rootFolder else s.rootFolder }
+        return root?.let(icons::get) ?: folderIcon("", expanded, light)
+    }
+
     private fun sections(light: Boolean): List<IconAssociations> = if (light && this.light != null) listOf(this.light, dark) else listOf(dark)
 
     companion object {
+        /** The expanded variant of a folder icon the user names in `easyide.icons.folderAssociations`. */
+        const val OPEN_SUFFIX = "-open"
+
         /** `a.test.d.ts` -> `test.d.ts`, `d.ts`, `ts`: every multi-part suffix, longest first. */
         fun extensionsOf(name: String): List<String> {
             val parts = name.split('.')
@@ -71,13 +88,13 @@ data class IconTheme(
 /** Reads a contributed icon theme file (JSON with comments, as VS Code accepts). */
 object IconThemeFile {
 
-    /** Image formats the app can draw; SVG needs a renderer the app does not ship (customization.md open issue 1). */
-    val SUPPORTED_EXTENSIONS = setOf("png")
+    /** Image formats the app can draw: PNG through the platform decoder, SVG through [SvgParser]'s subset. */
+    val SUPPORTED_EXTENSIONS = setOf("png", "svg")
 
     /**
      * Parses [text] of the theme file at [themeFile]; icon paths are resolved against the file's
      * directory and must stay inside [extensionRoot] (a path escaping it is dropped, like a
-     * missing file). [unsupported] receives each icon skipped for its format (SVG), once.
+     * missing file). [unsupported] receives each icon skipped for its format, once.
      *
      * @return null when the text is not a JSON object.
      */
@@ -86,20 +103,24 @@ object IconThemeFile {
         val base = themeFile.parentFile ?: return null
         val rootPath = extensionRoot.canonicalFile
         val icons = LinkedHashMap<String, String>()
+        var fontIcons = 0
         (root["iconDefinitions"] as? JsonObject)?.forEach { (iconId, def) ->
+            if ((def as? JsonObject)?.containsKey("fontCharacter") == true) fontIcons++
             val rel = ((def as? JsonObject)?.get("iconPath") as? JsonPrimitive)?.takeIf { it.isString }?.content ?: return@forEach
             val file = File(base, rel).canonicalFile
             if (!file.path.startsWith(rootPath.path + File.separator)) return@forEach
             if (file.extension.lowercase() !in SUPPORTED_EXTENSIONS) return@forEach unsupported(rel)
             icons[iconId] = file.path
         }
-        return IconTheme(id, icons, associations(root), (root["light"] as? JsonObject)?.let(::associations))
+        return IconTheme(id, icons, associations(root), (root["light"] as? JsonObject)?.let(::associations), fontIcons = fontIcons)
     }
 
     private fun associations(o: JsonObject) = IconAssociations(
         file = o.str("file"),
         folder = o.str("folder"),
         folderExpanded = o.str("folderExpanded"),
+        rootFolder = o.str("rootFolder"),
+        rootFolderExpanded = o.str("rootFolderExpanded"),
         fileNames = o.map("fileNames"),
         fileExtensions = o.map("fileExtensions").mapKeys { it.key.removePrefix(".") },
         languageIds = o.map("languageIds", lowercase = false),

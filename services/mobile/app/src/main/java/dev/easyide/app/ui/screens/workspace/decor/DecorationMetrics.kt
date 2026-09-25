@@ -23,9 +23,42 @@ internal object DecorationMetrics {
     val hintDotRadius = 1.dp
     val hintDotSpacing = 3.dp
 
-    /** Lane at the gutter's left edge where the one glyph per line is drawn. */
-    val gutterLaneWidth = 16.dp
-    val gutterIconSize = 12.dp
+    /** Glyph margin at the gutter's left edge where the one glyph per line is drawn (VS Code: 18). */
+    val gutterLaneWidth = 18.dp
+
+    /** The glyph margin on a window narrower than [compactBelow], where every dp of text width counts. */
+    val gutterLaneWidthCompact = 14.dp
+    val gutterIconSize = 14.dp
+
+    /** Editors narrower than this use the compact gutter. */
+    val compactBelow = 360.dp
+
+    /** Line numbers reserve room for this many digits; VS Code reserves 5, this is tighter. */
+    const val MIN_LINE_NUMBER_DIGITS = 3
+    const val MIN_LINE_NUMBER_DIGITS_COMPACT = 2
+
+    /** Gap above the first and below the last line. */
+    val textPaddingVertical = 2.dp
+
+    /** Outline of the bracket pair and of the caret line's border. */
+    val outlineStroke = 1.dp
+
+    /** Vertical indent guides. */
+    val indentGuideStroke = 1.dp
+
+    /** Overlay scrollbar: the thumb, its shortest length, and how it fades after a scroll. */
+    val scrollbarWidth = 10.dp
+    val scrollbarMinThumb = 24.dp
+    const val SCROLLBAR_FADE_DELAY_MS = 900L
+    const val SCROLLBAR_FADE_MS = 250
+    const val SCROLLBAR_THUMB_ALPHA = 0.5f
+
+    /** Half-period of the caret blink (VS Code's `blink`). */
+    const val CARET_BLINK_MS = 500L
+
+    /** A block caret is translucent so the character under it stays readable. */
+    const val BLOCK_CARET_ALPHA = 0.5f
+    val underlineCaretHeight = 2.dp
 
     /** Space between a line's last character and its end-of-line inlay hints. */
     val ghostTextGap = 12.dp
@@ -36,10 +69,10 @@ internal object DecorationMetrics {
     const val GHOST_TEXT_SEPARATOR = "  "
 
     /**
-     * Measured ghost-text labels kept by the painter's TextMeasurer. A viewport rarely
-     * shows more distinct hint lines than this, so a redraw re-measures nothing.
+     * Measured labels kept by the editor's TextMeasurer, shared by end-of-line hints and the line
+     * numbers. A viewport shows a few dozen of each, so a redraw re-measures nothing.
      */
-    const val GHOST_TEXT_MEASURE_CACHE = 64
+    const val MEASURE_CACHE = 128
 
     /** Minimum distance kept between a popup and the viewport edges. */
     val popupMargin = 4.dp
@@ -47,6 +80,8 @@ internal object DecorationMetrics {
     /** Gap between a popup and the line it is anchored to. */
     val popupAnchorGap = 2.dp
 
-    val popupElevation = 6.dp
     val popupBorder = 1.dp
+
+    /** Widgets in the editor are nearly square (VS Code: 3px); never a soft card. */
+    val popupRadius = 2.dp
 }

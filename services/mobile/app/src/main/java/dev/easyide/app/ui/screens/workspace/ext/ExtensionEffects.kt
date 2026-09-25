@@ -1,6 +1,5 @@
 package dev.easyide.app.ui.screens.workspace.ext
 
-import android.content.res.Configuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,7 +16,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import dev.easyide.app.extensions.ExtensionsContainer
 import dev.easyide.app.ui.foundation.WidthClass
 import dev.easyide.app.ui.foundation.WindowSize
-import dev.easyide.app.ui.screens.workspace.WorkspaceStageState
 import dev.easyide.extensions.contrib.StagePlacement
 
 /** The last input kind (`inputMode` context key), updated from pointer and key events. */
@@ -49,6 +47,14 @@ fun Modifier.trackInputMode(state: InputModeState): Modifier = pointerInput(stat
     }
 }
 
+/** The stages as the extension host sees them: whether each shows, and a request to show one. The shell implements it. */
+interface StageAccess {
+    val leftVisible: Boolean
+    val rightVisible: Boolean
+    val bottomVisible: Boolean
+    fun show(placement: StagePlacement)
+}
+
 /**
  * The workspace screen's side of the extension host: reports UI context keys, applies
  * stage requests from actions (`revealStage`, a focused `runInTerminal`) and shows
@@ -58,16 +64,14 @@ fun Modifier.trackInputMode(state: InputModeState): Modifier = pointerInput(stat
 fun ExtensionEffects(
     host: WorkspaceExtensionHost,
     extensions: ExtensionsContainer,
-    stages: WorkspaceStageState,
+    stages: StageAccess,
+    hardwareKeyboard: Boolean,
     windowSize: WindowSize,
     inputMode: InputModeState,
     terminalFocus: Boolean,
     editorFocus: Boolean,
     snackbar: SnackbarHostState,
 ) {
-    val configuration = LocalConfiguration.current
-    val hardwareKeyboard = configuration.keyboard != Configuration.KEYBOARD_NOKEYS &&
-        configuration.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO
     SideEffect {
         host.context.setUi(
             UiContext(
@@ -89,16 +93,7 @@ fun ExtensionEffects(
             ),
         )
     }
-    LaunchedEffect(host) {
-        host.stageRequests.collect { request ->
-            when (request.stage) {
-                StagePlacement.LEFT -> stages.showLeft()
-                StagePlacement.RIGHT -> if (!stages.rightVisible) stages.toggleRight(exclusive = windowSize.width.isCompact)
-                StagePlacement.BOTTOM -> if (!stages.bottomVisible) stages.toggleBottom()
-                StagePlacement.MAIN -> Unit
-            }
-        }
-    }
+    LaunchedEffect(host) { host.stageRequests.collect { stages.show(it.stage) } }
     LaunchedEffect(extensions) {
         extensions.ui.notices.collect { snackbar.showSnackbar(it) }
     }
@@ -108,3 +103,11 @@ fun ExtensionEffects(
 /** Remembered [InputModeState] for a screen. */
 @Composable
 fun rememberInputMode(): InputModeState = remember { InputModeState() }
+
+/** Whether a hardware keyboard is attached and in use: the on-screen key rows and the input dock stand down for it. */
+@Composable
+fun rememberHardwareKeyboard(): Boolean {
+    val configuration = LocalConfiguration.current
+    return configuration.keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS &&
+        configuration.hardKeyboardHidden == android.content.res.Configuration.HARDKEYBOARDHIDDEN_NO
+}

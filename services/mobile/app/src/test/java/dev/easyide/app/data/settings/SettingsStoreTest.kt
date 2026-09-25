@@ -40,10 +40,10 @@ class SettingsStoreTest {
     @Test
     fun aBatchEditLandsInOneSnapshot() = runTest {
         store.snapshot(q).first { it[SettingsSchema.editorFontSize] == 16 }
-        project.write(listOf(SettingEdit("editor.fontSize", null, json("20")), SettingEdit("editor.lineHeight", null, json("30"))))
+        project.write(listOf(SettingEdit("editor.fontSize", null, json("20")), SettingEdit("editor.letterSpacing", null, json("1.5"))))
         val next = store.snapshot(q).first { it[SettingsSchema.editorFontSize] == 20 }
         // Both values of the batch are in the first snapshot showing either.
-        assertEquals(30, next[SettingsSchema.editorLineHeight])
+        assertEquals(1.5, next[EditorSettingsSchema.letterSpacing], 0.0)
     }
 
     @Test
@@ -124,7 +124,7 @@ class SettingsStoreTest {
     @Test
     fun resetAndResetAllKeepAppLevelKeys() = runTest {
         store.set(SettingsSchema.safeMode, true)
-        store.set(SettingsSchema.editorLineHeight, 30, language = "python")
+        store.set(EditorSettingsSchema.letterSpacing, 1.0, language = "python")
         store.reset(SettingsSchema.editorFontSize)
         assertEquals(SettingsSchema.editorFontSize.default, store.snapshot.first()[SettingsSchema.editorFontSize])
         store.resetAll(ConfigTarget.USER)

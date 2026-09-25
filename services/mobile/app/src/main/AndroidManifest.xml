@@ -3,6 +3,15 @@
     <!-- Downloading the Linux rootfs tarball during environment provisioning. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+      Onboarding's one-tap battery-optimisation exemption dialog, so the sandbox keeps
+      running with the screen off. Play restricts this permission to apps whose core
+      function needs it; a terminal-hosting IDE is the intended use, but check the
+      policy before a Play release. POST_NOTIFICATIONS comes from :sandbox-runtime, whose
+      foreground service needs it.
+    -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <application
         android:name=".EasyIdeApplication"
         android:extractNativeLibs="true"

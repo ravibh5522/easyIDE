@@ -1,0 +1,76 @@
+# Markup, styles, data, documents. Format: see icons-code.txt.
+
+# --- the generic file (no glyph: a file nothing else claims)
+file gray g:-
+# --- web markup and styles
+html orange g:tag e=html,htm,xhtml,shtml,hta,jsp,asp,aspx l=html,html-derivative,es-tag-html
+xml green g:tag e=xml,xsd,wsdl,rss,atom,rdf,dtd,xliff,xlf,kml,gpx,config l=xml,es-tag-xml
+xslt green g:brackets e=xsl,xslt l=xsl
+svg yellow g:pen e=svg,svgz
+css sky g:hash e=css,pcss l=css,es-tag-css
+postcss red g:hash e=postcss l=postcss
+scss pink g:hash e=scss l=scss
+sass magenta g:hash e=sass
+less indigo g:hash e=less l=less
+stylus green g:hash e=styl,stylus l=stylus
+qss teal g:hash e=qss l=qss
+# --- documentation and prose
+markdown sky t:MD e=md,markdown,mkd,mkdn,mdown,mdwn,mkdown,livemd,rmd,qmd l=markdown,markdown-nix
+mdx yellow t:MX e=mdx l=mdx
+rst slate t:RT e=rst l=rst
+asciidoc red t:AD e=adoc,asciidoc
+latex teal t:TE e=tex,ltx,sty,latex l=latex,tex
+bibtex amber g:quote e=bib,bibtex,bbl,bst l=bibtex
+typst teal t:TY e=typ,typc l=typst
+org green t:OR e=org
+wiki blue t:WK e=wiki,mediawiki,wikitext l=wikitext
+manpage slate t:MN e=man,roff,troff,1,2,3,4,5,6,7,8
+text gray g:lines e=txt,text,readme
+log slate g:clock e=log,logs,trace,stacktrace,stderr,stdout l=log
+changelog teal g:clock n=changelog,changelog.md,changelog.txt,changelog.rst,changes,changes.md,changes.txt,history,history.md,history.txt,releases,releases.md,news,news.md,news.txt,release-notes.md,release_notes.md,release.md
+readme sky g:book n=readme,readme.md,readme.txt,readme.rst,readme.adoc,readme.markdown,readme.mdx,readme.html,readme.org,readme.1st,readme_en.md,readme.en.md,readme.zh.md,readme.ja.md,readme.ko.md,readme.es.md,readme.fr.md,readme.de.md,readme.pt.md,readme.ru.md,readme-zh.md
+contributing pink g:person n=contributing,contributing.md,contributing.txt,contributing.rst,code_of_conduct.md,code-of-conduct.md,contributors,contributors.md,contributors.txt,authors,authors.md,authors.txt,maintainers,maintainers.md,thanks,thanks.md,credits,credits.md,codeowners,owners,.all-contributorsrc,.mailmap l=codeowners
+security teal g:shield n=security.md,security.txt,security,security.rst,.well-known,threat-model.md,vulnerability.md
+license yellow g:license n=license,licence,license.md,licence.md,license.txt,licence.txt,license-mit,license-apache,license-bsd,license-gpl,license-mit.txt,license-apache.txt,license.rst,copying,copying.txt,copying.md,copyright,unlicense,unlicense.txt,notice,notice.md,notice.txt,patents,eula,eula.txt,license.html,copying.lesser,license-2.0.txt,license.spdx e=license,lic
+todo amber g:flag n=todo,todo.md,todo.txt,todo.rst,notes,notes.md,notes.txt,roadmap.md,roadmap,plan.md,tasks.md,ideas.md,install,install.md,install.txt,manifest,version,version.txt,upgrading.md,migrating.md,faq.md,support.md,support,governance.md,architecture.md,design.md,adr.md
+sponsors pink g:star n=funding.yml,funding.yaml,sponsors.md,.github-funding.yml,patreon.md,donate.md
+# --- office and ebooks
+pdf red g:bookmark e=pdf,pdfa,xfdf,fdf
+word blue t:DC e=doc,docx,docm,dotx,dotm,odt,ott,rtf,pages
+excel green t:XL e=xls,xlsx,xlsm,xlsb,xlt,xltx,xltm,ods,ots,numbers
+powerpoint orange t:PP e=ppt,pptx,pptm,pps,ppsx,potx,odp,otp
+opendocument sky t:OD e=odg,odf,odc,odb,otg,odm
+ebook teal g:book e=epub,mobi,azw,azw3,fb2,kfx,lit,lrf,cbz,cbr,cb7,cbt,djvu,djv,ibooks,oxps,xps
+visio blue g:graph e=vsd,vsdx,vsdm,vss,vssx,drawio,dio,excalidraw,mmd,mermaid,puml,plantuml,pu,wsd,iuml,dot,gv,d2,bpmn l=mermaid
+# --- structured data
+json amber g:braces e=json,jsonc,json5,jsonl,ndjson,hjson,cjson,jsonld,code-snippets,babelrc,eslintrc,jshintrc,jscsrc,webmanifest,har,jsonnet,libsonnet l=json,jsonc,json5,jsonl,hjson,jsonnet
+geojson green g:map e=geojson,topojson,gpkg,shp,shx,osm,mbtiles,pbf,fgb,kmz
+yaml pink g:indent e=yaml,yml,clang-format,clang-tidy l=yaml
+toml brown g:brackets e=toml,tml l=toml
+ini gray g:sliders e=ini,cfg,conf,properties,prefs,ovpn l=ini,properties,ssh-config,desktop,reg,http
+env amber g:key e=env,envrc,flaskenv,env.local,env.example,env.sample,env.template,env.development,env.production,env.test,env.staging,env.defaults l=dotenv
+csv green g:table e=csv,csvs,psv,ssv l=csv
+tsv teal g:table e=tsv,tab l=tsv
+protobuf cyan t:PB e=proto,pbtxt,textproto,pb l=proto
+thrift orange t:TH e=thrift
+avro red t:AV e=avsc,avdl,avpr
+capnp slate t:CP e=capnp
+flatbuffers amber t:FB e=fbs
+parquet cyan t:PQ e=parquet,feather,arrow,orc
+powerquery green t:PW e=pq,pqm l=powerquery
+graphql pink g:graph e=graphql,gql,graphqls,graphqlrc l=graphql
+sql sky g:database e=sql,ddl,dml,psql,pgsql,mysql,plsql,tsql,pks,pkb,prc,fnc,trg,vw,hql,cql l=sql,plsql,es-tag-sql
+database slate g:database e=db,sqlite,sqlite3,db3,s3db,sdb,sl3,mdb,accdb,dbf,fdb,myd,myi,ibd,rdb,realm,mdf,ndf,ldf,wal,shm,journal
+prisma indigo t:PR e=prisma l=prisma
+surrealql pink t:SU e=surql,surrealql l=surrealql
+cypher blue t:CY e=cypher,cyp l=cypher
+kdl gray t:KD e=kdl l=kdl
+hcl violet g:cloud e=hcl,nomad,workflow,sentinel,tfstate,tf.json l=hcl
+terraform violet g:package e=tf,tfvars,tofu,tfbackend,tftest,tfmock,terraformrc,tfrc,tftpl l=terraform
+regexp amber g:regex e=regexp l=regexp
+http green g:globe e=http,rest
+po blue g:quote e=po,pot,mo l=po
+diff green g:diff e=diff,patch,rej,orig,udiff l=diff
+gitcommit orange g:git l=git-commit,git-rebase
+notebook amber g:notebook e=ipynb
+notebook-r blue g:notebook e=rnw,sweave,rpres,jmd

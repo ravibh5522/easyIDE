@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,24 +19,30 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import dev.easyide.app.data.settings.AppearanceSettingsSchema
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
+import dev.easyide.app.session.SessionPolicy
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.foundation.LocalKeymap
-import dev.easyide.app.ui.foundation.LocalSettings
 import dev.easyide.app.ui.foundation.LocalMotionEnabled
+import dev.easyide.app.ui.foundation.LocalSettings
+import dev.easyide.app.ui.foundation.LocalSettingsEditor
+import dev.easyide.app.ui.foundation.SettingsEditor
 import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.foundation.currentWindowSize
-import dev.easyide.app.ui.foundation.systemMotionEnabled
 import dev.easyide.app.ui.navigation.AppNavHost
+import dev.easyide.app.ui.shell.host.ShellViewModel
 import dev.easyide.app.ui.theme.EasyIdeTheme
 import dev.easyide.app.ui.theme.FileIcons
 import dev.easyide.app.ui.theme.LocalFileIcons
 import dev.easyide.app.ui.theme.LocalIconThemeChoices
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Single-activity host. Provides the two ambient values every screen depends on
@@ -40,6 +50,8 @@ import kotlinx.coroutines.launch
  * has to look them up itself.
  */
 class MainActivity : ComponentActivity() {
+
+    private val shellViewModel: ShellViewModel by viewModels { AppViewModelFactory((application as EasyIdeApplication).container) }
 
     // Main-thread only: written from composition, read by the splash's
     // per-frame keep-on-screen check.
@@ -80,20 +92,35 @@ class MainActivity : ComponentActivity() {
             // First frame: onStartupFinished activations follow after the idle delay.
             LaunchedEffect(Unit) { container.extensions.onFirstFrame() }
 
-            // Read once per composition rather than observed: the system
-            // animation setting change restarts the activity anyway.
-            val motionEnabled = remember { systemMotionEnabled() }
+            val settingsEditor = remember { SettingsEditor(container.settingsStore, lifecycleScope) }
             val windowSize = currentWindowSize()
 
             val customizations = remember(settings) { ThemeSettingsSchema.customizations(settings) }
             val iconTheme by container.iconTheme.theme.collectAsStateWithLifecycle()
             val iconThemeChoices by container.iconTheme.choices.collectAsStateWithLifecycle()
             val fileIcons = remember(iconTheme) { iconTheme?.let(::FileIcons) }
-            EasyIdeTheme(themeMode = themeMode, contributed = contributedTheme, customizations = customizations, themeLabel = settings[SettingsSchema.colorTheme].takeIf { it.isNotEmpty() }) {
+            val appearance = remember(settings) { AppearanceSettingsSchema.appearance(settings) }
+            // Immersive: bars hidden, a swipe from the edge shows them briefly over the app.
+            LaunchedEffect(appearance.fullScreen) {
+                val controller = WindowCompat.getInsetsController(window, window.decorView)
+                if (appearance.fullScreen) {
+                    controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    controller.hide(WindowInsetsCompat.Type.systemBars())
+                } else {
+                    controller.show(WindowInsetsCompat.Type.systemBars())
+                }
+            }
+            EasyIdeTheme(
+                themeMode = themeMode,
+                contributed = contributedTheme,
+                customizations = customizations,
+                themeLabel = settings[SettingsSchema.colorTheme].takeIf { it.isNotEmpty() },
+                appearance = appearance,
+            ) {
                 CompositionLocalProvider(
                     LocalWindowSize provides windowSize,
-                    LocalMotionEnabled provides motionEnabled,
                     LocalSettings provides settings,
+                    LocalSettingsEditor provides settingsEditor,
                     LocalKeymap provides (keymap?.keymap ?: Keymap.DEFAULT),
                     LocalFileIcons provides fileIcons,
                     LocalIconThemeChoices provides iconThemeChoices,
@@ -105,9 +132,10 @@ class MainActivity : ComponentActivity() {
                         onboardingComplete?.let { complete ->
                             AppNavHost(
                                 startAtOnboarding = !complete,
-                                motionEnabled = motionEnabled,
+                                motionEnabled = LocalMotionEnabled.current,
                                 container = container,
                                 viewModelFactory = factory,
+                                shell = shellViewModel,
                                 onOnboardingComplete = {
                                     lifecycleScope.launch {
                                         container.uiPreferences.setOnboardingComplete(true)
@@ -119,6 +147,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Hot-exit: after this returns Android may kill the process at any time, so every
+     * workspace's session and unsaved buffers are written now, not on their timer. Blocks
+     * the main thread for the few small writes, bounded by [SessionPolicy.FLUSH_BUDGET_MS].
+     */
+    override fun onStop() {
+        super.onStop()
+        val container = (application as EasyIdeApplication).container
+        runBlocking { withTimeoutOrNull(SessionPolicy.FLUSH_BUDGET_MS) { container.workspaces.flushAll() } }
     }
 
     companion object {

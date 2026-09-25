@@ -42,7 +42,7 @@ object SyncVariables {
         when (ref) {
             is VariableRef.Config -> config(ref.key)?.let { v -> (v as? JsonPrimitive)?.takeIf { it.isString }?.content ?: v.stringOrNull ?: v.toString() }
             is VariableRef.Predefined -> predefined(ref.variable, editor, ws, owner)
-            is VariableRef.Command, is VariableRef.Input, is VariableRef.Result, is VariableRef.Env -> null
+            is VariableRef.Command, is VariableRef.Input, is VariableRef.Result, is VariableRef.Env, is VariableRef.Arg -> null
         }
 
     private fun predefined(v: PredefinedVariable, editor: EditorState?, ws: WorkspaceState, owner: Owner): String? {

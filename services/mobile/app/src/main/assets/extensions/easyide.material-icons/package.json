@@ -1,0 +1,23 @@
+{
+  "name": "material-icons",
+  "publisher": "easyide",
+  "version": "5.38.1",
+  "displayName": "Material Icon Theme",
+  "description": "Material Icon Theme by Philipp Kief and the Material Extensions contributors (MIT): file and folder icons for hundreds of languages, tools and frameworks, bundled unmodified. Selected by default; pick another theme in Settings.",
+  "license": "MIT",
+  "engines": {
+    "easyide": "^0.3.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "iconThemes": [
+      {
+        "id": "material-icon-theme",
+        "label": "Material Icon Theme",
+        "path": "./dist/material-icons.json"
+      }
+    ]
+  }
+}

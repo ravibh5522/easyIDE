@@ -1,5 +1,6 @@
 package dev.easyide.app.ui.screens.workspace
 
+import dev.easyide.app.session.ExternalState
 import dev.easyide.sandbox.files.FileNode
 
 /**
@@ -16,6 +17,8 @@ data class EditorTab(
     val highlightingEnabled: Boolean = true,
     val notice: String? = null,
     val showPreview: Boolean = false,
+    /** Set by the external change check (S8) when the file no longer matches what this buffer was based on. */
+    val externalState: ExternalState = ExternalState.InSync,
 ) {
     /**
      * Cached per instance: it is read by the tab bar, status bar and screen on

@@ -54,6 +54,9 @@ class WorkspaceTerminals(
         }
     }
 
+    /** Shows the terminal panel without starting anything: Home's "Open with terminal". */
+    fun reveal() = state.update { it.copy(terminalRevealRequests = it.terminalRevealRequests + 1) }
+
     /**
      * Resolves proot-or-fallback shell params off the main thread, then constructs the real
      * `TerminalSession` and adds it as a new tab. Suspends because

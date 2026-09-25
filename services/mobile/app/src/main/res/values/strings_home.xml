@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home (docs/ui-redesign/screens.md 2, identity.md 9).
+     No string here calls proot or chroot an isolation boundary: both are single-tenant. -->
+<resources>
+
+    <!-- Sandbox enums shown to the user -->
+    <string name="backend_proot">proot</string>
+    <string name="backend_chroot">chroot (root)</string>
+    <string name="environment_state_ready">Ready</string>
+    <string name="environment_state_provisioning">Installing</string>
+    <string name="environment_state_failed">Install failed</string>
+    <string name="environment_state_not_installed">Not installed</string>
+
+    <!-- Relative time: short, for mono tabular columns -->
+    <string name="home_age_now">now</string>
+    <string name="home_age_minutes">%1$dm</string>
+    <string name="home_age_hours">%1$dh</string>
+    <string name="home_age_days">%1$dd</string>
+    <string name="home_age_weeks">%1$dw</string>
+    <string name="home_age_months">%1$dmo</string>
+    <string name="home_age_years">%1$dy</string>
+
+    <!-- Languages (proper names) -->
+    <string name="language_kotlin" translatable="false">Kotlin</string>
+    <string name="language_java" translatable="false">Java</string>
+    <string name="language_typescript" translatable="false">TypeScript</string>
+    <string name="language_javascript" translatable="false">JavaScript</string>
+    <string name="language_python" translatable="false">Python</string>
+    <string name="language_rust" translatable="false">Rust</string>
+    <string name="language_go" translatable="false">Go</string>
+    <string name="language_c_cpp" translatable="false">C/C++</string>
+    <string name="language_ruby" translatable="false">Ruby</string>
+    <string name="language_php" translatable="false">PHP</string>
+
+    <!-- Home: header and sections -->
+    <string name="home_add">New, import or clone</string>
+    <string name="home_import_folder">Import folder</string>
+    <string name="home_clone">Clone repository</string>
+    <string name="home_section_resume">Resume</string>
+    <string name="home_section_running">Running</string>
+    <string name="home_section_environment">Environment</string>
+    <string name="home_section_projects">Projects</string>
+    <string name="home_separator" translatable="false">"  ·  "</string>
+
+    <!-- Home: resume -->
+    <string name="home_resume_continue">Continue</string>
+    <string name="home_resume_changes">%1$d changed</string>
+    <string name="home_resume_file">edited %1$s</string>
+
+    <!-- Home: running -->
+    <string name="home_running_running">running</string>
+    <string name="home_running_starting">starting</string>
+    <string name="home_running_failed">failed</string>
+    <string name="home_running_stop">Stop %1$s</string>
+    <string name="home_running_size_mb">%1$.0f MB</string>
+    <string name="home_running_size_gb">%1$.1f GB</string>
+    <string name="home_stop_session_title">Stop %1$s?</string>
+    <string name="home_stop_session_body">Its shells end and unsaved changes are dropped. Files on disk stay.</string>
+    <string name="home_stop_session_confirm">Stop</string>
+
+    <!-- Home: environment -->
+    <string name="home_env_ok">ok</string>
+    <string name="home_env_installing">installing</string>
+    <string name="home_env_failed">failed</string>
+    <string name="home_env_missing_rootfs">not installed</string>
+    <plurals name="home_env_projects">
+        <item quantity="one">%d project</item>
+        <item quantity="other">%d projects</item>
+    </plurals>
+    <string name="home_env_empty">No environment.</string>
+    <string name="home_env_install">Install Linux</string>
+
+    <!-- Home: projects -->
+    <string name="home_search_hint">Search</string>
+    <string name="home_sort_recent">Recent</string>
+    <string name="home_sort_name">Name</string>
+    <string name="home_projects_empty">No projects yet.</string>
+    <string name="home_no_matches">No project matches "%1$s".</string>
+    <string name="home_no_matches_clear">Clear search</string>
+    <string name="home_location_app_storage">App storage</string>
+    <string name="home_location_folder">Folder: %1$s</string>
+    <string name="home_location_linked_folder">Linked folder</string>
+
+    <!-- Project page -->
+    <string name="home_page_missing">This project no longer exists.</string>
+    <string name="home_page_open">Open</string>
+    <string name="home_page_open_terminal">Open with terminal</string>
+    <string name="home_page_more">Project actions</string>
+    <string name="home_page_section_details">Details</string>
+    <string name="home_page_section_recent">Recent files</string>
+    <string name="home_page_section_sessions">Sessions</string>
+    <string name="home_page_environment">Environment</string>
+    <string name="home_page_branch">Branch</string>
+    <string name="home_page_no_git">not a git repository</string>
+    <string name="home_page_language">Language</string>
+    <string name="home_page_language_unknown">not detected</string>
+    <string name="home_page_last_opened">Last opened</string>
+    <string name="home_page_created">Created</string>
+    <string name="home_page_no_recent">No files yet.</string>
+
+    <!-- Home: project menu -->
+    <string name="home_menu_open">Open</string>
+    <string name="home_menu_rename">Rename</string>
+    <string name="home_menu_duplicate">Duplicate</string>
+    <string name="home_menu_change_environment">Change environment</string>
+    <string name="home_menu_open_location">Open folder location</string>
+    <string name="home_menu_delete">Delete</string>
+
+    <!-- Home: dialogs -->
+    <string name="home_rename_title">Rename project</string>
+    <string name="home_rename_confirm">Rename</string>
+    <string name="home_duplicate_title">Duplicate project</string>
+    <string name="home_duplicate_confirm">Duplicate</string>
+    <string name="home_duplicate_default_name">%1$s copy</string>
+    <string name="home_delete_title">Delete "%1$s"?</string>
+    <string name="home_delete_body">Its files are deleted from app storage. Not recoverable.</string>
+    <string name="home_delete_keeps_environment">The environment stays.</string>
+    <string name="home_delete_keeps_linked">The environment and the linked folder stay.</string>
+    <string name="home_delete_type_name">Type the project name to confirm</string>
+    <string name="home_delete_confirm">Delete</string>
+    <string name="home_change_environment_title">Environment for "%1$s"</string>
+    <string name="home_change_environment_body">Only where it runs changes. Files stay put.</string>
+    <string name="home_change_environment_confirm">Change</string>
+    <string name="home_clone_title">Clone repository</string>
+    <string name="home_clone_url_label">Repository URL</string>
+    <string name="home_clone_url_placeholder" translatable="false">https://github.com/owner/repo.git</string>
+    <string name="home_clone_url_empty">Enter a repository URL.</string>
+    <string name="home_clone_url_unsupported">Only https:// is supported. SSH keys are not available.</string>
+    <string name="home_clone_url_malformed">Not an https:// repository address.</string>
+    <string name="home_clone_environment">Clone using</string>
+    <string name="home_clone_confirm">Clone</string>
+    <string name="home_import_title">Import folder</string>
+    <string name="home_import_body">Files are copied into a new project. Saves are mirrored back to the folder.</string>
+    <string name="home_import_environment">Run in</string>
+    <string name="home_import_confirm">Import</string>
+    <string name="home_install_prompt_title">Install Linux</string>
+    <string name="home_install_prompt_body">Terminals, git clone and language tooling run in Linux on this tablet. Install one first.</string>
+    <string name="home_install_prompt_confirm">Install Linux</string>
+
+    <!-- Home: failures and confirmations -->
+    <string name="home_error_name_taken">Name already in use.</string>
+    <string name="home_error_name_blank">Enter a name.</string>
+    <string name="home_error_no_ready_environment">No installed Linux environment. Install Linux first.</string>
+    <string name="home_error_clone_auth">%1$s needs credentials. Private repositories are not supported yet.</string>
+    <string name="home_error_clone_not_found">Repository not found. Check the address.</string>
+    <string name="home_error_clone_failed">Couldn\'t clone: %1$s</string>
+    <string name="home_error_other">Couldn\'t finish. Retry.</string>
+    <string name="home_error_other_detail">Couldn\'t finish: %1$s</string>
+    <string name="home_message_renamed">Renamed to %1$s</string>
+    <string name="home_message_duplicated">Created %1$s</string>
+    <string name="home_message_deleted">Deleted %1$s</string>
+    <string name="home_message_environment_changed">%1$s now runs in %2$s</string>
+    <string name="home_message_imported">Imported %1$s</string>
+    <string name="home_message_cloned">Cloned %1$s</string>
+    <string name="home_message_folder_pick_failed">Couldn\'t open that folder.</string>
+</resources>

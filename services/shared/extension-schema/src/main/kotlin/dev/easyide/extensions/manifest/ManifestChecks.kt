@@ -8,6 +8,10 @@ import dev.easyide.extensions.capability.CapabilityRules
 import dev.easyide.extensions.capability.CapabilitySet
 import dev.easyide.extensions.contrib.Contributions
 import dev.easyide.extensions.contrib.KeyAction
+import dev.easyide.extensions.contrib.NavigationTarget
+import dev.easyide.extensions.view.ActionTarget
+import dev.easyide.extensions.view.ViewDocument
+import dev.easyide.extensions.view.ViewTemplate
 import dev.easyide.extensions.json.JsonPointer
 
 /**
@@ -25,12 +29,12 @@ internal object ManifestChecks {
         ctx: DecodeContext, c: Contributions, actions: Map<String, Action>, inputs: Map<String, InputSpec>, builtIns: Set<String>,
     ) {
         val declared = c.commands.mapTo(HashSet()) { it.command }
-        fun check(command: String, pointer: String) {
+        fun check(command: String, pointer: String, file: String = MANIFEST_FILE) {
             if (command in declared || command in builtIns) return
-            if (command.startsWith("${ctx.extensionName}.")) {
-                ctx.error(DiagnosticCode.COMMAND_UNRESOLVED, pointer, "command '$command' is not declared in contributes.commands")
+            if (ctx.ownsId(command)) {
+                ctx.error(DiagnosticCode.COMMAND_UNRESOLVED, pointer, "command '$command' is not declared in contributes.commands", file)
             } else {
-                ctx.warn(DiagnosticCode.COMMAND_UNKNOWN, pointer, "command '$command' is not declared here or known as a built-in")
+                ctx.warn(DiagnosticCode.COMMAND_UNKNOWN, pointer, "command '$command' is not declared here or known as a built-in", file)
             }
         }
         c.menus.forEach { m ->
@@ -46,6 +50,17 @@ internal object ManifestChecks {
             }
         }
         actions.forEach { (id, a) -> executeTargets(a).forEach { check(it, JsonPointer.child("/easyide/actions", id)) } }
+        c.navigation.forEach { n -> (n.target as? NavigationTarget.Command)?.let { check(it.id, "/easyide/navigation") } }
+        c.documents.forEach { d -> d.state?.let { check(it.command, "/easyide/documents") } }
+        viewDocuments(c).forEach { doc ->
+            doc.root.walk().filter { it.action != null }.forEach { node ->
+                when (val t = node.action!!.target) {
+                    is ActionTarget.Command -> check(t.id, node.pointer, doc.file)
+                    is ActionTarget.Inline -> executeTargets(t.action).forEach { check(it, node.pointer, doc.file) }
+                    else -> Unit
+                }
+            }
+        }
         inputs.values.filterIsInstance<InputSpec.Command>().forEach { check(it.command, "/easyide/inputs") }
         for (id in actions.keys) {
             if (id !in declared) {
@@ -55,6 +70,50 @@ internal object ManifestChecks {
         actions.forEach { (id, a) ->
             ActionDecoder.templates(a).flatMap { it.variables }.filterIsInstance<VariableRef.Command>().forEach {
                 check(it.id, JsonPointer.child("/easyide/actions", id))
+            }
+        }
+    }
+
+    /** Every parsed view file of the pack, each once (two views may share a file). */
+    fun viewDocuments(c: Contributions): List<ViewDocument> =
+        (c.views.mapNotNull { it.schema } + c.documents.map { it.body }).distinctBy { it.file }
+
+    /**
+     * References among the UI points, which only resolve once all of them are decoded: a navigation target names one of
+     * the pack's containers, a badge one of its views, an opener one of its document types, and every `open` in a view
+     * a declared document type.
+     */
+    fun uiReferences(ctx: DecodeContext, c: Contributions) {
+        val containers = c.viewContainers.mapTo(HashSet()) { it.id }
+        val views = c.views.mapTo(HashSet()) { it.id }
+        val navIds = c.navigation.mapTo(HashSet()) { it.id }
+        val types = c.documents.mapTo(HashSet()) { it.type }
+        c.navigation.forEachIndexed { i, n ->
+            val p = "/easyide/navigation/$i"
+            (n.target as? NavigationTarget.Container)?.takeIf { it.id !in containers }?.let {
+                ctx.error(DiagnosticCode.UI_REF, JsonPointer.child(p, "target"), "container '${it.id}' is not declared in contributes.viewsContainers")
+            }
+            n.badge?.takeIf { it.view !in views }?.let {
+                ctx.error(DiagnosticCode.UI_REF, JsonPointer.child(p, "badge"), "badge view '${it.view}' is not declared in contributes.views")
+            }
+        }
+        c.viewBadges.forEachIndexed { i, b ->
+            val p = "/easyide/viewBadge/$i"
+            if (b.nav !in navIds) ctx.error(DiagnosticCode.UI_REF, p, "viewBadge names navigation item '${b.nav}', which is not declared")
+            if (b.binding.view !in views) ctx.error(DiagnosticCode.UI_REF, p, "viewBadge view '${b.binding.view}' is not declared in contributes.views")
+        }
+        c.documentOpeners.forEachIndexed { i, o ->
+            if (o.type !in types) ctx.error(DiagnosticCode.UI_REF, "/easyide/documentOpeners/$i", "opener type '${o.type}' is not declared in easyide.documents")
+        }
+        val prefix = "ext://${ctx.extensionId.value}/"
+        viewDocuments(c).forEach { doc ->
+            doc.root.walk().forEach { node ->
+                val open = node.action?.target as? ActionTarget.Open ?: return@forEach
+                val literal = (open.uri.parts.firstOrNull() as? ViewTemplate.Part.Literal)?.text.orEmpty().removePrefix(prefix)
+                val name = literal.substringBefore('/')
+                if (literal.contains('/') && "${ctx.extensionId.value}/$name" !in types) {
+                    ctx.error(DiagnosticCode.UI_REF, node.pointer, "'open' names document type '${ctx.extensionId.value}/$name', which is not declared in easyide.documents", doc.file)
+                }
             }
         }
     }
@@ -136,7 +195,8 @@ internal object ManifestChecks {
     fun scope(ctx: DecodeContext, declared: InstallScope?, c: Contributions, actions: Map<String, Action>, caps: CapabilitySet): InstallScope {
         val needsEnv = c.sandbox != null || c.languageServers.isNotEmpty() ||
             caps.items.any { it == Capability.SandboxExec || it == Capability.SandboxInstall } ||
-            actions.values.any(::touchesEnvironment) || c.viewData.any { touchesEnvironment(it.from) }
+            actions.values.any(::touchesEnvironment) || c.viewData.any { touchesEnvironment(it.from) } ||
+            viewDocuments(c).any { d -> d.actions.any { (it.target as? ActionTarget.Inline)?.let { t -> touchesEnvironment(t.action) } == true } }
         val computed = if (needsEnv) InstallScope.ENVIRONMENT else InstallScope.GLOBAL
         if (declared == InstallScope.GLOBAL && computed == InstallScope.ENVIRONMENT) {
             ctx.error(DiagnosticCode.SCOPE, "/easyide/scope", "declared 'global' but uses the environment (sandbox, language servers or process actions)")
