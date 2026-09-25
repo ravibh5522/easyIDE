@@ -71,21 +71,11 @@ data class LaunchRequest(
     val extraEnvironment: Map<String, String> = emptyMap(),
     val extraBinds: List<GuestBind> = emptyList(),
     val guestCwd: String? = null,
-    /** Fake ids to run as (proot `-i`); null runs as fake root (`-0`). See [GuestIds]. */
-    val ids: GuestIds? = null,
 ) {
     init {
         require(guestCwd == null || guestCwd.startsWith("/")) { "Guest cwd must be an absolute guest path: $guestCwd" }
     }
 }
-
-/**
- * The uid and gid a guest process believes it has. proot only fakes them, so this is not a
- * security boundary, but programs behave as they would for that user: `whoami`, `id`, tools that
- * refuse to run as root. A process can still regain uid 0 with `setpriv --reuid=0`, which is what
- * the guest's `sudo` does once the password is right (measured on a Xiaomi Pad 6).
- */
-data class GuestIds(val uid: Int, val gid: Int)
 
 /** Builds the argv for one sandbox backend. */
 interface SandboxLauncher {
@@ -122,8 +112,8 @@ internal object GuestEnvironment {
 
     /**
      * The default account (`GuestAccounts`): uid [DEFAULT_UID] in the root group, home `/root`.
-     * Interactive terminals run as it; `sudo` (a shim) asks for its password and re-runs the
-     * command as uid 0. Language servers and tasks run as root.
+     * Interactive terminals drop to it (`SandboxShell.userShell`) while keeping uid 0 as their saved
+     * id, so `sudo` (a shim) can return to it after the password check. Language servers and tasks run as root.
      */
     const val DEFAULT_USER = "dev"
     const val DEFAULT_UID = 1000

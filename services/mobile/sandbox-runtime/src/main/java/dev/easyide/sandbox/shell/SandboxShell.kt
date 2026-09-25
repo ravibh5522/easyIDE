@@ -2,7 +2,6 @@ package dev.easyide.sandbox.shell
 
 import dev.easyide.sandbox.backend.GuestBind
 import dev.easyide.sandbox.backend.GuestEnvironment
-import dev.easyide.sandbox.backend.GuestIds
 import dev.easyide.sandbox.backend.LaunchRequest
 import dev.easyide.sandbox.backend.ProotLauncher
 import dev.easyide.sandbox.bootstrap.ProotInstaller
@@ -110,9 +109,8 @@ class SandboxShell(
             hostProjectDir = hostProjectDir,
             guestProjectPath = guestProjectPath,
             extraBinds = extraBinds,
-            command = loginShell(rootfs),
+            command = if (asRoot) loginShell(rootfs) else userShell(rootfs),
             extraEnvironment = if (asRoot) emptyMap() else USER_ENVIRONMENT,
-            ids = if (asRoot) null else GuestIds(GuestEnvironment.DEFAULT_UID, GuestEnvironment.DEFAULT_GID),
         )
     )
 
@@ -122,6 +120,17 @@ class SandboxShell(
      * reads it, and readline gives history, arrow-key editing and tab completion. dash, the
      * `/bin/sh` of Ubuntu, has none of that.
      */
+    /**
+     * The login shell as the default user. proot starts everything as fake root (`-i 1000:0` would
+     * make uid 1000 final: setresuid back to 0 then fails, measured on a Xiaomi Pad 6), so the shell is
+     * dropped with `setpriv --reuid`, which leaves uid 0 as the saved id; `sudo` uses that to return.
+     * Without `setpriv` (a minimal rootfs) the shell simply stays root.
+     */
+    private fun userShell(rootfs: File): List<String> {
+        val setpriv = listOf("usr/bin/setpriv", "bin/setpriv").firstOrNull { File(rootfs, it).isFile } ?: return loginShell(rootfs)
+        return listOf("/$setpriv", "--reuid=${GuestEnvironment.DEFAULT_UID}", "--regid=${GuestEnvironment.DEFAULT_GID}", "--clear-groups", "--") + loginShell(rootfs)
+    }
+
     private fun loginShell(rootfs: File): List<String> =
         if (File(rootfs, "usr/bin/bash").isFile) listOf(GuestEnvironment.LOGIN_SHELL, "-l") else listOf(GUEST_SHELL)
 
