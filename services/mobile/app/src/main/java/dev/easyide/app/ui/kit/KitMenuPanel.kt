@@ -48,6 +48,13 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import dev.easyide.app.ui.icons.iconFor
 
+/** Rows with an icon or a check share one glyph column; a menu with neither has no column, so its labels start at the row's edge. */
+internal fun hasGlyph(item: KitMenuItem): Boolean = when (item) {
+    is KitMenuItem.Action -> item.icon != null || item.checked != null
+    is KitMenuItem.Submenu -> item.icon != null
+    KitMenuItem.Divider -> false
+}
+
 /** Whether the row at [index] of this level is the one focus or hover is on, and whether its submenu is showing. */
 private fun MenuNav.isFocused(level: Int, index: Int) = path.getOrNull(level) == index
 private fun MenuNav.opensBelow(level: Int, index: Int) = path.size > level + 1 && path[level] == index
@@ -71,7 +78,7 @@ internal fun KitMenuPanel(
     val colors = Kit.colors
     val shape = RoundedCornerShape(Kit.radius.s)
     var bounds by remember { mutableStateOf(IntRect.Zero) }
-    val slot = items.any { (it as? KitMenuItem.Action)?.let { a -> a.icon != null || a.checked != null } ?: (it as? KitMenuItem.Submenu)?.icon != null }
+    val slot = items.any { hasGlyph(it) }
 
     Column(
         modifier = modifier.kitTag("menu")
@@ -171,9 +178,12 @@ internal fun KitMenuCascade(items: List<KitMenuItem>, nav: MenuNav, modifier: Mo
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(Kit.space.xxs)) {
         for (level in 0 until maxOf(nav.path.size, 1)) {
             val levelItems = nav.itemsAt(root, level)
-            val above = if (level == 0) 0 else nav.path[level - 1]
+            val parentItems = if (level == 0) emptyList() else nav.itemsAt(root, level - 1).take(nav.path[level - 1])
+            val above = parentItems.fold(Kit.space.xs) { y, item ->
+                y + if (item is KitMenuItem.Divider) Kit.space.xs * 2 + Kit.hairline else Kit.control.rowHeight
+            }
             Column {
-                Spacer(Modifier.height(Kit.control.rowHeight * above))
+                Spacer(Modifier.height(above))
                 KitMenuPanel(levelItems, level, nav, root, {}, {}, inlineSubmenus = true)
             }
         }

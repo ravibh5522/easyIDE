@@ -9,6 +9,9 @@ interface GitCommitActions {
 
     fun dismissIdentityPrompt()
 
+    /** Commits the way a split-button entry says: amend or not, then optionally push or sync. */
+    fun commit(mode: CommitMode)
+
     /** The user's answer to [GitPanelState.confirm][dev.easyide.app.ui.screens.workspace.GitPanelState.confirm]. */
     fun answerConfirm(accepted: Boolean)
 }
@@ -21,6 +24,7 @@ interface GitCommitActions {
 class GitControllers(
     val remote: GitRemoteController,
     val branches: GitBranchController,
+    val history: GitHistoryController,
     val diff: GitDiffController,
     val commit: GitCommitActions,
 )

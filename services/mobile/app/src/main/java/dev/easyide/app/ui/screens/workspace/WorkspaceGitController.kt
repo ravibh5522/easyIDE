@@ -1,6 +1,9 @@
 package dev.easyide.app.ui.screens.workspace
 
+import dev.easyide.app.ui.screens.workspace.git.CommitMode
 import dev.easyide.app.ui.screens.workspace.git.GitBranchController
+import dev.easyide.app.ui.screens.workspace.git.GitHistoryController
+import dev.easyide.app.ui.screens.workspace.git.PostCommit
 import dev.easyide.app.ui.screens.workspace.git.GitCommitActions
 import dev.easyide.app.ui.screens.workspace.git.GitConfirm
 import dev.easyide.app.ui.screens.workspace.git.GitContext
@@ -50,9 +53,12 @@ class WorkspaceGitController(
     private val ctx = GitContext(_state, gitService, projectRoot, scope)
     private val diffs = GitDiffController(ctx)
 
+    private val branches = GitBranchController(ctx)
+
     val controllers = GitControllers(
         remote = GitRemoteController(ctx, network, settings, tokens, foreground, refresh = ::refresh),
-        branches = GitBranchController(ctx),
+        branches = branches,
+        history = GitHistoryController(ctx, branches, settings),
         diff = diffs,
         commit = this,
     )
@@ -136,17 +142,27 @@ class WorkspaceGitController(
     // ---- commit ---------------------------------------------------------------
 
     override fun setAmend(amend: Boolean) {
+        scope.launch { applyAmend(amend) }
+    }
+
+    private suspend fun applyAmend(amend: Boolean) {
         if (amend == _state.value.amend) return
-        scope.launch {
-            val head = gitService.log(projectRoot, 1).valueOrNull()?.firstOrNull()?.body?.trim().orEmpty()
-            _state.update { s ->
-                val message = when {
-                    amend && s.commitMessage.isBlank() -> head
-                    !amend && s.commitMessage == head -> ""
-                    else -> s.commitMessage
-                }
-                s.copy(amend = amend, commitMessage = message)
+        val head = gitService.log(projectRoot, 1).valueOrNull()?.firstOrNull()?.body?.trim().orEmpty()
+        _state.update { s ->
+            val message = when {
+                amend && s.commitMessage.isBlank() -> head
+                !amend && s.commitMessage == head -> ""
+                else -> s.commitMessage
             }
+            s.copy(amend = amend, commitMessage = message)
+        }
+    }
+
+    /** A split-button entry: amend on or off to match the mode, then commit, then the push or sync it names. */
+    override fun commit(mode: CommitMode) {
+        scope.launch {
+            applyAmend(mode.amend)
+            commitNow(mode.then)
         }
     }
 
@@ -159,15 +175,21 @@ class WorkspaceGitController(
      * end up in history, where it cannot be taken back.
      */
     fun commit() {
+        scope.launch { commitNow(PostCommit.NONE) }
+    }
+
+    /** What follows the commit, kept across the identity form and the pushed-amend question that can interrupt it. */
+    private var then = PostCommit.NONE
+
+    private suspend fun commitNow(after: PostCommit) {
         val state = _state.value
         if (state.commitMessage.isBlank()) return
-        scope.launch {
-            val identity = settings.current().identity
-            when {
-                identity == null -> _state.update { it.copy(identityPrompt = true) }
-                state.amend && amendRewritesPushed() -> _state.update { it.copy(confirm = GitConfirm.AmendPushed) }
-                else -> commitAs(identity)
-            }
+        then = after
+        val identity = settings.current().identity
+        when {
+            identity == null -> _state.update { it.copy(identityPrompt = true) }
+            state.amend && amendRewritesPushed() -> _state.update { it.copy(confirm = GitConfirm.AmendPushed) }
+            else -> commitAs(identity)
         }
     }
 
@@ -177,7 +199,16 @@ class WorkspaceGitController(
         val state = _state.value
         val message = state.commitMessage
         val amend = state.amend
+        val next = then
+        then = PostCommit.NONE
         ctx.act(
+            after = {
+                when (next) {
+                    PostCommit.NONE -> Unit
+                    PostCommit.PUSH -> controllers.remote.push()
+                    PostCommit.SYNC -> controllers.remote.sync()
+                }
+            },
             onSuccess = {
                 draftJob?.cancel()
                 _state.update { it.copy(commitMessage = "", amend = false, identityPrompt = false) }

@@ -35,6 +35,7 @@ class GitRemoteController(
 ) {
     private var job: Job? = null
     private var lastOp: GitNetworkOp? = null
+    private var afterPull: (() -> Unit)? = null
 
     init {
         ctx.scope.launch { autoFetch() }
@@ -57,6 +58,18 @@ class GitRemoteController(
         val state = ctx.state.value
         val status = state.status ?: return
         GitRemotePlanner.pushOp(status, state.remotes)?.let(::start)
+    }
+
+    /**
+     * Pull, then push: the "sync" of the split button and of VS Code. A branch with no upstream has nothing to
+     * pull, so it is only published. The push waits for the pull to end and is dropped if the pull fails.
+     */
+    fun sync() {
+        val status = ctx.state.value.status ?: return
+        if (job?.isActive == true) return
+        if (status.upstream == null) return push()
+        afterPull = { push() }
+        pull()
     }
 
     /** Asks first: a forced push can delete other people's commits from the remote. */
@@ -128,15 +141,17 @@ class GitRemoteController(
 
     private fun start(op: GitNetworkOp) {
         if (job?.isActive == true) return
+        val next = afterPull.takeIf { op is GitNetworkOp.Pull }
+        afterPull = null
         lastOp = op
         val kind = GitRemotePlanner.kindOf(op)
         val state = ctx.state.value
         val url = GitRemotePlanner.urlFor(state.status, state.remotes)
         ctx.state.update { it.copy(operation = GitOperation(kind), error = null) }
-        job = ctx.scope.launch { run(op, kind, url) }
+        job = ctx.scope.launch { run(op, kind, url, next) }
     }
 
-    private suspend fun run(op: GitNetworkOp, kind: GitOperationKind, url: String?) {
+    private suspend fun run(op: GitNetworkOp, kind: GitOperationKind, url: String?, next: (() -> Unit)?) {
         val result = try {
             network.run(op, ctx.root, url) { line -> append(line) }
         } catch (cancelled: CancellationException) {
@@ -163,6 +178,8 @@ class GitRemoteController(
         }
         // Fetch/pull/push all move refs (and pull moves the tree): re-read.
         refresh()
+        // The step that follows starts once this job has ended: a second start while it is active is ignored.
+        if (result is GitResult.Success && next != null) ctx.scope.launch { job?.join(); next() }
     }
 
     private fun append(line: String) {
