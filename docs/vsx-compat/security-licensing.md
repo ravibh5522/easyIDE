@@ -29,7 +29,7 @@ Code paths are relative to the repo root. Aliases: `APP/` = `services/mobile/app
 
 ## 0. Fixed context (read first)
 
-1. Extensions with code run as Node JS in **one host process per environment** inside the proot guest
+1. Extensions with code run as Node JS in **one host process per open workspace session (environment + project, ADR 0031)** inside the proot guest
    (ADR 0030 decision 1). All co-hosted extensions share one V8 heap, one `require` cache, one `process.env`.
 2. **proot is not a security boundary** (ADR 0002 Consequences: "must never describe either backend as providing
    per-project isolation or protection against untrusted code"). Guest code runs as the app's Linux uid and can do
@@ -187,7 +187,7 @@ Type legend as in threat-model.md: **E** enforced by us, **D** disclosure only, 
 
 | # | Residual | Why | Accepted because / next step |
 |---|---|---|---|
-| RV-1 | Any `host.run` extension can read/modify everything the environment can see, including other extensions and their secrets once fetched | proot is not isolation; one host per env | disclosure; environments are the user's unit of separation (ADR 0005); chroot does not change this for co-hosted code |
+| RV-1 | Any `host.run` extension can read/modify everything the environment can see, including other extensions and their secrets once fetched | proot is not isolation; one host per workspace session | disclosure; environments are the user's unit of separation (ADR 0005); chroot does not change this for co-hosted code |
 | RV-2 | Git-token window (ADR 0012) is exercised more often with a live host | persistent guest reader | stated in copy; separate auth tokens for extensions |
 | RV-3 | No per-extension network, CPU or disk control | no cgroups, no netfilter under proot | kill switch; disclosure |
 | RV-4 | Runtime-downloaded native code and npm/pip installs are unverified | outside our install path | disclosure; Play posture in licensing-policy.md sec 4 |

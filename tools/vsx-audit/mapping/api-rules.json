@@ -1,102 +1,437 @@
 {
- "_doc": "Ordered rules mapping a vscode API id (namespace.member or TypeName) to a capability id (see capabilities.json). First match wins. Patterns are anchored JS regexes.",
+ "_doc": "Ordered rules mapping a vscode API id (namespace.member or TypeName) to a capability id (see capabilities.json). First match wins. Patterns are anchored JS regexes. Ids not in stable vscode.d.ts are classed proposed.api by the matrix builder unless an earlier rule assigns an OOS track; fork.api = APIs of VS Code forks (Cursor, Antigravity), Not-planned; ids that are ALL_CAPS or plain JS members (length, slice) are extractor noise and dropped.",
  "rules": [
-  ["^(debug\\.|Debug|Breakpoint|SourceBreakpoint|FunctionBreakpoint|DataBreakpoint|InlineValue(?!sProvider)|StackFrame|Thread|EvaluatableExpression(?!Provider)|DebugAdapter|DebugConsole|DebugSession|DebugConfiguration|DebugProtocol)", "debug.dap"],
-  ["^(notebooks\\.|workspace\\.(notebookDocuments|openNotebookDocument|registerNotebookSerializer|onDidOpenNotebookDocument|onDidCloseNotebookDocument|onDidChangeNotebookDocument|onDidSaveNotebookDocument|onWillSaveNotebookDocument)|window\\.(activeNotebookEditor|visibleNotebookEditors|onDidChange(Active|Visible)NotebookEditor|onDidChangeNotebookEditor.*|showNotebookDocument)|Notebook)", "notebook.api"],
-  ["^(lm\\.|chat\\.|LanguageModel|Chat|McpServer|McpStdio|McpHttp|lm$|chat$)", "chat.lm"],
-  ["^(tests\\.|Test(?!Item)|TestItem|TestRun|TestController|TestMessage|TestTag|TestCoverage|FileCoverage|StatementCoverage|BranchCoverage|DeclarationCoverage)", "tests.api"],
-  ["^(comments\\.|Comment)", "comments.api"],
-  ["^(authentication\\.|Authentication)", "auth.api"],
-  ["^(scm\\.|SourceControl)", "scm.api"],
-  ["^(tasks\\.|Task|ShellExecution|ProcessExecution|CustomExecution|ShellQuoting|ShellQuotedString|ShellExecutionOptions|ProcessExecutionOptions|RelativePattern$)", "tasks.api"],
-  ["^window\\.(createTerminal|terminals|activeTerminal|onDidOpenTerminal|onDidCloseTerminal|onDidChangeActiveTerminal|onDidChangeTerminalState|registerTerminalProfileProvider)$", "terminal.api"],
-  ["^window\\.(registerTerminalLinkProvider)$", "terminal.links"],
-  ["^window\\.(onDidChangeTerminalShellIntegration|onDidStartTerminalShellExecution|onDidEndTerminalShellExecution)$|^TerminalShell", "terminal.shell-integration"],
-  ["^(Pseudoterminal|TerminalDimensions)$", "terminal.pty"],
-  ["^(Terminal|TerminalOptions|ExtensionTerminalOptions|TerminalExitStatus|TerminalExitReason|TerminalState|TerminalLocation|TerminalEditorLocationOptions|TerminalSplitLocationOptions|TerminalProfile|TerminalProfileProvider)$", "terminal.api"],
-  ["^(TerminalLink|TerminalLinkProvider|TerminalLinkContext)$", "terminal.links"],
-  ["^(EnvironmentVariable)", "terminal.env-collection"],
-  ["^window\\.(createWebviewPanel|registerWebviewPanelSerializer)$|^(WebviewPanel|WebviewPanelOptions|WebviewPanelSerializer|WebviewPanelOnDidChangeViewStateEvent)", "ui.webview-panel"],
-  ["^window\\.registerWebviewViewProvider$|^(WebviewView|WebviewViewProvider|WebviewViewResolveContext)", "ui.webview-view"],
-  ["^(Webview|WebviewOptions|WebviewPortMapping)$", "ui.webview-bridge"],
-  ["^window\\.registerCustomEditorProvider$|^(CustomEditor|CustomDocument|CustomReadonlyEditorProvider|CustomTextEditorProvider|CustomDocumentBackup|CustomDocumentOpenContext|CustomDocumentEditEvent|CustomDocumentContentChangeEvent|CustomDocumentBackupContext)", "ui.custom-editor"],
-  ["^window\\.(createTreeView|registerTreeDataProvider)$|^(Tree|DataTransfer|DataTransferItem|DataTransferFile)", "ui.tree-view"],
-  ["^window\\.(tabGroups)$|^(Tab|TabGroup|TabGroups|TabInput)", "ui.tabs"],
-  ["^window\\.(createStatusBarItem|setStatusBarMessage)$|^(StatusBar)", "ui.status-bar"],
-  ["^window\\.(showInformationMessage|showWarningMessage|showErrorMessage)$|^(MessageItem|MessageOptions)$", "ui.notifications"],
-  ["^window\\.(withProgress|withScmProgress)$|^(Progress|ProgressLocation|ProgressOptions)$", "ui.progress"],
-  ["^window\\.(showQuickPick|createQuickPick|showWorkspaceFolderPick)$|^(QuickPick|QuickInput|QuickInputButton|QuickInputButtons|QuickPickItem|QuickPickItemKind|QuickPickOptions|WorkspaceFolderPickOptions)", "ui.quick-pick"],
-  ["^window\\.(showInputBox|createInputBox)$|^(InputBox|InputBoxOptions|InputBoxValidationMessage|InputBoxValidationSeverity)", "ui.input-box"],
-  ["^window\\.(showOpenDialog|showSaveDialog)$|^(OpenDialogOptions|SaveDialogOptions)$", "ui.dialogs"],
-  ["^window\\.createOutputChannel$|^(OutputChannel|LogOutputChannel|LogLevel)$", "log.output"],
-  ["^window\\.(createTextEditorDecorationType)$|^(TextEditorDecorationType|DecorationOptions|DecorationRenderOptions|DecorationInstanceRenderOptions|ThemableDecoration|ThemableDecorationRenderOptions|ThemableDecorationInstanceRenderOptions|ThemableDecorationAttachmentRenderOptions|ThemableDecorationRenderOptions|DecorationRangeBehavior|OverviewRulerLane)$", "ui.editor-decorations"],
-  ["^window\\.registerFileDecorationProvider$|^(FileDecoration|FileDecorationProvider)$", "ui.file-decorations"],
-  ["^window\\.registerUriHandler$|^UriHandler$", "env.uri-handler"],
-  ["^window\\.(activeColorTheme|onDidChangeActiveColorTheme)$|^(ColorTheme|ColorThemeKind|ThemeColor)$", "ui.color-theme"],
-  ["^(ThemeIcon|IconPath)$", "ui.codicons"],
-  ["^window\\.(state|onDidChangeWindowState)$|^WindowState$", "env.info"],
-  ["^window\\.(activeTextEditor|visibleTextEditors|onDidChangeActiveTextEditor|onDidChangeVisibleTextEditors|onDidChangeTextEditorSelection|onDidChangeTextEditorVisibleRanges|onDidChangeTextEditorOptions|onDidChangeTextEditorViewColumn|showTextDocument)$|^(TextEditor|TextEditorEdit|TextEditorCursorStyle|TextEditorLineNumbersStyle|TextEditorRevealType|TextEditorSelectionChangeKind|TextEditorSelectionChangeEvent|TextEditorVisibleRangesChangeEvent|TextEditorOptionsChangeEvent|TextEditorViewColumnChangeEvent|TextEditorOptions|TextDocumentShowOptions|ViewColumn|SnippetString|SnippetTextEdit)$", "ui.text-editor"],
-  ["^window\\.", "ui.window-misc"],
-  ["^workspace\\.(registerFileSystemProvider)$|^(FileSystemProvider|FileSystemError|FileChangeEvent|FileChangeType|FilePermission)$", "fs.provider"],
-  ["^workspace\\.fs$|^(FileSystem|FileStat|FileType)$", "fs.api"],
-  ["^workspace\\.createFileSystemWatcher$|^(FileSystemWatcher|GlobPattern)$", "fs.watch"],
-  ["^workspace\\.(registerTextDocumentContentProvider)$|^TextDocumentContentProvider$", "doc.content-provider"],
-  ["^workspace\\.(textDocuments|openTextDocument|onDidOpenTextDocument|onDidCloseTextDocument|onDidChangeTextDocument|onWillSaveTextDocument|onDidSaveTextDocument|save|saveAs|saveAll)$|^(TextDocument|TextLine|TextDocumentChangeEvent|TextDocumentContentChangeEvent|TextDocumentChangeReason|TextDocumentWillSaveEvent|TextDocumentSaveReason|EndOfLine|Position|Range|Selection)$", "doc.model"],
-  ["^workspace\\.(getConfiguration|onDidChangeConfiguration)$|^(WorkspaceConfiguration|ConfigurationChangeEvent|ConfigurationTarget|ConfigurationScope)$", "config.model"],
-  ["^workspace\\.(isTrusted|onDidGrantWorkspaceTrust)$", "workspace.trust"],
-  ["^workspace\\.(applyEdit|onWillCreateFiles|onDidCreateFiles|onWillDeleteFiles|onDidDeleteFiles|onWillRenameFiles|onDidRenameFiles)$|^(WorkspaceEdit|WorkspaceEditEntryMetadata|WorkspaceEditMetadata|TextEdit|FileCreateEvent|FileDeleteEvent|FileRenameEvent|FileWillCreateEvent|FileWillDeleteEvent|FileWillRenameEvent)$", "workspace.edit"],
-  ["^workspace\\.(findFiles|findTextInFiles)$", "workspace.find"],
-  ["^workspace\\.(workspaceFolders|workspaceFile|name|rootPath|getWorkspaceFolder|asRelativePath|updateWorkspaceFolders|onDidChangeWorkspaceFolders)$|^(WorkspaceFolder|WorkspaceFoldersChangeEvent|WorkspaceFolderPickOptions)$", "workspace.folders"],
-  ["^workspace\\.(registerTaskProvider)$", "tasks.api"],
-  ["^workspace\\.", "workspace.misc"],
-  ["^languages\\.(createDiagnosticCollection|getDiagnostics|onDidChangeDiagnostics)$|^(Diagnostic|DiagnosticCollection|DiagnosticSeverity|DiagnosticTag|DiagnosticRelatedInformation|DiagnosticChangeEvent)", "diagnostics"],
-  ["^languages\\.registerCompletionItemProvider$|^(Completion)", "lang.completion"],
-  ["^languages\\.registerInlineCompletionItemProvider$|^(InlineCompletion)", "lang.inline-completion"],
-  ["^languages\\.registerHoverProvider$|^(Hover|HoverProvider|VerboseHover.*)$", "lang.hover"],
-  ["^languages\\.register(Definition|Declaration|TypeDefinition|Implementation)Provider$|^(Definition|DefinitionLink|DefinitionProvider|DeclarationProvider|Declaration|TypeDefinitionProvider|ImplementationProvider|LocationLink|Location)$", "lang.definition"],
-  ["^languages\\.registerReferenceProvider$|^(Reference.*)$", "lang.references"],
-  ["^languages\\.registerDocumentSymbolProvider$|^(DocumentSymbol|DocumentSymbolProvider|DocumentSymbolProviderMetadata|SymbolKind|SymbolTag|SymbolInformation)$", "lang.symbols"],
-  ["^languages\\.registerWorkspaceSymbolProvider$|^WorkspaceSymbolProvider$", "lang.workspace-symbols"],
-  ["^languages\\.registerCodeActionsProvider$|^(CodeAction)", "lang.code-action"],
-  ["^languages\\.registerCodeLensProvider$|^(CodeLens)", "lang.code-lens"],
-  ["^languages\\.register(DocumentFormattingEdit|DocumentRangeFormattingEdit|OnTypeFormattingEdit)Provider$|^(DocumentFormattingEditProvider|DocumentRangeFormattingEditProvider|OnTypeFormattingEditProvider|FormattingOptions)$", "lang.formatting"],
-  ["^languages\\.registerRenameProvider$|^RenameProvider$", "lang.rename"],
-  ["^languages\\.registerSignatureHelpProvider$|^(Signature|ParameterInformation)", "lang.signature-help"],
-  ["^languages\\.register(DocumentHighlight|MultiDocumentHighlight)Provider$|^(DocumentHighlight|MultiDocumentHighlight)", "lang.highlight"],
-  ["^languages\\.registerDocumentLinkProvider$|^(DocumentLink)", "lang.links"],
-  ["^languages\\.registerFoldingRangeProvider$|^(FoldingRange|FoldingContext)", "lang.folding"],
-  ["^languages\\.registerSelectionRangeProvider$|^(SelectionRange)", "lang.selection-range"],
-  ["^languages\\.registerInlayHintsProvider$|^(InlayHint)", "lang.inlay-hint"],
-  ["^languages\\.register(DocumentSemanticTokens|DocumentRangeSemanticTokens)Provider$|^(SemanticTokens)", "lang.semantic-tokens"],
-  ["^languages\\.registerColorProvider$|^(Color|ColorInformation|ColorPresentation|DocumentColorProvider)$", "lang.color"],
-  ["^languages\\.registerCallHierarchyProvider$|^(CallHierarchy)", "lang.call-hierarchy"],
-  ["^languages\\.registerTypeHierarchyProvider$|^(TypeHierarchy)", "lang.type-hierarchy"],
-  ["^languages\\.registerLinkedEditingRangeProvider$|^(LinkedEditing)", "lang.linked-editing"],
-  ["^languages\\.register(InlineValuesProvider|EvaluatableExpressionProvider)$|^(InlineValuesProvider|InlineValueContext|EvaluatableExpressionProvider)$", "lang.inline-values"],
-  ["^languages\\.register(DocumentDropEditProvider|DocumentPasteEditProvider)$|^(DocumentDrop|DocumentPaste)", "lang.drop-paste"],
-  ["^languages\\.(setLanguageConfiguration)$|^(LanguageConfiguration|IndentAction|IndentationRule|OnEnterRule|EnterAction|CommentRule|CharacterPair|AutoClosingPair|SyntaxTokenType)$", "lang.language-config"],
-  ["^languages\\.(setTextDocumentLanguage|getLanguages)$", "lang.set-language"],
-  ["^languages\\.(createLanguageStatusItem)$|^LanguageStatus", "ui.status-bar"],
-  ["^languages\\.(match)$|^(DocumentSelector|DocumentFilter)$", "lang.router"],
-  ["^languages\\.", "lang.router"],
-  ["^commands\\.(registerTextEditorCommand)$", "commands.registry"],
-  ["^commands\\.", "commands.registry"],
-  ["^Command$", "commands.registry"],
-  ["^env\\.(clipboard)$|^Clipboard$", "env.clipboard"],
-  ["^env\\.(openExternal|asExternalUri)$", "env.openExternal"],
-  ["^env\\.(isTelemetryEnabled|onDidChangeTelemetryEnabled|createTelemetryLogger)$|^(Telemetry)", "telemetry"],
-  ["^env\\.(shell|onDidChangeShell)$", "env.shell"],
-  ["^env\\.(logLevel|onDidChangeLogLevel)$", "log.output"],
-  ["^env\\.", "env.info"],
-  ["^UIKind$", "env.info"],
-  ["^extensions\\.|^(Extension|ExtensionKind)$", "ext.api"],
-  ["^(ExtensionContext|ExtensionMode|Memento|GlobalEnvironmentVariableCollection)$", "ext.context"],
-  ["^(SecretStorage|SecretStorageChangeEvent)$", "secrets"],
-  ["^l10n\\.", "l10n"],
-  ["^(Uri|Disposable|EventEmitter|Event|CancellationToken|CancellationTokenSource|CancellationError|MarkdownString|RelativePattern|ProviderResult|Thenable|AccessibilityInformation|TextEditorChange.*|ThemableDecorationAttachmentRenderOptions)$", "host.core-types"],
-  ["^(SymbolKind|SymbolInformation)$", "lang.symbols"],
-  ["^(TreeItem|TreeItemCollapsibleState|TreeItemLabel|TreeItemCheckboxState|TreeDataProvider|TreeView|TreeViewOptions)$", "ui.tree-view"],
-  ["^(Timeline)", "ui.timeline"],
-  [".*", "misc.unclassified"]
+  [
+   "^(debug\\.|Debug|Breakpoint|SourceBreakpoint|FunctionBreakpoint|DataBreakpoint|InlineValue(?!sProvider)|StackFrame|Thread|EvaluatableExpression(?!Provider)|DebugAdapter|DebugConsole|DebugSession|DebugConfiguration|DebugProtocol)",
+   "debug.dap"
+  ],
+  [
+   "^(notebooks\\.|workspace\\.(notebookDocuments|openNotebookDocument|registerNotebookSerializer|onDidOpenNotebookDocument|onDidCloseNotebookDocument|onDidChangeNotebookDocument|onDidSaveNotebookDocument|onWillSaveNotebookDocument)|window\\.(activeNotebookEditor|visibleNotebookEditors|onDidChange(Active|Visible)NotebookEditor|onDidChangeNotebookEditor.*|showNotebookDocument)|Notebook)",
+   "notebook.api"
+  ],
+  [
+   "^(lm\\.|chat\\.|LanguageModel|Chat|McpServer|McpStdio|McpHttp|lm$|chat$)",
+   "chat.lm"
+  ],
+  [
+   "^(tests\\.|Test(?!Item)|TestItem|TestRun|TestController|TestMessage|TestTag|TestCoverage|FileCoverage|StatementCoverage|BranchCoverage|DeclarationCoverage)",
+   "tests.api"
+  ],
+  [
+   "^(comments\\.|Comment)",
+   "comments.api"
+  ],
+  [
+   "^(authentication\\.|Authentication)",
+   "auth.api"
+  ],
+  [
+   "^(scm\\.|SourceControl)",
+   "scm.api"
+  ],
+  [
+   "^(tasks\\.|Task|ShellExecution|ProcessExecution|CustomExecution|ShellQuoting|ShellQuotedString|ShellExecutionOptions|ProcessExecutionOptions|RelativePattern$)",
+   "tasks.api"
+  ],
+  [
+   "^window\\.(createTerminal|terminals|activeTerminal|onDidOpenTerminal|onDidCloseTerminal|onDidChangeActiveTerminal|onDidChangeTerminalState|registerTerminalProfileProvider)$",
+   "terminal.api"
+  ],
+  [
+   "^window\\.(registerTerminalLinkProvider)$",
+   "terminal.links"
+  ],
+  [
+   "^window\\.(onDidChangeTerminalShellIntegration|onDidStartTerminalShellExecution|onDidEndTerminalShellExecution)$|^TerminalShell",
+   "terminal.shell-integration"
+  ],
+  [
+   "^(Pseudoterminal|TerminalDimensions)$",
+   "terminal.pty"
+  ],
+  [
+   "^(Terminal|TerminalOptions|ExtensionTerminalOptions|TerminalExitStatus|TerminalExitReason|TerminalState|TerminalLocation|TerminalEditorLocationOptions|TerminalSplitLocationOptions|TerminalProfile|TerminalProfileProvider)$",
+   "terminal.api"
+  ],
+  [
+   "^(TerminalLink|TerminalLinkProvider|TerminalLinkContext)$",
+   "terminal.links"
+  ],
+  [
+   "^(EnvironmentVariable)",
+   "terminal.env-collection"
+  ],
+  [
+   "^window\\.(createWebviewPanel|registerWebviewPanelSerializer)$|^(WebviewPanel|WebviewPanelOptions|WebviewPanelSerializer|WebviewPanelOnDidChangeViewStateEvent)",
+   "ui.webview-panel"
+  ],
+  [
+   "^window\\.registerWebviewViewProvider$|^(WebviewView|WebviewViewProvider|WebviewViewResolveContext)",
+   "ui.webview-view"
+  ],
+  [
+   "^(Webview|WebviewOptions|WebviewPortMapping)$",
+   "ui.webview-bridge"
+  ],
+  [
+   "^window\\.registerCustomEditorProvider$|^(CustomEditor|CustomDocument|CustomReadonlyEditorProvider|CustomTextEditorProvider|CustomDocumentBackup|CustomDocumentOpenContext|CustomDocumentEditEvent|CustomDocumentContentChangeEvent|CustomDocumentBackupContext)",
+   "ui.custom-editor"
+  ],
+  [
+   "^window\\.(createTreeView|registerTreeDataProvider)$|^(Tree|DataTransfer|DataTransferItem|DataTransferFile)",
+   "ui.tree-view"
+  ],
+  [
+   "^window\\.(tabGroups)$|^(Tab|TabGroup|TabGroups|TabInput)",
+   "ui.tabs"
+  ],
+  [
+   "^window\\.(createStatusBarItem|setStatusBarMessage)$|^(StatusBar)",
+   "ui.status-bar"
+  ],
+  [
+   "^window\\.(showInformationMessage|showWarningMessage|showErrorMessage)$|^(MessageItem|MessageOptions)$",
+   "ui.notifications"
+  ],
+  [
+   "^window\\.(withProgress|withScmProgress)$|^(Progress|ProgressLocation|ProgressOptions)$",
+   "ui.progress"
+  ],
+  [
+   "^window\\.(showQuickPick|createQuickPick|showWorkspaceFolderPick)$|^(QuickPick|QuickInput|QuickInputButton|QuickInputButtons|QuickPickItem|QuickPickItemKind|QuickPickOptions|WorkspaceFolderPickOptions)",
+   "ui.quick-pick"
+  ],
+  [
+   "^window\\.(showInputBox|createInputBox)$|^(InputBox|InputBoxOptions|InputBoxValidationMessage|InputBoxValidationSeverity)",
+   "ui.input-box"
+  ],
+  [
+   "^window\\.(showOpenDialog|showSaveDialog)$|^(OpenDialogOptions|SaveDialogOptions)$",
+   "ui.dialogs"
+  ],
+  [
+   "^window\\.createOutputChannel$|^(OutputChannel|LogOutputChannel|LogLevel)$",
+   "log.output"
+  ],
+  [
+   "^window\\.(createTextEditorDecorationType)$|^(TextEditorDecorationType|DecorationOptions|DecorationRenderOptions|DecorationInstanceRenderOptions|ThemableDecoration|ThemableDecorationRenderOptions|ThemableDecorationInstanceRenderOptions|ThemableDecorationAttachmentRenderOptions|ThemableDecorationRenderOptions|DecorationRangeBehavior|OverviewRulerLane)$",
+   "ui.editor-decorations"
+  ],
+  [
+   "^window\\.registerFileDecorationProvider$|^(FileDecoration|FileDecorationProvider)$",
+   "ui.file-decorations"
+  ],
+  [
+   "^window\\.registerUriHandler$|^UriHandler$",
+   "env.uri-handler"
+  ],
+  [
+   "^window\\.(activeColorTheme|onDidChangeActiveColorTheme)$|^(ColorTheme|ColorThemeKind|ThemeColor)$",
+   "ui.color-theme"
+  ],
+  [
+   "^(ThemeIcon|IconPath)$",
+   "ui.codicons"
+  ],
+  [
+   "^window\\.(state|onDidChangeWindowState)$|^WindowState$",
+   "env.info"
+  ],
+  [
+   "^window\\.(activeTextEditor|visibleTextEditors|onDidChangeActiveTextEditor|onDidChangeVisibleTextEditors|onDidChangeTextEditorSelection|onDidChangeTextEditorVisibleRanges|onDidChangeTextEditorOptions|onDidChangeTextEditorViewColumn|showTextDocument)$|^(TextEditor|TextEditorEdit|TextEditorCursorStyle|TextEditorLineNumbersStyle|TextEditorRevealType|TextEditorSelectionChangeKind|TextEditorSelectionChangeEvent|TextEditorVisibleRangesChangeEvent|TextEditorOptionsChangeEvent|TextEditorViewColumnChangeEvent|TextEditorOptions|TextDocumentShowOptions|ViewColumn|SnippetString|SnippetTextEdit)$",
+   "ui.text-editor"
+  ],
+  [
+   "^window\\.",
+   "ui.window-misc"
+  ],
+  [
+   "^workspace\\.(registerFileSystemProvider)$|^(FileSystemProvider|FileSystemError|FileChangeEvent|FileChangeType|FilePermission)$",
+   "fs.provider"
+  ],
+  [
+   "^workspace\\.fs$|^(FileSystem|FileStat|FileType)$",
+   "fs.api"
+  ],
+  [
+   "^workspace\\.createFileSystemWatcher$|^(FileSystemWatcher|GlobPattern)$",
+   "fs.watch"
+  ],
+  [
+   "^workspace\\.(registerTextDocumentContentProvider)$|^TextDocumentContentProvider$",
+   "doc.content-provider"
+  ],
+  [
+   "^workspace\\.(textDocuments|openTextDocument|onDidOpenTextDocument|onDidCloseTextDocument|onDidChangeTextDocument|onWillSaveTextDocument|onDidSaveTextDocument|save|saveAs|saveAll)$|^(TextDocument|TextLine|TextDocumentChangeEvent|TextDocumentContentChangeEvent|TextDocumentChangeReason|TextDocumentWillSaveEvent|TextDocumentSaveReason|EndOfLine|Position|Range|Selection)$",
+   "doc.model"
+  ],
+  [
+   "^workspace\\.(getConfiguration|onDidChangeConfiguration)$|^(WorkspaceConfiguration|ConfigurationChangeEvent|ConfigurationTarget|ConfigurationScope)$",
+   "config.model"
+  ],
+  [
+   "^workspace\\.(isTrusted|onDidGrantWorkspaceTrust)$",
+   "workspace.trust"
+  ],
+  [
+   "^workspace\\.(applyEdit|onWillCreateFiles|onDidCreateFiles|onWillDeleteFiles|onDidDeleteFiles|onWillRenameFiles|onDidRenameFiles)$|^(WorkspaceEdit|WorkspaceEditEntryMetadata|WorkspaceEditMetadata|TextEdit|FileCreateEvent|FileDeleteEvent|FileRenameEvent|FileWillCreateEvent|FileWillDeleteEvent|FileWillRenameEvent)$",
+   "workspace.edit"
+  ],
+  [
+   "^workspace\\.(findFiles|findTextInFiles)$",
+   "workspace.find"
+  ],
+  [
+   "^workspace\\.(workspaceFolders|workspaceFile|name|rootPath|getWorkspaceFolder|asRelativePath|updateWorkspaceFolders|onDidChangeWorkspaceFolders)$|^(WorkspaceFolder|WorkspaceFoldersChangeEvent|WorkspaceFolderPickOptions)$",
+   "workspace.folders"
+  ],
+  [
+   "^workspace\\.(registerTaskProvider)$",
+   "tasks.api"
+  ],
+  [
+   "^workspace\\.",
+   "workspace.misc"
+  ],
+  [
+   "^languages\\.(createDiagnosticCollection|getDiagnostics|onDidChangeDiagnostics)$|^(Diagnostic|DiagnosticCollection|DiagnosticSeverity|DiagnosticTag|DiagnosticRelatedInformation|DiagnosticChangeEvent)",
+   "diagnostics"
+  ],
+  [
+   "^languages\\.registerCompletionItemProvider$|^(Completion)",
+   "lang.completion"
+  ],
+  [
+   "^languages\\.registerInlineCompletionItemProvider$|^(InlineCompletion)",
+   "lang.inline-completion"
+  ],
+  [
+   "^languages\\.registerHoverProvider$|^(Hover|HoverProvider|VerboseHover.*)$",
+   "lang.hover"
+  ],
+  [
+   "^languages\\.register(Definition|Declaration|TypeDefinition|Implementation)Provider$|^(Definition|DefinitionLink|DefinitionProvider|DeclarationProvider|Declaration|TypeDefinitionProvider|ImplementationProvider|LocationLink|Location)$",
+   "lang.definition"
+  ],
+  [
+   "^languages\\.registerReferenceProvider$|^(Reference.*)$",
+   "lang.references"
+  ],
+  [
+   "^languages\\.registerDocumentSymbolProvider$|^(DocumentSymbol|DocumentSymbolProvider|DocumentSymbolProviderMetadata|SymbolKind|SymbolTag|SymbolInformation)$",
+   "lang.symbols"
+  ],
+  [
+   "^languages\\.registerWorkspaceSymbolProvider$|^WorkspaceSymbolProvider$",
+   "lang.workspace-symbols"
+  ],
+  [
+   "^languages\\.registerCodeActionsProvider$|^(CodeAction)",
+   "lang.code-action"
+  ],
+  [
+   "^languages\\.registerCodeLensProvider$|^(CodeLens)",
+   "lang.code-lens"
+  ],
+  [
+   "^languages\\.register(DocumentFormattingEdit|DocumentRangeFormattingEdit|OnTypeFormattingEdit)Provider$|^(DocumentFormattingEditProvider|DocumentRangeFormattingEditProvider|OnTypeFormattingEditProvider|FormattingOptions)$",
+   "lang.formatting"
+  ],
+  [
+   "^languages\\.registerRenameProvider$|^RenameProvider$",
+   "lang.rename"
+  ],
+  [
+   "^languages\\.registerSignatureHelpProvider$|^(Signature|ParameterInformation)",
+   "lang.signature-help"
+  ],
+  [
+   "^languages\\.register(DocumentHighlight|MultiDocumentHighlight)Provider$|^(DocumentHighlight|MultiDocumentHighlight)",
+   "lang.highlight"
+  ],
+  [
+   "^languages\\.registerDocumentLinkProvider$|^(DocumentLink)",
+   "lang.links"
+  ],
+  [
+   "^languages\\.registerFoldingRangeProvider$|^(FoldingRange|FoldingContext)",
+   "lang.folding"
+  ],
+  [
+   "^languages\\.registerSelectionRangeProvider$|^(SelectionRange)",
+   "lang.selection-range"
+  ],
+  [
+   "^languages\\.registerInlayHintsProvider$|^(InlayHint)",
+   "lang.inlay-hint"
+  ],
+  [
+   "^languages\\.register(DocumentSemanticTokens|DocumentRangeSemanticTokens)Provider$|^(SemanticTokens)",
+   "lang.semantic-tokens"
+  ],
+  [
+   "^languages\\.registerColorProvider$|^(Color|ColorInformation|ColorPresentation|DocumentColorProvider)$",
+   "lang.color"
+  ],
+  [
+   "^languages\\.registerCallHierarchyProvider$|^(CallHierarchy)",
+   "lang.call-hierarchy"
+  ],
+  [
+   "^languages\\.registerTypeHierarchyProvider$|^(TypeHierarchy)",
+   "lang.type-hierarchy"
+  ],
+  [
+   "^languages\\.registerLinkedEditingRangeProvider$|^(LinkedEditing)",
+   "lang.linked-editing"
+  ],
+  [
+   "^languages\\.register(InlineValuesProvider|EvaluatableExpressionProvider)$|^(InlineValuesProvider|InlineValueContext|EvaluatableExpressionProvider)$",
+   "lang.inline-values"
+  ],
+  [
+   "^languages\\.register(DocumentDropEditProvider|DocumentPasteEditProvider)$|^(DocumentDrop|DocumentPaste)",
+   "lang.drop-paste"
+  ],
+  [
+   "^languages\\.(setLanguageConfiguration)$|^(LanguageConfiguration|IndentAction|IndentationRule|OnEnterRule|EnterAction|CommentRule|CharacterPair|AutoClosingPair|SyntaxTokenType)$",
+   "lang.language-config"
+  ],
+  [
+   "^languages\\.(setTextDocumentLanguage|getLanguages)$",
+   "lang.set-language"
+  ],
+  [
+   "^languages\\.(createLanguageStatusItem)$|^LanguageStatus",
+   "ui.status-bar"
+  ],
+  [
+   "^languages\\.(match)$|^(DocumentSelector|DocumentFilter)$",
+   "lang.router"
+  ],
+  [
+   "^languages\\.",
+   "lang.router"
+  ],
+  [
+   "^commands\\.(registerTextEditorCommand)$",
+   "commands.registry"
+  ],
+  [
+   "^commands\\.",
+   "commands.registry"
+  ],
+  [
+   "^Command$",
+   "commands.registry"
+  ],
+  [
+   "^env\\.(clipboard)$|^Clipboard$",
+   "env.clipboard"
+  ],
+  [
+   "^env\\.(openExternal|asExternalUri)$",
+   "env.openExternal"
+  ],
+  [
+   "^env\\.(isTelemetryEnabled|onDidChangeTelemetryEnabled|createTelemetryLogger)$|^(Telemetry)",
+   "telemetry"
+  ],
+  [
+   "^env\\.(shell|onDidChangeShell)$",
+   "env.shell"
+  ],
+  [
+   "^env\\.(logLevel|onDidChangeLogLevel)$",
+   "log.output"
+  ],
+  [
+   "^env\\.",
+   "env.info"
+  ],
+  [
+   "^UIKind$",
+   "env.info"
+  ],
+  [
+   "^extensions\\.|^(Extension|ExtensionKind)$",
+   "ext.api"
+  ],
+  [
+   "^(ExtensionContext|ExtensionMode|Memento|GlobalEnvironmentVariableCollection)$",
+   "ext.context"
+  ],
+  [
+   "^(SecretStorage|SecretStorageChangeEvent)$",
+   "secrets"
+  ],
+  [
+   "^l10n\\.",
+   "l10n"
+  ],
+  [
+   "^(Uri|Disposable|EventEmitter|Event|CancellationToken|CancellationTokenSource|CancellationError|MarkdownString|RelativePattern|ProviderResult|Thenable|AccessibilityInformation|TextEditorChange.*|ThemableDecorationAttachmentRenderOptions)$",
+   "host.core-types"
+  ],
+  [
+   "^(SymbolKind|SymbolInformation)$",
+   "lang.symbols"
+  ],
+  [
+   "^(TreeItem|TreeItemCollapsibleState|TreeItemLabel|TreeItemCheckboxState|TreeDataProvider|TreeView|TreeViewOptions)$",
+   "ui.tree-view"
+  ],
+  [
+   "^(Timeline)",
+   "ui.timeline"
+  ],
+  [
+   "^(cursor|antigravity[A-Za-z]*|default)(\\.|$)",
+   "fork.api"
+  ],
+  [
+   "^version(\\.|$)",
+   "env.info"
+  ],
+  [
+   "^(window|workspace|languages|commands|env|extensions|tests|debug|scm|tasks|notebooks|comments|authentication|l10n)$",
+   "host.core-types"
+  ],
+  [
+   "^(DocumentSemanticTokensProvider|DocumentRangeSemanticTokensProvider)$",
+   "lang.semantic-tokens"
+  ],
+  [
+   "^(LineCommentRule)$",
+   "lang.language-config"
+  ],
+  [
+   "^(MarkedString)$",
+   "lang.hover"
+  ],
+  [
+   "^(QuickDiffProvider)$",
+   "scm.api"
+  ],
+  [
+   "^(RunOptions)$",
+   "tasks.api"
+  ],
+  [
+   "^(SelectedCompletionInfo)$",
+   "lang.inline-completion"
+  ],
+  [
+   "^(ViewBadge)$",
+   "ui.tree-view"
+  ],
+  [
+   "^(PortAttributes|PortAutoForwardAction)$|^workspace\\.(registerPortAttributesProvider|openTunnel|tunnels)$",
+   "proposed.api"
+  ],
+  [
+   ".*",
+   "misc.unclassified"
+  ]
  ]
 }

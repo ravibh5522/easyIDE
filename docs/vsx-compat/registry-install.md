@@ -317,7 +317,7 @@ about runtime behaviour in the (unsandboxed, ADR 0009) proot guest (`reg:(k)`).
 
 ### 6.3 easyIDE mapping — environment-scoped install path
 
-**Install location: `~/.easyide/extensions/<id>-<version>/` inside the guest, per environment.** Chosen
+**Install location: `~/.easyide/extensions/vsx/<id>-<version>[-<targetPlatform>]/` inside the guest, per environment.** Chosen
 over `/opt/easyide/vsx/<id>-<version>/` because:
 
 - It follows VS Code's own convention (extensions under the user's home, `~/.vscode/extensions`), which
