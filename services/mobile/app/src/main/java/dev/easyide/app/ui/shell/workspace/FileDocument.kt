@@ -9,9 +9,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.IntOffset
+import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.screens.workspace.EditorPane
 import dev.easyide.app.ui.screens.workspace.ext.ContributedMenu
 import dev.easyide.app.ui.screens.workspace.ext.sections
@@ -34,8 +36,7 @@ private fun FileEditor(uri: DocumentUri, modifier: Modifier) {
     // Where the pointer was pressed, so the context menu opens under it; null while closed.
     var menuAt by remember { mutableStateOf<IntOffset?>(null) }
     Column(modifier) {
-        // Find works on the workspace's active tab, so only that document carries the bar.
-        if (env.editing.find.isOpen && env.ui.activeTabPath == path) FindBar(env.editing.find, onFieldFocusChanged = env.actions.onFindFieldFocus)
+        EditorBreadcrumbs(env, path)
         Box(Modifier.fillMaxWidth().weight(1f).onFocusChanged { env.actions.onEditorFocus(it.hasFocus) }) {
             EditorPane(
                 tab = env.ui.openTabs.find { it.relativePath == path },
@@ -50,6 +51,10 @@ private fun FileEditor(uri: DocumentUri, modifier: Modifier) {
                 semanticTokens = overlays[path],
                 session = env.editing.session,
             )
+            // Find works on the workspace's active tab, so only that document carries the widget.
+            if (env.editing.find.isOpen && env.ui.activeTabPath == path) {
+                FindBar(env.editing.find, env.actions.onFindFieldFocus, Modifier.align(Alignment.TopEnd), LocalWindowSize.current.width.isCompact)
+            }
             ContributedMenu(
                 expanded = menuAt != null,
                 sections = env.contributions.menu(MenuIds.EDITOR_CONTEXT, env.commands).sections(),
