@@ -2,6 +2,18 @@
 
 Decision: [0030](../decision/0030-vscode-extension-host-in-sandbox.md). Tracker: [tracker.md](tracker.md).
 
+> **Status 2026-09-25: partly superseded by [ADR 0031](../decision/0031-vendor-vscode-extension-host.md).**
+> The host is now VS Code's own extension host, vendored unmodified, and a JS main-thread adapter in the guest; there is
+> no hand-written `vscode` module. What survives: the transport (JSON-RPC 2.0, Content-Length framing) and most method
+> families below, re-scoped as the **adapter <-> Kotlin UI protocol**, with the amendments in
+> [../vsx-compat/design-protocol.md](../vsx-compat/design-protocol.md) section P6 (`$/cancelRequest` instead of `$/cancel`,
+> raw `packageJSON`, tree `getParent`/`resolveItem`, coalesced document deltas, per-instance webview origins per
+> [ADR 0033](../decision/0033-extension-webview-security-model.md)). Superseded outright: the "Layout" rows for
+> `services/mobile/exthost/js/src/api/*` (the `vscode` shim), `node` from `apt` ([ADR 0032](../decision/0032-node-runtime-provisioning.md)),
+> "one host per environment" (one per workspace session), the shared `easyide-webview.local` origin, the phase plan
+> (replaced by [../vsx-compat/roadmap.md](../vsx-compat/roadmap.md)) and "Built-in extension stubs" (vendored `vscode.git`,
+> [../vsx-compat/design.md](../vsx-compat/design.md) section 7). Entry point for the program: [../vsx-compat/README.md](../vsx-compat/README.md).
+
 ```
  app (Kotlin)                                          proot guest (Node)
  +-------------------------+    stdio JSON-RPC    +--------------------------------+

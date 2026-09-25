@@ -2,6 +2,10 @@
 
 Architecture and protocol: [arch.md](arch.md). Decision: [0030](../decision/0030-vscode-extension-host-in-sandbox.md).
 
+> **Superseded 2026-09-25.** Phases 1-6 below are replaced by the work packages and milestones in
+> [../vsx-compat/tracker.md](../vsx-compat/tracker.md) (route per [ADR 0031](../decision/0031-vendor-vscode-extension-host.md)).
+> This table is kept for history only; do not update it.
+
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | ADR, protocol spec | Done 2026-09-25 |

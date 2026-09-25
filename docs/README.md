@@ -26,6 +26,7 @@ docs/
 | UX overhaul (perf, visual identity, layout/input, settings schema, feature roadmap from the 2026-09 audit) | [docs/ux-overhaul/](ux-overhaul/) |
 | Extension SDK & language intelligence (LSP client, no-server language features, declarative + WASM extensions, registry, full customization) | [docs/extension-sdk/](extension-sdk/) |
 | UI redesign (shell model with documents in a main stage, extension-configurable navigation/panels, UI kit, Block identity, custom appearance properties) | [docs/ui-redesign/](ui-redesign/) |
+| VS Code extension compatibility (Open VSX at >= 99%: vendored VS Code extension host, gap matrices, corpus, roadmap, live tracker) | [docs/vsx-compat/](vsx-compat/) |
 
 ## Conventions
 
