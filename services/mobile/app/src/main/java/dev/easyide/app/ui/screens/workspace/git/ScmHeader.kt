@@ -13,8 +13,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CallSplit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.ViewList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,16 +48,23 @@ import dev.easyide.sandbox.git.GitRepoState
 import dev.easyide.sandbox.git.GitStatus
 
 /**
- * The pane's header: the title row with refresh and the more-actions menu, then one compact row for the
+ * The pane's header: the title row with the list/tree toggle, refresh and the more-actions menu, then one compact row for the
  * branch (tap switches it) with how far it is from its upstream and the pull and push buttons at
  * its end; without a remote that row offers to add one instead.
  */
 @Composable
-internal fun ScmHeader(state: GitPanelState, callbacks: SourceControlCallbacks) {
+internal fun ScmHeader(state: GitPanelState, callbacks: SourceControlCallbacks, treeView: Boolean, onToggleTree: () -> Unit) {
     val status = state.status
     val ready = state.isRepository && status != null
     val git = callbacks.git
     PanelTitleRow(stringResource(R.string.git_title)) {
+        if (ready) {
+            KitIconButton(
+                if (treeView) Icons.Filled.ViewList else Icons.Filled.AccountTree,
+                stringResource(if (treeView) R.string.gitui_view_as_list else R.string.gitui_view_as_tree),
+                onToggleTree,
+            )
+        }
         KitIconButton(Icons.Filled.Refresh, stringResource(R.string.git_refresh), callbacks.onRefresh, enabled = !state.busy)
         if (ready) MoreActions(state, status, git)
     }
@@ -90,7 +99,7 @@ private fun BranchRow(state: GitPanelState, status: GitStatus, git: GitControlle
         onClick = git.branches::openBranches,
         leading = {
             Image(
-                Icons.Filled.AccountTree,
+                Icons.Filled.CallSplit,
                 stringResource(R.string.git_branch_chip_cd, status.branch),
                 Modifier.size(Kit.control.rowIcon),
                 colorFilter = ColorFilter.tint(Kit.colors.textMuted),

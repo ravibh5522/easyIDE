@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.KitMenu
 import dev.easyide.app.ui.kit.KitMenuItem
 import dev.easyide.app.ui.kit.KitRow
+import dev.easyide.app.ui.kit.Twistie
 import dev.easyide.app.ui.kit.kitPressPoint
 import dev.easyide.app.ui.kit.rememberPressPoint
 import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
@@ -40,15 +42,26 @@ internal fun changeUri(change: GitChange): DocumentUri? = when {
     else -> Comparison.unstaged(change.path).uri
 }
 
+/** How a row sits in its list: its tree [level] (0 in the flat list), and whether the folder path is shown after the name. */
+internal data class ChangeRowLayout(val level: Int = 0, val showDirectory: Boolean = true, val tree: Boolean = false)
+
 /**
- * One change on one line (VS Code's): file icon, name, the directory in muted text, then at the end the
- * stage and discard (or unstage) actions while the row is [revealed] or hovered, and the status letter.
- * A tap opens its diff as a preview and reveals the row, a double tap keeps the diff, and a long press or
- * right click opens a menu under the press (open the changes, open them to the side, open the file, and
- * the same actions, so touch reaches them without a hover).
+ * One change on one line (VS Code's): file icon, the name tinted by what changed (modified, added, deleted,
+ * conflicted), the directory in muted text, then at the end open-file, discard and stage (or unstage) while the row
+ * is [selected] or hovered, and the status letter. A tap opens its diff as a preview and selects the row, a double
+ * tap keeps the diff, and a long press or right click opens a menu under the press (the changes, to the side, the
+ * file, and the same actions, so touch reaches them without a hover).
  */
 @Composable
-internal fun ChangeRow(change: GitChange, busy: Boolean, revealed: Boolean, onReveal: () -> Unit, callbacks: SourceControlCallbacks, opener: DocumentOpener) {
+internal fun ChangeRow(
+    change: GitChange,
+    busy: Boolean,
+    selected: Boolean,
+    onSelect: () -> Unit,
+    callbacks: SourceControlCallbacks,
+    opener: DocumentOpener,
+    layout: ChangeRowLayout = ChangeRowLayout(),
+) {
     val uri = changeUri(change)
     val press = rememberPressPoint()
     val hover = remember { MutableInteractionSource() }
@@ -60,18 +73,23 @@ internal fun ChangeRow(change: GitChange, busy: Boolean, revealed: Boolean, onRe
     val toggleStage = { if (change.staged) callbacks.onUnstage(paths) else callbacks.onStage(paths) }
     val stageLabel = stringResource(if (change.staged) R.string.git_unstage else R.string.git_stage)
     val discardLabel = stringResource(R.string.git_discard)
+    val openFileLabel = stringResource(R.string.gitui_open_file_cd)
     KitRow(
         title = change.name,
-        subtitle = change.directory.ifEmpty { null },
+        subtitle = if (layout.showDirectory) change.directory.ifEmpty { null } else null,
         modifier = Modifier.hoverable(hover).kitPressPoint(press, onSecondary = { menuAt = it }),
         leading = { FileIcon(change.name, size = Kit.control.rowIcon) },
-        onClick = { onReveal(); open() },
-        selected = revealed,
+        onClick = { onSelect(); open() },
+        selected = selected,
         onDoubleClick = { uri?.let(opener::keep) ?: callbacks.onOpenFile(change.path) },
         onLongClick = { menuAt = press.at },
+        titleColor = change.type.tint(Kit.colors.git),
+        level = layout.level,
+        twistie = if (layout.tree) Twistie.Leaf else null,
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (revealed || hovered) {
+                if (selected || hovered) {
+                    KitIconButton(Icons.Filled.FileOpen, openFileLabel, { callbacks.onOpenFile(change.path) })
                     if (!change.staged) KitIconButton(Icons.Filled.Undo, discardLabel, discard, enabled = !busy)
                     KitIconButton(if (change.staged) Icons.Filled.Remove else Icons.Filled.Add, stageLabel, toggleStage, enabled = !busy)
                 }
@@ -79,15 +97,16 @@ internal fun ChangeRow(change: GitChange, busy: Boolean, revealed: Boolean, onRe
             }
         },
     )
+    if (menuAt == null) return
     val items = buildList {
         if (uri != null) {
             add(KitMenuItem.Action(stringResource(R.string.shell_change_open_changes), { opener.preview(uri) }))
-            add(KitMenuItem.Action(stringResource(R.string.wstage_open_beside), { opener.beside(uri) }))
+            add(KitMenuItem.Action(stringResource(R.string.gitui_open_beside), { opener.beside(uri) }))
         }
         add(KitMenuItem.Action(stringResource(R.string.shell_change_open_file), { callbacks.onOpenFile(change.path) }))
         add(KitMenuItem.Divider)
         add(KitMenuItem.Action(stageLabel, toggleStage, enabled = !busy))
         if (!change.staged) add(KitMenuItem.Action(discardLabel, discard, enabled = !busy, danger = true))
     }
-    KitMenu(menuAt != null, { menuAt = null }, items, at = menuAt)
+    KitMenu(true, { menuAt = null }, items, at = menuAt)
 }

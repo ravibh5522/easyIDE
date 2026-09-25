@@ -6,15 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,9 +20,6 @@ import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitButton
 import dev.easyide.app.ui.kit.KitButtonStyle
 import dev.easyide.app.ui.kit.KitField
-import dev.easyide.app.ui.kit.KitRow
-import dev.easyide.app.ui.kit.KitToggle
-import dev.easyide.app.ui.kit.ToggleKind
 import dev.easyide.app.ui.screens.workspace.DialogHeading
 import dev.easyide.app.ui.screens.workspace.DialogText
 import dev.easyide.app.ui.screens.workspace.GitPanelState
@@ -34,33 +28,31 @@ import dev.easyide.sandbox.git.GitIdentity
 import dev.easyide.sandbox.git.GitStatus
 
 /**
- * Message field, the amend row and a full-width commit button, in VS Code's order. Committing without an author
- * identity opens the identity form in place of a made-up author; the form's
- * save action commits, so the commit button waits until it is answered.
+ * Message field and the split commit button, in VS Code's order. The button's primary follows the last entry
+ * picked from its menu ([CommitMode]); an entry runs at once when it can. Committing without an author
+ * identity opens the identity form in place of a made-up author; the form's save action commits, so the
+ * button waits until it is answered.
  */
 @Composable
 internal fun ScmCommitBox(state: GitPanelState, status: GitStatus, callbacks: SourceControlCallbacks) {
     val commit = callbacks.git.commit
-    val canCommit = state.commitMessage.isNotBlank() &&
-        (status.staged.isNotEmpty() || state.amend) && !state.busy
+    var mode by rememberSaveable { mutableStateOf(CommitMode.COMMIT) }
+    val hasRemote = state.remotes.isNotEmpty() && !status.detached
+    val typed = state.commitMessage.isNotBlank()
+    fun canRun(m: CommitMode) = !state.busy && if (m.amend) state.commits.isNotEmpty() else typed && status.staged.isNotEmpty()
+    // A mode that needs a remote falls back to a plain commit where there is none, rather than a dead button.
+    val effective = if (mode.needsRemote && !hasRemote) CommitMode.COMMIT else mode
     val space = Kit.space
+    val hint = if (status.detached) stringResource(R.string.git_message_hint) else stringResource(R.string.gitui_message_hint_branch, status.branch)
 
     KitField(
         value = state.commitMessage,
         onValueChange = callbacks.onMessageChanged,
         modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = space.xs),
-        hint = stringResource(R.string.git_message_hint),
+        hint = hint,
         singleLine = false,
         keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
-
-    if (state.commits.isNotEmpty()) {
-        KitRow(
-            title = stringResource(R.string.git_amend),
-            onClick = { commit.setAmend(!state.amend) },
-            trailing = { KitToggle(state.amend, null, kind = ToggleKind.Check) },
-        )
-    }
 
     if (state.identityPrompt) {
         IdentityForm(
@@ -71,21 +63,17 @@ internal fun ScmCommitBox(state: GitPanelState, status: GitStatus, callbacks: So
         return
     }
 
-    KitButton(
-        text = commitLabel(status, state.amend),
-        onClick = callbacks.onCommit,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = Kit.control.hPad, vertical = space.xs),
-        icon = Icons.Filled.Check,
-        enabled = canCommit,
-        fillWidth = true,
+    val items = commitModeItems(::canRun, hasRemote) { picked ->
+        mode = picked
+        if (canRun(picked)) commit.commit(picked)
+    }
+    CommitSplitButton(
+        label = modeLabel(effective),
+        enabled = canRun(effective),
+        onCommit = { commit.commit(effective) },
+        menu = items,
+        modifier = Modifier.padding(horizontal = Kit.control.hPad, vertical = space.xs),
     )
-}
-
-@Composable
-private fun commitLabel(status: GitStatus, amend: Boolean): String = when {
-    amend -> stringResource(R.string.git_commit_amend)
-    status.staged.isEmpty() -> stringResource(R.string.git_commit)
-    else -> pluralStringResource(R.plurals.git_commit_files, status.staged.size, status.staged.size)
 }
 
 /**

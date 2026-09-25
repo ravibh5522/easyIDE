@@ -13,10 +13,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.takeOrElse
 
 private const val DESCRIPTION_LINES_SECOND = 2
 
@@ -30,7 +32,7 @@ private const val DESCRIPTION_LINES_SECOND = 2
  * Comfortable or Spacious density or on a [selected] row. Tappable when [onClick] is set;
  * [selected] draws the block marker at the start edge. Inside a [KitGroup] it draws its own
  * separator, inset to the text edge. [mono] sets the title in the chrome monospace for paths and
- * ids; [id] becomes the test tag. [onLongClick] and [onDoubleClick] add a menu and a "keep" beside the tap. Rows are [Kit.control] `rowHeight` tall, never less.
+ * ids; [id] becomes the test tag. [onLongClick] and [onDoubleClick] add a menu and a "keep" beside the tap. [titleColor] tints the title (a change's kind); unset it is the plain text colour. Rows are [Kit.control] `rowHeight` tall, never less.
  */
 @Composable
 fun KitRow(
@@ -50,13 +52,14 @@ fun KitRow(
     level: Int = 0,
     twistie: Twistie? = null,
     secondLine: Boolean = false,
+    titleColor: Color = Color.Unspecified,
 ) {
     val colors = Kit.colors
     val space = Kit.space
     val control = Kit.control
     val lines = rowLines(Kit.metrics.density, subtitle != null, secondLine, selected)
     val textEdge = rowTextEdge(control.hPad, control.indent, level, twistie != null, leading != null, space.xs)
-    val titleStyle = (if (mono) Kit.text.mono else Kit.text.title).copy(color = if (enabled) colors.plainText else colors.textDisabled)
+    val titleStyle = (if (mono) Kit.text.mono else Kit.text.title).copy(color = if (!enabled) colors.textDisabled else titleColor.takeOrElse { colors.plainText })
     val noteStyle = Kit.text.caption.copy(color = if (enabled) colors.textMuted else colors.textDisabled)
     val tappable = if (onClick != null) Modifier.kitPressable(onClick, enabled, Role.Button, onLongClick = onLongClick, onDoubleClick = onDoubleClick) else Modifier
 

@@ -27,4 +27,21 @@ object GitUi {
 
     /** Tallest a list inside a git sheet grows before it scrolls on its own, so the sheet's actions stay on screen. */
     val sheetListMaxHeight = 280.dp
+
+    /** The lane lines of the graph and the round nodes on them. */
+    val laneStroke = 1.5.dp
+    val nodeRadius = 4.dp
+    val headNodeRadius = 5.dp
+
+    /** The gap that keeps a node visible against the lines behind it. */
+    val nodeHalo = 1.5.dp
+
+    /** Lanes drawn before the gutter stops growing: a wider history folds its far lanes into the last one. */
+    const val MAX_DRAWN_LANES = 8
+
+    /** Ref chips of a commit row: beyond this many the rest fold into a count. */
+    const val REF_CHIPS_SHOWN = 2
+
+    /** Most of a commit row the chips may take; the rest is the subject's. */
+    const val CHIP_SHARE = 0.5f
 }
