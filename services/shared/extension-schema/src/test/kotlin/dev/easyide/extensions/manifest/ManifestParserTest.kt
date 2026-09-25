@@ -220,6 +220,13 @@ class ManifestParserTest {
         assertEquals(listOf(DiagnosticCode.CONTENT), codes(icons, mapOf("icons/theme.json" to """{ "iconDefinitions": { "f": { "iconPath": "./gone.svg" } } }""")))
     }
 
+    @Test fun `icon theme paths may step up out of the theme's folder but not out of the package`() {
+        val icons = Manifests.minimal(""""contributes": { "iconThemes": [{ "id": "demo.icons", "label": "I", "path": "./dist/theme.json" }] }""")
+        val theme = { path: String -> """{ "iconDefinitions": { "f": { "iconPath": "$path" } } }""" }
+        Manifests.ok(icons, mapOf("dist/theme.json" to theme("./../icons/f.svg"), "icons/f.svg" to "<svg/>"))
+        assertEquals(listOf(DiagnosticCode.CONTENT), codes(icons, mapOf("dist/theme.json" to theme("../../f.svg"), "f.svg" to "<svg/>")))
+    }
+
     @Test fun `phase 12 - star activation and engines vscode warn`() {
         val d = Manifests.parse(Manifests.minimal(""""activationEvents": ["*", "onDebug"]""").replace("^0.3.0\" }", "^0.3.0\", \"vscode\": \"^1.80.0\" }"))
         val w = d.warnings.map { it.code }

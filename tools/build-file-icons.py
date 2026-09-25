@@ -277,10 +277,10 @@ def build():
 
 def manifest():
     return {
-        "name": "file-icons", "publisher": "easyide", "version": "1.0.0", "displayName": "EasyIDE File Icons",
-        "description": "Coloured file and folder icons for source, config, data, media, archives, binaries, keys and 3D files, drawn in-house. Selected by default; pick Built-in icons or another theme in Settings.",
+        "name": "file-icons", "publisher": "easyide", "version": "1.0.0", "displayName": "EasyIDE Simple Icons",
+        "description": "Coloured file and folder icons for source, config, data, media, archives, binaries, keys and 3D files, drawn in-house. The simple alternative to the default Material Icon Theme; pick it in Settings.",
         "license": "Apache-2.0", "engines": {"easyide": "^0.3.0"}, "categories": ["Themes"],
-        "contributes": {"iconThemes": [{"id": THEME_ID, "label": "EasyIDE File Icons", "path": "./" + THEME_PATH}]},
+        "contributes": {"iconThemes": [{"id": THEME_ID, "label": "EasyIDE Simple Icons", "path": "./" + THEME_PATH}]},
     }
 
 

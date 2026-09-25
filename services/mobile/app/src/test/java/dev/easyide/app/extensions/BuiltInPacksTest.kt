@@ -24,7 +24,7 @@ class BuiltInPacksTest {
         assertEquals(
             listOf(
                 "easyide.core-snippets", "easyide.cpp", "easyide.file-icons", "easyide.git-commands", "easyide.git-extras", "easyide.go",
-                "easyide.key-rows", "easyide.markdown", "easyide.project-tasks", "easyide.python", "easyide.rust",
+                "easyide.key-rows", "easyide.markdown", "easyide.material-icons", "easyide.project-tasks", "easyide.python", "easyide.rust",
                 "easyide.shell", "easyide.tablet-toolbar", "easyide.themes", "easyide.toggles", "easyide.typescript",
                 "easyide.web", "easyide.yaml",
             ),

@@ -97,6 +97,6 @@ class FileIconsThemeTest {
         val themes = manifest["contributes"]!!.jsonObject["iconThemes"]!!.jsonArray
         assertEquals(1, themes.size)
         assertEquals("easyide-file-icons", themes[0].jsonObject["id"]!!.jsonPrimitive.content)
-        assertEquals("EasyIDE File Icons", themes[0].jsonObject["label"]!!.jsonPrimitive.content)
+        assertEquals("EasyIDE Simple Icons", themes[0].jsonObject["label"]!!.jsonPrimitive.content)
     }
 }
