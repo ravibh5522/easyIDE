@@ -14,6 +14,10 @@ data class GraphRow(
     /** Lanes this commit's parents continue into, for the connecting curves. */
     val parentLanes: List<Int>,
     val laneCount: Int,
+    /** Lanes with a line entering this row from above; the commit's own lane is among them unless it starts a branch. */
+    val incoming: List<Int> = emptyList(),
+    /** Other lanes that were waiting for this commit: their lines curve into its dot and stop here. */
+    val ending: List<Int> = emptyList(),
 )
 
 /**
@@ -38,6 +42,7 @@ object CommitGraph {
         val rows = ArrayList<GraphRow>(commits.size)
 
         commits.forEach { commit ->
+            val incoming = lanes.indices.filter { lanes[it] != null }
             var lane = lanes.indexOf(commit.id)
             if (lane < 0) {
                 // A head: no existing lane was waiting for it.
@@ -50,9 +55,8 @@ object CommitGraph {
 
             // Every other lane waiting for this same commit is a merge arriving
             // here; those lanes end at this row.
-            for (i in lanes.indices) {
-                if (i != lane && lanes[i] == commit.id) lanes[i] = null
-            }
+            val ending = lanes.indices.filter { it != lane && lanes[it] == commit.id }
+            ending.forEach { lanes[it] = null }
 
             val parentLanes = ArrayList<Int>(commit.parents.size)
             commit.parents.forEachIndexed { index, parent ->
@@ -83,6 +87,8 @@ object CommitGraph {
                 passing = lanes.indices.filter { lanes[it] != null },
                 parentLanes = parentLanes,
                 laneCount = lanes.size,
+                incoming = incoming,
+                ending = ending,
             )
         }
 

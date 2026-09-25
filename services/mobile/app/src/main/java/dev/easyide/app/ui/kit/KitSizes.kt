@@ -34,6 +34,9 @@ internal object KitSizes {
     val dialogMaxWidth = 480.dp
     val menuMinWidth = 180.dp
     val menuMaxWidth = 320.dp
+
+    /** A long menu (a commit's branches) scrolls past this instead of running off a tablet's window. */
+    val menuMaxHeight = 480.dp
 }
 
 /** Alphas of the tone step drawn over a control for hover and press, and of an idle track. */

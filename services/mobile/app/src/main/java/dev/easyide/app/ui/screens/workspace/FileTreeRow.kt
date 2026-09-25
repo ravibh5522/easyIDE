@@ -14,6 +14,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import dev.easyide.app.R
+import dev.easyide.app.ui.screens.workspace.git.tint
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitRow
 import dev.easyide.app.ui.kit.KitSizes
@@ -28,8 +40,8 @@ import dev.easyide.sandbox.files.FileNode
 import dev.easyide.sandbox.git.GitChangeType
 
 /**
- * One explorer row, the kit row of every list: twistie, 16dp icon, name, and the git status letter at
- * the end when the file has a change. A long press and a right click both open the row's menu, under the
+ * One explorer row, the kit row of every list: twistie, 16dp icon, name tinted by its git change, and at
+ * the end a dot for unsaved edits and the git status letter. A folder that holds a change ([holdsChanges]) is tinted as modified. A long press and a right click both open the row's menu, under the
  * finger or pointer.
  */
 @Composable
@@ -39,6 +51,8 @@ internal fun FileTreeRow(
     expanded: Boolean,
     selected: Boolean,
     change: GitChangeType?,
+    dirty: Boolean,
+    holdsChanges: Boolean,
     onClick: () -> Unit,
     onMenu: (IntOffset) -> Unit,
 ) {
@@ -67,7 +81,12 @@ internal fun FileTreeRow(
                 )
             }
         },
-        trailing = if (change != null) ({ GitStatusLetter(change) }) else null,
+        titleColor = when {
+            change != null -> change.tint(colors.git)
+            holdsChanges -> GitChangeType.MODIFIED.tint(colors.git)
+            else -> Color.Unspecified
+        },
+        trailing = if (change != null || dirty) ({ RowMarks(change, dirty) }) else null,
         onClick = onClick,
         selected = selected,
         onLongClick = { onMenu(press.at) },
@@ -78,6 +97,18 @@ internal fun FileTreeRow(
             else -> Twistie.Collapsed
         },
     )
+}
+
+/** What sits at the end of a tree row: a dot while the file has unsaved edits, then its git status letter. */
+@Composable
+private fun RowMarks(change: GitChangeType?, dirty: Boolean) {
+    val description = stringResource(R.string.gitui_modified_marker)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Kit.space.s)) {
+        if (dirty) {
+            Box(Modifier.size(Kit.space.s).clip(FULLY_ROUND).background(Kit.colors.textMuted).semantics { contentDescription = description })
+        }
+        if (change != null) GitStatusLetter(change)
+    }
 }
 
 /** One hairline per ancestor level, under that ancestor's twistie, as VS Code draws nesting. */
@@ -92,3 +123,6 @@ internal fun Modifier.treeGuides(depth: Int): Modifier {
         repeat(depth) { level -> drawRect(color, Offset((first + step * level).toPx(), 0f), Size(width.toPx(), size.height)) }
     }
 }
+
+/** Half the shorter side on every corner: a pill for a chip, a disc for a dot. */
+private val FULLY_ROUND = RoundedCornerShape(percent = 50)

@@ -234,10 +234,28 @@ fun WorkspaceScreen(
         if (hostView.rootView.findFocus() == null) rootFocus.requestFocus()
     }
 
+    // One place for what an explorer action does, whether it came from the row's menu or from a key on the tree.
+    val runFileAction: (FileAction, FileNode) -> Unit = { action, node ->
+        when (action) {
+            FileAction.OPEN_BESIDE -> stageActions.openFileBeside(node)
+            // The row appears among the folder's children, so the folder has to be open.
+            FileAction.NEW_FILE -> { revealFolder(node); inlineEdit = InlineEdit.NewFile(node.relativePath) }
+            FileAction.NEW_FOLDER -> { revealFolder(node); inlineEdit = InlineEdit.NewFolder(node.relativePath) }
+            FileAction.RENAME -> inlineEdit = InlineEdit.Rename(node)
+            FileAction.DELETE -> prompt = PendingPrompt.Delete(node)
+            FileAction.COPY -> callbacks.onCopyToClipboard(node, false)
+            FileAction.CUT -> callbacks.onCopyToClipboard(node, true)
+            FileAction.PASTE -> callbacks.onPaste(node.relativePath)
+            FileAction.COPY_PATH -> clipboard.setText(AnnotatedString(callbacks.absolutePathOf(node)))
+            FileAction.COPY_RELATIVE_PATH -> clipboard.setText(AnnotatedString(node.relativePath))
+        }
+    }
+
     val env = WorkspaceEnv(
         projectName, uiState, callbacks, gitState, gitCallbacks, lsp, decorations, selections, session, editing, contributions, commands, extensionHost,
         WorkspaceActions(
             onNodeMenu = { node, at -> menu = NodeMenu(node, at) },
+            onNodeAction = runFileAction,
             documents = DocumentOpener(model::open, stageActions::openBeside),
             onNewFile = { dir -> dir?.let(revealFolder); inlineEdit = InlineEdit.NewFile(dir?.relativePath.orEmpty()) },
             onNewFolder = { dir -> dir?.let(revealFolder); inlineEdit = InlineEdit.NewFolder(dir?.relativePath.orEmpty()) },
@@ -376,24 +394,7 @@ fun WorkspaceScreen(
             menu = menu,
             canPaste = uiState.clipboard != null,
             onDismiss = { menu = null },
-            onAction = { action, node ->
-                menu = null
-                when (action) {
-                    FileAction.OPEN_BESIDE -> stageActions.openFileBeside(node)
-                    // The row appears among the folder's children, so the folder has to be open.
-                    FileAction.NEW_FILE -> { revealFolder(node); inlineEdit = InlineEdit.NewFile(node.relativePath) }
-                    FileAction.NEW_FOLDER -> { revealFolder(node); inlineEdit = InlineEdit.NewFolder(node.relativePath) }
-                    FileAction.RENAME -> inlineEdit = InlineEdit.Rename(node)
-                    FileAction.DELETE -> prompt = PendingPrompt.Delete(node)
-                    FileAction.COPY -> callbacks.onCopyToClipboard(node, false)
-                    FileAction.CUT -> callbacks.onCopyToClipboard(node, true)
-                    FileAction.PASTE -> callbacks.onPaste(node.relativePath)
-                    FileAction.COPY_PATH ->
-                        clipboard.setText(AnnotatedString(callbacks.absolutePathOf(node)))
-                    FileAction.COPY_RELATIVE_PATH ->
-                        clipboard.setText(AnnotatedString(node.relativePath))
-                }
-            },
+            onAction = { action, node -> menu = null; runFileAction(action, node) },
             extensionEntries = contributions::explorerMenu,
             onExtensionEntry = { entry, node -> menu = null; contributions.runOnNode(entry, node) },
         )

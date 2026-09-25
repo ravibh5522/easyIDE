@@ -22,18 +22,23 @@ fun GitRepository.commitDetail(rev: String): GitCommitDetail? {
         val commit = walk.parseCommit(id)
         val parent = commit.parents.firstOrNull()?.name
         val base = if (parent == null) DiffEnd.Empty else DiffEnd.Rev(parent)
-        val files = repository.newObjectReader().use { reader ->
-            DiffFormatter(DisabledOutputStream.INSTANCE).use { formatter ->
-                formatter.setRepository(repository)
-                formatter.isDetectRenames = false
-                formatter.setBinaryFileThreshold(GitDiffLimits.MAX_TEXT_BYTES.toInt())
-                formatter.scan(iteratorFor(base, reader), iteratorFor(DiffEnd.Rev(commit.name), reader))
-                    .map { entry -> commitFile(formatter, entry) }
-            }
-        }
-        GitCommitDetail(commit.toGitCommit(), base, files.sortedBy { it.path })
+        val files = changedFiles(base, DiffEnd.Rev(commit.name))
+        GitCommitDetail(commit.toGitCommit(), base, files)
     }
 }
+
+/** The files that differ between two ends, sorted by path; shared by a commit and a compare range. */
+internal fun GitRepository.changedFiles(base: DiffEnd, head: DiffEnd): List<GitCommitFile> =
+    repository.newObjectReader().use { reader ->
+        DiffFormatter(DisabledOutputStream.INSTANCE).use { formatter ->
+            formatter.setRepository(repository)
+            formatter.isDetectRenames = false
+            formatter.setBinaryFileThreshold(GitDiffLimits.MAX_TEXT_BYTES.toInt())
+            formatter.scan(iteratorFor(base, reader), iteratorFor(head, reader))
+                .map { entry -> commitFile(formatter, entry) }
+                .sortedBy { it.path }
+        }
+    }
 
 private fun commitFile(formatter: DiffFormatter, entry: DiffEntry): GitCommitFile {
     val edits = formatter.toFileHeader(entry).toEditList()

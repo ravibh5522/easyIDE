@@ -43,6 +43,7 @@ import dev.easyide.app.ui.screens.workspace.git.GitCredentialDialog
 import dev.easyide.app.ui.screens.workspace.git.GitSheet
 import dev.easyide.app.ui.screens.workspace.git.GraphRow
 import dev.easyide.app.ui.screens.workspace.git.OperationPanel
+import dev.easyide.app.ui.screens.workspace.git.RepositoryBody
 import dev.easyide.app.ui.screens.workspace.git.RemoteSheet
 import dev.easyide.app.ui.screens.workspace.git.ScmCommitBox
 import dev.easyide.app.ui.screens.workspace.git.ScmHeader
@@ -75,13 +76,16 @@ fun SourceControlPane(
     var tokenHost by remember { mutableStateOf<String?>(null) }
     val git = callbacks.git
 
+    var treeView by rememberSaveable { mutableStateOf(false) }
+
     Column(modifier = modifier.background(Kit.colors.panel)) {
-        ScmHeader(state, callbacks)
+        ScmHeader(state, callbacks, treeView) { treeView = !treeView }
 
         state.operation?.let { op ->
             OperationPanel(op, onCancel = git.remote::cancel, onDismiss = git.remote::dismissOperation, onAddToken = { tokenHost = it })
         }
         state.error?.let { KitBanner(it, tone = Tone.Danger) }
+        if (state.identityRequired) KitBanner(stringResource(R.string.gitui_identity_required), tone = Tone.Warning)
 
         when {
             !state.isRepository -> KitEmptyState(
@@ -90,7 +94,7 @@ fun SourceControlPane(
                 action = KitAction(stringResource(R.string.git_init), callbacks.onInitRepository),
             )
             state.status == null -> SkeletonRows()
-            else -> RepositoryBody(state, state.status, graph, callbacks, opener)
+            else -> RepositoryBody(state, state.status, graph, callbacks, opener, treeView)
         }
     }
 
@@ -110,66 +114,6 @@ fun SourceControlPane(
         )
     }
 }
-
-@Composable
-private fun RepositoryBody(
-    state: GitPanelState,
-    status: GitStatus,
-    graph: List<GraphRow>,
-    callbacks: SourceControlCallbacks,
-    opener: DocumentOpener,
-) {
-    val busy = state.busy
-    val closed = rememberClosedSections()
-    // The change whose row shows its actions, like VS Code's hovered row: a tap on a row selects it.
-    var revealed by rememberSaveable { mutableStateOf<String?>(null) }
-    val row: @Composable (GitChange, String) -> Unit = { change, id ->
-        ChangeRow(change, busy, revealed == id, { revealed = id }, callbacks, opener)
-    }
-
-    val noChanges = stringResource(R.string.git_no_changes)
-    val titles = SectionTitles(
-        stringResource(R.string.git_section_conflicts), stringResource(R.string.git_section_staged),
-        stringResource(R.string.git_section_changes), stringResource(R.string.git_section_graph),
-    )
-    val stageAll = stringResource(R.string.git_stage_all)
-    val unstageAll = stringResource(R.string.git_unstage_all)
-
-    ScmCommitBox(state, status, callbacks)
-
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        if (status.isClean) item { KitRow(noChanges, enabled = false) }
-        if (status.conflicting.isNotEmpty()) {
-            panelSection(closed, "conflicts", titles.conflicts, status.conflicting.size) {
-                items(status.conflicting, key = { "c:${it.path}" }) { row(it, "c:${it.path}") }
-            }
-        }
-        if (status.staged.isNotEmpty()) {
-            panelSection(
-                closed, "staged", titles.staged, status.staged.size,
-                actions = { KitIconButton(Icons.Filled.Remove, unstageAll, { callbacks.onUnstage(status.staged.map { it.path }) }, enabled = !busy) },
-            ) {
-                items(status.staged, key = { "s:${it.path}" }) { row(it, "s:${it.path}") }
-            }
-        }
-        if (status.unstaged.isNotEmpty()) {
-            panelSection(
-                closed, "changes", titles.changes, status.unstaged.size,
-                actions = { KitIconButton(Icons.Filled.Add, stageAll, { callbacks.onStage(status.unstaged.map { it.path }) }, enabled = !busy) },
-            ) {
-                items(status.unstaged, key = { "u:${it.path}" }) { row(it, "u:${it.path}") }
-            }
-        }
-        if (graph.isNotEmpty()) {
-            panelSection(closed, "graph", titles.graph, graph.size) {
-                commitGraph(graph) { sha -> GitDocuments.commitUri(sha)?.let(opener::preview) }
-            }
-        }
-    }
-}
-
-/** The section titles, read in composition so the list's builder lambdas need no resources. */
-private class SectionTitles(val conflicts: String, val staged: String, val changes: String, val graph: String)
 
 /**
  * Stand-in rows while the first status read is in flight, the row token tall like change rows

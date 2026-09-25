@@ -33,18 +33,21 @@ class GitContext(
      * error shown if it fails, the panel refreshed if it succeeds. [onFailure]
      * gets the first look at a failure and returns true when it handled it
      * (for example by asking a follow-up question instead of showing an error).
+     * [after] runs once the fresh status is published, for a step that reads it (a push after a commit).
      */
     fun act(
         onSuccess: () -> Unit = {},
         onFailure: (GitResult.Failure) -> Boolean = { false },
+        after: () -> Unit = {},
         block: suspend (File) -> GitResult<GitStatus>,
     ) {
         scope.launch {
-            state.update { it.copy(busy = true, error = null) }
+            state.update { it.copy(busy = true, error = null, identityRequired = false) }
             when (val result = block(root)) {
                 is GitResult.Success -> {
                     onSuccess()
                     publish(result.value)
+                    after()
                 }
                 is GitResult.Failure ->
                     state.update { it.copy(busy = false, error = if (onFailure(result)) null else result.message) }
@@ -63,6 +66,8 @@ class GitContext(
         val commits = service.log(root).valueOrNull().orEmpty()
         val remotes = service.remotes(root).valueOrNull()
         val stashes = service.stashes(root).valueOrNull()
+        val refs = service.refsByCommit(root).valueOrNull()
+        val branches = service.branches(root).valueOrNull()
         state.update {
             it.copy(
                 isRepository = true,
@@ -70,6 +75,8 @@ class GitContext(
                 commits = commits,
                 remotes = remotes ?: it.remotes,
                 stashes = stashes ?: it.stashes,
+                refs = refs ?: it.refs,
+                branches = branches ?: it.branches,
                 busy = if (clearBusy) false else it.busy,
             )
         }

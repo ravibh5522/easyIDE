@@ -1,11 +1,13 @@
 package dev.easyide.app.ui.screens.workspace
 
 import dev.easyide.app.ui.screens.workspace.git.GitConfirm
+import dev.easyide.app.ui.screens.workspace.git.GitComparison
 import dev.easyide.app.ui.screens.workspace.git.GitControllers
 import dev.easyide.app.ui.screens.workspace.git.GitOperation
 import dev.easyide.app.ui.screens.workspace.git.GitSheet
 import dev.easyide.sandbox.git.GitBranch
 import dev.easyide.sandbox.git.GitCommit
+import dev.easyide.sandbox.git.GitRef
 import dev.easyide.sandbox.git.GitRemoteInfo
 import dev.easyide.sandbox.git.GitStashEntry
 import dev.easyide.sandbox.git.GitStatus
@@ -37,6 +39,12 @@ data class GitPanelState(
     val stashes: List<GitStashEntry> = emptyList(),
     /** Loaded when the branch sheet opens and after every branch operation. */
     val branches: List<GitBranch> = emptyList(),
+    /** Branch, remote-branch and tag names per commit id, for the chips of the graph and the commit menu. */
+    val refs: Map<String, List<GitRef>> = emptyMap(),
+    /** A cherry-pick or tag was asked for with no author identity configured; shown as a banner. */
+    val identityRequired: Boolean = false,
+    /** The open "compare" result, or null. */
+    val comparison: GitComparison? = null,
     val sheet: GitSheet? = null,
     val confirm: GitConfirm? = null,
     val operation: GitOperation? = null,

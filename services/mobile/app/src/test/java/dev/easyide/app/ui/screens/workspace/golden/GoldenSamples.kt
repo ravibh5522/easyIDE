@@ -3,7 +3,9 @@ package dev.easyide.app.ui.screens.workspace.golden
 import dev.easyide.app.ui.screens.workspace.GitPanelState
 import dev.easyide.app.ui.screens.workspace.SourceControlCallbacks
 import dev.easyide.app.ui.screens.workspace.WorkspaceUiState
+import dev.easyide.app.ui.screens.workspace.git.CommitMode
 import dev.easyide.app.ui.screens.workspace.git.GitBranchController
+import dev.easyide.app.ui.screens.workspace.git.GitHistoryController
 import dev.easyide.app.ui.screens.workspace.git.GitCommitActions
 import dev.easyide.app.ui.screens.workspace.git.GitContext
 import dev.easyide.app.ui.screens.workspace.git.GitControllers
@@ -108,9 +110,10 @@ object GoldenSamples {
             override fun setAmend(amend: Boolean) = Unit
             override fun saveIdentity(name: String, email: String, projectOnly: Boolean) = Unit
             override fun dismissIdentityPrompt() = Unit
+            override fun commit(mode: CommitMode) = Unit
             override fun answerConfirm(accepted: Boolean) = Unit
         }
-        SourceControlCallbacks({}, {}, {}, {}, {}, {}, {}, {}, GitControllers(remote, GitBranchController(ctx), GitDiffController(ctx), commit))
+        SourceControlCallbacks({}, {}, {}, {}, {}, {}, {}, {}, GitControllers(remote, GitBranchController(ctx), GitHistoryController(ctx, GitBranchController(ctx), settings), GitDiffController(ctx), commit))
     }
 
     private val server = ServerKey("env", "project", "kotlin-language-server")
