@@ -1,6 +1,6 @@
 # 0030 - VS Code extension host: Node in the sandbox, our own `vscode` module, Kotlin main side
 
-Status: Accepted (supersedes the deferral of Tier 2 in [0009](0009-extension-platform-tiers.md))
+Status: Accepted, partly superseded: decision 2 by [0031](0031-vendor-vscode-extension-host.md); decision 1 amended by 0031 (one host per workspace) and [0032](0032-node-runtime-provisioning.md) (Node source). Supersedes the deferral of Tier 2 in [0009](0009-extension-platform-tiers.md).
 
 ## Context
 
