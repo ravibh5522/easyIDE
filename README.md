@@ -4,7 +4,8 @@ An IDE for Android tablets with a real Linux userland underneath it -- not a sni
 not a remote-desktop client into someone else's server. You get a native editor, a file
 tree, and a terminal running Ubuntu, all on the device, offline, with no root required.
 
-**Status: early.** `v0.1.0`, no release build yet. Android 8.0+ (minSdk 26), arm64 and x86_64.
+**Status: beta.** `v0.2.0-beta.1`. Android 8.0+ (minSdk 26), arm64 and x86_64. Expect rough edges;
+report them as issues.
 Source-available -- free for personal and noncommercial use, [paid for commercial use](#license).
 
 ## What works today
@@ -40,25 +41,39 @@ Per-component detail and evidence lives in the `tracker.md` files under [docs/](
   bind into them ([decision 0005](docs/decision/0005-sandbox-environment-sharing-model.md)).
 - **Link a real folder** on internal storage or an SD card through SAF, so your code is not
   trapped in app-private storage.
-- **Source control.** JGit-backed: initialise, stage/unstage/discard per file, commit, branch
-  in the status bar, and a changes list that updates itself when files change - including
-  files written by the terminal, not just the editor. Repositories it creates are read
-  correctly by real `git`.
-- **Six Material 3 themes**, persisted, responsive across window size classes, and honouring
-  the system reduce-motion setting.
+- **A VS Code-shaped workspace.** Dense, VS Code-style chrome that adapts from a phone (bottom
+  navigation) to a tablet (activity rail, side bar, bottom panel, secondary panel): editor
+  groups with split view, breadcrumbs, real file-type icons (Material Icon Theme, swappable), an
+  optional full-screen mode with no system bars, and three density levels.
+- **Language servers.** A built-in LSP client runs servers inside the sandbox: completion,
+  signature help, hover, diagnostics, code actions, rename, formatting, go-to-definition,
+  references, symbols, inlay hints, code lens, semantic tokens and folding. Language packs
+  (Python with Ruff, TypeScript, Web, Rust, Go, C/C++, YAML, Markdown, Shell) install their own
+  server on demand. Any stdio server can be added through an extension manifest.
+- **Extensions.** Declarative `.easyext` packs contribute languages, grammars, themes, icon
+  themes, snippets, keybindings, commands, toolbar keys, settings, panels and language servers,
+  with capability disclosure at install ([docs/extension-sdk/](docs/extension-sdk/)). A VS Code
+  icon-theme `.vsix` from Open VSX installs as is.
+- **Source control.** JGit-backed: stage, unstage and discard per file, a changes tree, a commit
+  split button with amend, and a VS Code-style history graph with branch and tag chips and a
+  commit context menu (cherry-pick, tag, checkout, compare). Changes made by the terminal show
+  up as well. Repositories it creates are read correctly by real `git`.
+- **Themes and settings.** Material 3 themes, a settings screen generated from a schema, and
+  honouring of the system reduce-motion setting.
 
 ## What is not there yet
 
 Stated plainly, because a README that oversells is worse than one that is short:
 
-- **No language intelligence.** No LSP, no completion, no diagnostics, no go-to-definition.
-  Syntax highlighting is real (see above), but it is lexical only -- it does not know what a
-  symbol *means*. Language servers are the planned next step.
+- **VS Code extensions that run code** (GitLens, the Claude Code extension and so on) do not
+  run. Only declarative packs and icon themes install. A Node extension host in the sandbox is
+  designed ([decision 0030](docs/decision/0030-vscode-extension-host-in-sandbox.md)), not built.
 - **The Claude Code CLI is not wired up.** Installing and verifying it inside the sandbox is
   planned, not done.
-- **Git stops at the network.** Clone, push, pull and the auth flow are not built; neither is
-  a diff view, the commit graph or a merge editor. Commits are attributed to a placeholder
-  identity until a settings screen exists.
+- **Git over the network is lightly tested.** Push, pull and sync exist but have had little
+  device testing; there is no merge editor. Commits use a placeholder identity until you set
+  one.
+- **No debugger and no notebooks.**
 - **No credential helper, no tmux session persistence, no ssh-agent.**
 - **The chroot+BusyBox backend for rooted devices builds its argv but has never been executed.**
 - No checksum verification on the downloaded rootfs tarball.
