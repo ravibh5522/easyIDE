@@ -149,6 +149,38 @@ class GitService(private val ioDispatcher: CoroutineDispatcher) {
     suspend fun log(projectDir: File, limit: Int = LOG_LIMIT): GitResult<List<GitCommit>> =
         run(projectDir) { it.logAllRefs(limit) }
 
+    suspend fun refsByCommit(projectDir: File): GitResult<Map<String, List<GitRef>>> =
+        run(projectDir) { it.refsByCommit() }
+
+    /** A blank [message] makes a lightweight tag; otherwise an annotated one by the given tagger. */
+    suspend fun createTag(
+        projectDir: File,
+        name: String,
+        rev: String,
+        message: String?,
+        taggerName: String,
+        taggerEmail: String,
+    ): GitResult<Unit> = run(projectDir) { it.createTag(name, rev, message, taggerName, taggerEmail) }
+
+    suspend fun checkoutDetached(projectDir: File, rev: String): GitResult<GitStatus> =
+        run(projectDir) { it.checkoutDetached(rev); it.status() }
+
+    /** A conflicting pick is a [GitResult.Failure] that leaves the conflict in the tree for the merge banner. */
+    suspend fun cherryPick(projectDir: File, rev: String, authorName: String, authorEmail: String): GitResult<GitStatus> =
+        run(projectDir) { it.cherryPick(rev, authorName, authorEmail); it.status() }
+
+    /** Success carries null when the two revisions share no history. */
+    suspend fun mergeBase(projectDir: File, a: String, b: String): GitResult<String?> =
+        // run() reads a null block result as "not a repository", so the id travels in a list.
+        when (val r = run(projectDir) { listOfNotNull(it.mergeBase(a, b)) }) {
+            is GitResult.Success -> GitResult.Success(r.value.firstOrNull())
+            is GitResult.Failure -> r
+            GitResult.NotARepository -> GitResult.NotARepository
+        }
+
+    suspend fun changedBetween(projectDir: File, base: String, head: String): GitResult<List<GitCommitFile>> =
+        run(projectDir) { it.changedBetween(base, head) }
+
     /**
      * Runs [block] against the project's cached repository, creating one when
      * [create] is set. Anything thrown becomes [GitResult.Failure].
