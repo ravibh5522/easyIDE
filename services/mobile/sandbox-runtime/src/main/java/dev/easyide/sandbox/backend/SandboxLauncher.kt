@@ -93,7 +93,7 @@ internal object GuestEnvironment {
     const val LANG = "LANG"
 
     /** /usr/local first, so the provisioned `sudo` shim is found. */
-    const val DEFAULT_PATH = "/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    const val DEFAULT_PATH = "/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/games:/usr/games"
 
     /**
      * Where per-user installers put their binaries, relative to HOME. Installers such as opencode,
