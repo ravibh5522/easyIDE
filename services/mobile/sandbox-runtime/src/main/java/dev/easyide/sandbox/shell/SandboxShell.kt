@@ -102,15 +102,37 @@ class SandboxShell(
         hostProjectDir: File?,
         guestProjectPath: String,
         extraBinds: List<GuestBind> = emptyList(),
+        asRoot: Boolean = false,
     ): PtyShellParams = ptyParams(
         LaunchRequest(
             rootfs = rootfs,
             hostProjectDir = hostProjectDir,
             guestProjectPath = guestProjectPath,
             extraBinds = extraBinds,
-            command = listOf(GUEST_SHELL),
+            command = if (asRoot) loginShell(rootfs) else userShell(rootfs),
+            extraEnvironment = if (asRoot) emptyMap() else USER_ENVIRONMENT,
         )
     )
+
+    /**
+     * A login bash where the guest has one, so `~/.profile` and `~/.bashrc` run: installers
+     * (opencode, bun, rustup, nvm) add their `PATH` line to `~/.bashrc` and expect a shell that
+     * reads it, and readline gives history, arrow-key editing and tab completion. dash, the
+     * `/bin/sh` of Ubuntu, has none of that.
+     */
+    /**
+     * The login shell as the default user. proot starts everything as fake root (`-i 1000:0` would
+     * make uid 1000 final: setresuid back to 0 then fails, measured on a Xiaomi Pad 6), so the shell is
+     * dropped with `setpriv --reuid`, which leaves uid 0 as the saved id; `sudo` uses that to return.
+     * Without `setpriv` (a minimal rootfs) the shell simply stays root.
+     */
+    private fun userShell(rootfs: File): List<String> {
+        val setpriv = listOf("usr/bin/setpriv", "bin/setpriv").firstOrNull { File(rootfs, it).isFile } ?: return loginShell(rootfs)
+        return listOf("/$setpriv", "--reuid=${GuestEnvironment.DEFAULT_UID}", "--regid=${GuestEnvironment.DEFAULT_GID}", "--clear-groups", "--") + loginShell(rootfs)
+    }
+
+    private fun loginShell(rootfs: File): List<String> =
+        if (File(rootfs, "usr/bin/bash").isFile) listOf(GuestEnvironment.LOGIN_SHELL, "-l") else listOf(GUEST_SHELL)
 
     private fun ptyParams(request: LaunchRequest): PtyShellParams {
         val spec = launcher.buildLaunchSpec(request)
@@ -183,6 +205,13 @@ class SandboxShell(
 
     private companion object {
         const val GUEST_SHELL = "/bin/sh"
+
+        /** What a login would set for the default user; HOME stays `/root`, shared with servers and tasks. */
+        val USER_ENVIRONMENT = mapOf(
+            "USER" to GuestEnvironment.DEFAULT_USER,
+            "LOGNAME" to GuestEnvironment.DEFAULT_USER,
+            "SHELL" to GuestEnvironment.LOGIN_SHELL,
+        )
         const val GUEST_SHELL_FLAG = "-c"
         const val ENV_PROOT_LOADER = "PROOT_LOADER"
         const val ENV_PROOT_LOADER_32 = "PROOT_LOADER_32"

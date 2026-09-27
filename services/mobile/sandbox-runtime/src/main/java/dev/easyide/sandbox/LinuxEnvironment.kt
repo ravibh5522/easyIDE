@@ -188,7 +188,7 @@ class LinuxEnvironment(
      * one for either backend and the caller should not need to care which
      * world it is in any more than [start]'s callers do.
      */
-    suspend fun interactiveShellParams(environmentId: String, hostProjectDir: File): PtyShellParams {
+    suspend fun interactiveShellParams(environmentId: String, hostProjectDir: File, asRoot: Boolean = false): PtyShellParams {
         if (!isReady(environmentId)) {
             return fallbackShell.interactiveParams(hostProjectDir)
         }
@@ -199,6 +199,7 @@ class LinuxEnvironment(
             hostProjectDir = hostProjectDir,
             guestProjectPath = paths.guestProjectPath(),
             extraBinds = bindsFor(environmentId),
+            asRoot = asRoot,
         )
     }
 

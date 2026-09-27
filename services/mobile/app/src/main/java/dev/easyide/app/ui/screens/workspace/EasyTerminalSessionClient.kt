@@ -50,7 +50,9 @@ class EasyTerminalSessionClient(
         val target = session ?: return
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
         val text = clipboard.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.text ?: return
-        target.write(text.toString())
+        // emulator.paste wraps the text in bracketed-paste markers when the program asked for them,
+        // so a multi-line paste into a terminal UI is one paste, not one submit per line.
+        target.emulator?.paste(text.toString()) ?: target.write(text.toString())
     }
 
     // Deliberately silent: some programs (bash tab-completion ambiguity, for

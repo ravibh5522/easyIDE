@@ -36,8 +36,22 @@ object TerminalKeyboard {
         key("clr", "ctrl+l"),
         key("Tab", "tab"),
         key("Esc", "escape"),
+        // Sticky: armed by a tap, used by the next key (TerminalModifiers).
+        RowKey(CTRL_LABEL, KeyAction.Command(TerminalModifiers.CTRL_ID), null),
+        RowKey(ALT_LABEL, KeyAction.Command(TerminalModifiers.ALT_ID), null),
+        key("⇧Tab", "shift+tab"),
     ) + listOf("-", "_", "/", "~", ".", "|", "$", "*", "&", ">", "<", "\"", "'", "(", ")", "[", "]", "{", "}", "=", ";", "#", "!", "\\")
         .map { RowKey(it, KeyAction.Insert(it), null) }
+
+    private const val CTRL_LABEL = "Ctrl"
+    private const val ALT_LABEL = "Alt"
+    private const val ARMED_MARK = "•"
+
+    /** [keys] with an armed Ctrl or Alt marked, so the row shows which modifier the next key will carry. */
+    fun withModifierState(keys: List<RowKey>, ctrl: Boolean, alt: Boolean): List<RowKey> = keys.map { key ->
+        val armed = (key.label == CTRL_LABEL && ctrl) || (key.label == ALT_LABEL && alt)
+        if (armed) key.copy(label = key.label + ARMED_MARK) else key
+    }
 
     /** [title] is the row's display name (a string resource at the call site). */
     fun row(title: String) = KeyRowContribution(KeyRows.BUILTIN_TERMINAL, title, null, KEYS)

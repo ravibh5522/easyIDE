@@ -43,11 +43,12 @@ class WorkspaceTerminals(
 
     /**
      * A new interactive shell. [initialCommand] is typed into it (an install recipe the user
-     * asked to run) and the terminal panel is revealed so they see it run.
+     * asked to run) and the terminal panel is revealed so they see it run. A recipe installs
+     * packages, so it gets a root shell; a shell the user opened runs as the default user.
      */
     fun newShell(initialCommand: String? = null) {
         scope.launch {
-            val tab = openShell(null) ?: return@launch
+            val tab = openShell(null, asRoot = initialCommand != null) ?: return@launch
             if (initialCommand == null) return@launch
             tab.session.write(initialCommand + "\n")
             state.update { it.copy(terminalRevealRequests = it.terminalRevealRequests + 1) }
@@ -62,10 +63,10 @@ class WorkspaceTerminals(
      * `TerminalSession` and adds it as a new tab. Suspends because
      * [LinuxEnvironment.interactiveShellParams] may need to install proot on first use.
      */
-    suspend fun openShell(title: String?): PtyTerminalTab? {
+    suspend fun openShell(title: String?, asRoot: Boolean = false): PtyTerminalTab? {
         // Process-spawn boundary: proot preparation failures surface as a status message.
         val params = try {
-            linuxEnvironment.interactiveShellParams(environmentId, projectRoot)
+            linuxEnvironment.interactiveShellParams(environmentId, projectRoot, asRoot)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -79,7 +80,7 @@ class WorkspaceTerminals(
     suspend fun namedTerminal(owner: ExtensionId, name: String): PtyTerminalTab? {
         val key = owner to name
         named[key]?.let { id -> state.value.terminals.find { it.id == id && it.session.isRunning }?.let { return it } }
-        val tab = openShell(name) ?: return null
+        val tab = openShell(name, asRoot = true) ?: return null
         named[key] = tab.id
         return tab
     }
@@ -117,11 +118,12 @@ class WorkspaceTerminals(
     /** User-driven rename, distinct from [retitle] which tracks the shell's own OSC title. */
     fun rename(id: String, title: String) = retitle(id, title)
 
-    /** The last tab is never closed, so the panel always has something to show. */
+    /**
+     * Closes a tab and hangs up its process group. Any tab can be closed, the last one included:
+     * with none left the panel shows its "new terminal" empty state.
+     */
     fun close(id: String) {
-        val current = state.value
-        if (current.terminals.size <= 1) return
-        current.terminals.find { it.id == id }?.session?.finishIfRunning()
+        state.value.terminals.find { it.id == id }?.session?.terminate()
         state.update { s ->
             val remaining = s.terminals.filterNot { it.id == id }
             val active = if (s.activeTerminalId == id) remaining.lastOrNull()?.id else s.activeTerminalId
@@ -155,6 +157,9 @@ class WorkspaceTerminals(
             null,
             client,
         )
+        // Start the process now: a session otherwise waits for a view to size it, so a tab opened in
+        // the background, or a command terminal whose panel is closed, would never run.
+        session.updateSize(TerminalGrid.columns, TerminalGrid.rows, TerminalGrid.CELL_WIDTH_PX, TerminalGrid.CELL_HEIGHT_PX)
         val tab = PtyTerminalTab(id = id, title = title, session = session, client = client)
         state.update { it.copy(terminals = it.terminals + tab, activeTerminalId = tab.id) }
         return tab

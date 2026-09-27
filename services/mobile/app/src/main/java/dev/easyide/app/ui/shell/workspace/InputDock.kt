@@ -18,6 +18,8 @@ import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
 import dev.easyide.app.ui.kit.kitTag
 import dev.easyide.app.ui.screens.workspace.KeyRowBar
+import dev.easyide.app.ui.screens.workspace.TerminalKeyboard
+import dev.easyide.app.ui.screens.workspace.TerminalModifiers
 import dev.easyide.app.ui.screens.workspace.ext.ContributedMenu
 import dev.easyide.app.ui.screens.workspace.ext.sections
 import dev.easyide.extensions.contrib.MenuIds
@@ -43,7 +45,7 @@ fun InputDock(env: WorkspaceEnv, focus: DockFocus, show: DockShow, editable: Boo
                 }
             }
             DockFocus.TERMINAL -> contributions.keyRow(KeySurface.TERMINAL)?.takeIf { show.keys }?.let { row ->
-                KeyRowBar(row.keys, onKey = { action -> env.ui.activeTerminal?.session?.let { env.actions.onTerminalRowKey(action, it) } })
+                KeyRowBar(TerminalKeyboard.withModifierState(row.keys, TerminalModifiers.ctrl, TerminalModifiers.alt), onKey = { action -> env.ui.activeTerminal?.session?.let { env.actions.onTerminalRowKey(action, it) } })
             }
             DockFocus.NONE -> Unit
         }

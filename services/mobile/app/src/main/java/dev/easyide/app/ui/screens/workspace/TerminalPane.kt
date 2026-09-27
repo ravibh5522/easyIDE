@@ -120,6 +120,10 @@ private fun EasyTerminalView(
     val appliedTextSize = remember { AppliedTextSize(textSizePx) }
     val client = remember { EasyTerminalViewClient() }
     val palette = Kit.colors.terminal
+    // The one view shows one session at a time. Only that session may redraw it: a background tab
+    // that kept its callback set repainted the visible terminal (and snapped its scroll to the
+    // bottom) on every line it printed, which starved the UI while a noisy command ran elsewhere.
+    val shown = remember { arrayOfNulls<EasyTerminalSessionClient>(1) }
 
     AndroidView(
         factory = { context ->
@@ -140,6 +144,10 @@ private fun EasyTerminalView(
             // buffer changes - it has to be told to. Reassigned on every
             // recomposition (idempotent) rather than only on attach, so this
             // stays correct if Compose ever recreates the AndroidView.
+            if (shown[0] !== tab.client) {
+                shown[0]?.onScreenChanged = null
+                shown[0] = tab.client
+            }
             tab.client.onScreenChanged = { view.onScreenUpdated(); view.invalidate() }
             client.onHardwareKey = onHardwareKey
             client.onZoom = { scale -> if (zoom.zoomTo(zoom.size, scale)) 1f else scale }
@@ -200,9 +208,9 @@ private fun TerminalTabBar(
                 KitMenu(
                     expanded = menuOpen,
                     onDismiss = { menuOpen = false },
-                    items = listOfNotNull(
+                    items = listOf(
                         KitMenuItem.Action(stringResource(R.string.wp_rename), { onRenameTab(active.id, active.title) }),
-                        if (tabs.size > 1) KitMenuItem.Action(stringResource(R.string.terminal_close), { onCloseTab(active.id) }) else null,
+                        KitMenuItem.Action(stringResource(R.string.terminal_close), { onCloseTab(active.id) }),
                     ),
                 )
             }
