@@ -86,6 +86,7 @@ jobs:
           NOTES=$(cat <<EOF
           | | |
           |---|---|
+          | App ID | `dev.easyide.app` |
           | Size | ${{ steps.assets.outputs.size }} MB |
           | SHA-256 | \`${{ steps.assets.outputs.sha }}\` |
           | Min Android | 8.0 (API 26) |

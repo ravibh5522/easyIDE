@@ -91,6 +91,7 @@ jobs:
           |---|---|
           | Commit | [\`${GITHUB_SHA:0:7}\`](https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}) |
           | Build | ${GITHUB_RUN_NUMBER} |
+          | App ID | `dev.easyide.app.canary` |
           | Size | ${{ steps.assets.outputs.size }} MB |
           | SHA-256 | \`${{ steps.assets.outputs.sha }}\` |
           | Signing | $([ "$SIGNED" = "true" ] && echo "release key" || echo "**debug key** -- cannot be upgraded to a stable build, uninstall first") |
