@@ -1,14 +1,7 @@
 # Contributing to easyIDE
 
-Contributions are welcome. Please read the licensing section first -- easyIDE is
-dual-licensed, and that has a real consequence for contributors.
-
-## Licensing of contributions
-
-easyIDE is offered under two licenses at once: the
-[PolyForm Noncommercial License](LICENSE) for everyone, and a
-[paid commercial license](LICENSE-COMMERCIAL.md) for commercial users. That only
-works if a single party holds the rights to relicense the whole codebase. So:
+Contributions are welcome. easyIDE is licensed under the [GNU AGPL v3](LICENSE); contributions
+are accepted under that license and the agreement below.
 
 **By submitting a pull request, patch, or any other contribution, you agree to
 the Contributor License Agreement below.**
@@ -48,13 +41,6 @@ There is nothing to sign or email. Opening a PR is the acceptance.
 5. **No warranty.** You provide your contribution on an "as is" basis, without
    warranties or conditions of any kind.
 
-### What this means in practice
-
-The licensor can ship your contribution to paying commercial customers. You will
-not be paid for it. If you are not comfortable with that, do not contribute code
--- issues, reproductions and design feedback are still very welcome and are not
-covered by the CLA.
-
 ### Third-party code
 
 Do not paste code from another project into a pull request. If a third-party
@@ -62,7 +48,7 @@ component is genuinely the right answer, propose it as a dependency instead, and
 include its license and maintenance status **verified from the upstream
 repository or official docs, not from memory**. Anything copyleft or
 non-permissive needs to be discussed before the PR, because it may conflict with
-the commercial license. Adopted dependencies get recorded in [NOTICE.md](NOTICE.md).
+the AGPL. Adopted dependencies get recorded in [NOTICE.md](NOTICE.md).
 
 ## Before you open a pull request
 
