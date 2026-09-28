@@ -20,7 +20,7 @@ Native editor, file tree and an Ubuntu terminal -- all on the device, offline, n
 Not a snippet editor, and not a remote-desktop client into someone else's server. You get a
 native editor, a file tree, and a terminal running Ubuntu, all on the device.
 
-> **Beta: `v0.2.0-beta.4`.** arm64 and x86_64, Android 8.0+ (minSdk 26). Expect rough edges and
+> **Beta: `v0.2.0-beta.5`.** arm64 and x86_64, Android 8.0+ (minSdk 26). Expect rough edges and
 > [report them as issues](https://github.com/ravibh5522/easyIDE/issues), or tell us in the
 > [Telegram group](https://t.me/+yMH4w5rX1gZhOTM1).
 
