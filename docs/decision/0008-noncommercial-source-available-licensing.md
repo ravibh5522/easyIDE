@@ -1,6 +1,6 @@
 # 0008 - Source-available licensing: PolyForm Noncommercial + paid commercial license
 
-Status: Accepted
+Status: Superseded by [0032](0032-relicense-agpl-3.md)
 
 ## Context
 

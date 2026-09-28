@@ -20,7 +20,7 @@ Lightweight ADRs (Architecture Decision Records) for major, hard-to-reverse choi
 | [0004](0004-material3-design-system.md) | Material 3 as the native Compose design system foundation | Accepted |
 | [0005](0005-sandbox-environment-sharing-model.md) | Sandbox environments are shareable; projects bind into them | Accepted |
 | [0006](0006-native-ide-shell-before-theia.md) | Native IDE shell now; Theia becomes the language layer later (partially supersedes 0003) | Accepted |
-| [0008](0008-noncommercial-source-available-licensing.md) | Source-available licensing: PolyForm Noncommercial + paid commercial license | Accepted |
+| [0008](0008-noncommercial-source-available-licensing.md) | Source-available licensing: PolyForm Noncommercial + paid commercial license | Superseded by 0032 |
 | [0009](0009-extension-platform-tiers.md) | Extension platform: native declarative contributions before a VS Code extension host | Accepted |
 | [0010](0010-textmate-highlighting-bundled.md) | Syntax highlighting: TextMate grammars, all bundled, tree-sitter deferred | Accepted |
 | [0011](0011-jgit-for-object-model-sandbox-git-for-network.md) | Git: JGit for the object model, sandbox `git` for the network | Accepted |
@@ -39,3 +39,4 @@ Lightweight ADRs (Architecture Decision Records) for major, hard-to-reverse choi
 | [0022](0022-editing-workflows-history-find-quick-open.md) | Editing workflows: patch history at the workspace's content choke point, decoration-painted find, one picker shell | Accepted |
 | [0027](0027-extension-view-schema.md) | Extension views: a fixed declarative view schema (`viewSchema: 1`) drawn by the app's kit | Accepted |
 | [0031](0031-telemetry-firebase-behind-neutral-module.md) | Telemetry: Firebase behind a provider-neutral module, opt-in, proprietary-binary consequence | Accepted |
+| [0032](0032-relicense-agpl-3.md) | Relicense easyIDE's own source to AGPL-3.0 | Accepted |
