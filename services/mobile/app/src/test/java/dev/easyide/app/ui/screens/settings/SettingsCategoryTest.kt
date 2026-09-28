@@ -18,7 +18,7 @@ class SettingsCategoryTest {
         val ids = SettingsCategory.entries.map { it.id }
         assertEquals(ids.distinct(), ids)
         assertEquals(
-            listOf("appearance", "editor", "terminal", "files", "git", "sandbox", "keyboard", "language-servers", "extensions", "layout", "diagnostics", "advanced"),
+            listOf("appearance", "editor", "terminal", "files", "git", "sandbox", "keyboard", "language-servers", "extensions", "layout", "privacy", "diagnostics", "advanced"),
             ids,
         )
         SettingsCategory.entries.forEach { assertEquals(it, SettingsCategory.ofId(it.id)) }
@@ -29,7 +29,7 @@ class SettingsCategoryTest {
     @Test fun `every declared setting lands on a page that lists schema rows`() {
         val rowPages = setOf(
             SettingsCategory.APPEARANCE, SettingsCategory.EDITOR, SettingsCategory.TERMINAL, SettingsCategory.FILES, SettingsCategory.GIT,
-            SettingsCategory.LANGUAGE_SERVERS, SettingsCategory.EXTENSIONS, SettingsCategory.LAYOUT,
+            SettingsCategory.LANGUAGE_SERVERS, SettingsCategory.EXTENSIONS, SettingsCategory.LAYOUT, SettingsCategory.PRIVACY,
         )
         schema.forEach { assertTrue("${it.key} -> ${SettingsCategory.of(it)}", SettingsCategory.of(it) in rowPages) }
     }

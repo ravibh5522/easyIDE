@@ -29,6 +29,9 @@ class UiPreferences(private val context: Context) {
         prefs[KEY_ONBOARDING_COMPLETE] ?: false
     }
 
+    /** Whether the mandatory telemetry gate has been agreed to. Null until DataStore's first read. */
+    val telemetryGateAnswered: Flow<Boolean> = flow.map { prefs -> prefs[KEY_TELEMETRY_GATE_ANSWERED] ?: false }
+
     /**
      * Environment pre-selected when creating a project. Null means "no default
      * chosen"; the new-project screen then falls back to the first available.
@@ -62,6 +65,10 @@ class UiPreferences(private val context: Context) {
         context.preferencesStore.edit { it[KEY_ONBOARDING_COMPLETE] = complete }
     }
 
+    suspend fun setTelemetryGateAnswered() {
+        context.preferencesStore.edit { it[KEY_TELEMETRY_GATE_ANSWERED] = true }
+    }
+
     suspend fun setDefaultEnvironmentId(id: String?) {
         context.preferencesStore.edit { prefs ->
             if (id == null) prefs.remove(KEY_DEFAULT_ENVIRONMENT) else prefs[KEY_DEFAULT_ENVIRONMENT] = id
@@ -76,6 +83,7 @@ class UiPreferences(private val context: Context) {
 
     private companion object {
         val KEY_ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
+        val KEY_TELEMETRY_GATE_ANSWERED = booleanPreferencesKey("telemetry_gate_answered")
         val KEY_DEFAULT_ENVIRONMENT = stringPreferencesKey("default_environment_id")
         val KEY_DEFAULT_PROJECTS_FOLDER = stringPreferencesKey("default_projects_folder_uri")
         fun recentFilesKey(projectId: String) = stringPreferencesKey("recent_files_$projectId")

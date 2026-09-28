@@ -15,6 +15,7 @@ class EasyIdeApplication : Application() {
         // Before anything that can crash: an uncaught exception is written to disk, then handled as usual.
         CrashHandler.install(container.crashReports, container.appLog, container.buildInfo)
         TextMateHighlighter.init(this)
+        container.telemetryConsent.start()
         // Before any activity: the crash-journal verdict must hold before contributions register.
         container.extensions.start()
         SafeModeShortcut.publish(this)

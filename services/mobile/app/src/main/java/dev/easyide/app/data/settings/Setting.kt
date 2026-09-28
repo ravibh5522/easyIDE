@@ -49,6 +49,7 @@ enum class SettingCategory(@StringRes val title: Int) {
     EXTENSIONS(R.string.settings_category_extensions),
     LAYOUT(R.string.settings_category_layout),
     WORKSPACE(R.string.settings_category_workspace),
+    PRIVACY(R.string.settings_category_privacy),
 }
 
 /** Where a setting is listed: a built-in category, or one contributed `configuration` section. */

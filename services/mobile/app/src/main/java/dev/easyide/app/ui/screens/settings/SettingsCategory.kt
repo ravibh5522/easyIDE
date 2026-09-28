@@ -23,6 +23,7 @@ enum class SettingsCategory(val id: String, @StringRes val title: Int) {
     LANGUAGE_SERVERS("language-servers", R.string.settings_category_language_servers),
     EXTENSIONS("extensions", R.string.settings_category_extensions),
     LAYOUT("layout", R.string.settings_category_layout),
+    PRIVACY("privacy", R.string.settings_category_privacy),
     DIAGNOSTICS("diagnostics", R.string.diag_settings_entry_title),
     ADVANCED("advanced", R.string.settings_category_advanced);
 
@@ -52,6 +53,7 @@ enum class SettingsCategory(val id: String, @StringRes val title: Int) {
                 SettingCategory.EXTENSIONS -> EXTENSIONS
                 SettingCategory.WORKSPACE -> FILES
                 SettingCategory.LAYOUT -> LAYOUT
+                SettingCategory.PRIVACY -> PRIVACY
             }
         }
     }

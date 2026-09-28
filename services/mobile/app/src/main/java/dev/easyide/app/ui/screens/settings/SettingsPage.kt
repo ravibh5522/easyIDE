@@ -94,6 +94,6 @@ private fun PageBody(
         SettingsCategory.DIAGNOSTICS -> DiagnosticsPage(host.onOpenDiagnostics)
         SettingsCategory.ADVANCED -> AdvancedPage(viewModel, ui)
         SettingsCategory.EDITOR, SettingsCategory.TERMINAL, SettingsCategory.FILES,
-        SettingsCategory.GIT, SettingsCategory.EXTENSIONS -> CategoryPage(viewModel, page, ui, env, host)
+        SettingsCategory.GIT, SettingsCategory.EXTENSIONS, SettingsCategory.PRIVACY -> CategoryPage(viewModel, page, ui, env, host)
     }
 }
