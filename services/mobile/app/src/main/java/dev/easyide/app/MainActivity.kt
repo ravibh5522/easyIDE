@@ -20,12 +20,14 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dev.easyide.app.data.settings.AppearanceSettingsSchema
+import dev.easyide.app.data.settings.PrivacySettingsSchema
 import dev.easyide.app.data.settings.SafeModeReason
 import dev.easyide.app.data.settings.SettingsSchema
 import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.session.SessionPolicy
 import dev.easyide.app.ui.AppViewModelFactory
+import dev.easyide.app.ui.screens.privacy.TelemetryGate
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.foundation.LocalKeymap
 import dev.easyide.app.ui.foundation.LocalMotionEnabled
@@ -81,13 +83,15 @@ class MainActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle(initialValue = null)
             val onboardingComplete by container.uiPreferences.onboardingComplete
                 .collectAsStateWithLifecycle(initialValue = null)
+            val gateAnswered by container.uiPreferences.telemetryGateAnswered
+                .collectAsStateWithLifecycle(initialValue = null)
             val keymap by container.keymap.collectAsStateWithLifecycle(initialValue = null)
             val settings = storedSettings ?: SettingsSnapshot.DEFAULTS
             val themeMode = settings[SettingsSchema.themeMode]
             // Null (built-in palette) until a selected extension theme has loaded.
             val contributedTheme by container.extensions.colorTheme.collectAsStateWithLifecycle()
             SideEffect {
-                preferencesLoaded = storedSettings != null && onboardingComplete != null
+                preferencesLoaded = storedSettings != null && onboardingComplete != null && gateAnswered != null
             }
             // First frame: onStartupFinished activations follow after the idle delay.
             LaunchedEffect(Unit) { container.extensions.onFirstFrame() }
@@ -129,7 +133,19 @@ class MainActivity : ComponentActivity() {
                         // Null means preferences have not loaded yet; showing
                         // nothing briefly beats flashing onboarding at a
                         // returning user.
-                        onboardingComplete?.let { complete ->
+                        val complete = onboardingComplete
+                        if (complete == null || gateAnswered == null) return@Surface
+                        // Mandatory and first: a new install agrees before setup starts, an
+                        // upgraded install on its first launch. Nothing behind it is composed.
+                        if (gateAnswered == false) {
+                            TelemetryGate(
+                                onAgree = {
+                                    settingsEditor.set(PrivacySettingsSchema.telemetryEnabled, true)
+                                    lifecycleScope.launch { container.uiPreferences.setTelemetryGateAnswered() }
+                                },
+                                onExit = ::finishAffinity,
+                            )
+                        } else {
                             AppNavHost(
                                 startAtOnboarding = !complete,
                                 motionEnabled = LocalMotionEnabled.current,

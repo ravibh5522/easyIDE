@@ -28,6 +28,11 @@ tink = "1.23.0"
 # Screenshot tests on the JVM (docs/ui-redesign/kit.md 7). Roborazzi: Apache-2.0; Robolectric: MIT.
 roborazzi = "1.75.0"
 robolectric = "4.17"
+# Telemetry provider, confined to :telemetry-firebase (decision 0031). Verified 2026-09-28: BoM 34.19.0 and
+# google-services 4.5.0 are the latest on Google Maven; messaging is Apache-2.0, analytics is under the Android SDK terms.
+firebaseBom = "34.19.0"
+googleServices = "4.5.0"
+crashlyticsPlugin = "3.0.8"
 
 [libraries]
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
@@ -66,6 +71,12 @@ chicory-wasm = { group = "com.dylibso.chicory", name = "wasm", version.ref = "ch
 # Build-time only: compiles .wat test fixtures; never on an app classpath.
 chicory-wabt = { group = "com.dylibso.chicory", name = "wabt", version.ref = "chicory" }
 tink-android = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tink" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-perf = { group = "com.google.firebase", name = "firebase-perf" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
@@ -80,4 +91,6 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPlugin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

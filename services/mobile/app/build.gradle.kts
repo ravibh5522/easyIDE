@@ -7,7 +7,7 @@ plugins {
 
 // Single source of truth for what a build calls itself. CI supplies the build
 // number and commit; a local build gets 0/"local" and still works offline.
-val baseVersion = "0.2.0-beta.3"
+val baseVersion = "0.2.0-beta.5"
 val buildNumber = (System.getenv("EASYIDE_BUILD_NUMBER") ?: "0").toInt()
 val gitSha = System.getenv("EASYIDE_GIT_SHA")?.take(7) ?: "local"
 
@@ -124,6 +124,14 @@ android {
     }
 }
 
+// The Firebase config is per-deployment and kept out of git (CI writes it from a secret). Without it
+// the plugin is skipped and FirebaseTelemetry hands back the no-op provider, so a fork still builds.
+if (file("google-services.json").exists()) {
+    apply(plugin = libs.plugins.google.services.get().pluginId)
+    // Uploads the R8 mapping so release crashes are readable in the Firebase console.
+    apply(plugin = libs.plugins.crashlytics.get().pluginId)
+}
+
 // Release and canary run the same code, so one profile in src/main serves
 // both instead of a per-variant copy that can drift.
 baselineProfile {
@@ -168,6 +176,8 @@ dependencies {
     implementation(project(":extensions"))
     implementation(project(":terminal-view"))
     implementation(project(":lsp"))
+    implementation(project(":telemetry"))
+    implementation(project(":telemetry-firebase"))
     // L2 extension logic (decision 0014); the only route to Chicory is through this module.
     implementation(project(":ext-wasm"))
     baselineProfile(project(":baselineprofile"))

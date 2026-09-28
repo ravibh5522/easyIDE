@@ -21,3 +21,6 @@ keystore.properties
 .idea/
 *.iml
 .DS_Store
+
+# Firebase deployment config -- CI writes it from a secret (docs/telemetry/arch.md)
+google-services.json

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Telemetry consent (docs/telemetry/arch.md). -->
+<resources>
+    <string name="settings_category_privacy">Privacy</string>
+    <string name="setting_telemetry_title">Analytics and announcements</string>
+    <string name="setting_telemetry_desc">Sends device details (model, Android version, CPU), app version, which features you use, whether actions succeeded, and app errors and crash logs. Also registers this device for release announcements. Never your name, phone number, contacts, accounts, other apps, files, projects, code, commands or terminal output. Turning it off stops collection and deletes the announcement registration.</string>
+    <string name="telemetry_gate_title">Before you continue</string>
+    <string name="telemetry_gate_body">easyIDE collects only technical data about the app itself: device details (model, Android version, CPU), app version, which features are used, whether actions succeeded, and app errors and crash logs. It also sends release announcements as notifications.
+
+It never collects personal data: no name, phone number, contacts or accounts, and nothing about your other apps. It never reads your files, project names, code, commands or terminal output.
+
+This is required to use easyIDE. You can turn it off later in Settings > Privacy.</string>
+    <string name="telemetry_gate_agree">Agree and continue</string>
+    <string name="telemetry_gate_exit">Exit</string>
+</resources>
