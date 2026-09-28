@@ -5,7 +5,14 @@ import android.os.Bundle
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dev.easyide.telemetry.Analytics
+import dev.easyide.telemetry.CrashReporter
+import dev.easyide.telemetry.Performance
+import dev.easyide.telemetry.RemoteConfig
+import dev.easyide.telemetry.Trace
 import dev.easyide.telemetry.Push
 import dev.easyide.telemetry.PushNotifier
 import dev.easyide.telemetry.Telemetry
@@ -19,7 +26,13 @@ object FirebaseTelemetry {
      */
     fun create(context: Context): Telemetry {
         if (FirebaseApp.getApps(context).isEmpty()) return Telemetry.NONE
-        return Telemetry(FirebaseAnalyticsAdapter(context), FirebaseMessagingAdapter(context))
+        return Telemetry(
+            analytics = FirebaseAnalyticsAdapter(context),
+            push = FirebaseMessagingAdapter(context),
+            crash = FirebaseCrashAdapter(),
+            performance = FirebasePerformanceAdapter(),
+            remoteConfig = FirebaseRemoteConfigAdapter(),
+        )
     }
 }
 
@@ -55,4 +68,39 @@ private class FirebaseMessagingAdapter(private val context: Context) : Push {
     override fun unsubscribe(topic: String) {
         messaging.unsubscribeFromTopic(topic)
     }
+}
+
+private class FirebaseCrashAdapter : CrashReporter {
+    private val crashlytics = FirebaseCrashlytics.getInstance()
+
+    override fun setEnabled(enabled: Boolean) = crashlytics.setCrashlyticsCollectionEnabled(enabled)
+    override fun setKey(name: String, value: String) = crashlytics.setCustomKey(name, value)
+    override fun log(message: String) = crashlytics.log(message)
+    override fun recordError(error: Throwable) = crashlytics.recordException(error)
+}
+
+private class FirebasePerformanceAdapter : Performance {
+    private val perf = FirebasePerformance.getInstance()
+
+    override fun setEnabled(enabled: Boolean) = perf.setPerformanceCollectionEnabled(enabled)
+
+    override fun startTrace(name: String): Trace {
+        val trace = perf.newTrace(name)
+        trace.start()
+        return Trace { trace.stop() }
+    }
+}
+
+private class FirebaseRemoteConfigAdapter : RemoteConfig {
+    private val config = FirebaseRemoteConfig.getInstance()
+
+    override fun refresh() {
+        config.fetchAndActivate()
+    }
+
+    override fun bool(key: String, default: Boolean): Boolean =
+        if (config.getValue(key).source == FirebaseRemoteConfig.VALUE_SOURCE_REMOTE) config.getBoolean(key) else default
+
+    override fun string(key: String, default: String): String =
+        if (config.getValue(key).source == FirebaseRemoteConfig.VALUE_SOURCE_REMOTE) config.getString(key) else default
 }

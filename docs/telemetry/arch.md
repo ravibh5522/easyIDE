@@ -22,7 +22,26 @@ action results, and message users about releases. Provider-neutral so it can mov
   channel and subscribes to topics `all` and `channel_<release|canary|debug>`. Call sites log unconditionally; a
   disabled provider drops the event. `TelemetryGate` is the mandatory agreement (Agree / Exit, Back disabled), shown before setup on a new install and on
   the first launch after upgrade; its answered flag lives in `UiPreferences`, so withdrawing in Settings does not re-show it.
+- Also behind the neutral contracts: `CrashReporter` (Crashlytics; the app's own `CrashHandler` still writes its local
+  report and chains to Crashlytics' handler), `Performance` (automatic startup/screen traces plus `startTrace`), and
+  `RemoteConfig` (`refresh()` after consent; reads return the caller's default until a remote value exists). All are
+  switched on by the same consent and off in the manifest until then.
 - Events wired: `app_open` (with device properties), `workspace_open`.
+
+## Firebase console map
+
+| Console area | What it needs from us |
+|---|---|
+| Analytics: Dashboard, Realtime, Events, Audiences, Latest Release | nothing; fills once users agree |
+| Analytics: Events Config, Custom Definitions | register our event params (`version_name`, `version_code`) and user properties (`build_channel`, `device_maker`, `device_model`, `os_sdk`, `cpu_abi`) as custom definitions to report on them |
+| Analytics: DebugView | `adb shell setprop debug.firebase.analytics.app dev.easyide.app` (`adb shell setprop debug.firebase.analytics.app .none.` to stop) |
+| Crashlytics, Release Monitoring | done in the app (`CrashReporter`); Release Monitoring reads Crashlytics + Analytics per version |
+| Performance | done in the app (`Performance`), automatic traces only |
+| Remote Config, A/B Testing | SDK wired; no parameters exist yet. Add a key when an experiment needs one, read it with `telemetry.remoteConfig.bool/string(key, default)`, then create the A/B test in the console |
+| Messaging | done; target topic `all` or `channel_release` / `channel_canary` |
+| App Distribution | console/CLI only: upload the release APK from `gh release download` to tester groups; no SDK |
+| Test Lab | console/gcloud only: run a Robo test on the release APK |
+| Dynamic Links | shut down by Google (2025-08-25); not used |
 
 ## Viewing the data
 

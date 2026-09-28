@@ -26,6 +26,7 @@ class TelemetryConsent(
             settings.map { it[PrivacySettingsSchema.telemetryEnabled] }.distinctUntilChanged().collect { on ->
                 applyAnalytics(on)
                 applyPush(on)
+                applyDiagnostics(on)
             }
         }
     }
@@ -38,6 +39,14 @@ class TelemetryConsent(
             TelemetryNames.EVENT_APP_OPEN,
             mapOf(TelemetryNames.PARAM_VERSION to build.versionName, TelemetryNames.PARAM_BUILD to build.versionCode.toString()),
         )
+    }
+
+    private fun applyDiagnostics(on: Boolean) {
+        telemetry.crash.setEnabled(on)
+        telemetry.performance.setEnabled(on)
+        if (!on) return
+        deviceProperties(build).forEach { (k, v) -> telemetry.crash.setKey(k, v) }
+        telemetry.remoteConfig.refresh()
     }
 
     private fun applyPush(on: Boolean) {
