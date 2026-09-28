@@ -35,6 +35,10 @@ import dev.easyide.app.diagnostics.BuildInfo
 import dev.easyide.app.diagnostics.ExtensionLogBridge
 import dev.easyide.app.diagnostics.LspStatusBridge
 import dev.easyide.app.diagnostics.readBuildInfo
+import dev.easyide.app.telemetry.TelemetryConsent
+import dev.easyide.telemetry.Telemetry
+import dev.easyide.telemetry.TelemetryNames
+import dev.easyide.telemetry.firebase.FirebaseTelemetry
 import dev.easyide.app.diagnostics.CrashReports
 import dev.easyide.app.session.SessionStore
 import dev.easyide.app.session.WorkspaceRegistry
@@ -271,6 +275,11 @@ class AppContainer(context: Context) {
 
     val buildInfo: BuildInfo = readBuildInfo(appContext)
 
+    /** The one place the telemetry provider is chosen (decision 0031); consent is applied by [telemetryConsent]. */
+    val telemetry: Telemetry = FirebaseTelemetry.create(appContext)
+
+    val telemetryConsent = TelemetryConsent(telemetry, settingsStore.snapshot, buildInfo, applicationScope)
+
     /** Hot-exit snapshots and unsaved-buffer backups, one directory per project. */
     val sessionsDir = File(appContext.filesDir, SESSIONS_DIR)
 
@@ -294,6 +303,7 @@ class AppContainer(context: Context) {
         clock = System::currentTimeMillis,
         parkLimit = { globalSettings.value[WorkspaceSettingsSchema.maxParkedProjects] },
         open = { projectId, environmentId, settled ->
+            telemetry.analytics.log(TelemetryNames.EVENT_WORKSPACE_OPEN)
             WorkspaceHandle.open(WorkspaceViewModelFactory(this, projectId, environmentId, settled))
         },
     )

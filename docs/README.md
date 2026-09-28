@@ -26,6 +26,7 @@ docs/
 | UX overhaul (perf, visual identity, layout/input, settings schema, feature roadmap from the 2026-09 audit) | [docs/ux-overhaul/](ux-overhaul/) |
 | Extension SDK & language intelligence (LSP client, no-server language features, declarative + WASM extensions, registry, full customization) | [docs/extension-sdk/](extension-sdk/) |
 | UI redesign (shell model with documents in a main stage, extension-configurable navigation/panels, UI kit, Block identity, custom appearance properties) | [docs/ui-redesign/](ui-redesign/) |
+| Telemetry (opt-in analytics and push behind a provider-neutral module, Firebase adapter) | [docs/telemetry/](telemetry/) |
 
 ## Conventions
 
