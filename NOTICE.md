@@ -1,8 +1,7 @@
 # Third-Party Notices
 
-easyIDE's own source is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE)
-with a [commercial option](LICENSE-COMMERCIAL.md). The components below are **not**
-covered by that license -- each is governed by its own terms, which apply to you
+easyIDE's own source is licensed under the [GNU General Public License v3.0](LICENSE). The components
+below are **not** covered by that license -- each is governed by its own terms, which apply to you
 independently of which easyIDE license you hold.
 
 Licenses recorded here were verified from primary sources (upstream repository,
@@ -40,10 +39,8 @@ redistributing these.
   under the GPL. What it does require is that anyone we distribute the APK to can
   obtain the complete corresponding source of PRoot and talloc, and that the
   LGPL library remains replaceable. Satisfied by shipping this file with the
-  upstream URLs above, plus a written offer of source on request to the contact
-  in [LICENSE-COMMERCIAL.md](LICENSE-COMMERCIAL.md).
-- These obligations survive a commercial license. A paying customer is still
-  bound by the GPL and LGPL terms for these two components.
+  upstream URLs above, plus a written offer of source on request to
+  ravibh5522@gmail.com.
 - If PRoot is ever **linked into** the app process rather than exec'd, this
   analysis no longer holds and the licensing model must be revisited.
 

@@ -4,9 +4,9 @@ An IDE for Android tablets with a real Linux userland underneath it -- not a sni
 not a remote-desktop client into someone else's server. You get a native editor, a file
 tree, and a terminal running Ubuntu, all on the device, offline, with no root required.
 
-**Status: beta.** `v0.2.0-beta.1`. Android 8.0+ (minSdk 26), arm64 and x86_64. Expect rough edges;
+**Status: beta.** `v0.2.0-beta.3`. Android 8.0+ (minSdk 26), arm64 and x86_64. Expect rough edges;
 report them as issues.
-Source-available -- free for personal and noncommercial use, [paid for commercial use](#license).
+Free software under the [GNU GPL v3](#license).
 
 ## What works today
 
@@ -149,44 +149,16 @@ More detail, including AGP 9.x gotchas: [services/mobile/README.md](services/mob
 
 ## License
 
-easyIDE is **source-available, not open source**. Read it, modify it, redistribute it -- but
-"free for personal use, paid for commercial use" discriminates by field of endeavor, which the
-Open Source Definition does not allow. Calling it open source would be a false claim, so we
-don't.
-
-The code is licensed under the
-**[PolyForm Noncommercial License 1.0.0](LICENSE)**, with a separate
-**[commercial license](LICENSE-COMMERCIAL.md)** for everything it excludes.
-
-**Free, with nobody to ask:**
-
-- Personal use -- your own coding, side projects, hobby work, learning.
-- Study, research, experiment and testing with no anticipated commercial application.
-- Use by charities, schools and universities, public research bodies, public safety or health
-  organizations, environmental organizations, and government institutions -- whatever their funding.
-- Modifying the source and running your own build for any of the above.
-- Redistributing it, modified or not, for any of the above -- as long as you pass along
-  [LICENSE](LICENSE) (including its `Required Notice:` line) and [NOTICE.md](NOTICE.md).
-
-**Requires buying a commercial license:**
-
-- Any use by a for-profit company in the course of its business -- **including purely internal
-  developer tooling**.
-- Contractors, consultancies and freelancers using it on billable client work.
-- Bundling or embedding easyIDE, or a derivative of it, in anything you sell or monetize.
-- Offering it, or anything substantially derived from it, as a hosted or managed service.
-
-Unsure which side you fall on? Ask: **ravibh5522@gmail.com**. The full boundary and how to buy
-are in [LICENSE-COMMERCIAL.md](LICENSE-COMMERCIAL.md); why this model was chosen over AGPL-3.0
-and BSL 1.1 is in [decision 0008](docs/decision/0008-noncommercial-source-available-licensing.md).
+easyIDE is free software, licensed under the **[GNU General Public License v3.0](LICENSE)**.
+You may use, study, modify and redistribute it, for any purpose, provided that distributed
+copies and derivative works are also released under the GPL with their source.
 
 ### Third-party components
 
-easyIDE's own license does not cover what it bundles. Two of those are copyleft and stay
-copyleft no matter which easyIDE license you hold: **PRoot** is GPL-2.0-or-later and
+easyIDE's own license does not cover what it bundles. Two of those carry their own copyleft
+terms: **PRoot** is GPL-2.0-or-later and
 **talloc** is LGPL-3.0-or-later, both shipped inside the APK. PRoot is run as a separate
-process rather than linked, so this does not place easyIDE's own source under the GPL -- but
-anyone who receives the APK is owed the corresponding source for both. Every bundled
+process rather than linked. Anyone who receives the APK is owed the corresponding source for both. Every bundled
 component, its license, and where that license was verified from is listed in
 **[NOTICE.md](NOTICE.md)**.
 
@@ -195,17 +167,10 @@ Install it yourself under your own account.
 
 ## Contributing
 
-Contributions are welcome -- but read this part before you write code, because the dual license
-has a consequence for you.
+Contributions are welcome.
 
 - **Opening a pull request accepts the CLA** in [CONTRIBUTING.md](CONTRIBUTING.md). Nothing to
-  sign or email; the PR is the acceptance.
-- **It grants sublicensing rights.** The licensor can ship your contribution to paying
-  commercial customers, and you will not be paid for it. Dual licensing does not work
-  otherwise. You keep your own copyright and can reuse your work anywhere -- it is a license,
-  not an assignment.
-- **Not comfortable with that? Don't send code.** Issues, reproductions and design feedback are
-  genuinely valuable, and none of them are covered by the CLA.
+  sign or email; the PR is the acceptance. You keep your own copyright.
 - **Don't paste in third-party code.** Propose it as a dependency instead, with its license and
   maintenance status verified from the upstream repo or official docs -- not from memory. It
   gets recorded in [NOTICE.md](NOTICE.md).
@@ -224,4 +189,4 @@ for a fix before disclosing.
 
 ---
 
-Copyright 2026 Ravi. See [LICENSE](LICENSE).
+Copyright 2026 Ravi. Licensed under the GPL-3.0; see [LICENSE](LICENSE).

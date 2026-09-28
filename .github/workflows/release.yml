@@ -92,9 +92,7 @@ jobs:
           | ABIs | arm64-v8a, x86_64 |
           | Signing | $([ "$SIGNED" = "true" ] && echo "release key" || echo "**debug key** -- not upgradeable, uninstall before installing a properly signed build") |
 
-          easyIDE is source-available: free for personal and noncommercial use under the
-          [PolyForm Noncommercial License](LICENSE); commercial use requires a
-          [paid licence](LICENSE-COMMERCIAL.md).
+          easyIDE is free software under the [GNU GPL v3](LICENSE).
 
           This APK bundles PRoot (GPL-2.0-or-later) and talloc (LGPL-3.0-or-later).
           The attached \`NOTICE.md\` carries the attribution and how to obtain their source.
