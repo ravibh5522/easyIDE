@@ -28,23 +28,27 @@ android {
         versionName = baseVersion
     }
 
+    // A developer machine's own keystore.properties (gitignored), or CI's env vars. Neither
+    // present: `release` falls back to the debug key below, so an unsigned-capable machine can
+    // still assemble.
+    val localKeystoreProps = rootProject.file("keystore.properties")
+        .takeIf { it.exists() }
+        ?.let { f -> java.util.Properties().apply { f.inputStream().use(::load) } }
+
     signingConfigs {
-        // Populated only when CI (or a local release build) exports the
-        // keystore env vars. Without them `release` falls back to the debug
-        // key below, so an unsigned-capable machine can still assemble.
         create("publish") {
-            val keystore = System.getenv("EASYIDE_KEYSTORE_FILE")
+            val keystore = localKeystoreProps?.getProperty("storeFile") ?: System.getenv("EASYIDE_KEYSTORE_FILE")
             if (keystore != null) {
                 storeFile = file(keystore)
-                storePassword = System.getenv("EASYIDE_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("EASYIDE_KEY_ALIAS")
-                keyPassword = System.getenv("EASYIDE_KEY_PASSWORD")
+                storePassword = localKeystoreProps?.getProperty("storePassword") ?: System.getenv("EASYIDE_KEYSTORE_PASSWORD")
+                keyAlias = localKeystoreProps?.getProperty("keyAlias") ?: System.getenv("EASYIDE_KEY_ALIAS")
+                keyPassword = localKeystoreProps?.getProperty("keyPassword") ?: System.getenv("EASYIDE_KEY_PASSWORD")
             }
         }
     }
 
     val publishSigning =
-        if (System.getenv("EASYIDE_KEYSTORE_FILE") != null) {
+        if (localKeystoreProps != null || System.getenv("EASYIDE_KEYSTORE_FILE") != null) {
             signingConfigs.getByName("publish")
         } else {
             signingConfigs.getByName("debug")

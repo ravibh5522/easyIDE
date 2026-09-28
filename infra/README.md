@@ -62,6 +62,20 @@ gh secret set EASYIDE_KEYSTORE_BASE64 < /dev/stdin
 
 `*.jks`, `*.keystore` and `keystore.properties` are gitignored. Never commit the key.
 
+### The release keystore for `dev.easyide.app`
+
+Generated 2026-09-28 (the original CI keystore was lost; this is the one registered with Play
+Console's app-ownership verification for `dev.easyide.app`). File and passwords:
+`~/keystores/easyide-release.jks` and `~/keystores/easyide-release.properties`, outside the repo.
+Back these up somewhere durable -- losing them again means repeating the Play ownership-recovery
+process, this time against a fingerprint Play has already committed to.
+
+`services/mobile/keystore.properties` (gitignored, `storeFile`/`storePassword`/`keyAlias`/
+`keyPassword`) points `app/build.gradle.kts` at it, so a local `:app:assembleRelease` on this
+machine signs with it automatically -- no env vars needed. CI is unaffected: the file does not
+exist in a fresh checkout, so CI keeps using the `EASYIDE_KEYSTORE_*` secrets above, which still
+need to be set to this same keystore for CI-built releases to match.
+
 ## Cutting a stable release
 
 ```
