@@ -14,7 +14,11 @@ Licenses, checked 2026-09-28 from primary sources (Google Maven POMs, github.com
 - `firebase-analytics` / `play-services-measurement-api` 23.2.0: **Android Software Development Kit License
   (proprietary)**, not an open-source license.
 - `com.google.gms:google-services` Gradle plugin 4.5.0 (google/play-services-plugins): Apache-2.0, releases current.
-- Firebase BoM 34.19.0 is the latest on Google Maven.
+- Firebase BoM 34.19.0 is the latest on Google Maven. `firebase-crashlytics` 20.1.1, `firebase-perf` 22.0.6 and
+  `firebase-config` 23.1.0 (in that BoM): Apache-2.0 per their POMs. The Crashlytics Gradle plugin 3.0.8 is applied
+  (R8 mapping upload). The Performance Gradle plugin is deliberately not applied: it rewrites bytecode for network
+  traces and adds build risk; the SDK's automatic startup and screen traces work without it.
+- Firebase Dynamic Links was shut down by Google on 2025-08-25 and is not used.
 
 ## Decision
 
@@ -29,7 +33,8 @@ Licenses, checked 2026-09-28 from primary sources (Google Maven POMs, github.com
   advertising ID and FCM auto-init off, and `TelemetryConsent` is the only code that enables them. Withdrawal
   stays available as that one setting (Settings > Privacy), which stops collection and deletes the FCM token.
 - **Collected:** device details (maker, model, Android SDK, ABI, build channel), app version, feature names with
-  success/failure, and app errors and crash logs. **Never collected by us:** name, phone number, contacts, accounts,
+  success/failure, and app errors and crash logs (Crashlytics: stack traces, thread state and a per-install id), app start and screen
+  render timings (Performance), and Remote Config fetches (Firebase installation id). **Never collected by us:** name, phone number, contacts, accounts,
   installed or other apps, file or project names, code, typed commands, terminal output. The consent text says this
   in those words. Firebase itself assigns an app-instance id and derives approximate location from the connection's IP
   address (the address is not stored); we do not add any user identifier, and `setUserId` is not called.

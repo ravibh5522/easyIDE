@@ -35,11 +35,42 @@ interface Push {
     fun unsubscribe(topic: String)
 }
 
+/** Crash and error reporting. Uncaught crashes are captured by the provider itself once enabled. */
+interface CrashReporter {
+    fun setEnabled(enabled: Boolean)
+    fun setKey(name: String, value: String)
+    fun log(message: String)
+    fun recordError(error: Throwable)
+}
+
+/** Performance monitoring: the provider's automatic traces (startup, screen rendering) plus named traces. */
+interface Performance {
+    fun setEnabled(enabled: Boolean)
+    fun startTrace(name: String): Trace
+}
+
+fun interface Trace {
+    fun stop()
+}
+
+/** Remotely tunable values. Reads return the caller's default until a fetch has succeeded after consent. */
+interface RemoteConfig {
+    fun refresh()
+    fun bool(key: String, default: Boolean): Boolean
+    fun string(key: String, default: String): String
+}
+
 /** What [PushNotifier] shows. Provider services map their message type onto this. */
 data class PushMessage(val title: String, val body: String)
 
 /** The provider handed to the app: one object so swapping providers is one construction site. */
-class Telemetry(val analytics: Analytics, val push: Push) {
+class Telemetry(
+    val analytics: Analytics,
+    val push: Push,
+    val crash: CrashReporter = NoCrash,
+    val performance: Performance = NoPerformance,
+    val remoteConfig: RemoteConfig = NoRemoteConfig,
+) {
     companion object {
         /** Used when no provider is configured (a build without its config file): every call is a no-op. */
         val NONE = Telemetry(
@@ -55,4 +86,22 @@ class Telemetry(val analytics: Analytics, val push: Push) {
             },
         )
     }
+}
+
+private object NoCrash : CrashReporter {
+    override fun setEnabled(enabled: Boolean) = Unit
+    override fun setKey(name: String, value: String) = Unit
+    override fun log(message: String) = Unit
+    override fun recordError(error: Throwable) = Unit
+}
+
+private object NoPerformance : Performance {
+    override fun setEnabled(enabled: Boolean) = Unit
+    override fun startTrace(name: String) = Trace { }
+}
+
+private object NoRemoteConfig : RemoteConfig {
+    override fun refresh() = Unit
+    override fun bool(key: String, default: Boolean) = default
+    override fun string(key: String, default: String) = default
 }

@@ -128,6 +128,8 @@ android {
 // the plugin is skipped and FirebaseTelemetry hands back the no-op provider, so a fork still builds.
 if (file("google-services.json").exists()) {
     apply(plugin = libs.plugins.google.services.get().pluginId)
+    // Uploads the R8 mapping so release crashes are readable in the Firebase console.
+    apply(plugin = libs.plugins.crashlytics.get().pluginId)
 }
 
 // Release and canary run the same code, so one profile in src/main serves

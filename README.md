@@ -1,12 +1,52 @@
+<div align="center">
+
 # easyIDE
 
-An IDE for Android tablets with a real Linux userland underneath it -- not a snippet editor,
-not a remote-desktop client into someone else's server. You get a native editor, a file
-tree, and a terminal running Ubuntu, all on the device, offline, with no root required.
+**A real IDE with a real Linux userland, for Android tablets.**<br>
+Native editor, file tree and an Ubuntu terminal -- all on the device, offline, no root.
 
-**Status: beta.** `v0.2.0-beta.3`. Android 8.0+ (minSdk 26), arm64 and x86_64. Expect rough edges;
-report them as issues.
-Free software under the [GNU AGPL v3](#license).
+[![Latest release](https://img.shields.io/github/v/release/ravibh5522/easyIDE?include_prereleases&label=release&color=2ea043)](https://github.com/ravibh5522/easyIDE/releases/latest)
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](#license)
+[![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3ddc84?logo=android&logoColor=white)](#download)
+[![Status: beta](https://img.shields.io/badge/status-beta-orange)](#what-is-not-there-yet)
+[![Join on Telegram](https://img.shields.io/badge/Telegram-join%20the%20chat-26A5E4?logo=telegram&logoColor=white)](https://t.me/+yMH4w5rX1gZhOTM1)
+
+[Download](#download) &middot; [What works](#what-works-today) &middot; [Not yet](#what-is-not-there-yet) &middot; [Privacy](#privacy-and-telemetry) &middot; [Build](#build) &middot; [Community](#community) &middot; [Contributing](#contributing)
+
+</div>
+
+---
+
+Not a snippet editor, and not a remote-desktop client into someone else's server. You get a
+native editor, a file tree, and a terminal running Ubuntu, all on the device.
+
+> **Beta: `v0.2.0-beta.4`.** arm64 and x86_64, Android 8.0+ (minSdk 26). Expect rough edges and
+> [report them as issues](https://github.com/ravibh5522/easyIDE/issues), or tell us in the
+> [Telegram group](https://t.me/+yMH4w5rX1gZhOTM1).
+
+## Download
+
+| Channel | What it is | Get it |
+|---|---|---|
+| **Stable beta** | Tagged builds, installs as `dev.easyide.app` | [Latest release](https://github.com/ravibh5522/easyIDE/releases/latest) |
+| **Canary** | Newest build, installs alongside stable as *easyIDE Canary* | [`canary` release](https://github.com/ravibh5522/easyIDE/releases/tag/canary) |
+
+Download the `.apk` from the release page, allow installs from your browser or file manager, and
+open it. Each release lists a SHA-256 you can check. A new build installs over the previous one
+and keeps your projects.
+
+## Community
+
+<a href="https://t.me/+yMH4w5rX1gZhOTM1"><img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram" width="28" align="left" hspace="8"></a>
+**Join the discussion on [Telegram](https://t.me/+yMH4w5rX1gZhOTM1).**
+<br clear="left">
+
+That is the place for questions, ideas, tablet-specific quirks, "does this work on my device?",
+early looks at what is coming, and general chat with the people building and using easyIDE.
+A bug you can reproduce, or a feature you want tracked, belongs in a
+[GitHub issue](https://github.com/ravibh5522/easyIDE/issues) so it does not get lost in the scroll.
+
+[![Join the Telegram group](https://img.shields.io/badge/Telegram-join%20the%20discussion-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/+yMH4w5rX1gZhOTM1)
 
 ## What works today
 
@@ -144,8 +184,25 @@ More detail, including AGP 9.x gotchas: [services/mobile/README.md](services/mob
 | [docs/sandbox-runtime/](docs/sandbox-runtime/) | Linux sandbox, terminal, git, session persistence |
 | [docs/ui-shell/](docs/ui-shell/) | Screens, navigation, stage system, editor/terminal UX |
 | [docs/design-system/](docs/design-system/) | Themes, color tokens, icons, motion, responsive layout |
+| [docs/telemetry/](docs/telemetry/) | Analytics, crash reporting, push, and the consent gate |
 | [docs/decision/](docs/decision/) | ADRs -- the major, hard-to-reverse choices and why |
 | [docs/chainlog/](docs/chainlog/) | Append-only weekly log of what changed |
+
+## Privacy and telemetry
+
+The first time you open easyIDE (a new install, or the first launch after upgrading to
+`v0.2.0-beta.4`) it asks you to agree to technical diagnostics. This is required to use the app.
+
+- **Collected:** device details (model, Android version, CPU), app version, which features are
+  used and whether actions succeeded, app errors and crash logs, app start and screen timings,
+  and a registration for release-announcement notifications.
+- **Never collected:** your name, phone number, contacts or accounts, anything about your other
+  apps, and your files, project names, code, commands or terminal output.
+- **Provider:** Firebase, kept behind a small provider-neutral module so it can be replaced
+  ([decision 0031](docs/decision/0031-telemetry-firebase-behind-neutral-module.md)). Firebase
+  Analytics is proprietary Google software; the rest of easyIDE is AGPL-3.0.
+- **Turn it off** any time in Settings > Privacy. That stops collection and deletes the
+  announcement registration. A build made without a Firebase config file collects nothing.
 
 ## License
 
@@ -169,26 +226,56 @@ Install it yourself under your own account.
 
 ## Contributing
 
-Contributions are welcome.
+easyIDE is built in the open, and help is genuinely welcome, from a typo fix to a whole
+feature. You do not need to be an Android expert to be useful.
+
+**Ways to help**
+
+- **Try it and tell us what broke.** A beta lives on real devices, and yours is one we have not
+  seen. Say which tablet, which Android version and what you did; a screenshot or the crash
+  report from Settings > Diagnostics makes it fixable.
+- **Test on hardware we lack.** Most testing so far is one Xiaomi Pad 6 and a Waydroid container,
+  so reports from other tablets, other Android versions and a rooted device are worth a lot.
+- **Fix a bug or pick up a gap** from [What is not there yet](#what-is-not-there-yet), or from the
+  [open issues](https://github.com/ravibh5522/easyIDE/issues).
+- **Write an extension or a language pack.** Declarative `.easyext` packs are the easiest way to
+  add a language server, theme or snippet set; start at [docs/extension-sdk/](docs/extension-sdk/).
+- **Improve the docs.** If something confused you, it will confuse the next person too.
+- **Talk it through first.** For anything large, say hello in the
+  [Telegram group](https://t.me/+yMH4w5rX1gZhOTM1) or open an issue before you start, so nobody
+  builds the same thing twice.
+
+**How to send a change**
+
+1. Fork the repo and branch from `main`.
+2. Keep the change focused on one thing, and build it (`./gradlew :app:assembleDebug`).
+3. Open a pull request that says what changed and why.
+
+**A few ground rules**
 
 - **Opening a pull request accepts the CLA** in [CONTRIBUTING.md](CONTRIBUTING.md). Nothing to
-  sign or email; the PR is the acceptance. You keep your own copyright.
-- **Don't paste in third-party code.** Propose it as a dependency instead, with its license and
-  maintenance status verified from the upstream repo or official docs -- not from memory. It
-  gets recorded in [NOTICE.md](NOTICE.md).
+  sign or email; the PR is the acceptance, and you keep your own copyright.
+- **Please do not paste in third-party code.** Propose it as a dependency instead, with its
+  license and maintenance status checked against the upstream repo or official docs (not from
+  memory). It then gets recorded in [NOTICE.md](NOTICE.md).
+- **Follow the house style:** files stay under 600 lines, no hardcoded colors, strings or
+  keybindings, error handling only at real boundaries, an abstraction only at its third use, and
+  the sandbox is never described as security isolation. Non-trivial changes get a
+  [chainlog](docs/chainlog/) entry, and hard-to-reverse choices get an [ADR](docs/decision/).
+  The full list is in [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Say what you verified.** If you could not run it (no tablet, no emulator), write that in the
+  pull request instead of reporting success. An honest "untested" is more useful than a
+  confident guess.
 
-House rules that come up most often -- 600 lines max per file, no hardcoded colors/strings/
-keybindings, error handling only at real boundaries, abstract at the third use, and never
-describe the sandbox as security isolation. Non-trivial changes get a
-[chainlog](docs/chainlog/) entry; hard-to-reverse choices get an
-[ADR](docs/decision/). The full list is in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-**Verify before claiming done.** If you could not run it -- no tablet, no emulator -- say so in
-the pull request instead of reporting success.
-
-**Security issues:** do not open a public issue. Email **ravibh5522@gmail.com** and allow time
-for a fix before disclosing.
+**Security issues:** please do not open a public issue. Email **ravibh5522@gmail.com** and allow
+time for a fix before disclosing.
 
 ---
 
+<div align="center">
+
+[Telegram](https://t.me/+yMH4w5rX1gZhOTM1) &middot; [Issues](https://github.com/ravibh5522/easyIDE/issues) &middot; [Releases](https://github.com/ravibh5522/easyIDE/releases)
+
 Copyright 2026 Ravi. Licensed under the AGPL-3.0; see [LICENSE](LICENSE).
+
+</div>
