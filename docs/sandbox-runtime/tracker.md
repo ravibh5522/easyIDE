@@ -31,7 +31,7 @@ Status legend: `not-started` / `in-progress` / `done` / `blocked`
 | PTY-backed interactive shell (real terminal) | done | `PtyShellParams` + `SandboxShell.interactiveParams`/`ShellRunner.interactiveParams`/`LinuxEnvironment.interactiveShellParams` hand off shell path/args/env/cwd to the vendored Termux `terminal-emulator` JNI (`openpty`/`forkpty`), which is inherently immune to the `ProcessBuilder` env-leak class of bug since it builds `envp` explicitly after `clearenv()`. See [decision 0010](../decision/0010-pty-terminal-vendored-termux.md). Verified on a Xiaomi Pad 6: keyboard input round-trips to the shell and back, `Ctrl-C` delivers a real `SIGINT` (interrupted `sleep 10` instantly, exit 130), ANSI colors render |
 | Theia backend integration (Node process managed by Service) | not-started | |
 | WebView host + JS bridge (file picker, biometric, share sheet) | not-started | |
-| Foreground Service (process lifecycle owner) | in-progress | `SandboxForegroundService` exists (notification, START_STICKY, dataSync type); does not yet own any child processes. Battery-optimization onboarding prompt still required |
+| Foreground Service (process lifecycle owner) | in-progress | `SandboxForegroundService` exists (notification, START_NOT_STICKY, dataSync type; 6 h/day cap on Android 15); does not yet own any child processes. Battery-optimization onboarding prompt still required |
 | tmux session management (per-project) | not-started | Naming convention: `proj_<id>` |
 | ssh-agent integration | not-started | |
 | Credential-helper daemon (Keystore-backed, unix socket) | not-started | See arch.md §2 "Credential helper protocol" |

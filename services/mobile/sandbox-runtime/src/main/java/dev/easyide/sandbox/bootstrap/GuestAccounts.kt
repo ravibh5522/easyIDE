@@ -77,7 +77,15 @@ internal object GuestAccounts {
 
     private fun writeIfChanged(file: File, lines: List<String>) {
         val text = lines.joinToString("\n") + "\n"
-        if (file.readText() != text) file.writeText(text)
+        if (file.readText() == text) return
+        // Another proot may be reading this file right now (every terminal reads /etc/passwd):
+        // rename is atomic, an in-place write is not.
+        val temp = File(file.parentFile, "${file.name}.easyide-tmp")
+        temp.writeText(text)
+        if (!temp.renameTo(file)) {
+            temp.delete()
+            file.writeText(text)
+        }
     }
 
     /**

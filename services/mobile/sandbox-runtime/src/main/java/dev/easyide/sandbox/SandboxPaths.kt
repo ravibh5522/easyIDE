@@ -61,6 +61,7 @@ class SandboxPaths(private val root: File) {
     /** Where a project appears from inside the sandbox, once bind-mounted. */
     fun guestProjectPath(): String = GUEST_WORKSPACE
 
+
     /**
      * Android's own `/dev`, `/proc`, `/sys`, bound into every guest as they are. A guest path
      * under one of them has no file in the rootfs, so path mapping (LSP) must not look there.
@@ -147,6 +148,7 @@ class SandboxPaths(private val root: File) {
         const val IMAGE_CACHE_DIR = "images"
         const val ROOTFS_DIR = "rootfs"
         const val GUEST_WORKSPACE = "/workspace"
+        const val GUEST_PROJECTS = "/projects"
         const val EXTENSIONS_DIR = "extensions"
         const val GLOBAL_EXTENSIONS_DIR = "global"
         const val STAGING_DIR = "staging"

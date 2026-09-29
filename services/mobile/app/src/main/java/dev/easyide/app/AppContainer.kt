@@ -2,6 +2,7 @@ package dev.easyide.app
 
 import android.app.Application
 import android.content.Context
+import android.widget.Toast
 import dev.easyide.sandbox.git.GitCredentials
 import dev.easyide.sandbox.git.GitRemote
 import dev.easyide.sandbox.service.SandboxForegroundService
@@ -206,6 +207,7 @@ class AppContainer(context: Context) {
         // Only enabled environment packs appear in the guest; read at each launch, after
         // `extensions` below is constructed.
         guestBinds = EnvironmentExtensionBinds(paths) { envId, id -> extensions.isEnabledIn(envId, id.value) },
+        allProjects = { projectManager.projects.first() },
     )
 
     /** Network git (clone, pull, push) through the guest's own `git`; tokens come from [gitCredentials]. */
@@ -305,6 +307,10 @@ class AppContainer(context: Context) {
         open = { projectId, environmentId, settled ->
             telemetry.analytics.log(TelemetryNames.EVENT_WORKSPACE_OPEN)
             WorkspaceHandle.open(WorkspaceViewModelFactory(this, projectId, environmentId, settled))
+        },
+        // Said out loud: a build, server or agent session that vanished with no explanation reads as a crash.
+        onShellsEnded = {
+            Toast.makeText(appContext, R.string.session_shells_ended, Toast.LENGTH_LONG).show()
         },
     )
 

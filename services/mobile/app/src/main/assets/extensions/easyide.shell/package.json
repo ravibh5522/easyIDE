@@ -39,7 +39,7 @@
         {
           "id": "base",
           "title": "Install Node.js, npm and ShellCheck",
-          "run": "apt-get update && apt-get install -y nodejs npm shellcheck",
+          "run": "easyide-install-node && apt-get update && apt-get install -y shellcheck",
           "when": "envDistro in 'debian,ubuntu'"
         },
         {

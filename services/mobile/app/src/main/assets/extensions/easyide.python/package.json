@@ -235,7 +235,7 @@
         {
           "id": "base",
           "title": "Install pipx, Node.js and npm",
-          "run": "apt-get update && apt-get install -y pipx nodejs npm",
+          "run": "apt-get update && apt-get install -y pipx && easyide-install-node",
           "when": "envDistro in 'debian,ubuntu'"
         },
         {

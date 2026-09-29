@@ -5,9 +5,13 @@ plugins {
     alias(libs.plugins.roborazzi)
 }
 
+// Unqualified, not `java.util.Properties`: AGP synthesizes a `java` extension accessor in this
+// script's scope that shadows the `java` package for unqualified member-call resolution.
+import java.util.Properties
+
 // Single source of truth for what a build calls itself. CI supplies the build
 // number and commit; a local build gets 0/"local" and still works offline.
-val baseVersion = "0.2.0-beta.6"
+val baseVersion = "0.2.0-beta.8"
 val buildNumber = (System.getenv("EASYIDE_BUILD_NUMBER") ?: "0").toInt()
 val gitSha = System.getenv("EASYIDE_GIT_SHA")?.take(7) ?: "local"
 
@@ -21,7 +25,11 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "dev.easyide.app"
+        // dev.easyide.app is every GitHub-distributed build (default). Play Console could not
+        // register that package name (already taken globally), so the one-off Play Store
+        // listing overrides it: `-Peasyide.applicationId=com.easyide`. Same signing key, same
+        // version scheme; Play treats it as an unrelated app from dev.easyide.app installs.
+        applicationId = (project.findProperty("easyide.applicationId") as String?) ?: "dev.easyide.app"
         minSdk = 26
         targetSdk = 37
         versionCode = appVersionCode
@@ -31,9 +39,14 @@ android {
     // A developer machine's own keystore.properties (gitignored), or CI's env vars. Neither
     // present: `release` falls back to the debug key below, so an unsigned-capable machine can
     // still assemble.
-    val localKeystoreProps = rootProject.file("keystore.properties")
-        .takeIf { it.exists() }
-        ?.let { f -> java.util.Properties().apply { f.inputStream().use(::load) } }
+    val keystorePropsFile = rootProject.file("keystore.properties")
+    val localKeystoreProps: Properties? = if (keystorePropsFile.exists()) {
+        val props = Properties()
+        keystorePropsFile.inputStream().use { stream -> props.load(stream) }
+        props
+    } else {
+        null
+    }
 
     signingConfigs {
         create("publish") {

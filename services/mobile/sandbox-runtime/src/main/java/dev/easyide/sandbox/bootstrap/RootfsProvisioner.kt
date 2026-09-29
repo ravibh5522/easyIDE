@@ -4,6 +4,8 @@ import dev.easyide.sandbox.SandboxError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import dev.easyide.sandbox.download.DownloadError
 import dev.easyide.sandbox.download.DownloadEvent
@@ -32,6 +34,8 @@ class RootfsProvisioner(
     private val extractor: TarGzExtractor = TarGzExtractor(),
     private val downloader: VerifiedDownloader = VerifiedDownloader(ioDispatcher),
 ) {
+    private val defaultsLock = Mutex()
+    private val prepared = HashSet<String>()
 
     /**
      * @param archive device-level cache location for the image. Shared across
@@ -66,7 +70,8 @@ class RootfsProvisioner(
                     "${result.hardLinksCopied} hard links copied"
             )
 
-            ensureGuestDefaults(rootfs)
+            applyGuestDefaults(rootfs)
+            prepared.add(rootfs.path)
             onProgress("Rootfs ready at ${rootfs.name}")
         }
     }
@@ -77,12 +82,23 @@ class RootfsProvisioner(
      * a fix existed pick it up instead of staying subtly broken.
      */
     suspend fun ensureGuestDefaults(rootfs: File) {
-        withContext(ioDispatcher) {
-            runCatching { configureDns(rootfs) }
-            runCatching { installSudoShim(rootfs) }
-            runCatching { removePaxHeaderArtifacts(rootfs) }
-            runCatching { GuestAccounts.ensure(rootfs) }
+        // Launches overlap (several tabs, agent commands, language servers), and the account files
+        // are rewritten in place: one launch at a time, and once per rootfs per process, so a
+        // launch never reads /etc/passwd while another is writing it and pays nothing after the first.
+        defaultsLock.withLock {
+            if (rootfs.path in prepared) return
+            withContext(ioDispatcher) { applyGuestDefaults(rootfs) }
+            prepared.add(rootfs.path)
         }
+    }
+
+    private fun applyGuestDefaults(rootfs: File) {
+        runCatching { configureDns(rootfs) }
+        runCatching { installSudoShim(rootfs) }
+        runCatching { removePaxHeaderArtifacts(rootfs) }
+        runCatching { GuestAccounts.ensure(rootfs) }
+        runCatching { NodeCacheGuard.ensure(rootfs) }
+        runCatching { GuestNode.ensure(rootfs) }
     }
 
     /**

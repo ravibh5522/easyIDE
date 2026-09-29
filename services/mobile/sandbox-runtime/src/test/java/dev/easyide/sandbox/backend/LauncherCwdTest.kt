@@ -46,4 +46,26 @@ class LauncherCwdTest {
     @Test fun `a relative guest cwd is unrepresentable`() {
         assertThrows(IllegalArgumentException::class.java) { request("workspace") }
     }
+
+    private fun aliased(cwd: String? = null) = request(cwd).copy(guestAlias = "/projects/p1")
+
+    @Test fun `an alias is bound beside the project mount and becomes the default directory`() {
+        val argv = ProotLauncher(File("/data/bin/proot")).buildLaunchSpec(aliased()).argv
+        assertTrue(argv.containsAll(listOf("/data/projects/p1:/workspace", "/data/projects/p1:/projects/p1")))
+        assertEquals("/projects/p1", argv[argv.indexOf("-w") + 1])
+    }
+
+    @Test fun `an explicit cwd still wins over the alias`() {
+        assertEquals("/workspace/src", prootCwd(aliased("/workspace/src")))
+    }
+
+    @Test fun `chroot binds the alias and starts in it`() {
+        val script = ChrootLauncher().buildLaunchSpec(aliased()).argv.last()
+        assertTrue(script.contains("'/data/env/rootfs/projects/p1'"))
+        assertTrue(script.contains("'/projects/p1' 'git' 'log' '-1'"))
+    }
+
+    @Test fun `an alias with a colon is unrepresentable`() {
+        assertThrows(IllegalArgumentException::class.java) { request(null).copy(guestAlias = "/a:b") }
+    }
 }

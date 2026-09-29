@@ -36,9 +36,9 @@ object SandboxImages {
         SandboxImage(
             id = "ubuntu-24.04-node",
             label = "Ubuntu + Node.js",
-            description = "Node.js and npm from the Ubuntu archive, plus git.",
+            description = "The current Node.js LTS and npm, plus git.",
             rootfsByAbi = UBUNTU_2404,
-            setupCommands = setupFor("nodejs", "npm"),
+            setupCommands = setupFor() + "easyide-install-node",
         ),
         SandboxImage(
             id = "ubuntu-24.04-python",

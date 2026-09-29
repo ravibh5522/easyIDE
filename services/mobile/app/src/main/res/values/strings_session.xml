@@ -11,6 +11,9 @@
     <string name="setting_max_parked_title">Projects kept running in the background</string>
     <string name="setting_max_parked_desc">Leaving a project keeps its terminals and open files alive so it is exactly as you left it when you come back. Beyond this many, the one you left longest ago is ended (its unsaved edits are backed up first). 0 ends a project as soon as you leave it.</string>
 
+    <string name="session_shells_ended">A background project was ended to free memory and its terminals were closed. Its files and unsaved edits are backed up.</string>
+    <string name="terminal_killed_by_system">A terminal was killed by Android (signal 9), usually because too many background processes were running. Close idle terminals; on Android 14+ turn on Developer options > Disable child process restrictions.</string>
+
     <string name="session_close_project">Close project</string>
     <plurals name="session_restored_unsaved">
         <item quantity="one">Restored %d unsaved file</item>

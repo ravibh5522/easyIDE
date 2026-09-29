@@ -46,4 +46,15 @@ class ParkPolicyTest {
     @Test fun `complete pressure ends every parked workspace`() {
         assertEquals(listOf("old", "newer", "newest"), ParkPolicy.underPressure(ComponentCallbacks2.TRIM_MEMORY_COMPLETE, held))
     }
+
+    @Test fun `idle workspaces are ended before busy ones whatever their age`() {
+        val mixed = listOf(
+            HeldInfo("active", parked = false, lastActiveMs = 100),
+            HeldInfo("oldBusy", parked = true, lastActiveMs = 10, busy = true),
+            HeldInfo("newIdle", parked = true, lastActiveMs = 90),
+        )
+        assertEquals(listOf("newIdle"), ParkPolicy.overLimit(mixed, 1))
+        assertEquals(listOf("newIdle", "oldBusy"), ParkPolicy.overLimit(mixed, 0))
+        assertEquals(listOf("newIdle"), ParkPolicy.underPressure(ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL, mixed))
+    }
 }

@@ -105,7 +105,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 ),
                 appLog = container.appLog,
                 crashReports = container.crashReports,
-                cleanup = Cleanup(container.paths, container.appLog, container.crashReports),
+                cleanup = Cleanup(container.paths, container.appLog, container.crashReports) { container.workspaces.liveIds.value.size },
                 resolver = container.appContext.contentResolver,
             )
 
