@@ -22,6 +22,7 @@ class WorkspaceRegistryTest {
         val events = mutableListOf<String>()
         var ended: Boolean? = null
         var discarded: Boolean? = null
+        override var hasRunningShells = false
 
         override suspend fun saveBackup() {
             gate?.await()
@@ -42,7 +43,9 @@ class WorkspaceRegistryTest {
     private val settledSeen = mutableMapOf<String, Job?>()
     private val scope = TestScope(UnconfinedTestDispatcher())
 
-    private val registry = WorkspaceRegistry<Fake>(scope, { ++now }, { limit }) { id, _, settled ->
+    private val shellsEnded = mutableListOf<String>()
+
+    private val registry = WorkspaceRegistry<Fake>(scope, { ++now }, { limit }, { shellsEnded += it }) { id, _, settled ->
         settledSeen[id] = settled
         Fake(id).also { created += it }
     }
@@ -184,5 +187,22 @@ class WorkspaceRegistryTest {
 
     @Test fun `attaching a project that is not live returns no lease`() {
         assertNull(registry.attach("missing"))
+    }
+
+    @Test fun `a busy workspace ended by the limit is reported, an idle one and an explicit end are not`() {
+        limit = 1
+        val a = open("a"); registry.attach("a")
+        a.hasRunningShells = true
+        val b = open("b"); registry.attach("b")
+        val c = open("c"); registry.attach("c")
+        // a is busy, b idle: b is ended first and silently.
+        assertEquals(true, b.ended)
+        assertEquals(emptyList<String>(), shellsEnded)
+        limit = 0
+        registry.park("c", registry.attach("c")!!)
+        assertEquals(listOf("a"), shellsEnded)
+        val d = open("d"); d.hasRunningShells = true
+        registry.endAll()
+        assertEquals(listOf("a"), shellsEnded)
     }
 }

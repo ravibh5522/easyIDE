@@ -21,6 +21,8 @@ class WorkspaceHandle private constructor(
 
     override fun onResumed() = viewModel.onResumed()
 
+    override val hasRunningShells: Boolean get() = viewModel.terminals.hasRunning()
+
     override fun end(discardStored: Boolean) {
         viewModel.endSession(discardStored)
         store.clear()

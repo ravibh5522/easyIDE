@@ -2,13 +2,15 @@ package dev.easyide.app.session
 
 import android.content.ComponentCallbacks2
 
-/** What the policy needs to know about one held workspace. */
-data class HeldInfo(val id: String, val parked: Boolean, val lastActiveMs: Long)
+/** What the policy needs to know about one held workspace; [busy] means a terminal process is still running in it. */
+data class HeldInfo(val id: String, val parked: Boolean, val lastActiveMs: Long, val busy: Boolean = false)
 
 /**
  * Which parked workspaces to end. The active one is never a candidate: ending it would be
- * ending what the user is looking at. Order is least recently used first, because the
- * workspace left longest ago is the one least likely to be returned to soon.
+ * ending what the user is looking at. Idle workspaces (no running terminal process) go before
+ * busy ones, because ending a busy one kills a build, a server or an agent session; within each
+ * group the order is least recently used first, because the workspace left longest ago is the
+ * one least likely to be returned to soon.
  */
 object ParkPolicy {
 
@@ -28,7 +30,7 @@ object ParkPolicy {
     }
 
     private fun lruParked(held: List<HeldInfo>): List<String> =
-        held.filter { it.parked }.sortedBy { it.lastActiveMs }.map { it.id }
+        held.filter { it.parked }.sortedWith(compareBy({ it.busy }, { it.lastActiveMs })).map { it.id }
 
     /**
      * From `TRIM_MEMORY_RUNNING_CRITICAL` up, except `UI_HIDDEN` (a visibility signal, not

@@ -14,9 +14,11 @@ class Cleanup(
     private val paths: SandboxPaths,
     private val appLog: AppLog,
     private val crashReports: CrashReports,
+    /** Live workspaces: while any exists its shells (and agents such as Claude Code) keep working files in `/tmp`. */
+    private val liveWorkspaces: () -> Int = { 0 },
 ) {
     sealed interface Target {
-        /** Downloaded `.deb` files, apt package lists and `/tmp` of one environment. All are rebuilt on demand. */
+        /** Downloaded `.deb` files, apt package lists and (when no workspace is live) `/tmp` of one environment. All are rebuilt on demand. */
         data class EnvironmentPackageCache(val environmentId: String) : Target
 
         /** The downloaded rootfs archives: only needed to create new environments, re-downloaded when it happens. */
@@ -65,14 +67,15 @@ class Cleanup(
 
     private fun environmentRegions(environmentId: String): List<Region> {
         val rootfs = paths.rootfsDir(environmentId)
-        return listOf(
+        val apt = listOf(
             // apt holds `lock` while it runs and expects `partial/` to exist; the .debs go.
             Region(File(rootfs, APT_ARCHIVES), rootfs) { it == APT_LOCK || it == APT_PARTIAL },
             Region(File(rootfs, "$APT_ARCHIVES/$APT_PARTIAL"), rootfs),
             Region(File(rootfs, APT_LISTS), rootfs),
-            // A running tmux server keeps its socket in /tmp/tmux-<uid>; deleting it orphans live sessions.
-            Region(File(rootfs, TMP), rootfs) { it.startsWith(TMUX_SOCKET_PREFIX) },
         )
+        if (liveWorkspaces() > 0) return apt
+        // A running tmux server keeps its socket in /tmp/tmux-<uid>; deleting it orphans live sessions.
+        return apt + Region(File(rootfs, TMP), rootfs) { it.startsWith(TMUX_SOCKET_PREFIX) }
     }
 
     /** Based at the sandbox root, so an image cache directory replaced by a link elsewhere is refused. */

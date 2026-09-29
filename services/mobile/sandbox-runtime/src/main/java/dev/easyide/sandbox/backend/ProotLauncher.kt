@@ -35,14 +35,16 @@ class ProotLauncher(
                 addAll(listOf(ARG_BIND, "${host.absolutePath}:${request.guestProjectPath}"))
             }
 
+            request.hostProjectDir?.let { host ->
+                request.guestAlias?.let { alias -> addAll(listOf(ARG_BIND, "${host.absolutePath}:$alias")) }
+            }
+
             // proot creates a missing guest target itself, so no mkdir here.
             request.extraBinds.forEach { bind ->
                 addAll(listOf(ARG_BIND, "${bind.host.absolutePath}:${bind.guestPath}"))
             }
 
-            val cwd = request.guestCwd
-                ?: request.hostProjectDir?.let { request.guestProjectPath }
-                ?: GuestEnvironment.GUEST_HOME
+            val cwd = request.guestCwd ?: request.defaultCwd ?: GuestEnvironment.GUEST_HOME
             addAll(listOf(ARG_CWD, cwd))
             addAll(request.command)
         }

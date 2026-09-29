@@ -62,6 +62,12 @@ class SandboxPaths(private val root: File) {
     fun guestProjectPath(): String = GUEST_WORKSPACE
 
     /**
+     * A guest path unique to one project (`/projects/<project id>`), bound to the same directory as
+     * [guestProjectPath]. Terminals start here so tools that key state by path see one project each.
+     */
+    fun guestProjectAlias(hostProjectDir: File): String = "$GUEST_PROJECTS/${hostProjectDir.name}"
+
+    /**
      * Android's own `/dev`, `/proc`, `/sys`, bound into every guest as they are. A guest path
      * under one of them has no file in the rootfs, so path mapping (LSP) must not look there.
      */
@@ -147,6 +153,7 @@ class SandboxPaths(private val root: File) {
         const val IMAGE_CACHE_DIR = "images"
         const val ROOTFS_DIR = "rootfs"
         const val GUEST_WORKSPACE = "/workspace"
+        const val GUEST_PROJECTS = "/projects"
         const val EXTENSIONS_DIR = "extensions"
         const val GLOBAL_EXTENSIONS_DIR = "global"
         const val STAGING_DIR = "staging"

@@ -68,8 +68,9 @@ class SandboxShell(
         guestCwd: String?,
         extraEnvironment: Map<String, String>,
         extraBinds: List<GuestBind>,
+        guestAlias: String? = null,
     ): PtyShellParams = ptyParams(
-        LaunchRequest(rootfs, hostProjectDir, guestProjectPath, argv, extraEnvironment, extraBinds, guestCwd),
+        LaunchRequest(rootfs, hostProjectDir, guestProjectPath, argv, extraEnvironment, extraBinds, guestCwd, guestAlias),
     )
 
     /**
@@ -103,6 +104,7 @@ class SandboxShell(
         guestProjectPath: String,
         extraBinds: List<GuestBind> = emptyList(),
         asRoot: Boolean = false,
+        guestAlias: String? = null,
     ): PtyShellParams = ptyParams(
         LaunchRequest(
             rootfs = rootfs,
@@ -110,7 +112,8 @@ class SandboxShell(
             guestProjectPath = guestProjectPath,
             extraBinds = extraBinds,
             command = if (asRoot) loginShell(rootfs) else userShell(rootfs),
-            extraEnvironment = if (asRoot) emptyMap() else USER_ENVIRONMENT,
+            extraEnvironment = if (asRoot) ROOT_ENVIRONMENT else USER_ENVIRONMENT,
+            guestAlias = guestAlias,
         )
     )
 
@@ -210,6 +213,13 @@ class SandboxShell(
         val USER_ENVIRONMENT = mapOf(
             "USER" to GuestEnvironment.DEFAULT_USER,
             "LOGNAME" to GuestEnvironment.DEFAULT_USER,
+            "SHELL" to GuestEnvironment.LOGIN_SHELL,
+        )
+
+        /** The same three variables for the root shell, so a tool reading `$SHELL` or `$USER` behaves alike in both. */
+        val ROOT_ENVIRONMENT = mapOf(
+            "USER" to "root",
+            "LOGNAME" to "root",
             "SHELL" to GuestEnvironment.LOGIN_SHELL,
         )
         const val GUEST_SHELL_FLAG = "-c"

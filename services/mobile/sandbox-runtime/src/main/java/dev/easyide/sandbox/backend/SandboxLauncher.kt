@@ -60,8 +60,14 @@ fun interface GuestBindSource {
  * installed environment extensions to `/opt/easyide/extensions/<id>`.
  *
  * [guestCwd] is where [command] starts inside the guest; null keeps the
- * default (the project mount when there is one, else the guest home).
+ * default (the alias, else the project mount when there is one, else the guest home).
  * Extension actions set it from their `cwd` parameter.
+ *
+ * [guestAlias] is a second, per-project guest path for the same [hostProjectDir]. `/workspace`
+ * is the same string for every project, so path-keyed tools (Claude Code's history, trust and
+ * memory, editors' caches) would treat all projects of an environment as one; terminals start
+ * in the alias so each project is distinct to them. `/workspace` stays bound because extension
+ * paths and language servers are defined against it.
  */
 data class LaunchRequest(
     val rootfs: File,
@@ -71,10 +77,17 @@ data class LaunchRequest(
     val extraEnvironment: Map<String, String> = emptyMap(),
     val extraBinds: List<GuestBind> = emptyList(),
     val guestCwd: String? = null,
+    val guestAlias: String? = null,
 ) {
     init {
         require(guestCwd == null || guestCwd.startsWith("/")) { "Guest cwd must be an absolute guest path: $guestCwd" }
+        require(guestAlias == null || (guestAlias.startsWith("/") && ':' !in guestAlias)) {
+            "Guest alias must be an absolute guest path without ':': $guestAlias"
+        }
     }
+
+    /** Where the command starts when no [guestCwd] is given: the alias, else the project mount, else the guest home (null). */
+    val defaultCwd: String? get() = guestAlias ?: hostProjectDir?.let { guestProjectPath }
 }
 
 /** Builds the argv for one sandbox backend. */

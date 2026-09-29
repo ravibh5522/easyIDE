@@ -200,6 +200,7 @@ class LinuxEnvironment(
             guestProjectPath = paths.guestProjectPath(),
             extraBinds = bindsFor(environmentId),
             asRoot = asRoot,
+            guestAlias = paths.guestProjectAlias(hostProjectDir),
         )
     }
 
@@ -254,7 +255,7 @@ class LinuxEnvironment(
         val shell = readyShell(environmentId) ?: return null
         return shell.commandParams(
             argv, rootfsFor(environmentId), hostProjectDir, paths.guestProjectPath(), guestCwd, extraEnvironment,
-            bindsFor(environmentId),
+            bindsFor(environmentId), paths.guestProjectAlias(hostProjectDir),
         )
     }
 

@@ -21,6 +21,9 @@ interface HeldSession {
     /** On screen again. */
     fun onResumed()
 
+    /** A terminal process is still running: ending the session now would kill it. */
+    val hasRunningShells: Boolean get() = false
+
     /**
      * Stops every process, cancels every job and releases the session for good. [discardStored]
      * also deletes what [saveBackup] wrote: an explicit close that the user confirmed must not
@@ -50,6 +53,8 @@ class WorkspaceRegistry<S : HeldSession>(
     private val scope: CoroutineScope,
     private val clock: () -> Long,
     private val parkLimit: () -> Int,
+    /** Called when the registry itself (limit or memory pressure, not the user) ended a workspace that still had running shells. */
+    private val onShellsEnded: (projectId: String) -> Unit = {},
     /** Builds a session. [settled] is the previous same-project session still saving on its way out, if any: restore must wait for it. */
     private val open: (projectId: String, environmentId: String, settled: Job?) -> S,
 ) {
@@ -75,7 +80,7 @@ class WorkspaceRegistry<S : HeldSession>(
         val existing = entries[projectId]
         if (existing != null && existing.environmentId == environmentId) return existing.session
         // The project was moved to another environment: its shells run in the old one.
-        if (existing != null) evict(projectId)
+        if (existing != null) evict(projectId, notify = false)
         val session = open(projectId, environmentId, settling[projectId])
         entries[projectId] = Entry(session, environmentId, clock())
         publish()
@@ -116,7 +121,7 @@ class WorkspaceRegistry<S : HeldSession>(
 
     /** Ends every session, saving each first: the user asked for everything to stop. */
     fun endAll() {
-        entries.keys.toList().forEach(::evict)
+        entries.keys.toList().forEach { evict(it, notify = false) }
     }
 
     /** `ComponentCallbacks2.onTrimMemory`: ends the parked workspaces the policy picks, saving each first. */
@@ -141,8 +146,9 @@ class WorkspaceRegistry<S : HeldSession>(
     }
 
     /** Save, then end, without discarding: what was on screen an hour ago must still be recoverable. */
-    private fun evict(projectId: String) {
+    private fun evict(projectId: String, notify: Boolean = true) {
         val entry = entries.remove(projectId) ?: return
+        if (notify && entry.session.hasRunningShells) onShellsEnded(projectId)
         publish()
         val job = scope.launch {
             entry.session.saveBackup()
@@ -152,7 +158,7 @@ class WorkspaceRegistry<S : HeldSession>(
         job.invokeOnCompletion { settling.remove(projectId, job) }
     }
 
-    private fun infos(): List<HeldInfo> = entries.map { (id, e) -> HeldInfo(id, e.parked, e.lastActiveMs) }
+    private fun infos(): List<HeldInfo> = entries.map { (id, e) -> HeldInfo(id, e.parked, e.lastActiveMs, e.session.hasRunningShells) }
 
     private fun publish() {
         liveState.value = entries.keys.toSet()

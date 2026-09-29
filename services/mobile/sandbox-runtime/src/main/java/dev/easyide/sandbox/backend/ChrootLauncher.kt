@@ -27,12 +27,16 @@ class ChrootLauncher(
             request.hostProjectDir?.let { host ->
                 add(mkdirCommand("$rootfs${request.guestProjectPath}"))
                 add(bindCommand(host.absolutePath, "$rootfs${request.guestProjectPath}"))
+                request.guestAlias?.let { alias ->
+                    add(mkdirCommand("$rootfs$alias"))
+                    add(bindCommand(host.absolutePath, "$rootfs$alias"))
+                }
             }
             request.extraBinds.forEach { bind ->
                 add(mkdirCommand("$rootfs${bind.guestPath}"))
                 add(bindCommand(bind.host.absolutePath, "$rootfs${bind.guestPath}"))
             }
-            add(chrootCommand(rootfs, request.guestCwd?.let { withCwd(it, request.command) } ?: request.command))
+            add(chrootCommand(rootfs, (request.guestCwd ?: request.guestAlias)?.let { withCwd(it, request.command) } ?: request.command))
         }.joinToString(separator = "\n")
 
         return LaunchSpec(

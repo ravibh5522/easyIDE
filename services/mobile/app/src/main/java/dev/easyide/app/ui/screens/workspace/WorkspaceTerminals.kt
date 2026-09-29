@@ -2,6 +2,7 @@ package dev.easyide.app.ui.screens.workspace
 
 import android.content.Context
 import com.termux.terminal.TerminalSession
+import dev.easyide.app.R
 import dev.easyide.extensions.action.ExecOutcome
 import dev.easyide.extensions.manifest.ExtensionId
 import dev.easyide.sandbox.LinuxEnvironment
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -39,7 +41,10 @@ class WorkspaceTerminals(
     private val installLog = InstallLogPump { state.value.terminals }
 
     /** Tabs extension actions opened by name, per owner, so a rerun reuses its tab. */
-    private val named = HashMap<Pair<ExtensionId, String>, String>()
+    private val named = ConcurrentHashMap<Pair<ExtensionId, String>, String>()
+
+    /** Tabs the app itself is killing (close, workspace end, timeout), so their SIGKILL is not blamed on Android. */
+    private val killedByApp: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     /**
      * A new interactive shell. [initialCommand] is typed into it (an install recipe the user
@@ -80,7 +85,7 @@ class WorkspaceTerminals(
     suspend fun namedTerminal(owner: ExtensionId, name: String): PtyTerminalTab? {
         val key = owner to name
         named[key]?.let { id -> state.value.terminals.find { it.id == id && it.session.isRunning }?.let { return it } }
-        val tab = openShell(name, asRoot = true) ?: return null
+        val tab = openShell(name) ?: return null
         named[key] = tab.id
         return tab
     }
@@ -102,16 +107,21 @@ class WorkspaceTerminals(
         return try {
             val code = withTimeoutOrNull(timeoutMs) { exit.await() }
             if (code == null) {
+                killedByApp += tab.id
                 tab.session.finishIfRunning()
                 ExecOutcome.TimedOut("")
             } else {
                 ExecOutcome.Exited(code, "", "", truncated = false)
             }
         } catch (e: CancellationException) {
+            killedByApp += tab.id
             tab.session.finishIfRunning()
             throw e
         }
     }
+
+    /** Whether any tab still has a live process; ending the workspace now would kill it. */
+    fun hasRunning(): Boolean = state.value.terminals.any { it.session.isRunning }
 
     fun select(id: String) = state.update { it.copy(activeTerminalId = id) }
 
@@ -123,6 +133,7 @@ class WorkspaceTerminals(
      * with none left the panel shows its "new terminal" empty state.
      */
     fun close(id: String) {
+        killedByApp += id
         state.value.terminals.find { it.id == id }?.session?.terminate()
         state.update { s ->
             val remaining = s.terminals.filterNot { it.id == id }
@@ -137,7 +148,10 @@ class WorkspaceTerminals(
      * after the workspace is gone.
      */
     fun release() {
-        state.value.terminals.forEach { it.session.finishIfRunning() }
+        state.value.terminals.forEach {
+            killedByApp += it.id
+            it.session.finishIfRunning()
+        }
         installLog.stop()
     }
 
@@ -147,7 +161,12 @@ class WorkspaceTerminals(
             context = appContext,
             onTitleChanged = { changed -> retitle(id, changed.title) },
             // Frozen scrollback with the exit message is the desired end state.
-            onSessionFinished = onFinished,
+            onSessionFinished = { finished ->
+                if (TerminalExit.killedBySystem(finished.exitStatus, id in killedByApp)) {
+                    setStatus(appContext.getString(R.string.terminal_killed_by_system))
+                }
+                onFinished(finished)
+            },
         )
         val session = TerminalSession(
             params.shellPath,
