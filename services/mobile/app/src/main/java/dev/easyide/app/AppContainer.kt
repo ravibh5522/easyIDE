@@ -207,6 +207,7 @@ class AppContainer(context: Context) {
         // Only enabled environment packs appear in the guest; read at each launch, after
         // `extensions` below is constructed.
         guestBinds = EnvironmentExtensionBinds(paths) { envId, id -> extensions.isEnabledIn(envId, id.value) },
+        allProjects = { projectManager.projects.first() },
     )
 
     /** Network git (clone, pull, push) through the guest's own `git`; tokens come from [gitCredentials]. */

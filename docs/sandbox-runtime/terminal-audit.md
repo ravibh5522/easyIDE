@@ -55,7 +55,7 @@ Found on the device (`~/.npm/_logs`, `_cacache`): proot's `--link2symlink` makes
 
 | Finding | Status |
 |---|---|
-| F1 | **Fixed** without breaking the extension contract: `/workspace` stays bound (extension paths, LSP, snippets use it); terminals additionally bind the project at `/projects/<project id>` and start there (`LaunchRequest.guestAlias`), so Claude's history, trust and memory key per project. Existing Claude history under `-workspace` is not migrated. |
+| F1 | **Fixed** (folder is the project name and every project of the environment is mounted, see [0033](../decision/0033-projects-mounted-by-name-in-every-terminal.md)) without breaking the extension contract: `/workspace` stays bound (extension paths, LSP, snippets use it); terminals additionally bind the project at `/projects/<project id>` and start there (`LaunchRequest.guestAlias`), so Claude's history, trust and memory key per project. Existing Claude history under `-workspace` is not migrated. |
 | F2 | **Mitigated**: over-limit and memory-pressure eviction now ends idle workspaces before busy ones (`ParkPolicy`, `HeldInfo.busy`), and a toast says so when a workspace with running shells is ended. The 6 h `dataSync` cap and process death still kill shells; a persistent supervisor is F4. |
 | F3 | **Detected, not preventable**: a terminal that dies of a SIGKILL the app did not send shows the remedy (`TerminalExit`). |
 | F4 | **Partly fixed**: `ensureGuestDefaults` runs once per rootfs per process, under a lock; account files are replaced by atomic rename. The per-environment supervisor is **not built**: it needs an ADR superseding 0023 s.9 and a device spike. |

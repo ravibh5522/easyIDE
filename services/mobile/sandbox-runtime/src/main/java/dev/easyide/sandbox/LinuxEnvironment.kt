@@ -9,6 +9,7 @@ import dev.easyide.sandbox.bootstrap.ProgressReporter
 import dev.easyide.sandbox.bootstrap.ProotInstaller
 import dev.easyide.sandbox.bootstrap.RootfsProvisioner
 import dev.easyide.sandbox.extensions.EnvironmentExtensionBinds
+import dev.easyide.sandbox.model.ProjectRecord
 import dev.easyide.sandbox.model.SandboxImage
 import dev.easyide.sandbox.shell.PtyShellParams
 import dev.easyide.sandbox.shell.SandboxShell
@@ -38,6 +39,8 @@ class LinuxEnvironment(
     private val fallbackShell: ShellRunner,
     private val ioDispatcher: CoroutineDispatcher,
     private val guestBinds: GuestBindSource = EnvironmentExtensionBinds(paths),
+    /** Every project, so a terminal can mount the environment's other projects beside its own. */
+    private val allProjects: suspend () -> List<ProjectRecord> = { emptyList() },
 ) {
 
     fun rootfsFor(environmentId: String): File = paths.rootfsDir(environmentId)
@@ -194,13 +197,14 @@ class LinuxEnvironment(
         }
         val installation = prootInstaller.ensureInstalled(paths.runtimeDir).getOrThrow()
         provisioner.ensureGuestDefaults(rootfsFor(environmentId))
+        val mounts = ProjectMounts.resolve(paths, environmentId, hostProjectDir, allProjects())
         return SandboxShell(installation, ioDispatcher).interactiveParams(
             rootfs = rootfsFor(environmentId),
             hostProjectDir = hostProjectDir,
             guestProjectPath = paths.guestProjectPath(),
-            extraBinds = bindsFor(environmentId),
+            extraBinds = bindsFor(environmentId) + mounts.siblings,
             asRoot = asRoot,
-            guestAlias = paths.guestProjectAlias(hostProjectDir),
+            guestAlias = mounts.current,
         )
     }
 
@@ -253,9 +257,10 @@ class LinuxEnvironment(
         extraEnvironment: Map<String, String>,
     ): PtyShellParams? {
         val shell = readyShell(environmentId) ?: return null
+        val mounts = ProjectMounts.resolve(paths, environmentId, hostProjectDir, allProjects())
         return shell.commandParams(
             argv, rootfsFor(environmentId), hostProjectDir, paths.guestProjectPath(), guestCwd, extraEnvironment,
-            bindsFor(environmentId), paths.guestProjectAlias(hostProjectDir),
+            bindsFor(environmentId) + mounts.siblings, mounts.current,
         )
     }
 

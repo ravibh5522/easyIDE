@@ -61,11 +61,6 @@ class SandboxPaths(private val root: File) {
     /** Where a project appears from inside the sandbox, once bind-mounted. */
     fun guestProjectPath(): String = GUEST_WORKSPACE
 
-    /**
-     * A guest path unique to one project (`/projects/<project id>`), bound to the same directory as
-     * [guestProjectPath]. Terminals start here so tools that key state by path see one project each.
-     */
-    fun guestProjectAlias(hostProjectDir: File): String = "$GUEST_PROJECTS/${hostProjectDir.name}"
 
     /**
      * Android's own `/dev`, `/proc`, `/sys`, bound into every guest as they are. A guest path
