@@ -98,6 +98,7 @@ class RootfsProvisioner(
         runCatching { removePaxHeaderArtifacts(rootfs) }
         runCatching { GuestAccounts.ensure(rootfs) }
         runCatching { NodeCacheGuard.ensure(rootfs) }
+        runCatching { GuestNode.ensure(rootfs) }
     }
 
     /**

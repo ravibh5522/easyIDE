@@ -51,6 +51,9 @@ Fix: an "AI tools" layer per environment (installed once, version-pinned, `~/.cl
 ### F9. npm cache corrupts itself under proot (language-server install errors)
 Found on the device (`~/.npm/_logs`, `_cacache`): proot's `--link2symlink` makes cacache's `link(tmp, content-v2/...)` + `unlink(tmp)` leave every cached blob as a symlink to a hidden `tmp/.l2s.*` file. `npm cache verify` (or any cleaning of `tmp`) deletes the bytes; from then on `npm install` and `npm cache verify` fail with `ENOENT ... content-v2/sha512/...`. Reproduced on a clean Ubuntu + Node.js environment (verify once: fine; verify again: "Missing content: 40"). Fix: a Node preload (`NODE_OPTIONS=--require`, set by `ProotLauncher` only when the file exists) makes `fs.link` into a `_cacache` directory a copy, and a one-time purge removes caches earlier builds already broke. Verified on the device: 0 symlinks after install, repeated `npm cache verify` passes, install/uninstall/upgrade/reinstall of the yaml and typescript language servers pass. Not fixed: a package directory installed *before* the fix that contains `.l2s` files can still fail a later `npm install` with `ENOTEMPTY` on rename (proot hides `.l2s` files, so the directory looks empty but is not); remove that package directory once.
 
+### F10. Ubuntu's Node 18 / npm 9.2 breaks `npm install -g @anthropic-ai/claude-code`
+Reproduced on a fresh Ubuntu + Node.js environment: npm 9.2 on Node 18 ends with "Exit handler never called!" while running a postinstall, so Claude's postinstall never replaces the 500-byte placeholder (`claude native binary not installed`). The same install with Node 22 / npm 10.9.9 needs no configuration. Fix (not a config patch): `easyide-install-node` is written into every environment and installs the current Node LTS from nodejs.org (checksum-verified against `SHASUMS256.txt`) unless Node 20+ is present. The Node preset and every extension install recipe that needed Node call it instead of `apt-get install nodejs npm`. Verified on the device: a new Node preset environment has Node 22.23.3 and npm 10.9.9 and installs and starts Claude Code; an existing Node 18 environment upgrades in place with its language servers still working. Existing broken Claude installs need one `npm install -g @anthropic-ai/claude-code` after the upgrade.
+
 ## Status of fixes (2026-09-29, canary build)
 
 | Finding | Status |
@@ -62,6 +65,7 @@ Found on the device (`~/.npm/_logs`, `_cacache`): proot's `--link2symlink` makes
 | F5 | **Fixed**: named terminals (extension `runInTerminal`, agents) are the default user; the root shell now has `USER`/`LOGNAME`/`SHELL` too. Install recipes, tasks and language servers stay root on purpose (apt needs it). |
 | F6 | **Not built** (AI-tools layer). |
 | F9 | **Fixed and verified on device** (see F9). |
+| F10 | **Fixed and verified on device** (see F10). |
 | F7 | **Fixed**: Cleanup leaves `/tmp` alone while any workspace is live; `named` is a `ConcurrentHashMap`. Live process/RSS readout not built. |
 
 ## Recommended order
