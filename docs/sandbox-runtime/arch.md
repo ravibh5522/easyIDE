@@ -271,6 +271,8 @@ Rooting the device already broke Android's system-wide security model before thi
 
 ## 4. Session Management
 
+> **Current model (supersedes the tmux/Theia design below, per [0006](../decision/0006-native-ide-shell-before-theia.md) and [0023](../decision/0023-workspace-session-lifetime.md)).** There is no tmux and no Theia backend. Each terminal tab is one independent pty process tree (`WorkspaceTerminals.openShell`, `PtyTerminalTab`), a child of the app process; closing a tab kills its whole tree. `WorkspaceRegistry` parks workspaces (shells keep running) and ends the least recently used beyond `workspace.maxParkedProjects`, idle ones first. Shells do not survive the app process being killed; unsaved buffers do (hot-exit snapshot). A per-environment supervisor is future work, see [terminal-audit.md](terminal-audit.md) F4. The rest of this section is the original plan, kept for the tmux reasoning.
+
 ### The four session types
 
 | Session type | Where state lives | Survives backgrounding? | Survives Service/process kill? | Survives reinstall? |
