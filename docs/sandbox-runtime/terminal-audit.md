@@ -48,6 +48,9 @@ Fix: an "AI tools" layer per environment (installed once, version-pinned, `~/.cl
 - **Nothing bounded or serialised launches**: `ensureGuestDefaults` ran concurrently on every launch and rewrote `/etc/passwd`, `shadow` and `group` in place (F4). `WorkspaceTerminals.named` was a plain `HashMap`.
 - Conclusion: "multiple terminals can't run smoothly" is CPU/process pressure and Android killing children (F3), not a lock in our code.
 
+### F9. npm cache corrupts itself under proot (language-server install errors)
+Found on the device (`~/.npm/_logs`, `_cacache`): proot's `--link2symlink` makes cacache's `link(tmp, content-v2/...)` + `unlink(tmp)` leave every cached blob as a symlink to a hidden `tmp/.l2s.*` file. `npm cache verify` (or any cleaning of `tmp`) deletes the bytes; from then on `npm install` and `npm cache verify` fail with `ENOENT ... content-v2/sha512/...`. Reproduced on a clean Ubuntu + Node.js environment (verify once: fine; verify again: "Missing content: 40"). Fix: a Node preload (`NODE_OPTIONS=--require`, set by `ProotLauncher` only when the file exists) makes `fs.link` into a `_cacache` directory a copy, and a one-time purge removes caches earlier builds already broke. Verified on the device: 0 symlinks after install, repeated `npm cache verify` passes, install/uninstall/upgrade/reinstall of the yaml and typescript language servers pass. Not fixed: a package directory installed *before* the fix that contains `.l2s` files can still fail a later `npm install` with `ENOTEMPTY` on rename (proot hides `.l2s` files, so the directory looks empty but is not); remove that package directory once.
+
 ## Status of fixes (2026-09-29, canary build)
 
 | Finding | Status |
@@ -58,6 +61,7 @@ Fix: an "AI tools" layer per environment (installed once, version-pinned, `~/.cl
 | F4 | **Partly fixed**: `ensureGuestDefaults` runs once per rootfs per process, under a lock; account files are replaced by atomic rename. The per-environment supervisor is **not built**: it needs an ADR superseding 0023 s.9 and a device spike. |
 | F5 | **Fixed**: named terminals (extension `runInTerminal`, agents) are the default user; the root shell now has `USER`/`LOGNAME`/`SHELL` too. Install recipes, tasks and language servers stay root on purpose (apt needs it). |
 | F6 | **Not built** (AI-tools layer). |
+| F9 | **Fixed and verified on device** (see F9). |
 | F7 | **Fixed**: Cleanup leaves `/tmp` alone while any workspace is live; `named` is a `ConcurrentHashMap`. Live process/RSS readout not built. |
 
 ## Recommended order

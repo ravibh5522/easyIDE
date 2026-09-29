@@ -1,6 +1,7 @@
 package dev.easyide.sandbox.backend
 
 import dev.easyide.sandbox.SandboxPaths
+import dev.easyide.sandbox.bootstrap.NodeCacheGuard
 import java.io.File
 
 /**
@@ -51,6 +52,8 @@ class ProotLauncher(
 
         val environment = buildMap {
             putAll(GuestEnvironment.defaults(GuestEnvironment.GUEST_HOME))
+            // Only when the file is there: a --require of a missing module would stop every node process.
+            if (File(request.rootfs, NodeCacheGuard.PRELOAD_GUEST_PATH.removePrefix("/")).isFile) put(ENV_NODE_OPTIONS, "--require=${NodeCacheGuard.PRELOAD_GUEST_PATH}")
             loaderDir?.let { put(ENV_PROOT_LOADER, it.absolutePath) }
             put(ENV_PROOT_TMP, request.rootfs.parentFile?.absolutePath ?: request.rootfs.absolutePath)
             putAll(request.extraEnvironment)
@@ -68,6 +71,7 @@ class ProotLauncher(
 
         const val ENV_PROOT_LOADER = "PROOT_LOADER"
         const val ENV_PROOT_TMP = "PROOT_TMP_DIR"
+        const val ENV_NODE_OPTIONS = "NODE_OPTIONS"
 
         val PASSTHROUGH_MOUNTS = SandboxPaths.PASSTHROUGH_MOUNTS
 

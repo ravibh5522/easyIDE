@@ -97,6 +97,7 @@ class RootfsProvisioner(
         runCatching { installSudoShim(rootfs) }
         runCatching { removePaxHeaderArtifacts(rootfs) }
         runCatching { GuestAccounts.ensure(rootfs) }
+        runCatching { NodeCacheGuard.ensure(rootfs) }
     }
 
     /**
