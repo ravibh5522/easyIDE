@@ -5,39 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>easyIDE - a real IDE for Android tablets</title>
 <meta name="description" content="Native editor, file tree and an Ubuntu terminal on your Android tablet. On-device, offline, no root.">
+<meta property="og:title" content="easyIDE">
+<meta property="og:description" content="A real IDE with a real Linux userland, for Android tablets.">
+<meta property="og:image" content="media/poster.png">
 <link rel="icon" href="icon.png">
 <style>
-:root { --bg:#0f1115; --fg:#e8eaed; --muted:#9aa0a6; --accent:#ff8a3d; --card:#181b21; }
-@media (prefers-color-scheme: light) { :root { --bg:#fff; --fg:#1f2328; --muted:#59636e; --card:#f6f8fa; } }
+:root { --bg:#0f1115; --fg:#f2f3f5; --muted:#b4b9c0; --accent:#ff8a3d; --glass:rgba(15,17,21,.62); --line:rgba(255,255,255,.14); }
 * { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
 body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui,sans-serif; }
-main { max-width:720px; margin:0 auto; padding:64px 16px; text-align:center; }
-img { width:128px; height:128px; border-radius:24px; }
-h1 { font-size:2.4rem; margin:16px 0 8px; }
-p { color:var(--muted); }
-.btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:32px 0; }
+#bg { position:fixed; inset:0; z-index:-2; width:100%; height:100%; object-fit:cover; filter:blur(28px) brightness(.55); transform:scale(1.15); }
+#veil { position:fixed; inset:0; z-index:-1; background:linear-gradient(rgba(15,17,21,.35), rgba(15,17,21,.8)); }
+main { max-width:1040px; margin:0 auto; padding:0 16px 64px; }
+section { padding:56px 0 0; }
+.hero { text-align:center; padding-top:80px; }
+.hero img.logo { width:112px; height:112px; border-radius:24px; box-shadow:0 8px 32px rgba(0,0,0,.5); }
+h1 { font-size:clamp(2.2rem,6vw,3.6rem); margin:16px 0 8px; }
+h2 { font-size:1.6rem; margin:0 0 20px; text-align:center; }
+.lead { color:var(--muted); font-size:1.15rem; max-width:560px; margin:0 auto; }
+.btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:32px 0 0; }
 a.btn { padding:12px 24px; border-radius:8px; background:var(--accent); color:#111; font-weight:600; text-decoration:none; }
-a.btn.alt { background:var(--card); color:var(--fg); }
-ul { list-style:none; padding:0; text-align:left; background:var(--card); border-radius:12px; padding:16px 24px; }
+a.btn.alt { background:var(--glass); color:var(--fg); border:1px solid var(--line); backdrop-filter:blur(8px); }
+.card { background:var(--glass); border:1px solid var(--line); border-radius:16px; backdrop-filter:blur(10px); overflow:hidden; }
+video.tour { display:block; width:100%; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.shots a { display:block; }
+.shots img { display:block; width:100%; height:auto; transition:transform .2s; }
+.shots a:hover img { transform:scale(1.02); }
+.join { display:flex; gap:32px; align-items:center; justify-content:center; flex-wrap:wrap; padding:32px; text-align:center; }
+.join img { width:180px; height:180px; background:#fff; padding:10px; border-radius:12px; }
+.join p { color:var(--muted); margin:0 0 16px; max-width:360px; }
+footer { text-align:center; color:var(--muted); padding:48px 16px; font-size:.9rem; }
+footer a { color:var(--muted); }
+@media (prefers-reduced-motion: reduce) { #bg { display:none; } }
 </style>
 </head>
 <body>
+<video id="bg" src="media/bg.mp4" poster="media/poster.png" autoplay muted loop playsinline aria-hidden="true"></video>
+<div id="veil"></div>
 <main>
-<img src="icon.png" alt="easyIDE icon">
+<section class="hero">
+<img class="logo" src="icon.png" alt="easyIDE icon">
 <h1>easyIDE</h1>
-<p>A real IDE with a real Linux userland, for Android tablets.</p>
+<p class="lead">A real IDE with a real Linux userland, for Android tablets. Native editor, file tree and an Ubuntu terminal, on the device, offline, no root.</p>
 <div class="btns">
 <a class="btn" href="https://github.com/ravibh5522/easyIDE/releases/latest">Download</a>
 <a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a>
-<a class="btn alt" href="https://t.me/+yMH4w5rX1gZhOTM1">Telegram</a>
+<a class="btn alt" href="#community">Join Telegram</a>
 </div>
-<ul>
-<li>Native editor and file tree</li>
-<li>Ubuntu terminal, on the device, no root</li>
-<li>Git and Claude Code CLI built in</li>
-<li>Works offline. Android 8.0+, arm64 and x86_64</li>
-</ul>
-<p>Beta software, AGPL-3.0.</p>
+</section>
+
+<section>
+<h2>Tour</h2>
+<div class="card"><video class="tour" src="media/tour.mp4" poster="media/poster.png" controls playsinline preload="none"></video></div>
+</section>
+
+<section>
+<h2>Screenshots</h2>
+<div class="shots">
+<a class="card" href="media/01-home.png"><img src="media/01-home.png" alt="Projects home" loading="lazy"></a>
+<a class="card" href="media/02-new-project.png"><img src="media/02-new-project.png" alt="New project dialog" loading="lazy"></a>
+<a class="card" href="media/03-python-editor.png"><img src="media/03-python-editor.png" alt="Python editor with pyright and ruff" loading="lazy"></a>
+<a class="card" href="media/04-editor.png"><img src="media/04-editor.png" alt="Kotlin editor and file tree" loading="lazy"></a>
+<a class="card" href="media/05-git-and-terminal.png"><img src="media/05-git-and-terminal.png" alt="Git graph and Ubuntu terminal" loading="lazy"></a>
+<a class="card" href="media/06-extensions.png"><img src="media/06-extensions.png" alt="Built-in extensions" loading="lazy"></a>
+<a class="card" href="media/07-appearance.png"><img src="media/07-appearance.png" alt="Themes and accent colours" loading="lazy"></a>
+</div>
+</section>
+
+<section id="community">
+<h2>Community</h2>
+<div class="card join">
+<img src="telegram-qr.svg" alt="QR code for the easyIDE Telegram group">
+<div>
+<p>Scan the code or tap the button to chat, ask questions and report rough edges. easyIDE is in beta.</p>
+<a class="btn" href="https://t.me/+yMH4w5rX1gZhOTM1">Join on Telegram</a>
+</div>
+</div>
+</section>
 </main>
+<footer>
+easyIDE is open source under AGPL-3.0 &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a> &middot; <a href="https://github.com/ravibh5522/easyIDE/issues">Report an issue</a>
+</footer>
 </body>
 </html>
