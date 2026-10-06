@@ -20,9 +20,78 @@ Native editor, file tree and an Ubuntu terminal -- all on the device, offline, n
 Not a snippet editor, and not a remote-desktop client into someone else's server. You get a
 native editor, a file tree, and a terminal running Ubuntu, all on the device.
 
-> **Beta: `v0.2.0-beta.6`.** arm64 and x86_64, Android 8.0+ (minSdk 26). Expect rough edges and
+> **Beta: `v0.2.0-beta.8`.** arm64 and x86_64, Android 8.0+ (minSdk 26). Expect rough edges and
 > [report them as issues](https://github.com/ravibh5522/easyIDE/issues), or tell us in the
 > [Telegram group](https://t.me/+yMH4w5rX1gZhOTM1).
+
+## Tour
+
+### Watch
+
+[![easyIDE tour: a 54-second film cut to the beat](docs/media/easyide-tour-preview.gif)](docs/media/easyide-tour.mp4)
+
+**[Play the full 54-second film with sound](docs/media/easyide-tour.mp4)** (1920x1080, H.264 + AAC, 28 MB).
+The preview above loops six moments from it: the logo hit, creating a project, typing code,
+scrolling the git graph, the terminal and a live theme switch.
+
+### Screenshots
+
+Captured from `v0.2.0-beta.8` in Waydroid (Android 13, x86_64) at a 2560x1600 tablet resolution in
+the Ember Night theme. Full-size images are in [docs/media/screenshots/](docs/media/screenshots/).
+
+**Start a project**
+
+| Projects home | New project |
+|---|---|
+| ![Projects home](docs/media/screenshots/01-home.png) | ![New project dialog](docs/media/screenshots/02-new-project.png) |
+| Recent projects with branch, environment and recent files. | Name it, choose storage, choose a Linux environment. |
+
+**Write code**
+
+| Python with language servers | Editor and file tree |
+|---|---|
+| ![Python editor](docs/media/screenshots/03-python-editor.png) | ![Kotlin editor with file tree](docs/media/screenshots/04-editor.png) |
+| pyright and ruff run on the device. | Tabs, breadcrumbs, a real file tree, syntax colours. |
+
+**Ship it**
+
+| Git and terminal | Extensions |
+|---|---|
+| ![Git graph and terminal](docs/media/screenshots/05-git-and-terminal.png) | ![Extensions list](docs/media/screenshots/06-extensions.png) |
+| The commit graph next to an Ubuntu shell. | 19 built-in extensions, toggled per user. |
+
+**Make it yours**
+
+| Appearance |
+|---|
+| ![Appearance settings](docs/media/screenshots/07-appearance.png) |
+| Themes, accent colour, density and fonts. |
+
+<details>
+<summary>How the film was made</summary>
+
+A short film cut to a 120 BPM beat: every scene starts on a bar line (2 s), so cuts, callouts and
+the screen shake on each hit land on the beat. Checked with `ffprobe` (1620 frames, 54.0 s, audio
+mean -14.7 dB, peak -2.2 dB, no clipping) and by pulling frames from every scene.
+
+| Time | Scene | What moves |
+|---|---|---|
+| 0:00 | Cold open | "your tablet has the screen. the keyboard. the battery." typed live, "but nothing to build with." struck out, the logo slams in on the beat |
+| 0:08 | 01 Start | the home screen flies in on a tilted tablet; callouts on recent projects and the environment |
+| 0:12 | 02 Create | a real screen recording of making a project, cropped onto the dialog |
+| 0:20 | 03 Code | Python typed in character by character, pyright diagnostics called out |
+| 0:26 | 04 Edit | a real recording scrolling the Kotlin editor next to the file tree |
+| 0:30 | 05 Git | a real recording scrolling the commit graph, branch and tag labels called out |
+| 0:36 | 06 Terminal | a real recording of `uname -sm`, `git log` and `python3` in a floating terminal card |
+| 0:42 | 07 Themes | a real theme switch, Ember to Light to Dark to Ember, with a word slam on each switch |
+| 0:48 | Outro | three tablets fan out; "Code anywhere." with the download and chat links |
+
+The soundtrack is original and synthesized from oscillators and noise (no samples). Regenerate
+everything after editing the storyboard in [tools/tour/scenes.py](tools/tour/scenes.py):
+`python3 tools/make-tour-audio.py && python3 tools/make-tour-video.py`. Asset index:
+[docs/media/README.md](docs/media/README.md).
+
+</details>
 
 ## Download
 
@@ -142,6 +211,7 @@ Full architecture: [docs/sandbox-runtime/arch.md](docs/sandbox-runtime/arch.md).
 
 ```
 docs/            architecture + trackers per feature, ADRs, weekly change log
+  media/           screenshots, tour film, source screen recordings
 services/
   mobile/        the Android app
     app/           Compose UI, ViewModels, navigation, theming
@@ -149,7 +219,7 @@ services/
   shared/        cross-service contracts
   backend/       intentionally empty -- there is no server component yet
 db/              backend and on-device (Room) migrations
-tools/           dev/build scripts, never shipped
+tools/           dev/build scripts, never shipped (includes the tour-film generator)
 infra/           intentionally empty -- CI/deploy config, when there is any
 ```
 
