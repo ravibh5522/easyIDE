@@ -120,10 +120,14 @@ details.table summary { color:var(--muted); cursor:pointer; font-size:.9rem; }
 
 /* Landing: hero */
 .hero2 { display:grid; grid-template-columns:1fr 1.15fr; gap:48px; align-items:center; padding-top:64px; }
-.hero2 h1 { font-size:clamp(2.3rem,5vw,3.6rem); margin:4px 0 16px; }
-.hero2 .lead { margin:0; max-width:520px; }
 .hero2 .btns { justify-content:flex-start; margin-top:28px; }
-.eyebrow { margin:16px 0 0; color:var(--accent); font-weight:700; letter-spacing:.12em; text-transform:uppercase; font-size:.85rem; }
+/* The opening mirrors media/og-card.png: mark, wordmark, two-line claim, three orange-dot points. */
+.hero2 .mark { display:block; width:96px; height:96px; margin-top:22px; border-radius:22px; box-shadow:0 12px 36px rgba(0,0,0,.55), 0 0 40px rgba(255,138,61,.25); }
+.hero2 h1 { font-size:clamp(3rem,7vw,5.2rem); margin:14px 0 6px; letter-spacing:-.02em; line-height:1; }
+.sub { margin:0; font-size:clamp(1.6rem,3.2vw,2.3rem); font-weight:700; line-height:1.2; }
+.dots { list-style:none; padding:0; margin:22px 0 0; color:var(--muted); font-size:1.1rem; }
+.dots li { margin:8px 0; }
+.dots li::before { content:""; display:inline-block; width:11px; height:11px; margin-right:12px; border-radius:50%; background:var(--accent); vertical-align:1px; }
 .grad { background:linear-gradient(90deg,#ff8a3d,#ff5f6d 60%,#c38bff); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .pill { display:inline-flex; align-items:center; gap:8px; padding:5px 14px; border-radius:999px; border:1px solid var(--line); background:var(--glass); color:var(--muted); font-size:.88rem; }
 .pulse { width:8px; height:8px; border-radius:50%; background:#3ddc84; box-shadow:0 0 0 0 rgba(61,220,132,.6); animation:pulse 2s infinite; }
@@ -197,7 +201,8 @@ section.numbers span { color:var(--muted); font-size:.9rem; }
 
 @media (max-width:860px) {
   .hero2 { grid-template-columns:1fr; gap:24px; padding-top:40px; text-align:center; }
-  .hero2 .lead { margin:0 auto; }
+  .hero2 .mark { margin:22px auto 0; }
+  .dots { display:inline-block; text-align:left; }
   .hero2 .btns, .trust { justify-content:center; }
   .tablet, .tablet:hover { transform:none; }
   .hero-visual { padding-bottom:0; }
