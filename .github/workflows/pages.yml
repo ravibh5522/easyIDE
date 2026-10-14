@@ -1,8 +1,8 @@
 name: Pages
 on:
+  # Every push: the code stats in site/data/stats.json follow the source, not just site/ edits.
   push:
     branches: [main]
-    paths: [site/**, .github/workflows/pages.yml]
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,6 +19,9 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 tools/site-stats.py
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

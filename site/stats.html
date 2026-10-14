@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>easyIDE code stats - commits, heatmap, languages and contributors</title>
+<meta name="description" content="Live code statistics for easyIDE: commit heatmap, weekly commits, contributors, releases and downloads from GitHub, plus lines of code by language and module.">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/stats.html">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/stats.html">
+<meta property="og:title" content="easyIDE code stats - commits, heatmap, languages and contributors">
+<meta property="og:description" content="Live code statistics for easyIDE: commit heatmap, weekly commits, contributors, releases and downloads from GitHub, plus lines of code by language and module.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/poster.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+</head>
+<body class="plain">
+<header class="nav"><a class="brand" href="./"><img src="icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="stats.html" aria-current="page">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
+<main>
+<section class="page-head">
+<h1>Code stats</h1>
+<p>Commits, contributors, releases and stars are fetched live from GitHub when you open this page. Lines of code are counted from the repository on every deploy (last: <span data-stat="generated">-</span>).</p>
+</section>
+
+<section>
+<div class="numbers" style="margin-top:0">
+<div><b data-stat="commits">&nbsp;</b><span>commits, last 12 months</span></div>
+<div><b data-stat="lines">&nbsp;</b><span>lines of code</span></div>
+<div><b data-stat="tests">&nbsp;</b><span>automated tests</span></div>
+<div><b data-stat="releases">&nbsp;</b><span>releases</span></div>
+<div><b data-stat="downloads">&nbsp;</b><span>APK downloads</span></div>
+<div><b data-stat="decisions">&nbsp;</b><span>design decisions (ADRs)</span></div>
+</div>
+</section>
+
+<section>
+<div class="card pad">
+<div class="chart-head"><h3>Commit heatmap</h3><span>live, last 12 months</span></div>
+<div id="heatmap"></div>
+</div>
+</section>
+
+<section>
+<div class="card pad">
+<div class="chart-head"><h3>Commits per week</h3><span>live</span></div>
+<div id="weekly"></div>
+</div>
+</section>
+
+<section>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+<div class="card pad" style="padding:24px">
+<div class="chart-head"><h3>Top contributors</h3><span>live, last 12 months</span></div>
+<div id="contributors"></div>
+</div>
+<div class="card pad" style="padding:24px">
+<div class="chart-head"><h3>Latest commits</h3><span>live</span></div>
+<div id="recent"></div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="card pad">
+<div class="chart-head"><h3>Lines of code by language</h3><span>non-blank lines, hand-written source only</span></div>
+<div id="languages"></div>
+</div>
+</section>
+
+<section>
+<div class="card pad">
+<div class="chart-head"><h3>Lines of code by module</h3><span>largest 12</span></div>
+<div id="modules"></div>
+</div>
+</section>
+
+<section>
+<div class="card pad">
+<div class="chart-head"><h3>APK downloads per release</h3><span>live</span></div>
+<div id="downloads"></div>
+</div>
+</section>
+</main>
+<footer>
+<nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="stats.html">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE/issues">Report an issue</a><a href="https://t.me/+yMH4w5rX1gZhOTM1">Telegram</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>easyIDE features - Android IDE with Linux terminal, LSP and git</title>
+<meta name="description" content="What easyIDE does on an Android tablet or phone: Ubuntu terminal, code editor with 229 languages and language servers, git, extensions, themes. And what it does not do yet.">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/features.html">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/features.html">
+<meta property="og:title" content="easyIDE features - Android IDE with Linux terminal, LSP and git">
+<meta property="og:description" content="What easyIDE does on an Android tablet or phone: Ubuntu terminal, code editor with 229 languages and language servers, git, extensions, themes. And what it does not do yet.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/poster.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+</head>
+<body class="plain">
+<header class="nav"><a class="brand" href="./"><img src="icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="features.html" aria-current="page">Features</a><a href="download.html">Download</a><a href="stats.html">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
+<main>
+<section class="page-head">
+<h1>Features</h1>
+<p>Everything below has been run on real hardware (Xiaomi Pad 6, Android 13) or in Waydroid, not just compiled. The list of what is missing is just as honest.</p>
+</section>
+
+<section>
+<h2>Linux on the device</h2>
+<div class="grid">
+<div class="card"><h3>Ubuntu, no root</h3><p>Ubuntu <code>noble</code> is provisioned into app storage through PRoot. <code>apt-get update</code> and <code>apt-get install</code> work, and <code>dpkg --audit</code> comes back clean.</p></div>
+<div class="card"><h3>Environment presets</h3><p>Bare Ubuntu, build tools, Node.js or Python, sharing one cached base image. Projects bind into an environment, so one can be deleted without touching your code.</p></div>
+<div class="card"><h3>A real PTY terminal</h3><p>Full-screen ncurses programs, multiple tabs, history, Ctrl-C, and an Esc/Ctrl key row above the soft keyboard. Output streams as it is produced.</p></div>
+<div class="card"><h3>Every project mounted</h3><p>Terminals see every project of their environment at <code>/projects/&lt;name&gt;</code>, so tools and agents can work across sibling projects.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Editing</h2>
+<div class="grid">
+<div class="card"><h3>229 languages</h3><p>Syntax highlighting from the same TextMate grammars VS Code uses, bundled so it works offline.</p></div>
+<div class="card"><h3>Language servers</h3><p>Completion, signature help, hover, diagnostics, code actions, rename, formatting, go-to-definition, references, symbols, inlay hints and semantic tokens. Packs for Python (with Ruff), TypeScript, Web, Rust, Go, C/C++, YAML, Markdown and Shell.</p></div>
+<div class="card"><h3>A VS Code-shaped workspace</h3><p>Split editor groups, breadcrumbs, file-type icons, a full-screen mode and three density levels. Activity rail on a tablet, bottom navigation on a phone.</p></div>
+<div class="card"><h3>Markdown and diagrams</h3><p>Markdown preview with tappable links and Mermaid diagrams rendered offline.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Git, extensions and themes</h2>
+<div class="grid">
+<div class="card"><h3>Source control</h3><p>Stage, unstage and discard per file, commit with amend, and a history graph with branch and tag chips: cherry-pick, tag, checkout and compare.</p></div>
+<div class="card"><h3>Extensions</h3><p>Declarative <code>.easyext</code> packs add languages, grammars, themes, icon themes, snippets, keybindings, commands, settings, panels and language servers. VS Code icon themes from Open VSX install as is.</p></div>
+<div class="card"><h3>Themes and settings</h3><p>Material 3 themes and accent colours, a schema-driven settings screen, and the system reduce-motion setting honoured.</p></div>
+<div class="card"><h3>Your folders</h3><p>Link a real folder on internal storage or an SD card, so your code is not trapped in app storage.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Not there yet</h2>
+<div class="card pad">
+<ul class="list">
+<li><b>VS Code extensions that run code</b> (GitLens and similar) do not run; only declarative packs and icon themes install.</li>
+<li><b>Git over the network</b> exists but has had little device testing, and there is no merge editor.</li>
+<li><b>No debugger and no notebooks.</b></li>
+<li><b>No credential helper, tmux session persistence or ssh-agent.</b></li>
+<li><b>The chroot backend for rooted devices</b> has never been executed.</li>
+<li><b>The sandbox is not a security boundary.</b> PRoot gives you a working Linux userland; it does not isolate projects from each other or contain hostile code.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<div class="btns"><a class="btn" href="download.html">Download easyIDE</a><a class="btn alt" href="https://github.com/ravibh5522/easyIDE#readme">Read the full README</a></div>
+</section>
+</main>
+<footer>
+<nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="stats.html">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE/issues">Report an issue</a><a href="https://t.me/+yMH4w5rX1gZhOTM1">Telegram</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>

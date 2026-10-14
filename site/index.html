@@ -18,6 +18,7 @@
 <meta name="twitter:title" content="easyIDE - IDE and code editor for Android">
 <meta name="twitter:description" content="A real IDE with a real Linux userland, for Android tablets and phones.">
 <meta name="twitter:image" content="https://ravibh5522.github.io/easyIDE/media/poster.png">
+<link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <script type="application/ld+json">
@@ -41,6 +42,7 @@
       "image": "https://ravibh5522.github.io/easyIDE/icon.png",
       "screenshot": "https://ravibh5522.github.io/easyIDE/media/03-python-editor.png",
       "license": "https://www.gnu.org/licenses/agpl-3.0.html",
+      "author": { "@type": "Person", "name": "Ravi Kumar", "url": "https://github.com/ravibh5522" },
       "isAccessibleForFree": true,
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "sameAs": ["https://github.com/ravibh5522/easyIDE"]
@@ -48,59 +50,33 @@
   ]
 }
 </script>
-<style>
-:root { --bg:#0f1115; --fg:#f2f3f5; --muted:#b4b9c0; --accent:#ff8a3d; --glass:rgba(15,17,21,.62); --line:rgba(255,255,255,.14); }
-* { box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui,sans-serif; }
-#bg { position:fixed; inset:0; z-index:-2; width:100%; height:100%; object-fit:cover; filter:blur(28px) brightness(.55); transform:scale(1.15); }
-#veil { position:fixed; inset:0; z-index:-1; background:linear-gradient(rgba(15,17,21,.35), rgba(15,17,21,.8)); }
-main { max-width:1040px; margin:0 auto; padding:0 16px 64px; }
-section { padding:56px 0 0; }
-.hero { text-align:center; padding-top:80px; }
-.hero img.logo { width:112px; height:112px; border-radius:24px; box-shadow:0 8px 32px rgba(0,0,0,.5); }
-h1 { font-size:clamp(2.2rem,6vw,3.6rem); margin:16px 0 8px; }
-h2 { font-size:1.6rem; margin:0 0 20px; text-align:center; }
-.lead { color:var(--muted); font-size:1.15rem; max-width:560px; margin:0 auto; }
-.btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:32px 0 0; }
-a.btn { padding:12px 24px; border-radius:8px; background:var(--accent); color:#111; font-weight:600; text-decoration:none; }
-a.btn.alt { background:var(--glass); color:var(--fg); border:1px solid var(--line); backdrop-filter:blur(8px); }
-.card { background:var(--glass); border:1px solid var(--line); border-radius:16px; backdrop-filter:blur(10px); overflow:hidden; }
-video.tour { display:block; width:100%; }
-.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
-.shots a { display:block; }
-.shots img { display:block; width:100%; height:auto; transition:transform .2s; }
-.shots a:hover img { transform:scale(1.02); }
-.features { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
-.features .card { padding:20px; }
-.features h3 { margin:0 0 6px; font-size:1.1rem; }
-.features p { margin:0; color:var(--muted); }
-.join { display:flex; gap:32px; align-items:center; justify-content:center; flex-wrap:wrap; padding:32px; text-align:center; }
-.join img { width:180px; height:180px; background:#fff; padding:10px; border-radius:12px; }
-.join p { color:var(--muted); margin:0 0 16px; max-width:360px; }
-footer { text-align:center; color:var(--muted); padding:48px 16px; font-size:.9rem; }
-footer a { color:var(--muted); }
-@media (prefers-reduced-motion: reduce) { #bg { display:none; } }
-</style>
 </head>
 <body>
 <video id="bg" src="media/bg.mp4" poster="media/poster.png" autoplay muted loop playsinline aria-hidden="true"></video>
 <div id="veil"></div>
+<header class="nav"><a class="brand" href="./" aria-current="page"><img src="icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="stats.html">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
 <main>
 <section class="hero">
 <img class="logo" src="icon.png" alt="easyIDE icon">
 <h1>easyIDE</h1>
 <p class="lead">A real IDE and code editor for Android, with a real Linux userland. Native editor, file tree, git and an Ubuntu terminal on your tablet or phone, offline, no root.</p>
 <div class="btns">
-<a class="btn" href="https://github.com/ravibh5522/easyIDE/releases/latest">Download</a>
+<a class="btn" href="download.html">Download <span data-stat="version"></span></a>
 <a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a>
 <a class="btn alt" href="#community">Join Telegram</a>
+</div>
+<div class="numbers">
+<div><b data-stat="commits">&nbsp;</b><span>commits, last 12 months</span></div>
+<div><b data-stat="lines">&nbsp;</b><span>lines of code</span></div>
+<div><b data-stat="tests">&nbsp;</b><span>automated tests</span></div>
+<div><b data-stat="releases">&nbsp;</b><span>releases</span></div>
+<div><b data-stat="stars">&nbsp;</b><span>GitHub stars</span></div>
 </div>
 </section>
 
 <section>
 <h2>An Android IDE, not a snippet editor</h2>
-<div class="features">
+<div class="grid">
 <div class="card"><h3>Real Linux terminal</h3><p>Ubuntu runs in app storage through PRoot, no root needed. <code>apt-get install</code> works, full-screen programs render, tabs keep their scrollback.</p></div>
 <div class="card"><h3>Code editor with language servers</h3><p>Syntax highlighting for 229 languages with VS Code's TextMate grammars, plus completion, diagnostics, rename and go-to-definition for Python, TypeScript, Rust, Go, C/C++ and more.</p></div>
 <div class="card"><h3>Git built in</h3><p>Stage, commit, amend, branch and tag, with a VS Code-style history graph. Clone, pull and push from the terminal or the source control view.</p></div>
@@ -108,6 +84,7 @@ footer a { color:var(--muted); }
 <div class="card"><h3>Made for tablets, works on phones</h3><p>Activity rail, split editors and a bottom panel on a tablet; bottom navigation on a phone. Keyboard and mouse friendly.</p></div>
 <div class="card"><h3>Free and open source</h3><p>AGPL-3.0, offline-first, no account. Extensions add languages, themes, icons, snippets and language servers.</p></div>
 </div>
+<p style="text-align:center;margin-top:20px"><a href="features.html">Everything it does, and what it does not do yet &rarr;</a></p>
 </section>
 
 <section>
@@ -138,9 +115,20 @@ footer a { color:var(--muted); }
 </div>
 </div>
 </section>
+
+<section>
+<h2>Built in the open</h2>
+<div class="card pad">
+<div class="chart-head"><h3>Commit activity</h3><span>live from GitHub, last 12 months</span></div>
+<div id="heatmap"></div>
+<p style="margin:12px 0 0"><a href="stats.html">More code graphs &rarr;</a> &middot; <a href="team.html">Meet the team &rarr;</a></p>
+</div>
+</section>
 </main>
 <footer>
-easyIDE is open source under AGPL-3.0 &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a> &middot; <a href="https://github.com/ravibh5522/easyIDE/issues">Report an issue</a>
+<nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="stats.html">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE/issues">Report an issue</a><a href="https://t.me/+yMH4w5rX1gZhOTM1">Telegram</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
 </footer>
+<script src="site.js" defer></script>
 </body>
 </html>

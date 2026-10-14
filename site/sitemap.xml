@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://ravibh5522.github.io/easyIDE/</loc>
-    <changefreq>weekly</changefreq>
-  </url>
+  <url><loc>https://ravibh5522.github.io/easyIDE/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://ravibh5522.github.io/easyIDE/features.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://ravibh5522.github.io/easyIDE/download.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://ravibh5522.github.io/easyIDE/stats.html</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://ravibh5522.github.io/easyIDE/team.html</loc><changefreq>monthly</changefreq></url>
 </urlset>
