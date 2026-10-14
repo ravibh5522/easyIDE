@@ -16,6 +16,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -27,6 +28,7 @@ import dev.easyide.app.data.settings.ThemeSettingsSchema
 import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.session.SessionPolicy
 import dev.easyide.app.ui.AppViewModelFactory
+import dev.easyide.app.ui.screens.announcement.AnnouncementDialog
 import dev.easyide.app.ui.screens.privacy.TelemetryGate
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.foundation.LocalKeymap
@@ -85,6 +87,7 @@ class MainActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle(initialValue = null)
             val gateAnswered by container.uiPreferences.telemetryGateAnswered
                 .collectAsStateWithLifecycle(initialValue = null)
+            val announcement by container.pushInbox.pending.collectAsStateWithLifecycle(initialValue = null)
             val keymap by container.keymap.collectAsStateWithLifecycle(initialValue = null)
             val settings = storedSettings ?: SettingsSnapshot.DEFAULTS
             val themeMode = settings[SettingsSchema.themeMode]
@@ -158,6 +161,11 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                             )
+                            // Over whatever screen is open, but never over first-run setup.
+                            announcement?.takeIf { complete }?.let {
+                                val image = remember(it) { container.pushInbox.image()?.asImageBitmap() }
+                                AnnouncementDialog(it, image, onDone = container.pushInbox::clear)
+                            }
                         }
                     }
                 }

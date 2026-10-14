@@ -8,6 +8,7 @@ Status legend: not-started / in-progress / done / blocked
 | `:telemetry-firebase` adapter, FCM service, manifest defaults | done | verified to compile and assemble; not verified on a device |
 | One mandatory consent: `TelemetryGate` (new: before setup; existing: after upgrade) + `privacy.telemetry.enabled` | done | Agree or Exit; setting stays for withdrawal |
 | Events: `app_open`, `workspace_open` | done | |
+| Announcements: data push -> notification (image, link, action) + one-time in-app dialog; `model_<model>` topic; `tools/push-announce.py` | done | compiles, unit tests pass, FCM dry run accepted; not verified on a device; reaches an install only after it updates to a build with it |
 | Events: command run, file open (language only), terminal open, git op, extension install, environment install, results | not-started | add at the choke points; names in `TelemetryNames` |
 | Crashlytics + Performance + Remote Config behind neutral contracts | done | same single consent; not exercised on a device; no Remote Config parameters yet; non-fatal `recordError` not called anywhere yet |
 | Firebase console setup (custom definitions, A/B tests, App Distribution, Test Lab) | not-started | manual, see arch.md console map |

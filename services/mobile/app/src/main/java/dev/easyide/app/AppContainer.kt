@@ -37,6 +37,7 @@ import dev.easyide.app.diagnostics.ExtensionLogBridge
 import dev.easyide.app.diagnostics.LspStatusBridge
 import dev.easyide.app.diagnostics.readBuildInfo
 import dev.easyide.app.telemetry.TelemetryConsent
+import dev.easyide.telemetry.PushInbox
 import dev.easyide.telemetry.Telemetry
 import dev.easyide.telemetry.TelemetryNames
 import dev.easyide.telemetry.firebase.FirebaseTelemetry
@@ -281,6 +282,9 @@ class AppContainer(context: Context) {
     val telemetry: Telemetry = FirebaseTelemetry.create(appContext)
 
     val telemetryConsent = TelemetryConsent(telemetry, settingsStore.snapshot, buildInfo, applicationScope)
+
+    /** The last pushed announcement, shown once in-app by `AnnouncementDialog`. */
+    val pushInbox = PushInbox(appContext)
 
     /** Hot-exit snapshots and unsaved-buffer backups, one directory per project. */
     val sessionsDir = File(appContext.filesDir, SESSIONS_DIR)

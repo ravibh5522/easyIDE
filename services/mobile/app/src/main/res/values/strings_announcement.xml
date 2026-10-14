@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app copy of a pushed announcement (docs/telemetry/arch.md). The title, body and link come from the push. -->
+<resources>
+    <string name="announcement_open">Open</string>
+    <string name="announcement_later">Not now</string>
+    <string name="announcement_close">Close</string>
+</resources>

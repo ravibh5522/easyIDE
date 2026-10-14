@@ -54,6 +54,7 @@ class TelemetryConsent(
         if (!on) return
         telemetry.push.subscribe(TelemetryNames.TOPIC_ALL)
         telemetry.push.subscribe(TelemetryNames.TOPIC_CHANNEL_PREFIX + topicChannel(build))
+        telemetry.push.subscribe(TelemetryNames.TOPIC_MODEL_PREFIX + topicModel(build))
     }
 
     companion object {
@@ -62,6 +63,11 @@ class TelemetryConsent(
 
         /** `canary.42+abc1234` -> `canary`; topics only allow `[a-zA-Z0-9-_.~%]`. */
         fun topicChannel(build: BuildInfo): String = build.channel.substringBefore('.').substringBefore('+')
+
+        /** `SM-X710 5G` -> `SM-X710_5G`: anything a topic name disallows becomes `_`. */
+        fun topicModel(build: BuildInfo): String = build.model.replace(TOPIC_UNSAFE, "_")
+
+        private val TOPIC_UNSAFE = Regex("[^a-zA-Z0-9_.~%-]")
 
         /** Everything the device-info dashboards need, with no identifier beyond what the provider assigns. */
         fun deviceProperties(build: BuildInfo): Map<String, String> = mapOf(

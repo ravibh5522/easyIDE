@@ -17,6 +17,7 @@ object TelemetryNames {
     /** Broadcast topic every opted-in install joins. */
     const val TOPIC_ALL = "all"
     const val TOPIC_CHANNEL_PREFIX = "channel_"
+    const val TOPIC_MODEL_PREFIX = "model_"
 
     const val PUSH_CHANNEL_ID = "announcements"
 }
@@ -60,8 +61,46 @@ interface RemoteConfig {
     fun string(key: String, default: String): String
 }
 
-/** What [PushNotifier] shows. Provider services map their message type onto this. */
-data class PushMessage(val title: String, val body: String)
+/**
+ * What [PushNotifier] shows and the app repeats in-app. Provider services map their message type onto this.
+ * [link] opens on tap, [action] labels the button that opens it, [image] is shown beside the text.
+ */
+data class PushMessage(
+    val title: String,
+    val body: String,
+    val link: String? = null,
+    val action: String? = null,
+    val image: String? = null,
+) {
+    companion object {
+        const val KEY_TITLE = "title"
+        const val KEY_BODY = "body"
+        const val KEY_LINK = "link"
+        const val KEY_ACTION = "action"
+        const val KEY_IMAGE = "image"
+
+        /** An announcement sent as a data message, or null without a title. Only https links and images are used. */
+        fun fromData(data: Map<String, String>): PushMessage? {
+            val title = data[KEY_TITLE]?.takeIf { it.isNotBlank() } ?: return null
+            return PushMessage(
+                title = title,
+                body = data[KEY_BODY].orEmpty(),
+                link = data[KEY_LINK]?.takeIf { it.startsWith("https://") },
+                action = data[KEY_ACTION]?.takeIf { it.isNotBlank() },
+                image = data[KEY_IMAGE]?.takeIf { it.startsWith("https://") },
+            )
+        }
+    }
+
+    /** The inverse of [fromData]. */
+    fun toData(): Map<String, String> = listOfNotNull(
+        KEY_TITLE to title,
+        KEY_BODY to body,
+        link?.let { KEY_LINK to it },
+        action?.let { KEY_ACTION to it },
+        image?.let { KEY_IMAGE to it },
+    ).toMap()
+}
 
 /** The provider handed to the app: one object so swapping providers is one construction site. */
 class Telemetry(

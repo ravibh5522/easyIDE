@@ -62,6 +62,7 @@ class TelemetryConsentTest {
         assertEquals("34", props[TelemetryNames.PROP_SDK])
         assertTrue(TelemetryConsent.deviceProperties(build.copy(model = "x".repeat(80))).getValue(TelemetryNames.PROP_MODEL).length <= 36)
         assertEquals("release", TelemetryConsent.topicChannel(build.copy(versionName = "0.2.0")))
+        assertEquals("SM-X710_5G_", TelemetryConsent.topicModel(build.copy(model = "SM-X710 5G+")))
     }
 
     @Test
@@ -80,7 +81,7 @@ class TelemetryConsentTest {
         assertFalse(rec.props.isEmpty())
         assertFalse(rec.crashKeys.isEmpty())
         assertEquals(1, rec.refreshes)
-        assertEquals(setOf("all", "channel_canary"), rec.topics)
+        assertEquals(setOf("all", "channel_canary", "model_Pad_6"), rec.topics)
         scope.cancel()
     }
 }
