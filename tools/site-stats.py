@@ -9,8 +9,10 @@ Authors are merged through .mailmap, so one person with several commit emails co
 """
 import datetime as dt
 import json
+import os
 import re
 import subprocess
+import urllib.request
 from collections import Counter
 from pathlib import Path
 
@@ -27,6 +29,7 @@ LANGUAGES = {
 EXCLUDE = re.compile(r"(^|/)(assets|testdata|testFixtures|docs|site/media)/|\.min\.js$")
 TEST_DIR = re.compile(r"/src/(test|androidTest|testFixtures)/")
 TEST_ANNOTATION = re.compile(r"^\s*@Test\b", re.M)
+REPO = "ravibh5522/easyIDE"
 GITHUB_NOREPLY = re.compile(r"^(?:\d+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$")
 
 
@@ -111,6 +114,51 @@ def aliases() -> dict[str, str]:
     return dict(line.split("\x1f") for line in sorted(set(out.splitlines())))
 
 
+def snapshot_commits() -> list[dict]:
+    """The last year of commits in the GitHub API's shape, for when the site cannot reach the API."""
+    since = (dt.date.today() - dt.timedelta(days=365)).isoformat()
+    out = git("log", f"--since={since}", "--format=%H%x1f%an%x1f%ae%x1f%aI%x1f%s")
+    commits = []
+    for line in out.splitlines():
+        sha, name, email, date, subject = line.split("\x1f")
+        user = re.match(r"^(\d+)\+([A-Za-z0-9-]+)@users\.noreply\.github\.com$", email)
+        commits.append({
+            "html_url": f"https://github.com/{REPO}/commit/{sha}",
+            "commit": {"message": subject, "author": {"name": name, "email": email, "date": date}},
+            "author": {"login": user.group(2), "avatar_url": f"https://avatars.githubusercontent.com/u/{user.group(1)}?v=4"} if user else None,
+        })
+    return commits
+
+
+def api(path: str):
+    """Boundary: the network. The Pages workflow passes GITHUB_TOKEN; without it or offline, None."""
+    req = urllib.request.Request(f"https://api.github.com/repos/{REPO}{path}", headers={"Accept": "application/vnd.github+json"})
+    if os.environ.get("GITHUB_TOKEN"):
+        req.add_header("Authorization", "Bearer " + os.environ["GITHUB_TOKEN"])
+    try:
+        with urllib.request.urlopen(req, timeout=20) as res:
+            return json.load(res)
+    except (OSError, ValueError):
+        return None
+
+
+def snapshot_releases():
+    releases = api("/releases?per_page=30")
+    if releases is None:
+        return None
+    keep = ("name", "size", "download_count", "browser_download_url")
+    return [
+        {"tag_name": r["tag_name"], "html_url": r["html_url"], "published_at": r["published_at"],
+         "assets": [{k: a[k] for k in keep} for a in r["assets"]]}
+        for r in releases
+    ]
+
+
+def snapshot_repo():
+    repo = api("")
+    return None if repo is None else {k: repo[k] for k in ("stargazers_count", "forks_count", "open_issues_count")}
+
+
 def main() -> None:
     rows = commits()
     days = [d for _, _, d in rows]
@@ -124,6 +172,8 @@ def main() -> None:
         "weekly": weekly(days),
         "contributors": contributors(rows),
         "aliases": aliases(),
+        # What site.js shows when the visitor's own API calls fail (60 an hour per IP, shared on CGNAT).
+        "snapshot": {"commits": snapshot_commits(), "releases": snapshot_releases(), "repo": snapshot_repo()},
         "code": code(),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)

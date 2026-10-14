@@ -13,11 +13,12 @@
 <meta property="og:url" content="https://ravibh5522.github.io/easyIDE/">
 <meta property="og:title" content="easyIDE - IDE and code editor for Android">
 <meta property="og:description" content="A real IDE with a real Linux userland, for Android tablets and phones. Native editor, git and an Ubuntu terminal, offline, no root.">
-<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/poster.png">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="easyIDE - IDE and code editor for Android">
 <meta name="twitter:description" content="A real IDE with a real Linux userland, for Android tablets and phones.">
-<meta name="twitter:image" content="https://ravibh5522.github.io/easyIDE/media/poster.png">
+<meta name="twitter:image" content="https://ravibh5522.github.io/easyIDE/media/og-card.png">
+<script>document.documentElement.classList.add("js")</script>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
@@ -40,7 +41,7 @@
       "url": "https://ravibh5522.github.io/easyIDE/",
       "downloadUrl": "https://github.com/ravibh5522/easyIDE/releases/latest",
       "image": "https://ravibh5522.github.io/easyIDE/icon.png",
-      "screenshot": "https://ravibh5522.github.io/easyIDE/media/03-python-editor.png",
+      "screenshot": "https://ravibh5522.github.io/easyIDE/media/05-git-and-terminal.png",
       "license": "https://www.gnu.org/licenses/agpl-3.0.html",
       "author": { "@type": "Person", "name": "Ravi Kumar", "url": "https://github.com/ravibh5522" },
       "isAccessibleForFree": true,
@@ -54,37 +55,73 @@
 <body>
 <video id="bg" src="media/bg.mp4" poster="media/poster.png" autoplay muted loop playsinline aria-hidden="true"></video>
 <div id="veil"></div>
+<div class="blobs" aria-hidden="true"><span></span><span></span><span></span></div>
 <header class="nav"><a class="brand" href="./" aria-current="page"><img src="icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="stats.html">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
 <main>
-<section class="hero">
-<img class="logo" src="icon.png" alt="easyIDE icon">
-<h1>easyIDE</h1>
-<p class="lead">A real IDE and code editor for Android, with a real Linux userland. Native editor, file tree, git and an Ubuntu terminal on your tablet or phone, offline, no root.</p>
+<section class="hero2">
+<div class="hero-copy reveal">
+<span class="pill"><span class="pulse"></span><span data-stat="version">beta</span> &middot; free &amp; open source</span>
+<p class="eyebrow">easyIDE</p>
+<h1>A real IDE for <span class="grad">Android tablets</span></h1>
+<p class="lead">A code editor with language servers, git and a real Ubuntu terminal, running on the device. Offline, no root, no server in between.</p>
 <div class="btns">
 <a class="btn" href="download.html">Download <span data-stat="version"></span></a>
 <a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a>
-<a class="btn alt" href="#community">Join Telegram</a>
 </div>
-<div class="numbers">
-<div><b data-stat="commits">&nbsp;</b><span>commits, last 12 months</span></div>
-<div><b data-stat="lines">&nbsp;</b><span>lines of code</span></div>
-<div><b data-stat="tests">&nbsp;</b><span>automated tests</span></div>
-<div><b data-stat="releases">&nbsp;</b><span>releases</span></div>
-<div><b data-stat="stars">&nbsp;</b><span>GitHub stars</span></div>
+<ul class="trust"><li>Android 8.0+</li><li>No root</li><li>Works offline</li><li>AGPL-3.0</li></ul>
+</div>
+<div class="hero-visual reveal" style="--d:150ms">
+<div class="tablet"><div class="screen"><video id="hero-clip" muted autoplay playsinline preload="metadata" poster="media/hero-workspace.jpg" src="media/hero-workspace.mp4"></video></div></div>
+<div class="clip-tabs"><button type="button" data-clip="workspace" aria-pressed="true">Editor &amp; git</button><button type="button" data-clip="theme" aria-pressed="false">Themes</button></div>
+<div class="term float" aria-hidden="true"><div class="term-bar"><i></i><i></i><i></i><span>ubuntu@easyide</span></div><pre id="typer"></pre></div>
+<div class="chip float c1">229 languages</div>
+<div class="chip float c2">LSP &middot; git &middot; Ubuntu</div>
 </div>
 </section>
 
+<section class="numbers">
+<div class="reveal"><b data-stat="commits">&nbsp;</b><span>commits, last 12 months</span></div>
+<div class="reveal" style="--d:60ms"><b data-stat="lines">&nbsp;</b><span>lines of code</span></div>
+<div class="reveal" style="--d:120ms"><b data-stat="tests">&nbsp;</b><span>automated tests</span></div>
+<div class="reveal" style="--d:180ms"><b data-stat="releases">&nbsp;</b><span>releases</span></div>
+<div class="reveal" style="--d:240ms"><b data-stat="stars">&nbsp;</b><span>GitHub stars</span></div>
+</section>
+
 <section>
-<h2>An Android IDE, not a snippet editor</h2>
+<h2 class="reveal">An Android IDE, not a snippet editor</h2>
 <div class="grid">
-<div class="card"><h3>Real Linux terminal</h3><p>Ubuntu runs in app storage through PRoot, no root needed. <code>apt-get install</code> works, full-screen programs render, tabs keep their scrollback.</p></div>
-<div class="card"><h3>Code editor with language servers</h3><p>Syntax highlighting for 229 languages with VS Code's TextMate grammars, plus completion, diagnostics, rename and go-to-definition for Python, TypeScript, Rust, Go, C/C++ and more.</p></div>
-<div class="card"><h3>Git built in</h3><p>Stage, commit, amend, branch and tag, with a VS Code-style history graph. Clone, pull and push from the terminal or the source control view.</p></div>
-<div class="card"><h3>Python, Node.js and build tools</h3><p>Pick a preset environment and it arrives with its toolchain. Run Node LTS, npm and CLI tools such as Claude Code right on the tablet.</p></div>
-<div class="card"><h3>Made for tablets, works on phones</h3><p>Activity rail, split editors and a bottom panel on a tablet; bottom navigation on a phone. Keyboard and mouse friendly.</p></div>
-<div class="card"><h3>Free and open source</h3><p>AGPL-3.0, offline-first, no account. Extensions add languages, themes, icons, snippets and language servers.</p></div>
+<div class="card feature reveal" style="--d:0ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="m7 10 3 2-3 2M13 15h4"/></svg><h3>Real Linux terminal</h3><p>Ubuntu runs in app storage through PRoot, no root needed. <code>apt-get install</code> works, full-screen programs render, tabs keep their scrollback.</p></div>
+<div class="card feature reveal" style="--d:70ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></svg><h3>Code editor with language servers</h3><p>Syntax highlighting for 229 languages with VS Code's TextMate grammars, plus completion, diagnostics, rename and go-to-definition for Python, TypeScript, Rust, Go, C/C++ and more.</p></div>
+<div class="card feature reveal" style="--d:140ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 8v8M18 10c0 4-6 3-11 6.5"/></svg><h3>Git built in</h3><p>Stage, commit, amend, branch and tag, with a VS Code-style history graph. Clone, pull and push from the terminal or the source control view.</p></div>
+<div class="card feature reveal" style="--d:210ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7z"/><path d="m4 7 8 4 8-4M12 11v10"/></svg><h3>Python, Node.js and build tools</h3><p>Pick a preset environment and it arrives with its toolchain. Run Node LTS, npm and CLI tools such as Claude Code right on the tablet.</p></div>
+<div class="card feature reveal" style="--d:280ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M11 18h2"/></svg><h3>Made for tablets, works on phones</h3><p>Activity rail, split editors and a bottom panel on a tablet; bottom navigation on a phone. Keyboard and mouse friendly.</p></div>
+<div class="card feature reveal" style="--d:350ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg><h3>Free and open source</h3><p>AGPL-3.0, offline-first, no account. Extensions add languages, themes, icons, snippets and language servers.</p></div>
 </div>
 <p style="text-align:center;margin-top:20px"><a href="features.html">Everything it does, and what it does not do yet &rarr;</a></p>
+</section>
+
+<section>
+<h2 class="reveal">How it runs Linux without root</h2>
+<div class="flow"><div class="node reveal" style="--d:0ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="9" width="14" height="10" rx="2"/><path d="M8 9a4 4 0 0 1 8 0M9 6 8 4M15 6l1-2M9.5 12.5h0M14.5 12.5h0"/></svg><b>Your Android device</b><span>Tablet or phone, Android 8.0+</span></div><div class="link" aria-hidden="true"></div><div class="node reveal" style="--d:120ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg><b>PRoot</b><span>Linux system calls in user space, no root</span></div><div class="link" aria-hidden="true"></div><div class="node reveal" style="--d:240ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 4v5.5M5 16l4.7-2.7M19 16l-4.7-2.7"/></svg><b>Ubuntu 24.04</b><span>A full userland with apt, in app storage</span></div><div class="link" aria-hidden="true"></div><div class="node reveal" style="--d:360ms"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg><b>Your tools</b><span>Python, Node.js, git, compilers, Claude Code</span></div></div>
+</section>
+
+<section class="showcase">
+<div class="show">
+<a class="shot reveal" href="media/04-editor.png"><img src="media/04-editor.webp" alt="Code like you would on a laptop - easyIDE screenshot" loading="lazy" width="1280" height="800"></a>
+<div class="reveal" style="--d:120ms"><h3>Code like you would on a laptop</h3><p class="muted">A dense, VS Code-shaped workspace with split editor groups, breadcrumbs and file-type icons.</p><ul class="ticks"><li>229 languages highlighted offline</li><li>Completion, hover, diagnostics and rename from real language servers</li><li>Activity rail, side bar and bottom panel on a tablet</li></ul></div>
+</div>
+<div class="show flip">
+<a class="shot reveal" href="media/05-git-and-terminal.png"><img src="media/05-git-and-terminal.webp" alt="Git and a real terminal, side by side - easyIDE screenshot" loading="lazy" width="1280" height="800"></a>
+<div class="reveal" style="--d:120ms"><h3>Git and a real terminal, side by side</h3><p class="muted">The history graph, staging and commits next to an Ubuntu terminal running the same repository.</p><ul class="ticks"><li>Branch and tag chips, cherry-pick, checkout, compare</li><li>Multiple terminal tabs with an Esc/Ctrl key row</li><li>Changes from the terminal show up in source control</li></ul></div>
+</div>
+<div class="show">
+<a class="shot reveal" href="media/06-extensions.png"><img src="media/06-extensions.webp" alt="Extend it - easyIDE screenshot" loading="lazy" width="1280" height="800"></a>
+<div class="reveal" style="--d:120ms"><h3>Extend it</h3><p class="muted">Declarative packs add what you need, with capability disclosure before install.</p><ul class="ticks"><li>Language packs install their own language server</li><li>Themes, icon themes, snippets, keybindings and panels</li><li>VS Code icon themes from Open VSX install as is</li></ul></div>
+</div>
+<div class="show flip">
+<a class="shot reveal" href="media/07-appearance.png"><img src="media/07-appearance.webp" alt="Make it yours - easyIDE screenshot" loading="lazy" width="1280" height="800"></a>
+<div class="reveal" style="--d:120ms"><h3>Make it yours</h3><p class="muted">Themes, accent colours and density that adapt from a phone to a large tablet.</p><ul class="ticks"><li>Dark, light, AMOLED and high-contrast themes</li><li>Your own accent colour, or one from the wallpaper</li><li>Three density levels and rounded or sharp corners</li></ul></div>
+</div>
 </section>
 
 <section>
@@ -93,15 +130,13 @@
 </section>
 
 <section>
-<h2>Screenshots</h2>
-<div class="shots">
-<a class="card" href="media/01-home.png"><img src="media/01-home.png" alt="Projects home" loading="lazy"></a>
-<a class="card" href="media/02-new-project.png"><img src="media/02-new-project.png" alt="New project dialog" loading="lazy"></a>
-<a class="card" href="media/03-python-editor.png"><img src="media/03-python-editor.png" alt="Python editor with pyright and ruff" loading="lazy"></a>
-<a class="card" href="media/04-editor.png"><img src="media/04-editor.png" alt="Kotlin editor and file tree" loading="lazy"></a>
-<a class="card" href="media/05-git-and-terminal.png"><img src="media/05-git-and-terminal.png" alt="Git graph and Ubuntu terminal" loading="lazy"></a>
-<a class="card" href="media/06-extensions.png"><img src="media/06-extensions.png" alt="Built-in extensions" loading="lazy"></a>
-<a class="card" href="media/07-appearance.png"><img src="media/07-appearance.png" alt="Themes and accent colours" loading="lazy"></a>
+<h2 class="reveal">Built in the open</h2>
+<div class="card pad reveal">
+<div class="chart-head"><h3>Top contributors</h3><span>live from GitHub</span></div>
+<div id="contributors-row" class="people"></div>
+<div class="chart-head" style="margin-top:28px"><h3>Commit activity</h3><span>live, last 12 months</span></div>
+<div id="heatmap"></div>
+<p style="margin:12px 0 0"><a href="stats.html">More code graphs &rarr;</a> &middot; <a href="team.html">Meet the lead developer &rarr;</a></p>
 </div>
 </section>
 
@@ -117,11 +152,9 @@
 </section>
 
 <section>
-<h2>Built in the open</h2>
-<div class="card pad">
-<div class="chart-head"><h3>Commit activity</h3><span>live from GitHub, last 12 months</span></div>
-<div id="heatmap"></div>
-<p style="margin:12px 0 0"><a href="stats.html">More code graphs &rarr;</a> &middot; <a href="team.html">Meet the team &rarr;</a></p>
+<div class="cta reveal">
+<h2>Your tablet has the screen and the keyboard.<br>Now it has the IDE.</h2>
+<div class="btns"><a class="btn" href="download.html">Download easyIDE</a><a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Star on GitHub</a></div>
 </div>
 </section>
 </main>

@@ -22,6 +22,8 @@ jobs:
         with:
           fetch-depth: 0
       - run: python3 tools/site-stats.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

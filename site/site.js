@@ -229,8 +229,100 @@ function recent(host, list, aliases) {
   });
 }
 
-function setStat(name, value) {
-  document.querySelectorAll(`[data-stat="${name}"]`).forEach((n) => { n.textContent = value; });
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/** Sets every [data-stat=name]. With [num], a headline number counts up from 0 when it scrolls into view. */
+function setStat(name, value, num, format = (n) => fmt.format(n)) {
+  document.querySelectorAll(`[data-stat="${name}"]`).forEach((n) => {
+    if (num == null || still || !n.closest(".numbers")) { n.textContent = value; return; }
+    n.textContent = format(0);
+    whenVisible(n, () => {
+      const start = performance.now(), ms = 1400;
+      const tick = (t) => {
+        const k = Math.min(1, (t - start) / ms), eased = 1 - Math.pow(1 - k, 3);
+        n.textContent = k < 1 ? format(Math.round(num * eased)) : value;
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  });
+}
+
+function whenVisible(node, fn) {
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) { io.disconnect(); fn(); }
+  }, { threshold: 0.15 });
+  io.observe(node);
+}
+
+// Sections fade up as they scroll in (the CSS only hides them once this script runs).
+document.querySelectorAll(".reveal").forEach((n) => whenVisible(n, () => n.classList.add("in")));
+
+/** The hero's terminal types a short session, then starts over. */
+function typer(pre) {
+  const script = [
+    ["$ ", "sudo apt-get install -y python3 git"],
+    ["", "Setting up python3 (3.12.3) ... done"],
+    ["$ ", "pip install flask"],
+    ["", "Successfully installed flask-3.1"],
+    ["$ ", "npm install -g @anthropic-ai/claude-code"],
+    ["", "added 1 package in 9s"],
+    ["$ ", 'git commit -m "first commit from my tablet"'],
+    ["", "[main 4f1c2ab] first commit from my tablet"],
+  ];
+  const span = (cls, text) => { const s = el("span", { class: cls }, text); pre.appendChild(s); pre.scrollTop = pre.scrollHeight; return s; };
+  const cursor = el("span", { class: "cursor" });
+  let line = 0;
+  const next = () => {
+    if (line === script.length) { setTimeout(() => { pre.textContent = ""; line = 0; next(); }, 2600); return; }
+    const [prompt, text] = script[line++];
+    if (!prompt) { span("o", text + "\n"); pre.appendChild(cursor); setTimeout(next, 500); return; }
+    span("p", prompt);
+    const cmd = span("", "");
+    pre.appendChild(cursor);
+    let i = 0;
+    const type = () => {
+      cmd.textContent = text.slice(0, ++i);
+      pre.scrollTop = pre.scrollHeight;
+      if (i < text.length) setTimeout(type, 28 + Math.random() * 40);
+      else { cmd.textContent += "\n"; setTimeout(next, 420); }
+    };
+    setTimeout(type, 300);
+  };
+  if (still) { script.forEach(([p, t]) => span(p ? "p" : "o", p + t + "\n")); return; }
+  next();
+}
+
+/** The hero tablet plays the real screen recordings in turn; the pills under it pick one. */
+function clips(video) {
+  const buttons = [...document.querySelectorAll("[data-clip]")];
+  const show = (name) => {
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.clip === name)));
+    video.poster = `media/hero-${name}.jpg`;
+    video.src = `media/hero-${name}.mp4`;
+    if (!still) video.play().catch(() => {});
+  };
+  buttons.forEach((b) => b.addEventListener("click", () => show(b.dataset.clip)));
+  video.addEventListener("ended", () => {
+    const at = buttons.findIndex((b) => b.getAttribute("aria-pressed") === "true");
+    show(buttons[(at + 1) % buttons.length].dataset.clip);
+  });
+  if (still) video.removeAttribute("autoplay"), video.pause();
+}
+
+/** The homepage's contributor chips: lead developer first, then everyone else, then an open seat. */
+function peopleRow(host, people) {
+  people.slice(0, 8).forEach((p, i) => {
+    const chip = host.appendChild(p.login ? el("a", { href: "https://github.com/" + p.login }) : el("div"));
+    if (p.login === "ravibh5522") chip.classList.add("is-lead");
+    chip.appendChild(p.avatar ? el("img", { src: p.avatar + "&s=88", alt: "", loading: "lazy" }) : el("span", { class: "initial" }, p.name[0]));
+    const who = chip.appendChild(el("span"));
+    who.appendChild(el("b", {}, p.name));
+    who.appendChild(el("small", {}, (p.login === "ravibh5522" ? "Lead developer · " : "") + fmt.format(p.commits) + " commits"));
+  });
+  const you = host.appendChild(el("a", { class: "you", href: "https://github.com/ravibh5522/easyIDE#contributing" }));
+  you.appendChild(el("span", { class: "initial" }, "+"));
+  you.appendChild(el("span", {}, "You? Start contributing"));
 }
 
 function failed(host, error) {
@@ -239,21 +331,30 @@ function failed(host, error) {
 
 async function run() {
   const need = (id) => document.getElementById(id);
-  const [repo, local, list, releases] = await Promise.all([
+  const [liveRepo, local, liveList, liveReleases] = await Promise.all([
     json(API).catch(() => null),
     stats(),
     commits().catch((e) => e),
     json(`${API}/releases?per_page=20`).catch(() => null),
   ]);
+  // Live first; the deploy-time snapshot when GitHub refuses (its limit is per IP, often shared).
+  const snap = local && local.snapshot;
+  const stale = (liveList instanceof Error || !liveRepo || !liveReleases) && snap;
+  const repo = liveRepo || (snap && snap.repo);
+  const releases = liveReleases || (snap && snap.releases);
+  const list = liveList instanceof Error && snap && snap.commits ? snap.commits : liveList;
+  if (stale) {
+    document.querySelectorAll(".chart-head span").forEach((n) => { n.textContent = `as of ${local.generated}`; });
+  }
   if (repo) {
-    setStat("stars", fmt.format(repo.stargazers_count));
+    setStat("stars", fmt.format(repo.stargazers_count), repo.stargazers_count);
     setStat("forks", fmt.format(repo.forks_count));
     setStat("issues", fmt.format(repo.open_issues_count));
   }
   if (local) {
-    setStat("lines", compact.format(local.code.lines));
-    setStat("tests", fmt.format(local.code.test_cases));
-    setStat("decisions", fmt.format(local.decisions));
+    setStat("lines", compact.format(local.code.lines), local.code.lines, (n) => compact.format(n));
+    setStat("tests", fmt.format(local.code.test_cases), local.code.test_cases);
+    setStat("decisions", fmt.format(local.decisions), local.decisions);
     setStat("generated", local.generated);
     if (need("languages")) bars(need("languages"), local.code.languages.map((l) => ({ label: l.name, value: l.lines })), "lines");
     if (need("modules")) bars(need("modules"), local.code.modules.map((m) => ({ label: m.name, value: m.lines })), "lines");
@@ -262,19 +363,20 @@ async function run() {
     // The API does not list releases newest first; publication time does.
     const stable = releases.filter((r) => r.tag_name.startsWith("v") && r.published_at)
       .sort((a, b) => b.published_at.localeCompare(a.published_at));
-    setStat("releases", fmt.format(stable.length));
+    setStat("releases", fmt.format(stable.length), stable.length);
     if (stable[0]) setStat("version", stable[0].tag_name);
     const downloads = stable.map((r) => ({ label: r.tag_name, value: r.assets.filter((a) => a.name.endsWith(".apk")).reduce((s, a) => s + a.download_count, 0) }));
-    setStat("downloads", fmt.format(downloads.reduce((s, d) => s + d.value, 0)));
+    const total = downloads.reduce((s, d) => s + d.value, 0);
+    setStat("downloads", fmt.format(total), total);
     if (need("downloads")) bars(need("downloads"), downloads, "APK downloads");
     if (need("latest") && stable[0]) latest(need("latest"), stable[0]);
     if (need("history")) history(need("history"), stable);
   }
   if (list instanceof Error) {
-    ["heatmap", "weekly", "contributors", "recent"].forEach((id) => need(id) && failed(need(id), list));
+    ["heatmap", "weekly", "contributors", "contributors-row", "recent"].forEach((id) => need(id) && failed(need(id), list));
     return;
   }
-  setStat("commits", fmt.format(list.length));
+  setStat("commits", fmt.format(list.length), list.length);
   const people = leaderboard(list, local ? local.aliases : {});
   const lead = people.find((p) => p.login === "ravibh5522");
   if (lead) {
@@ -283,6 +385,7 @@ async function run() {
   }
   if (need("heatmap")) heatmap(need("heatmap"), list);
   if (need("weekly")) columns(need("weekly"), weeklyRows(list), "commits");
+  if (need("contributors-row")) peopleRow(need("contributors-row"), people);
   if (need("contributors")) contributorsTable(need("contributors"), people, list.length);
   if (need("recent")) recent(need("recent"), list, local ? local.aliases : {});
 }
@@ -316,4 +419,8 @@ function history(host, list) {
   });
 }
 
+const typing = document.getElementById("typer");
+if (typing) typer(typing);
+const heroClip = document.getElementById("hero-clip");
+if (heroClip) clips(heroClip);
 run();
