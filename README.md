@@ -2,7 +2,7 @@
 
 # easyIDE
 
-**A real IDE with a real Linux userland, for Android tablets.**<br>
+**A real IDE and code editor for Android tablets, with a real Linux userland.**<br>
 Native editor, file tree and an Ubuntu terminal -- all on the device, offline, no root.
 
 [![Latest release](https://img.shields.io/github/v/release/ravibh5522/easyIDE?include_prereleases&label=release&color=2ea043)](https://github.com/ravibh5522/easyIDE/releases/latest)
@@ -11,7 +11,7 @@ Native editor, file tree and an Ubuntu terminal -- all on the device, offline, n
 [![Status: beta](https://img.shields.io/badge/status-beta-orange)](#what-is-not-there-yet)
 [![Join on Telegram](https://img.shields.io/badge/Telegram-join%20the%20chat-26A5E4?logo=telegram&logoColor=white)](https://t.me/+yMH4w5rX1gZhOTM1)
 
-[Download](#download) &middot; [What works](#what-works-today) &middot; [Not yet](#what-is-not-there-yet) &middot; [Privacy](#privacy-and-telemetry) &middot; [Build](#build) &middot; [Community](#community) &middot; [Contributing](#contributing)
+[Website](https://ravibh5522.github.io/easyIDE/) &middot; [Download](#download) &middot; [What works](#what-works-today) &middot; [Not yet](#what-is-not-there-yet) &middot; [Privacy](#privacy-and-telemetry) &middot; [Build](#build) &middot; [Community](#community) &middot; [Contributing](#contributing)
 
 </div>
 

@@ -3,12 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>easyIDE - a real IDE for Android tablets</title>
-<meta name="description" content="Native editor, file tree and an Ubuntu terminal on your Android tablet. On-device, offline, no root.">
-<meta property="og:title" content="easyIDE">
-<meta property="og:description" content="A real IDE with a real Linux userland, for Android tablets.">
-<meta property="og:image" content="media/poster.png">
-<link rel="icon" href="icon.png">
+<title>easyIDE - IDE and code editor for Android, with a real Linux terminal</title>
+<meta name="description" content="easyIDE is a free, open-source IDE and code editor for Android tablets and phones: syntax highlighting, language servers, git and an Ubuntu terminal, on the device, offline, no root.">
+<meta name="keywords" content="easyIDE, Android IDE, IDE for Android, code editor for Android, Android tablet IDE, Linux terminal Android, Python IDE Android, Node.js Android, VS Code Android alternative">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/">
+<meta property="og:title" content="easyIDE - IDE and code editor for Android">
+<meta property="og:description" content="A real IDE with a real Linux userland, for Android tablets and phones. Native editor, git and an Ubuntu terminal, offline, no root.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/poster.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="easyIDE - IDE and code editor for Android">
+<meta name="twitter:description" content="A real IDE with a real Linux userland, for Android tablets and phones.">
+<meta name="twitter:image" content="https://ravibh5522.github.io/easyIDE/media/poster.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": "easyIDE",
+      "alternateName": ["easy IDE", "easyIDE for Android"],
+      "url": "https://ravibh5522.github.io/easyIDE/"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "easyIDE",
+      "description": "An IDE and code editor for Android tablets and phones with a real Linux userland: native editor, syntax highlighting for 229 languages, language servers, git and an Ubuntu terminal, on the device, offline, no root.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Android 8.0+",
+      "url": "https://ravibh5522.github.io/easyIDE/",
+      "downloadUrl": "https://github.com/ravibh5522/easyIDE/releases/latest",
+      "image": "https://ravibh5522.github.io/easyIDE/icon.png",
+      "screenshot": "https://ravibh5522.github.io/easyIDE/media/03-python-editor.png",
+      "license": "https://www.gnu.org/licenses/agpl-3.0.html",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "sameAs": ["https://github.com/ravibh5522/easyIDE"]
+    }
+  ]
+}
+</script>
 <style>
 :root { --bg:#0f1115; --fg:#f2f3f5; --muted:#b4b9c0; --accent:#ff8a3d; --glass:rgba(15,17,21,.62); --line:rgba(255,255,255,.14); }
 * { box-sizing:border-box; }
@@ -32,6 +71,10 @@ video.tour { display:block; width:100%; }
 .shots a { display:block; }
 .shots img { display:block; width:100%; height:auto; transition:transform .2s; }
 .shots a:hover img { transform:scale(1.02); }
+.features { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.features .card { padding:20px; }
+.features h3 { margin:0 0 6px; font-size:1.1rem; }
+.features p { margin:0; color:var(--muted); }
 .join { display:flex; gap:32px; align-items:center; justify-content:center; flex-wrap:wrap; padding:32px; text-align:center; }
 .join img { width:180px; height:180px; background:#fff; padding:10px; border-radius:12px; }
 .join p { color:var(--muted); margin:0 0 16px; max-width:360px; }
@@ -47,11 +90,23 @@ footer a { color:var(--muted); }
 <section class="hero">
 <img class="logo" src="icon.png" alt="easyIDE icon">
 <h1>easyIDE</h1>
-<p class="lead">A real IDE with a real Linux userland, for Android tablets. Native editor, file tree and an Ubuntu terminal, on the device, offline, no root.</p>
+<p class="lead">A real IDE and code editor for Android, with a real Linux userland. Native editor, file tree, git and an Ubuntu terminal on your tablet or phone, offline, no root.</p>
 <div class="btns">
 <a class="btn" href="https://github.com/ravibh5522/easyIDE/releases/latest">Download</a>
 <a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a>
 <a class="btn alt" href="#community">Join Telegram</a>
+</div>
+</section>
+
+<section>
+<h2>An Android IDE, not a snippet editor</h2>
+<div class="features">
+<div class="card"><h3>Real Linux terminal</h3><p>Ubuntu runs in app storage through PRoot, no root needed. <code>apt-get install</code> works, full-screen programs render, tabs keep their scrollback.</p></div>
+<div class="card"><h3>Code editor with language servers</h3><p>Syntax highlighting for 229 languages with VS Code's TextMate grammars, plus completion, diagnostics, rename and go-to-definition for Python, TypeScript, Rust, Go, C/C++ and more.</p></div>
+<div class="card"><h3>Git built in</h3><p>Stage, commit, amend, branch and tag, with a VS Code-style history graph. Clone, pull and push from the terminal or the source control view.</p></div>
+<div class="card"><h3>Python, Node.js and build tools</h3><p>Pick a preset environment and it arrives with its toolchain. Run Node LTS, npm and CLI tools such as Claude Code right on the tablet.</p></div>
+<div class="card"><h3>Made for tablets, works on phones</h3><p>Activity rail, split editors and a bottom panel on a tablet; bottom navigation on a phone. Keyboard and mouse friendly.</p></div>
+<div class="card"><h3>Free and open source</h3><p>AGPL-3.0, offline-first, no account. Extensions add languages, themes, icons, snippets and language servers.</p></div>
 </div>
 </section>
 
