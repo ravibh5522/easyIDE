@@ -42,7 +42,9 @@ async function commits() {
   return all;
 }
 
-const stats = () => json("data/stats.json").catch(() => null);
+// Same origin and changed by every deploy: never served from the session cache, so a visit right after
+// a deploy cannot pair a new page with an old stats file.
+const stats = () => fetch("data/stats.json", { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
 
 function el(tag, attrs = {}, text) {
   const node = document.createElementNS(tag === "svg" || attrs.svg ? "http://www.w3.org/2000/svg" : "http://www.w3.org/1999/xhtml", tag);
@@ -142,7 +144,9 @@ function heatmap(host, list) {
   const max = Math.max(...Object.values(perDay), 1);
   const level = (n) => (n === 0 ? 0 : Math.ceil((n / max) * 4));
   const fills = ["rgba(255,255,255,.06)", "rgba(255,138,61,.3)", "rgba(255,138,61,.5)", "rgba(255,138,61,.75)", "#ff8a3d"];
-  const cell = 11, gap = 3, left = 28, top = 18;
+  // Cells grow with the container (up to 18px) so the 12px labels never scale; a phone scrolls instead.
+  const left = 28, top = 18, gap = 3;
+  const cell = Math.max(10, Math.min(18, Math.floor((Math.max(host.clientWidth, 640) - left) / 53) - gap));
   const first = startOfWeek(new Date(Date.now() - 364 * DAY));
   const svg = svgEl("svg", { viewBox: `0 0 ${left + 53 * (cell + gap)} ${top + 7 * (cell + gap) + 22}`, role: "img" });
   ["Mon", "Wed", "Fri"].forEach((d, i) => svg.appendChild(svgEl("text", { x: 0, y: top + (1 + i * 2) * (cell + gap) + 9 }, d)));
