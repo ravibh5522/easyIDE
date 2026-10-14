@@ -1,0 +1,39 @@
+<!--
+slug: blog/install-claude-code-on-android
+title: How to install and run Claude Code on an Android tablet (no root)
+description: Run Anthropic's Claude Code CLI on an Android tablet: install Node.js LTS in easyIDE's Ubuntu environment, install the CLI with npm and use it next to your editor.
+date: 2026-10-14
+kind: post
+-->
+<p class="lede">Claude Code is a command-line tool, and it needs a real Node.js and a real shell. easyIDE gives an Android tablet both, so the CLI runs on the device next to your editor and git.</p>
+<p class="note">Claude Code is Anthropic's software and needs your own Anthropic account. easyIDE does not include or redistribute it; you install it yourself, as below.</p>
+
+<h2>1. Get an environment with Node.js</h2>
+<p>Install easyIDE (<a href="../download.html">download</a>) and, on the Linux step of setup, choose <b>Ubuntu + Node.js</b>. That preset installs the current Node.js LTS from nodejs.org (checked against its published checksums), not Ubuntu's older packaged Node.</p>
+<p>Using a different preset? In any easyIDE terminal run <code>easyide-install-node</code>, which installs the same Node LTS.</p>
+
+<h2>2. Install the CLI</h2>
+<p>Open a project, open a terminal and run:</p>
+<pre>node --version
+npm install -g @anthropic-ai/claude-code
+claude --version</pre>
+<p>If an older environment still has Ubuntu's Node 18, the install can fail with "native binary not installed". Run <code>easyide-install-node</code> to move to the current LTS, then install again. easyIDE 0.2.0-beta.8 and later do this for new environments.</p>
+
+<h2>3. Sign in and start</h2>
+<pre>cd /projects/my-app
+claude</pre>
+<p>The CLI prints a sign-in link; open it in the tablet's browser and come back. From then on Claude Code reads and edits the files in your project, and every change shows up in easyIDE's editor and in Source Control, where you can review the diff before you commit.</p>
+
+<h2>Why it works here</h2>
+<ul>
+<li><b>A real Linux userland</b>: Ubuntu 24.04 under PRoot, so npm global installs, native binaries and child processes behave as on a laptop.</li>
+<li><b>Every project is mounted</b> at <code>/projects/&lt;name&gt;</code> in every terminal of its environment, so the agent can read a sibling project when you ask it to.</li>
+<li><b>It keeps running</b> in the background while a foreground service holds the sandbox open (setup asks for the battery exemption for this).</li>
+</ul>
+
+<h2>Good to know</h2>
+<ul>
+<li>The VS Code extension for Claude Code does not run in easyIDE: extensions that execute code are not supported yet. The CLI is the way in.</li>
+<li>Long sessions use battery and data; plug in for big refactors.</li>
+</ul>
+<p>Related: <a href="nodejs-npm-on-android-without-root.html">Node.js and npm on Android without root</a>.</p>

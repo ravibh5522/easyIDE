@@ -1,0 +1,39 @@
+<!--
+slug: blog/android-tablet-for-programming
+title: Can you use an Android tablet for programming? A practical setup
+description: A practical guide to programming on an Android tablet in 2026: keyboard and mouse, a real IDE with Linux, git, Python and Node.js, and what still works better on a laptop.
+date: 2026-10-14
+kind: post
+-->
+<p class="lede">Yes, for a lot of work. A modern Android tablet has the screen, the battery and enough CPU for editing, running scripts and web servers, and using git. What it usually lacks is an IDE with a real Linux underneath. That is the gap easyIDE fills.</p>
+
+<h2>The hardware</h2>
+<ul>
+<li><b>A keyboard</b> matters most. Any Bluetooth or keyboard-cover keyboard works; easyIDE has keyboard shortcuts for files, search, terminal and commands.</li>
+<li><b>A mouse or trackpad</b> is optional; touch targets are sized for fingers, and the layout also works with a pointer.</li>
+<li><b>Storage</b>: leave space for Ubuntu plus your toolchain and dependencies.</li>
+</ul>
+
+<h2>The software</h2>
+<ol>
+<li><a href="../download.html">Install easyIDE</a> and let first-run setup install a Linux environment: plain Ubuntu, build tools, Node.js or Python.</li>
+<li>Create or clone a project. Link a real folder through Android's file picker if you want the code visible to other apps.</li>
+<li>Enable the language packs you need in Extensions: Python, TypeScript, Rust, Go, C/C++ and more each bring their own language server.</li>
+<li>Pick a theme, accent colour and density in Settings so the workspace fits your screen.</li>
+</ol>
+
+<h2>A day of work on the tablet</h2>
+<ul>
+<li>Edit with split editor groups and breadcrumbs; jump to definitions and rename across files.</li>
+<li>Run tests and scripts in terminal tabs; start a dev server and check it in the browser.</li>
+<li>Review changes and commit in Source Control; <a href="git-on-android-tablet.html">push with a token</a>.</li>
+<li>Run AI tools such as <a href="install-claude-code-on-android.html">Claude Code</a> in the terminal.</li>
+</ul>
+
+<h2>Where a laptop still wins</h2>
+<ul>
+<li>Android app development itself (Gradle builds of large apps), Docker, and GPU work.</li>
+<li>Very heavy builds: PRoot adds overhead to system-call-heavy work.</li>
+<li>Debugging with breakpoints and notebooks, which easyIDE does not have yet.</li>
+</ul>
+<p>Read next: <a href="../best-code-editors-for-android.html">the best code editors and IDEs for Android</a>.</p>

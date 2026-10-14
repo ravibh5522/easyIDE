@@ -1,0 +1,36 @@
+<!--
+slug: blog/nodejs-npm-on-android-without-root
+title: Node.js and npm on Android without root: a real development setup
+description: Install the current Node.js LTS and npm on an Android tablet without root, run dev servers, global CLIs and TypeScript with language-server support in easyIDE.
+date: 2026-10-14
+kind: post
+-->
+<p class="lede">You can run the current Node.js LTS, npm and global CLIs on an Android tablet without rooting it. easyIDE puts them in an Ubuntu userland, next to an editor with TypeScript support.</p>
+
+<h2>Install</h2>
+<p>Pick <b>Ubuntu + Node.js</b> when easyIDE sets up Linux (<a href="../download.html">download</a>). It installs Node.js LTS from nodejs.org, verified against its checksums, rather than Ubuntu's older packaged version. In an existing environment, run <code>easyide-install-node</code> in a terminal.</p>
+<pre>node --version
+npm --version</pre>
+
+<h2>Start a project</h2>
+<pre>mkdir hello-api && cd hello-api
+npm init -y
+npm install express</pre>
+<pre>// index.js
+const express = require("express");
+const app = express();
+app.get("/", (req, res) => res.json({ ok: true }));
+app.listen(3000, () => console.log("http://127.0.0.1:3000"));</pre>
+<p>Run <code>node index.js</code> and open <code>http://127.0.0.1:3000</code> in the tablet's browser. Vite, Next.js and other dev servers work the same way.</p>
+
+<h2>TypeScript intelligence</h2>
+<p>Enable the <b>TypeScript</b> language pack in Extensions. It installs its language server into the environment, and <code>.ts</code>/<code>.js</code> files get completion, diagnostics, rename, go-to-definition and formatting.</p>
+
+<h2>Global CLIs</h2>
+<p><code>npm install -g</code> works, so tools like <a href="install-claude-code-on-android.html">Claude Code</a>, <code>pnpm</code> or <code>typescript</code> install as on a laptop.</p>
+
+<h2>Why the npm cache does not break</h2>
+<p>npm's cache relies on hard links and renames that Android's app storage handles differently. easyIDE configures the guest so the cache stays consistent under PRoot; earlier builds could corrupt it, which beta.7 fixed.</p>
+
+<h2>Keep servers alive</h2>
+<p>Allow easyIDE to run in the background during setup. A foreground service then holds the sandbox open, so a dev server keeps running while you switch to the browser.</p>

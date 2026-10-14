@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VS Code for Android: your options in 2026, and a native alternative</title>
+<meta name="description" content="There is no official VS Code app for Android. Compare vscode.dev, code-server in Termux and Codespaces with easyIDE, a native VS Code-style IDE with a real Ubuntu terminal.">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/vs-code-for-android.html">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/vs-code-for-android.html">
+<meta property="og:title" content="VS Code for Android: your options in 2026, and a native alternative">
+<meta property="og:description" content="There is no official VS Code app for Android. Compare vscode.dev, code-server in Termux and Codespaces with easyIDE, a native VS Code-style IDE with a real Ubuntu terminal.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "Article",
+ "headline": "VS Code for Android: your options in 2026, and a native alternative",
+ "description": "There is no official VS Code app for Android. Compare vscode.dev, code-server in Termux and Codespaces with easyIDE, a native VS Code-style IDE with a real Ubuntu terminal.",
+ "datePublished": "2026-10-14",
+ "dateModified": "2026-10-14",
+ "author": {
+  "@type": "Person",
+  "name": "Ravi Kumar",
+  "url": "https://ravibh5522.github.io/easyIDE/team.html"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "easyIDE",
+  "logo": {
+   "@type": "ImageObject",
+   "url": "https://ravibh5522.github.io/easyIDE/icon.png"
+  }
+ },
+ "image": "https://ravibh5522.github.io/easyIDE/media/og-card.png",
+ "mainEntityOfPage": "https://ravibh5522.github.io/easyIDE/vs-code-for-android.html"
+}
+</script>
+</head>
+<body class="plain">
+<header class="nav"><a class="brand" href="./"><img src="icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="blog/">Blog</a><a href="stats.html">Stats</a><a href="team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
+<main>
+<article class="prose">
+<p class="crumbs"><a href="./">easyIDE</a> / <span>VS Code for Android: your options in 2026, and a native alternative</span></p>
+<h1>VS Code for Android: your options in 2026, and a native alternative</h1>
+<p class="byline">By <a href="team.html">Ravi Kumar</a>, lead developer &middot; October 14, 2026</p>
+<p class="lede">Short answer: Microsoft does not make a VS Code app for Android. VS Code's official downloads are Windows, macOS and Linux. On an Android tablet you can use VS Code in the browser, run code-server yourself, connect to a remote machine, or use a native IDE built the VS Code way. Here is what each gives you, as of October 14, 2026.</p>
+
+<h2>1. vscode.dev and github.dev in the browser</h2>
+<p>VS Code for the Web runs entirely in the browser and Microsoft documents it as usable on tablets. The trade-off is that nothing runs locally: Microsoft's documentation states that <b>the terminal and debugger are not available</b>, and only <b>web extensions</b> install (themes, snippets and grammars work; extensions that run code must support the browser sandbox). Git works through the GitHub and Azure Repos integration rather than a local <code>git</code>.</p>
+<p><b>Good for</b> quick edits to a GitHub repository. <b>Not for</b> running Python, Node.js or tests.</p>
+
+<h2>2. code-server inside Termux</h2>
+<p><a href="https://github.com/coder/code-server">code-server</a> (MIT) is the real VS Code UI served from your device and opened in the browser. Its documentation describes installing it in Termux from the Termux User Repository. You get VS Code's terminal and git UI, with some documented limits:</p>
+<ul>
+<li>Extensions come from Open VSX, not Microsoft's Marketplace.</li>
+<li>On Termux, Android is treated as an unsupported platform, so only web extensions download automatically; the docs list manual <code>.vsix</code> installs as a workaround.</li>
+<li>Git does not work in <code>/sdcard</code>, and keyboard handling needs a setting change.</li>
+</ul>
+<p><b>Good for</b> people who want exactly VS Code and are comfortable maintaining a Termux setup.</p>
+
+<h2>3. Codespaces or a remote tunnel</h2>
+<p>GitHub Codespaces and VS Code Remote Tunnels give you full VS Code with a terminal, but the code runs on another machine. You need a connection the whole time, and Codespaces is billed by usage beyond its free quota.</p>
+
+<h2>4. easyIDE: a native, VS Code-style IDE</h2>
+<p>easyIDE is an Android app, not a browser tab, built around the same ideas as VS Code, with a Linux userland on the device:</p>
+<ul>
+<li><b>VS Code-shaped workspace</b>: activity rail, side bar, split editor groups, breadcrumbs and a bottom panel, adapting to phones.</li>
+<li><b>VS Code's TextMate grammars</b> for 229 languages, bundled for offline use.</li>
+<li><b>Language servers</b> (completion, diagnostics, rename, go-to-definition) installed per language pack: Python, TypeScript, Rust, Go, C/C++ and more.</li>
+<li><b>A real Ubuntu 24.04 terminal</b>, no root, with <code>apt</code>.</li>
+<li><b>Git</b> with a VS Code-style history graph, staging and amend.</li>
+<li><b>VS Code icon themes</b> from Open VSX install as is.</li>
+</ul>
+<p class="note">Honest limit: VS Code extensions that run code (GitLens, debugger extensions and so on) do not run in easyIDE. Only declarative packs and icon themes install.</p>
+
+<h2>At a glance</h2>
+<div class="table-wrap"><table>
+<tr><th></th><th>vscode.dev</th><th>code-server in Termux</th><th>Codespaces</th><th>easyIDE</th></tr>
+<tr><td>Runs on the device</td><td>UI only</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+<tr><td>Terminal</td><td>No</td><td>Yes</td><td>Yes (remote)</td><td>Yes, Ubuntu</td></tr>
+<tr><td>Works offline</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+<tr><td>VS Code extensions that run code</td><td>Web only</td><td>Limited (Open VSX)</td><td>Yes</td><td>No</td></tr>
+<tr><td>Setup</td><td>None</td><td>Manual</td><td>Account</td><td>Install APK</td></tr>
+<tr><td>Native Android app</td><td>No</td><td>No (browser)</td><td>No (browser)</td><td>Yes</td></tr>
+</table></div>
+<p class="muted">Sources: Microsoft's VS Code requirements and VS Code for the Web documentation, GitHub's github.dev documentation, and code-server's Termux and FAQ documentation, checked October 14, 2026.</p>
+<p>Read next: <a href="best-code-editors-for-android.html">the best code editors and IDEs for Android</a>, <a href="acode-alternative.html">easyIDE vs Acode</a>.</p>
+<div class="cta" style="margin-top:48px">
+<h2>Try easyIDE</h2>
+<p class="muted">Free and open source. Android 8.0+, no root.</p>
+<div class="btns"><a class="btn" href="download.html">Download</a><a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a></div>
+</div>
+</article>
+</main>
+<footer>
+<nav><a href="features.html">Features</a><a href="download.html">Download</a><a href="blog/">Blog</a><a href="vs-code-for-android.html">VS Code for Android</a><a href="acode-alternative.html">Acode alternative</a><a href="best-code-editors-for-android.html">Best Android code editors</a><a href="stats.html">Stats</a><a href="team.html">Team</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
+</footer>
+</body>
+</html>

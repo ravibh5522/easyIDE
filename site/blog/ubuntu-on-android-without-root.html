@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How easyIDE runs Ubuntu on Android without root (PRoot explained)</title>
+<meta name="description" content="How easyIDE runs a full Ubuntu 24.04 userland inside an Android app without root, using PRoot, and what that means for performance, packages and security.">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/blog/ubuntu-on-android-without-root.html">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/blog/ubuntu-on-android-without-root.html">
+<meta property="og:title" content="How easyIDE runs Ubuntu on Android without root (PRoot explained)">
+<meta property="og:description" content="How easyIDE runs a full Ubuntu 24.04 userland inside an Android app without root, using PRoot, and what that means for performance, packages and security.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" type="image/png" sizes="512x512" href="../icon.png">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BlogPosting",
+ "headline": "How easyIDE runs Ubuntu on Android without root (PRoot explained)",
+ "description": "How easyIDE runs a full Ubuntu 24.04 userland inside an Android app without root, using PRoot, and what that means for performance, packages and security.",
+ "datePublished": "2026-10-14",
+ "dateModified": "2026-10-14",
+ "author": {
+  "@type": "Person",
+  "name": "Ravi Kumar",
+  "url": "https://ravibh5522.github.io/easyIDE/team.html"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "easyIDE",
+  "logo": {
+   "@type": "ImageObject",
+   "url": "https://ravibh5522.github.io/easyIDE/icon.png"
+  }
+ },
+ "image": "https://ravibh5522.github.io/easyIDE/media/og-card.png",
+ "mainEntityOfPage": "https://ravibh5522.github.io/easyIDE/blog/ubuntu-on-android-without-root.html"
+}
+</script>
+</head>
+<body class="plain">
+<header class="nav"><a class="brand" href=".././"><img src="../icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/" aria-current="page">Blog</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
+<main>
+<article class="prose">
+<p class="crumbs"><a href=".././">easyIDE</a> / <a href="../blog/">Blog</a> / <span>How easyIDE runs Ubuntu on Android without root (PRoot explained)</span></p>
+<h1>How easyIDE runs Ubuntu on Android without root (PRoot explained)</h1>
+<p class="byline">By <a href="../team.html">Ravi Kumar</a>, lead developer &middot; October 14, 2026</p>
+<p class="lede">easyIDE's terminal is a real Ubuntu 24.04 shell with <code>apt</code>, and the phone or tablet is not rooted. Here is how, and what the trade-offs are.</p>
+
+<h2>The pieces</h2>
+<ol>
+<li><b>An Ubuntu base image</b> is downloaded once and unpacked into the app's private storage (with a guard against archive paths escaping it).</li>
+<li><b>PRoot</b> runs every guest process. It intercepts system calls with <code>ptrace</code> and rewrites file paths, so <code>/usr/bin/python3</code> inside the guest maps to a file inside the app. No kernel changes and no root.</li>
+<li><b>The terminal</b> is a real pseudo-terminal, so full-screen programs, colors and Ctrl-C behave normally.</li>
+</ol>
+
+<h2>Why it is allowed on modern Android</h2>
+<p>Android blocks executing files from an app's writable storage under SELinux. easyIDE ships PRoot as a native library in the APK, which Android does allow to run, and PRoot loads the guest's programs itself.</p>
+
+<h2>Details that make apt work</h2>
+<ul>
+<li>Android denies hard links in app storage; dpkg uses them for backups, so PRoot emulates them as symlinks (<code>--link2symlink</code>).</li>
+<li>The guest starts with a cleared environment, so the Android app's variables never leak into Linux.</li>
+<li><code>sudo</code> is a small shim: you are already root inside the guest, and real setuid binaries cannot work under PRoot.</li>
+</ul>
+
+<h2>Projects live outside Linux</h2>
+<p>Your code is stored outside every Ubuntu tree and bound in at <code>/projects/&lt;name&gt;</code>. You can delete or reinstall an environment without losing a project, and several projects can share one environment.</p>
+
+<h2>Trade-offs</h2>
+<ul>
+<li><b>Speed</b>: system-call-heavy work (big <code>npm install</code>s, compiling) is slower than native Linux because each call is intercepted. Editing and most running code is not noticeably affected.</li>
+<li><b>Not a security boundary</b>: PRoot gives you a working userland; it does not isolate projects from each other or contain hostile code. Run code you trust.</li>
+<li><b>No systemd or kernel modules</b>: services run as ordinary processes.</li>
+</ul>
+<p>Rooted device? An opt-in chroot backend exists in the code but has not been run on hardware yet.</p>
+<div class="cta" style="margin-top:48px">
+<h2>Try easyIDE</h2>
+<p class="muted">Free and open source. Android 8.0+, no root.</p>
+<div class="btns"><a class="btn" href="../download.html">Download</a><a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a></div>
+</div>
+</article>
+</main>
+<footer>
+<nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/">Blog</a><a href="../vs-code-for-android.html">VS Code for Android</a><a href="../acode-alternative.html">Acode alternative</a><a href="../best-code-editors-for-android.html">Best Android code editors</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="../team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
+</footer>
+</body>
+</html>

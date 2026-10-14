@@ -1,0 +1,39 @@
+<!--
+slug: blog/git-on-android-tablet
+title: How to use git on an Android tablet: clone, commit and push
+description: Clone a repository, stage and commit with a visual history graph, and push to GitHub from an Android tablet with easyIDE's built-in source control and real git.
+date: 2026-10-14
+kind: post
+-->
+<p class="lede">easyIDE has two ways into git, and they agree with each other: a built-in Source Control view with a history graph, and the real <code>git</code> in the Ubuntu terminal. A commit made in one shows up in the other.</p>
+
+<h2>Clone a repository</h2>
+<p>On Home, tap <b>New, import or clone</b>, then <b>Clone repository</b>, paste an <code>https://</code> URL and pick the environment to clone with. Cloning works for public repositories over HTTPS; SSH keys are not available yet. For a private repository, clone it in a terminal after adding a token (below).</p>
+
+<h2>Tell git who you are</h2>
+<p>The first time you commit, easyIDE asks for your name and email and saves them for all projects or just this one. You can change them later in <b>Settings &gt; Git</b>. Committing from the terminal instead? Set them there:</p>
+<pre>git config --global user.name "Your Name"
+git config --global user.email "you@example.com"</pre>
+
+<h2>Stage, commit, amend</h2>
+<p>Open <b>Source Control</b> in the activity rail. Changed files appear in a tree; stage, unstage or discard each one, write a message and commit. The commit button's menu has <b>amend</b>. Changes made by tools in the terminal show up here too.</p>
+
+<h2>Read the history</h2>
+<p>The <b>Graph</b> shows branches and merges with branch and tag chips, like VS Code's. Long-press (or right-click) a commit to cherry-pick it, tag it, check it out or compare it.</p>
+
+<h2>Push to GitHub</h2>
+<p>Pushing over HTTPS needs a personal access token. Create one on GitHub (Settings &gt; Developer settings &gt; Personal access tokens) with access to the repository, then add it in easyIDE under <b>Settings &gt; Git &gt; Credentials</b>. Fetch, pull and push then work from Source Control, and the ahead/behind counts stay current if you turn on <b>Fetch automatically</b>.</p>
+
+<h2>Prefer the command line?</h2>
+<p>Everything is real git:</p>
+<pre>git switch -c feature/tablet
+git add -p
+git commit -m "work from my tablet"
+git log --oneline --graph -10</pre>
+
+<h2>Limits today</h2>
+<ul>
+<li>No merge editor yet: resolve conflicts in the editor or the terminal.</li>
+<li>Network operations have had less device testing than local ones; report problems on <a href="https://github.com/ravibh5522/easyIDE/issues">GitHub</a>.</li>
+</ul>
+<p>Related: <a href="run-python-on-android-tablet.html">Python on an Android tablet</a>, <a href="install-claude-code-on-android.html">Claude Code on Android</a>.</p>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Node.js and npm on Android without root: a real development setup</title>
+<meta name="description" content="Install the current Node.js LTS and npm on an Android tablet without root, run dev servers, global CLIs and TypeScript with language-server support in easyIDE.">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/blog/nodejs-npm-on-android-without-root.html">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/blog/nodejs-npm-on-android-without-root.html">
+<meta property="og:title" content="Node.js and npm on Android without root: a real development setup">
+<meta property="og:description" content="Install the current Node.js LTS and npm on an Android tablet without root, run dev servers, global CLIs and TypeScript with language-server support in easyIDE.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" type="image/png" sizes="512x512" href="../icon.png">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BlogPosting",
+ "headline": "Node.js and npm on Android without root: a real development setup",
+ "description": "Install the current Node.js LTS and npm on an Android tablet without root, run dev servers, global CLIs and TypeScript with language-server support in easyIDE.",
+ "datePublished": "2026-10-14",
+ "dateModified": "2026-10-14",
+ "author": {
+  "@type": "Person",
+  "name": "Ravi Kumar",
+  "url": "https://ravibh5522.github.io/easyIDE/team.html"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "easyIDE",
+  "logo": {
+   "@type": "ImageObject",
+   "url": "https://ravibh5522.github.io/easyIDE/icon.png"
+  }
+ },
+ "image": "https://ravibh5522.github.io/easyIDE/media/og-card.png",
+ "mainEntityOfPage": "https://ravibh5522.github.io/easyIDE/blog/nodejs-npm-on-android-without-root.html"
+}
+</script>
+</head>
+<body class="plain">
+<header class="nav"><a class="brand" href=".././"><img src="../icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/" aria-current="page">Blog</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
+<main>
+<article class="prose">
+<p class="crumbs"><a href=".././">easyIDE</a> / <a href="../blog/">Blog</a> / <span>Node.js and npm on Android without root: a real development setup</span></p>
+<h1>Node.js and npm on Android without root: a real development setup</h1>
+<p class="byline">By <a href="../team.html">Ravi Kumar</a>, lead developer &middot; October 14, 2026</p>
+<p class="lede">You can run the current Node.js LTS, npm and global CLIs on an Android tablet without rooting it. easyIDE puts them in an Ubuntu userland, next to an editor with TypeScript support.</p>
+
+<h2>Install</h2>
+<p>Pick <b>Ubuntu + Node.js</b> when easyIDE sets up Linux (<a href="../download.html">download</a>). It installs Node.js LTS from nodejs.org, verified against its checksums, rather than Ubuntu's older packaged version. In an existing environment, run <code>easyide-install-node</code> in a terminal.</p>
+<pre>node --version
+npm --version</pre>
+
+<h2>Start a project</h2>
+<pre>mkdir hello-api && cd hello-api
+npm init -y
+npm install express</pre>
+<pre>// index.js
+const express = require("express");
+const app = express();
+app.get("/", (req, res) => res.json({ ok: true }));
+app.listen(3000, () => console.log("http://127.0.0.1:3000"));</pre>
+<p>Run <code>node index.js</code> and open <code>http://127.0.0.1:3000</code> in the tablet's browser. Vite, Next.js and other dev servers work the same way.</p>
+
+<h2>TypeScript intelligence</h2>
+<p>Enable the <b>TypeScript</b> language pack in Extensions. It installs its language server into the environment, and <code>.ts</code>/<code>.js</code> files get completion, diagnostics, rename, go-to-definition and formatting.</p>
+
+<h2>Global CLIs</h2>
+<p><code>npm install -g</code> works, so tools like <a href="install-claude-code-on-android.html">Claude Code</a>, <code>pnpm</code> or <code>typescript</code> install as on a laptop.</p>
+
+<h2>Why the npm cache does not break</h2>
+<p>npm's cache relies on hard links and renames that Android's app storage handles differently. easyIDE configures the guest so the cache stays consistent under PRoot; earlier builds could corrupt it, which beta.7 fixed.</p>
+
+<h2>Keep servers alive</h2>
+<p>Allow easyIDE to run in the background during setup. A foreground service then holds the sandbox open, so a dev server keeps running while you switch to the browser.</p>
+<div class="cta" style="margin-top:48px">
+<h2>Try easyIDE</h2>
+<p class="muted">Free and open source. Android 8.0+, no root.</p>
+<div class="btns"><a class="btn" href="../download.html">Download</a><a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a></div>
+</div>
+</article>
+</main>
+<footer>
+<nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/">Blog</a><a href="../vs-code-for-android.html">VS Code for Android</a><a href="../acode-alternative.html">Acode alternative</a><a href="../best-code-editors-for-android.html">Best Android code editors</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="../team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
+</footer>
+</body>
+</html>

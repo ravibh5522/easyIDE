@@ -217,6 +217,25 @@ section.numbers span { color:var(--muted); font-size:.9rem; }
 }
 @keyframes flow-v { to { background-position:0 32px; } }
 
+/* Articles (tools/site-pages.py) */
+.prose { max-width:760px; margin:0 auto; padding-top:40px; font-size:1.06rem; }
+.prose h1 { font-size:clamp(1.9rem,4.5vw,2.8rem); text-align:left; margin:8px 0 8px; }
+.prose h2 { text-align:left; font-size:1.45rem; margin:40px 0 12px; }
+.prose p, .prose li { color:#d3d7dd; }
+.prose ul, .prose ol { padding-left:22px; }
+.prose li { margin:6px 0; }
+.prose .lede { font-size:1.2rem; color:var(--fg); }
+.prose table { margin:16px 0; }
+.prose td, .prose th { vertical-align:top; }
+.prose .table-wrap { overflow-x:auto; }
+.crumbs, .byline { color:var(--faint); font-size:.9rem; margin:0; }
+.crumbs a, .byline a { color:var(--muted); }
+.note { border-left:3px solid var(--accent); background:rgba(255,138,61,.08); padding:12px 16px; border-radius:0 8px 8px 0; }
+.post-card { display:block; color:var(--fg); text-decoration:none; transition:transform .2s, border-color .2s; }
+.post-card:hover { transform:translateY(-3px); border-color:rgba(255,138,61,.5); }
+.post-card h3 { margin:6px 0; }
+.post-card p { margin:0; }
+
 footer { text-align:center; color:var(--muted); padding:48px 16px; font-size:.9rem; }
 footer a { color:var(--muted); }
 footer nav { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:8px; }

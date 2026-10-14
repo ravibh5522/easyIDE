@@ -1,0 +1,36 @@
+<!--
+slug: blog/ubuntu-on-android-without-root
+title: How easyIDE runs Ubuntu on Android without root (PRoot explained)
+description: How easyIDE runs a full Ubuntu 24.04 userland inside an Android app without root, using PRoot, and what that means for performance, packages and security.
+date: 2026-10-14
+kind: post
+-->
+<p class="lede">easyIDE's terminal is a real Ubuntu 24.04 shell with <code>apt</code>, and the phone or tablet is not rooted. Here is how, and what the trade-offs are.</p>
+
+<h2>The pieces</h2>
+<ol>
+<li><b>An Ubuntu base image</b> is downloaded once and unpacked into the app's private storage (with a guard against archive paths escaping it).</li>
+<li><b>PRoot</b> runs every guest process. It intercepts system calls with <code>ptrace</code> and rewrites file paths, so <code>/usr/bin/python3</code> inside the guest maps to a file inside the app. No kernel changes and no root.</li>
+<li><b>The terminal</b> is a real pseudo-terminal, so full-screen programs, colors and Ctrl-C behave normally.</li>
+</ol>
+
+<h2>Why it is allowed on modern Android</h2>
+<p>Android blocks executing files from an app's writable storage under SELinux. easyIDE ships PRoot as a native library in the APK, which Android does allow to run, and PRoot loads the guest's programs itself.</p>
+
+<h2>Details that make apt work</h2>
+<ul>
+<li>Android denies hard links in app storage; dpkg uses them for backups, so PRoot emulates them as symlinks (<code>--link2symlink</code>).</li>
+<li>The guest starts with a cleared environment, so the Android app's variables never leak into Linux.</li>
+<li><code>sudo</code> is a small shim: you are already root inside the guest, and real setuid binaries cannot work under PRoot.</li>
+</ul>
+
+<h2>Projects live outside Linux</h2>
+<p>Your code is stored outside every Ubuntu tree and bound in at <code>/projects/&lt;name&gt;</code>. You can delete or reinstall an environment without losing a project, and several projects can share one environment.</p>
+
+<h2>Trade-offs</h2>
+<ul>
+<li><b>Speed</b>: system-call-heavy work (big <code>npm install</code>s, compiling) is slower than native Linux because each call is intercepted. Editing and most running code is not noticeably affected.</li>
+<li><b>Not a security boundary</b>: PRoot gives you a working userland; it does not isolate projects from each other or contain hostile code. Run code you trust.</li>
+<li><b>No systemd or kernel modules</b>: services run as ordinary processes.</li>
+</ul>
+<p>Rooted device? An opt-in chroot backend exists in the code but has not been run on hardware yet.</p>

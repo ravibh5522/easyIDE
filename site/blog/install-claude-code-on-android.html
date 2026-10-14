@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to install and run Claude Code on an Android tablet (no root)</title>
+<meta name="description" content="Run Anthropic&#x27;s Claude Code CLI on an Android tablet: install Node.js LTS in easyIDE&#x27;s Ubuntu environment, install the CLI with npm and use it next to your editor.">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/blog/install-claude-code-on-android.html">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/blog/install-claude-code-on-android.html">
+<meta property="og:title" content="How to install and run Claude Code on an Android tablet (no root)">
+<meta property="og:description" content="Run Anthropic&#x27;s Claude Code CLI on an Android tablet: install Node.js LTS in easyIDE&#x27;s Ubuntu environment, install the CLI with npm and use it next to your editor.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" type="image/png" sizes="512x512" href="../icon.png">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BlogPosting",
+ "headline": "How to install and run Claude Code on an Android tablet (no root)",
+ "description": "Run Anthropic's Claude Code CLI on an Android tablet: install Node.js LTS in easyIDE's Ubuntu environment, install the CLI with npm and use it next to your editor.",
+ "datePublished": "2026-10-14",
+ "dateModified": "2026-10-14",
+ "author": {
+  "@type": "Person",
+  "name": "Ravi Kumar",
+  "url": "https://ravibh5522.github.io/easyIDE/team.html"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "easyIDE",
+  "logo": {
+   "@type": "ImageObject",
+   "url": "https://ravibh5522.github.io/easyIDE/icon.png"
+  }
+ },
+ "image": "https://ravibh5522.github.io/easyIDE/media/og-card.png",
+ "mainEntityOfPage": "https://ravibh5522.github.io/easyIDE/blog/install-claude-code-on-android.html"
+}
+</script>
+</head>
+<body class="plain">
+<header class="nav"><a class="brand" href=".././"><img src="../icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/" aria-current="page">Blog</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
+<main>
+<article class="prose">
+<p class="crumbs"><a href=".././">easyIDE</a> / <a href="../blog/">Blog</a> / <span>How to install and run Claude Code on an Android tablet (no root)</span></p>
+<h1>How to install and run Claude Code on an Android tablet (no root)</h1>
+<p class="byline">By <a href="../team.html">Ravi Kumar</a>, lead developer &middot; October 14, 2026</p>
+<p class="lede">Claude Code is a command-line tool, and it needs a real Node.js and a real shell. easyIDE gives an Android tablet both, so the CLI runs on the device next to your editor and git.</p>
+<p class="note">Claude Code is Anthropic's software and needs your own Anthropic account. easyIDE does not include or redistribute it; you install it yourself, as below.</p>
+
+<h2>1. Get an environment with Node.js</h2>
+<p>Install easyIDE (<a href="../download.html">download</a>) and, on the Linux step of setup, choose <b>Ubuntu + Node.js</b>. That preset installs the current Node.js LTS from nodejs.org (checked against its published checksums), not Ubuntu's older packaged Node.</p>
+<p>Using a different preset? In any easyIDE terminal run <code>easyide-install-node</code>, which installs the same Node LTS.</p>
+
+<h2>2. Install the CLI</h2>
+<p>Open a project, open a terminal and run:</p>
+<pre>node --version
+npm install -g @anthropic-ai/claude-code
+claude --version</pre>
+<p>If an older environment still has Ubuntu's Node 18, the install can fail with "native binary not installed". Run <code>easyide-install-node</code> to move to the current LTS, then install again. easyIDE 0.2.0-beta.8 and later do this for new environments.</p>
+
+<h2>3. Sign in and start</h2>
+<pre>cd /projects/my-app
+claude</pre>
+<p>The CLI prints a sign-in link; open it in the tablet's browser and come back. From then on Claude Code reads and edits the files in your project, and every change shows up in easyIDE's editor and in Source Control, where you can review the diff before you commit.</p>
+
+<h2>Why it works here</h2>
+<ul>
+<li><b>A real Linux userland</b>: Ubuntu 24.04 under PRoot, so npm global installs, native binaries and child processes behave as on a laptop.</li>
+<li><b>Every project is mounted</b> at <code>/projects/&lt;name&gt;</code> in every terminal of its environment, so the agent can read a sibling project when you ask it to.</li>
+<li><b>It keeps running</b> in the background while a foreground service holds the sandbox open (setup asks for the battery exemption for this).</li>
+</ul>
+
+<h2>Good to know</h2>
+<ul>
+<li>The VS Code extension for Claude Code does not run in easyIDE: extensions that execute code are not supported yet. The CLI is the way in.</li>
+<li>Long sessions use battery and data; plug in for big refactors.</li>
+</ul>
+<p>Related: <a href="nodejs-npm-on-android-without-root.html">Node.js and npm on Android without root</a>.</p>
+<div class="cta" style="margin-top:48px">
+<h2>Try easyIDE</h2>
+<p class="muted">Free and open source. Android 8.0+, no root.</p>
+<div class="btns"><a class="btn" href="../download.html">Download</a><a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a></div>
+</div>
+</article>
+</main>
+<footer>
+<nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/">Blog</a><a href="../vs-code-for-android.html">VS Code for Android</a><a href="../acode-alternative.html">Acode alternative</a><a href="../best-code-editors-for-android.html">Best Android code editors</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="../team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
+</footer>
+</body>
+</html>

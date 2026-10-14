@@ -10,6 +10,7 @@ Kept as a top-level sibling of `services/`, not nested inside it, because these 
 |---|---|---|
 | `build-grammars.py` | Builds the bundled TextMate grammar assets for `services/mobile` | PolyForm NC (repo default) |
 | [`ui-device-check.sh`](#ui-device-checksh) | On-device layout check: touch floor, row-height histogram, title alignment, at font scales 1.0/1.3/2.0 (adb + uiautomator) | PolyForm NC (repo default) |
+| `site-pages.py` | Builds the site's articles from `tools/site-pages/*.html` (front matter + body) into `site/`, plus `site/blog/index.html` and `site/sitemap.xml`; run it after editing an article and commit the output | PolyForm NC (repo default) |
 | `site-stats.py` | Writes `site/data/stats.json` (lines of code by language/module, test count, `.mailmap` aliases) for the landing site; the Pages workflow runs it on every deploy | PolyForm NC (repo default) |
 | `push-announce.py` | Sends an announcement push (notification + in-app dialog) to a topic; `uv run`, see [telemetry arch](../docs/telemetry/arch.md) | PolyForm NC (repo default) |
 | [`easyide-ext/`](easyide-ext/) | Extension author CLI: init, validate, package, keygen, sign, verify | **Apache-2.0** ([0015](../docs/decision/0015-extension-sdk-licensing-apache.md)) |

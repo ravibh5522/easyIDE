@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to run Python on an Android tablet, with a real terminal and pip</title>
+<meta name="description" content="Set up Python 3, pip, virtualenvs and a code editor with pyright and ruff on an Android tablet, without root, using easyIDE&#x27;s Ubuntu environment.">
+<link rel="canonical" href="https://ravibh5522.github.io/easyIDE/blog/run-python-on-android-tablet.html">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="easyIDE">
+<meta property="og:url" content="https://ravibh5522.github.io/easyIDE/blog/run-python-on-android-tablet.html">
+<meta property="og:title" content="How to run Python on an Android tablet, with a real terminal and pip">
+<meta property="og:description" content="Set up Python 3, pip, virtualenvs and a code editor with pyright and ruff on an Android tablet, without root, using easyIDE&#x27;s Ubuntu environment.">
+<meta property="og:image" content="https://ravibh5522.github.io/easyIDE/media/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" type="image/png" sizes="512x512" href="../icon.png">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BlogPosting",
+ "headline": "How to run Python on an Android tablet, with a real terminal and pip",
+ "description": "Set up Python 3, pip, virtualenvs and a code editor with pyright and ruff on an Android tablet, without root, using easyIDE's Ubuntu environment.",
+ "datePublished": "2026-10-14",
+ "dateModified": "2026-10-14",
+ "author": {
+  "@type": "Person",
+  "name": "Ravi Kumar",
+  "url": "https://ravibh5522.github.io/easyIDE/team.html"
+ },
+ "publisher": {
+  "@type": "Organization",
+  "name": "easyIDE",
+  "logo": {
+   "@type": "ImageObject",
+   "url": "https://ravibh5522.github.io/easyIDE/icon.png"
+  }
+ },
+ "image": "https://ravibh5522.github.io/easyIDE/media/og-card.png",
+ "mainEntityOfPage": "https://ravibh5522.github.io/easyIDE/blog/run-python-on-android-tablet.html"
+}
+</script>
+</head>
+<body class="plain">
+<header class="nav"><a class="brand" href=".././"><img src="../icon.png" alt="" width="28" height="28">easyIDE</a><nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/" aria-current="page">Blog</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a><a href="https://github.com/ravibh5522/easyIDE">GitHub</a></nav></header>
+<main>
+<article class="prose">
+<p class="crumbs"><a href=".././">easyIDE</a> / <a href="../blog/">Blog</a> / <span>How to run Python on an Android tablet, with a real terminal and pip</span></p>
+<h1>How to run Python on an Android tablet, with a real terminal and pip</h1>
+<p class="byline">By <a href="../team.html">Ravi Kumar</a>, lead developer &middot; October 14, 2026</p>
+<p class="lede">Most "Python for Android" apps give you an interpreter in a box: no <code>pip</code> for packages with native code, no virtualenvs, no terminal. easyIDE runs real Ubuntu on the tablet, so Python works the way it does on a laptop.</p>
+
+<h2>What you get</h2>
+<ul>
+<li><b>CPython 3.12 from Ubuntu 24.04</b>, with <code>pip</code> and <code>venv</code>.</li>
+<li><b>A real terminal</b> with tabs, history and an Esc/Ctrl key row above the soft keyboard.</li>
+<li><b>An editor with language servers</b>: pyright for completion, hover, go-to-definition and type errors; ruff for lint fixes and formatting.</li>
+<li><b>Run Python File</b> and an interpreter picker that finds your virtualenvs.</li>
+</ul>
+<p>No root is needed. Ubuntu runs inside the app's own storage through PRoot (<a href="ubuntu-on-android-without-root.html">how that works</a>).</p>
+
+<h2>1. Install easyIDE and pick the Python environment</h2>
+<p><a href="../download.html">Download the APK</a> and open it. On the Linux step of first-run setup, choose <b>Ubuntu + Python</b>. It installs Ubuntu 24.04 with <code>python3</code>, <code>python3-pip</code>, <code>python3-venv</code>, <code>git</code> and <code>curl</code>. Use Wi-Fi: it downloads the Ubuntu base image and the packages.</p>
+<p>Already set up with another preset? Python is one command away in any terminal: <code>sudo apt-get install -y python3 python3-pip python3-venv</code>.</p>
+
+<h2>2. Create a project and open a terminal</h2>
+<p>On Home, tap <b>New, import or clone</b> and create a project in the Python environment. Open it, then open a terminal from the bottom panel. The terminal starts in your project folder.</p>
+<pre>python3 --version
+python3 -m venv .venv
+source .venv/bin/activate
+pip install requests rich</pre>
+<p>Ubuntu's system Python refuses <code>pip install</code> outside a virtualenv (PEP 668), so make the <code>.venv</code> first. It lives in your project, next to your code.</p>
+
+<h2>3. Turn on completion and linting</h2>
+<p>Open <b>Extensions</b> and enable the <b>Python</b> pack for the environment. It installs pipx, Node.js, pyright and ruff into that environment, and from then on every <code>.py</code> file gets completion, hover docs, diagnostics, rename, formatting and quick fixes.</p>
+
+<h2>4. Run your code</h2>
+<p>Write <code>main.py</code>, then use <b>Run Python File</b>. The interpreter in the status bar is the one Run uses: tap it to switch to your <code>.venv</code>. Or run it yourself in the terminal with <code>python main.py</code>.</p>
+<pre>from rich import print
+import requests
+
+r = requests.get("https://api.github.com/repos/ravibh5522/easyIDE")
+print({"stars": r.json()["stargazers_count"]})</pre>
+
+<h2>Web apps: Flask and FastAPI</h2>
+<p>A development server works too: <code>pip install flask</code>, then <code>flask --app app run</code>, and open <code>http://127.0.0.1:5000</code> in the tablet's browser. Keep easyIDE allowed to run in the background (setup asks for this) so Android does not stop the server when you switch apps.</p>
+
+<h2>Limits worth knowing</h2>
+<ul>
+<li>Packages that need a GPU (CUDA) will not work; CPU builds of most libraries do.</li>
+<li>Some wheels are not published for arm64 Linux and compile from source; install <b>Ubuntu + build tools</b> or <code>build-essential</code> first.</li>
+<li>There is no debugger yet, and no Jupyter notebooks.</li>
+</ul>
+
+<h2>Related</h2>
+<ul>
+<li><a href="git-on-android-tablet.html">Use git on an Android tablet</a></li>
+<li><a href="android-tablet-for-programming.html">Set up an Android tablet for programming</a></li>
+</ul>
+<div class="cta" style="margin-top:48px">
+<h2>Try easyIDE</h2>
+<p class="muted">Free and open source. Android 8.0+, no root.</p>
+<div class="btns"><a class="btn" href="../download.html">Download</a><a class="btn alt" href="https://github.com/ravibh5522/easyIDE">Source on GitHub</a></div>
+</div>
+</article>
+</main>
+<footer>
+<nav><a href="../features.html">Features</a><a href="../download.html">Download</a><a href="../blog/">Blog</a><a href="../vs-code-for-android.html">VS Code for Android</a><a href="../acode-alternative.html">Acode alternative</a><a href="../best-code-editors-for-android.html">Best Android code editors</a><a href="../stats.html">Stats</a><a href="../team.html">Team</a></nav>
+easyIDE is open source under AGPL-3.0 &middot; built by <a href="../team.html">Ravi Kumar</a> &middot; <a href="https://github.com/ravibh5522/easyIDE">GitHub</a>
+</footer>
+</body>
+</html>

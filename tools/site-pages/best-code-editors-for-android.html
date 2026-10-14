@@ -1,0 +1,58 @@
+<!--
+slug: best-code-editors-for-android
+title: Best code editors and IDEs for Android in 2026
+description: The best code editors and IDEs for Android tablets and phones in 2026: easyIDE, Acode, Termux, code-server, Code on the Go, Spck, Squircle CE and vscode.dev, compared honestly.
+date: 2026-10-14
+kind: guide
+-->
+<p class="lede">Coding on Android has never had more options. This list covers the editors and IDEs that are maintained today, what each is best at, and the trade-offs, as of October 14, 2026. We make easyIDE, so it is listed first; every other entry is described from its own documentation and store listings.</p>
+
+<h2>Quick comparison</h2>
+<div class="table-wrap"><table>
+<tr><th>App</th><th>License / price</th><th>Linux terminal</th><th>Language servers</th><th>Git</th></tr>
+<tr><td>easyIDE</td><td>AGPL-3.0, free</td><td>Ubuntu 24.04 (PRoot)</td><td>Yes, per language pack</td><td>Built in + terminal</td></tr>
+<tr><td>Acode</td><td>MIT, free with ads or Pro</td><td>Alpine (PRoot)</td><td>Yes</td><td>Advertised</td></tr>
+<tr><td>Termux</td><td>GPL-3.0, free</td><td>Yes (its own packages)</td><td>Via Neovim or similar</td><td>Terminal</td></tr>
+<tr><td>code-server</td><td>MIT, free</td><td>Inside Termux</td><td>Yes, Open VSX (limited on Termux)</td><td>VS Code UI</td></tr>
+<tr><td>Code on the Go</td><td>GPL-3.0, free</td><td>Yes</td><td>Java, Kotlin, XML</td><td>Included</td></tr>
+<tr><td>Spck Editor</td><td>Closed source, free + premium</td><td>Node-only, premium</td><td>Web languages</td><td>Built in</td></tr>
+<tr><td>Squircle CE</td><td>Apache-2.0, free</td><td>Not in a release yet</td><td>No</td><td>Built in</td></tr>
+<tr><td>vscode.dev</td><td>Free web service</td><td>No</td><td>Web extensions only</td><td>GitHub integration</td></tr>
+</table></div>
+
+<h2>1. easyIDE: a VS Code-style IDE with Ubuntu</h2>
+<p>A native app with a VS Code-shaped workspace, language servers for many languages, built-in git with a history graph, and a real Ubuntu 24.04 terminal without root. Presets install Python, Node.js LTS or build tools. <b>Best for</b> general development on a tablet. <b>Gaps</b>: beta, no debugger, VS Code extensions that run code do not work. <a href="download.html">Download</a>.</p>
+
+<h2>2. Acode: the popular all-rounder</h2>
+<p>MIT-licensed and very actively developed, with a large plugin store, a built-in Alpine Linux terminal, language-server support, SFTP/FTP and live previews. The free version shows ads; Pro removes them. <b>Best for</b> web development and remote file editing. See <a href="acode-alternative.html">easyIDE vs Acode</a>.</p>
+
+<h2>3. Termux with Neovim or Vim</h2>
+<p>A terminal with the largest package collection on Android, plus <code>proot-distro</code> for full distributions. Install Neovim and configure its built-in language-server client yourself. Termux recommends its F-Droid or GitHub build over the experimental Play build. <b>Best for</b> terminal-first developers.</p>
+
+<h2>4. code-server: real VS Code in the browser</h2>
+<p>Coder's open-source VS Code server, installed inside Termux and opened in the browser. You get the genuine VS Code UI, with Open VSX extensions and some documented Android limits. <b>Best for</b> people who need VS Code exactly. See <a href="vs-code-for-android.html">VS Code for Android</a>.</p>
+
+<h2>5. Code on the Go: Android apps on Android</h2>
+<p>The official successor to AndroidIDE (now archived), updated weekly, for building Kotlin and Java Android apps on the device, with a UI designer. <b>Best for</b> Android app development without a computer.</p>
+
+<h2>6. Spck Editor: web development and git</h2>
+<p>A polished editor for HTML, CSS, JavaScript and TypeScript with a strong git client and previews. The Node terminal is a premium feature. <b>Best for</b> front-end work.</p>
+
+<h2>7. Squircle CE: a fast, lightweight native editor</h2>
+<p>Apache-licensed, no ads, with git, SFTP/FTP and support for 30+ languages. No terminal or language servers in its released version. <b>Best for</b> quick edits.</p>
+
+<h2>8. vscode.dev: zero install</h2>
+<p>Microsoft's VS Code for the Web works in a tablet browser with no terminal or debugger and web extensions only. <b>Best for</b> quick changes to GitHub repositories.</p>
+
+<h2>No longer available</h2>
+<p><b>Dcoder</b> shut down on March 31, 2026. <b>AndroidIDE</b> is archived and its developers point to Code on the Go.</p>
+
+<h2>How to choose</h2>
+<ul>
+<li><b>Real toolchains (Python, Node.js, compilers) in an IDE:</b> easyIDE.</li>
+<li><b>Web development, plugins, SFTP:</b> Acode or Spck.</li>
+<li><b>Terminal and Vim:</b> Termux.</li>
+<li><b>Exactly VS Code:</b> code-server or vscode.dev.</li>
+<li><b>Android apps:</b> Code on the Go.</li>
+</ul>
+<p class="muted">Facts checked October 14, 2026 from each project's repository, documentation and store listings. Spot something out of date? <a href="https://github.com/ravibh5522/easyIDE/issues">Tell us</a>.</p>
