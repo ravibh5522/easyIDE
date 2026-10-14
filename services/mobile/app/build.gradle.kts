@@ -11,7 +11,7 @@ import java.util.Properties
 
 // Single source of truth for what a build calls itself. CI supplies the build
 // number and commit; a local build gets 0/"local" and still works offline.
-val baseVersion = "0.2.0-beta.9"
+val baseVersion = "0.2.0-beta.10"
 val buildNumber = (System.getenv("EASYIDE_BUILD_NUMBER") ?: "0").toInt()
 val gitSha = System.getenv("EASYIDE_GIT_SHA")?.take(7) ?: "local"
 
