@@ -61,6 +61,13 @@ class HomeViewModel(
     private val refreshTick = MutableStateFlow(0)
     private val loadSlots = Semaphore(ProjectMetaPolicy.MAX_CONCURRENT_LOADS)
 
+    /**
+     * Main-thread only, like every caller: guards against loading one project twice at once.
+     * Declared before `init`: Main.immediate runs the collector in `init` synchronously, and a
+     * field declared after it would still be null there.
+     */
+    private val loading = HashSet<String>()
+
     private data class LocalState(
         val query: String = "",
         val sort: ProjectSort = ProjectSort.RECENT,
@@ -287,9 +294,6 @@ class HomeViewModel(
     }
 
     // -------------------------------------------------------------- meta
-
-    /** Main-thread only, like every caller: guards against loading one project twice at once. */
-    private val loading = HashSet<String>()
 
     private fun loadStaleMeta(projects: List<ProjectRecord>, maxAgeMs: Long = ProjectMetaPolicy.FRESH_FOR_MS) {
         val now = clock()
