@@ -68,6 +68,17 @@ class RootfsProvisionerTest {
         assertTrue(File(rootfs, "bin/sh").isFile)
     }
 
+    @Test fun `a rootfs left by an interrupted attempt is replaced, not unpacked over`() = runBlocking {
+        // What a setup command stopped half-way leaves: a dpkg journal entry the fresh image knows nothing about.
+        val leftover = File(rootfs, "var/lib/dpkg/updates/0001").apply { parentFile!!.mkdirs(); writeText("half-run") }
+        val body = tarGz(mapOf("bin/sh" to "#!".toByteArray()))
+
+        provisioner.provision(serve(body), rootfs, archive, onProgress = {}).getOrThrow()
+
+        assertFalse(leftover.exists())
+        assertTrue(File(rootfs, "bin/sh").isFile)
+    }
+
     @Test fun `a corrupt archive leaves no rootfs behind`() = runBlocking {
         val junk = Random(1).nextBytes(4096)
 

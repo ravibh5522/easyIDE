@@ -75,8 +75,12 @@ class EnvironmentSetupViewModel(
     fun install() {
         if (installJob?.isActive == true) return
         val image = _state.value.let { s -> s.images.first { it.id == s.selectedImageId } }
+        // A cancelled install is no longer active but may still be unwinding (deleting its rootfs,
+        // stopping the keep-alive): wait for it, or its late stop() would end this install's keep-alive.
+        val previous = installJob
         installJob = viewModelScope.launch {
             setStage(SetupStage.Installing(image.label, event = null, fraction = null, lastLine = null))
+            previous?.join()
             keepAlive.start()
             try {
                 runInstall(image)

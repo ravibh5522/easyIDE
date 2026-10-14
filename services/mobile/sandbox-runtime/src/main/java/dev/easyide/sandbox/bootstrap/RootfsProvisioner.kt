@@ -47,7 +47,8 @@ class RootfsProvisioner(
      * @param onEvent structured progress for a UI; [onProgress] carries the same
      *   story as text. Cancelling the caller stops the download (its partial
      *   file is kept for resume) or the extraction (its half-unpacked rootfs is
-     *   removed, so it can never be mistaken for a usable one).
+     *   removed, so it can never be mistaken for a usable one). Whatever [rootfs] already holds is
+     *   deleted first, so every attempt unpacks into an empty directory.
      */
     suspend fun provision(
         source: RootfsArchive,
@@ -57,6 +58,9 @@ class RootfsProvisioner(
         onEvent: (InstallEvent) -> Unit = {},
     ): Result<Unit> = runCatching {
         withContext(ioDispatcher) {
+            // An earlier attempt may have been stopped inside its setup commands (Back, Cancel, the app
+            // killed), leaving a half-run apt/dpkg behind; unpacking over that keeps its leftovers.
+            SafeTree.deleteRecursively(rootfs)
             rootfs.mkdirs()
             // A cached archive is re-hashed, not trusted: images cached by
             // builds that predate checksums, or damaged on disk, are replaced

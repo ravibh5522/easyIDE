@@ -16,6 +16,8 @@ import dev.easyide.sandbox.shell.SandboxShell
 import dev.easyide.sandbox.shell.ShellRunner
 import dev.easyide.sandbox.shell.TerminalProcess
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -43,6 +45,14 @@ class LinuxEnvironment(
     private val allProjects: suspend () -> List<ProjectRecord> = { emptyList() },
 ) {
 
+    /**
+     * One install at a time. A cancelled install still deletes its half-unpacked rootfs after the
+     * caller has moved on, and every image shares one download cache file: a second install started
+     * meanwhile (Install tapped again, the screen left and reopened) would unpack into the tree being
+     * deleted, or download into the file being read.
+     */
+    private val installLock = Mutex()
+
     fun rootfsFor(environmentId: String): File = paths.rootfsDir(environmentId)
 
     /** A rootfs with a shell in it is the cheapest honest readiness check. */
@@ -68,7 +78,14 @@ class LinuxEnvironment(
         image: SandboxImage,
         onEvent: (InstallEvent) -> Unit = {},
         onProgress: ProgressReporter,
-    ): Result<Unit> = runCatching {
+    ): Result<Unit> = runCatching { installLock.withLock { installLocked(environmentId, image, onEvent, onProgress) } }
+
+    private suspend fun installLocked(
+        environmentId: String,
+        image: SandboxImage,
+        onEvent: (InstallEvent) -> Unit,
+        onProgress: ProgressReporter,
+    ) {
         val rootfsArchive = image.rootfsFor(Build.SUPPORTED_ABIS.toList())
             ?: throw SandboxError.ProvisioningFailed(
                 environmentId,

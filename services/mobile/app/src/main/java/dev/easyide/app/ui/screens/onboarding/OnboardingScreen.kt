@@ -52,10 +52,9 @@ fun OnboardingScreen(
     }
     val installing = setupState.stage as? SetupStage.Installing
 
-    val goBack: () -> Unit = {
-        if (installing != null) setup.cancel()
-        flow.previous(step)?.let { step = it }
-    }
+    // Back only moves between steps: an install keeps running (the rail shows it) and is stopped only by
+    // its own Cancel. A stray edge swipe used to throw away minutes of download and setup.
+    val goBack: () -> Unit = { flow.previous(step)?.let { step = it } }
     BackHandler(enabled = flow.previous(step) != null, onBack = goBack)
 
     val facts = StepFacts(
