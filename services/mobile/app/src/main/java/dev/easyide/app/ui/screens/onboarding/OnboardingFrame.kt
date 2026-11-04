@@ -60,7 +60,7 @@ internal fun OnboardingFrame(
                 StepPane(step, pane, inset, true, body, Modifier.weight(OnboardingWeights.STEP).fillMaxHeight().dividerAtStart())
             }
         } else {
-            StepPane(step, pane, inset, false, body, Modifier.fillMaxSize())
+            StepPane(step, pane, inset, false, body, Modifier.fillMaxSize(), summary.takeIf { step != OnboardingStep.ENVIRONMENT })
         }
     }
 }
@@ -82,6 +82,7 @@ private fun StepPane(
     centered: Boolean,
     body: @Composable (OnboardingStep) -> Unit,
     modifier: Modifier,
+    summary: InstallSummary? = null,
 ) {
     Column(modifier) {
         Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = if (centered) Alignment.TopCenter else Alignment.TopStart) {
@@ -91,11 +92,13 @@ private fun StepPane(
                 }
             }
         }
+        // Beside the rail on wide windows; on one column this keeps a background install in view on every step.
+        summary?.let { InstallSummaryBlock(it, Modifier.padding(inset).padding(horizontal = Kit.control.hPad, vertical = Kit.space.s)) }
         StepActions(spec.buttons, spec.onButton, Modifier.padding(inset).padding(horizontal = Kit.control.hPad, vertical = Kit.space.m))
     }
 }
 
-/** Skip on the far side from the thumb's rest, the one filled action next to it; nothing at all while installing. */
+/** Skip on the far side from the thumb's rest, the one filled action next to it. */
 @Composable
 private fun StepActions(buttons: StepButtons, onButton: (StepButton) -> Unit, modifier: Modifier) {
     val ordered = dialogActionOrder(buttons.skip, buttons.primary, Kit.feel.handedness)

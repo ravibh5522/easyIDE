@@ -25,8 +25,11 @@ sealed interface InstallEvent {
     /** The tarball is unpacking. [bytesRead] and [totalBytes] are of the compressed archive. */
     data class Extracting(val bytesRead: Long, val totalBytes: Long) : InstallEvent
 
-    /** Preset setup command [step] of [stepCount] (1-based) is running. */
-    data class Setup(val step: Int, val stepCount: Int, val command: String) : InstallEvent
+    /**
+     * Preset setup command [step] of [stepCount] (1-based) is running. [stepFraction] is how far through
+     * that command the tool itself says it is (0..1), null until it has said anything.
+     */
+    data class Setup(val step: Int, val stepCount: Int, val command: String, val stepFraction: Float? = null) : InstallEvent
 }
 
 /**

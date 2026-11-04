@@ -33,6 +33,7 @@
     <string name="onboarding_done_notifications_off">Notifications are off. Turn them on in Android settings.</string>
     <string name="onboarding_done_linux_on">Linux installed</string>
     <string name="onboarding_done_linux_off">Linux not installed. Home offers to install it.</string>
+    <string name="onboarding_done_linux_installing">Linux is installing in the background</string>
     <string name="onboarding_done_settings_note">Change any of this later in Settings.</string>
 
     <!-- Onboarding: side rail (wide windows) and state tags -->
@@ -47,6 +48,7 @@
     <string name="flow_tag_on">on</string>
     <string name="flow_tag_off">off</string>
     <string name="flow_tag_ready">ready</string>
+    <string name="flow_tag_installing">installing</string>
 
     <!-- Install Linux (onboarding step and standalone screen) -->
     <string name="setup_screen_title">Install Linux</string>
@@ -54,7 +56,7 @@
     <string name="setup_presets_header">Preset</string>
     <string name="setup_install">Install</string>
     <string name="setup_installing_title">Installing %1$s</string>
-    <string name="setup_installing_note">A notification keeps the install running if you leave the app.</string>
+    <string name="setup_installing_note">Keep going: the install continues in the background, even if you leave the app, and picks up again if the app is closed.</string>
     <string name="setup_progress_description">Install progress: %1$s</string>
     <string name="setup_phase_preparing">Preparing…</string>
     <string name="setup_phase_downloading">Downloading %1$s of %2$s</string>

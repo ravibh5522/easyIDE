@@ -67,7 +67,7 @@ private fun RailTag(state: StepState) {
 }
 
 @Composable
-private fun InstallSummaryBlock(install: InstallSummary, modifier: Modifier) {
+internal fun InstallSummaryBlock(install: InstallSummary, modifier: Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(Kit.space.xs)) {
         KitProgress(install.fraction, Modifier.fillMaxWidth())
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

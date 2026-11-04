@@ -15,6 +15,8 @@ sealed class Destination(val route: String) {
         const val ARG_OPEN_TERMINAL = "terminal"
         fun routeFor(projectId: String, openTerminal: Boolean = false) = "workspace/$projectId?terminal=$openTerminal"
     }
+    /** The quick demo offered once, right after onboarding. */
+    data object Demo : Destination("demo")
     data object Diagnostics : Destination("diagnostics")
     data object CredentialVault : Destination("credential_vault")
     data object NewProject : Destination("new_project")

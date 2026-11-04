@@ -23,7 +23,7 @@ import dev.easyide.app.ui.kit.Kit
 
 /**
  * First-run flow: Welcome, battery exemption, notifications (Android 13+), the first Linux
- * environment, Done. Every step after Welcome can be skipped and the flow still finishes; it is only
+ * environment (which installs in the background; the flow never waits for it), Done. Every step after Welcome can be skipped and the flow still finishes; it is only
  * reported complete ([onFinished]) from the last step, so quitting half-way shows onboarding again
  * next launch.
  *
@@ -52,8 +52,8 @@ fun OnboardingScreen(
     }
     val installing = setupState.stage as? SetupStage.Installing
 
-    // Back only moves between steps: an install keeps running (the rail shows it) and is stopped only by
-    // its own Cancel. A stray edge swipe used to throw away minutes of download and setup.
+    // Back only moves between steps: an install keeps running (a bar shows it on every step) and is
+    // stopped only by its own Cancel. A stray edge swipe used to throw away minutes of download and setup.
     val goBack: () -> Unit = { flow.previous(step)?.let { step = it } }
     BackHandler(enabled = flow.previous(step) != null, onBack = goBack)
 
@@ -125,6 +125,6 @@ private fun StepBody(
                 onChooseAnother = setup::backToChoosing,
             )
         }
-        OnboardingStep.DONE -> DoneBody(status, setupState.stage is SetupStage.Ready, typed, onTyped)
+        OnboardingStep.DONE -> DoneBody(status, setupState.stage is SetupStage.Ready, setupState.stage is SetupStage.Installing, typed, onTyped)
     }
 }

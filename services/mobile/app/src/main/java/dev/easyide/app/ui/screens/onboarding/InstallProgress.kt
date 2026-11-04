@@ -26,7 +26,7 @@ fun overallFraction(event: InstallEvent, hasSetup: Boolean): Float? {
             val done = if (event.totalBytes > 0) (event.bytesRead.toFloat() / event.totalBytes).coerceIn(0f, 1f) else 0f
             downloadEnd + (extractEnd - downloadEnd) * done
         }
-        is InstallEvent.Setup -> extractEnd + (1f - extractEnd) * ((event.step - 1).toFloat() / event.stepCount)
+        is InstallEvent.Setup -> extractEnd + (1f - extractEnd) * ((event.step - 1 + (event.stepFraction ?: 0f)) / event.stepCount)
     }
 }
 

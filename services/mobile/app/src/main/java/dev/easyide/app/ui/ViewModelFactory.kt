@@ -17,6 +17,7 @@ import dev.easyide.app.ui.screens.extensions.ExtensionsViewModel
 import dev.easyide.app.ui.screens.home.HomeViewModel
 import dev.easyide.app.ui.screens.home.LiveRunningSource
 import dev.easyide.app.ui.screens.newproject.NewProjectViewModel
+import dev.easyide.app.ui.screens.demo.DemoViewModel
 import dev.easyide.app.ui.screens.onboarding.EnvironmentSetupViewModel
 import dev.easyide.app.ui.screens.settings.SettingsViewModel
 import dev.easyide.app.ui.screens.workspace.WorkspaceViewModel
@@ -51,10 +52,13 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 running = LiveRunningSource(container.workspaces, container.lsp.manager),
             )
 
-            EnvironmentSetupViewModel::class.java -> EnvironmentSetupViewModel(
+            EnvironmentSetupViewModel::class.java -> EnvironmentSetupViewModel(installer = container.backgroundInstaller)
+
+            DemoViewModel::class.java -> DemoViewModel(
+                projectManager = container.projectManager,
                 environmentManager = container.environmentManager,
-                linuxEnvironment = container.linuxEnvironment,
-                keepAlive = container.installKeepAlive,
+                projectFiles = container.projectFiles,
+                handoff = container.demoHandoff,
             )
 
             NewProjectViewModel::class.java -> NewProjectViewModel(

@@ -8,6 +8,8 @@ import dev.easyide.sandbox.bootstrap.InstallEvent
 import dev.easyide.sandbox.bootstrap.ProgressReporter
 import dev.easyide.sandbox.bootstrap.ProotInstaller
 import dev.easyide.sandbox.bootstrap.RootfsProvisioner
+import dev.easyide.sandbox.bootstrap.SetupProgress
+import dev.easyide.sandbox.bootstrap.SetupReporter
 import dev.easyide.sandbox.extensions.EnvironmentExtensionBinds
 import dev.easyide.sandbox.model.ProjectRecord
 import dev.easyide.sandbox.model.SandboxImage
@@ -125,10 +127,28 @@ class LinuxEnvironment(
         if (image.setupCommands.isEmpty()) return
         val shell = SandboxShell(installation, ioDispatcher)
         val rootfs = rootfsFor(environmentId)
+        SetupProgress.writeConfig(rootfs)
+        try {
+            runSetupCommands(environmentId, image, shell, rootfs, onProgress, onEvent)
+        } finally {
+            // Only setup wants status lines on stdout; the user's own apt must not print them.
+            SetupProgress.configFile(rootfs).delete()
+        }
+    }
 
+    private suspend fun runSetupCommands(
+        environmentId: String,
+        image: SandboxImage,
+        shell: SandboxShell,
+        rootfs: File,
+        onProgress: ProgressReporter,
+        onEvent: (InstallEvent) -> Unit,
+    ) {
         image.setupCommands.forEachIndexed { index, command ->
-            onEvent(InstallEvent.Setup(index + 1, image.setupCommands.size, command))
-            var exit = runInGuest(shell, rootfs, command, onProgress)
+            val step = { fraction: Float? -> InstallEvent.Setup(index + 1, image.setupCommands.size, command, fraction) }
+            onEvent(step(null))
+            val report = SetupReporter(onProgress) { onEvent(step(it)) }
+            var exit = runInGuest(shell, rootfs, command, report::line)
             var attempt = 1
 
             // proot's --link2symlink hard-link emulation can leave a postinst
@@ -168,6 +188,7 @@ class LinuxEnvironment(
             rootfs = rootfs,
             hostProjectDir = null,
             guestProjectPath = paths.guestProjectPath(),
+            extraEnvironment = SetupProgress.ENVIRONMENT,
         ).stream { lines -> lines.forEach(onProgress) }
     }
 

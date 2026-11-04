@@ -6,7 +6,10 @@ import android.widget.Toast
 import dev.easyide.sandbox.git.GitCredentials
 import dev.easyide.sandbox.git.GitRemote
 import dev.easyide.sandbox.service.SandboxForegroundService
+import dev.easyide.app.ui.screens.demo.DemoHandoff
+import dev.easyide.app.ui.screens.onboarding.BackgroundInstaller
 import dev.easyide.app.ui.screens.onboarding.InstallKeepAlive
+import dev.easyide.app.ui.screens.onboarding.PendingInstallStore
 import dev.easyide.app.ui.screens.workspace.git.AppForeground
 import dev.easyide.sandbox.git.GitService
 import dev.easyide.app.data.SandboxImages
@@ -224,6 +227,21 @@ class AppContainer(context: Context) {
 
         override fun stop() = SandboxForegroundService.stop(appContext)
     }
+
+    /** The first Linux install, on the application scope so it outlives onboarding; [EasyIdeApplication] resumes an interrupted one. */
+    val backgroundInstaller = BackgroundInstaller(
+        environmentManager = environmentManager,
+        linuxEnvironment = linuxEnvironment,
+        keepAlive = installKeepAlive,
+        pending = object : PendingInstallStore {
+            override suspend fun get() = uiPreferences.pendingInstallImageId()
+            override suspend fun set(imageId: String?) = uiPreferences.setPendingInstallImageId(imageId)
+        },
+        scope = applicationScope,
+    )
+
+    /** What the demo screen hands to the workspace it opens: a file to show and a command to run, once. */
+    val demoHandoff = DemoHandoff()
 
     /** The extension platform; started by [EasyIdeApplication] before any screen exists. */
     val extensions: ExtensionsContainer = ExtensionsContainer(

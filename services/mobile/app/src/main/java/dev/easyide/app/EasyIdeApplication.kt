@@ -18,6 +18,8 @@ class EasyIdeApplication : Application() {
         container.telemetryConsent.start()
         // Before any activity: the crash-journal verdict must hold before contributions register.
         container.extensions.start()
+        // A force close or Android reaping the process mid-install does not leave Linux half-installed: it carries on.
+        container.backgroundInstaller.restore()
         SafeModeShortcut.publish(this)
     }
 

@@ -34,8 +34,8 @@ class OnboardingButtonsTest {
         assertEquals(StepButtons(CONTINUE, null), stepButtons(NOTIFICATIONS, StepFacts(granted = true, notificationsRefused = true)))
     }
 
-    @Test fun `the environment step hides both buttons while installing`() {
-        assertEquals(StepButtons(null, null), stepButtons(ENVIRONMENT, StepFacts(installing = true)))
+    @Test fun `the environment step never holds the user while installing`() {
+        assertEquals(StepButtons(CONTINUE, null), stepButtons(ENVIRONMENT, StepFacts(installing = true)))
     }
 
     @Test fun `the environment step continues when ready and can be skipped otherwise`() {
@@ -43,7 +43,7 @@ class OnboardingButtonsTest {
         assertEquals(StepButtons(null, SKIP_ENVIRONMENT), stepButtons(ENVIRONMENT, StepFacts()))
     }
 
-    @Test fun `every step has exactly one primary button unless it is installing`() {
+    @Test fun `every step has exactly one primary button unless it is the environment step before an install`() {
         val all = OnboardingSteps(34).steps
         all.forEach { step -> assertEquals(step.name, step != ENVIRONMENT, stepButtons(step, StepFacts()).primary != null) }
     }

@@ -16,7 +16,7 @@ import dev.easyide.app.ui.kit.KitButton
 /**
  * Install Linux outside first-run: what Home's prompt opens for a user who skipped the environment
  * step. The same content as onboarding, in a [FlowFrame] with its own Back; leaving while installing
- * cancels it (the download resumes later). Done, the one primary action, appears once Linux is in place.
+ * keeps it running in the background (the status bar follows; Cancel stops it). Done, the one primary action, appears once Linux is in place.
  */
 @Composable
 fun InstallLinuxScreen(
@@ -25,15 +25,11 @@ fun InstallLinuxScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by setup.state.collectAsStateWithLifecycle()
-    val leave = {
-        setup.cancel()
-        onBack()
-    }
-    BackHandler(onBack = leave)
+    BackHandler(onBack = onBack)
 
     FlowFrame(
         title = stringResource(R.string.setup_screen_title),
-        onBack = leave,
+        onBack = onBack,
         modifier = modifier,
         footer = if (state.stage is SetupStage.Ready) {
             { KitButton(stringResource(R.string.setup_done), onBack, Modifier.fillMaxWidth()) }

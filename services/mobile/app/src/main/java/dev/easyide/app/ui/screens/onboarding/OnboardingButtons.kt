@@ -28,8 +28,7 @@ internal data class StepFacts(
 
 /**
  * A permission step offers Continue once granted, otherwise the request (or the settings screen
- * after the runtime prompt was refused) with Skip. The environment step hides both while installing,
- * offers Continue when ready and Skip for now otherwise; its Install button lives in its content.
+ * after the runtime prompt was refused) with Skip. The environment step offers Continue while installing and when ready and Skip for now otherwise; its Install button lives in its content.
  */
 internal fun stepButtons(step: OnboardingStep, facts: StepFacts): StepButtons = when (step) {
     OnboardingStep.WELCOME -> StepButtons(StepButton.GET_STARTED, null)
@@ -41,7 +40,8 @@ internal fun stepButtons(step: OnboardingStep, facts: StepFacts): StepButtons = 
         else -> StepButtons(StepButton.ALLOW_NOTIFICATIONS, StepButton.SKIP)
     }
     OnboardingStep.ENVIRONMENT -> when {
-        facts.installing -> StepButtons(null, null)
+        // The install runs in the background: it never holds the user on this step.
+        facts.installing -> StepButtons(StepButton.CONTINUE, null)
         facts.environmentReady -> StepButtons(StepButton.CONTINUE, null)
         else -> StepButtons(null, StepButton.SKIP_ENVIRONMENT)
     }

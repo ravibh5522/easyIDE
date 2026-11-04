@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
@@ -61,6 +62,16 @@ class UiPreferences(private val context: Context) {
         }
     }
 
+    /** The preset whose install was started and not finished; set only while it runs, so a value found at launch means the process died mid-install. */
+    suspend fun pendingInstallImageId(): String? =
+        flow.first()[KEY_PENDING_INSTALL]?.takeIf { it.isNotEmpty() }
+
+    suspend fun setPendingInstallImageId(imageId: String?) {
+        context.preferencesStore.edit { prefs ->
+            if (imageId == null) prefs.remove(KEY_PENDING_INSTALL) else prefs[KEY_PENDING_INSTALL] = imageId
+        }
+    }
+
     suspend fun setOnboardingComplete(complete: Boolean) {
         context.preferencesStore.edit { it[KEY_ONBOARDING_COMPLETE] = complete }
     }
@@ -83,6 +94,7 @@ class UiPreferences(private val context: Context) {
 
     private companion object {
         val KEY_ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
+        val KEY_PENDING_INSTALL = stringPreferencesKey("pending_install_image_id")
         val KEY_TELEMETRY_GATE_ANSWERED = booleanPreferencesKey("telemetry_gate_answered")
         val KEY_DEFAULT_ENVIRONMENT = stringPreferencesKey("default_environment_id")
         val KEY_DEFAULT_PROJECTS_FOLDER = stringPreferencesKey("default_projects_folder_uri")

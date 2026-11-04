@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- First-run demo -->
+    <string name="demo_title">Try it</string>
+    <string name="demo_header">Run a program</string>
+    <string name="demo_body">Pick one. easyIDE opens a tiny project and runs it in the terminal, so you can see the whole loop: edit, run, output.</string>
+    <string name="demo_waiting">Linux is still installing. These unlock when it finishes; keep exploring meanwhile.</string>
+    <string name="demo_failed">Could not set up the demo. You can create a project from Home instead.</string>
+    <string name="demo_skip">Skip for now</string>
+    <string name="demo_python_title">Python</string>
+    <string name="demo_python_subtitle">hello.py, run with python3.</string>
+    <string name="demo_node_title">Node.js</string>
+    <string name="demo_node_subtitle">hello.js, run with node.</string>
+</resources>

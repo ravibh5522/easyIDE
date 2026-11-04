@@ -114,7 +114,7 @@ internal fun PermissionBody(
 }
 
 @Composable
-internal fun DoneBody(status: DeviceStatus, environmentReady: Boolean, alreadyTyped: Boolean, onTyped: () -> Unit) {
+internal fun DoneBody(status: DeviceStatus, environmentReady: Boolean, installing: Boolean, alreadyTyped: Boolean, onTyped: () -> Unit) {
     Column(Modifier.padding(horizontal = Kit.control.hPad)) {
         StepTitle(R.string.onboarding_done_title, alreadyTyped, onTyped)
     }
@@ -123,7 +123,14 @@ internal fun DoneBody(status: DeviceStatus, environmentReady: Boolean, alreadyTy
         if (Build.VERSION.SDK_INT >= OnboardingSteps.NOTIFICATION_PERMISSION_MIN_SDK) {
             StatusRow(status.notificationsAllowed, stringResource(if (status.notificationsAllowed) R.string.onboarding_done_notifications_on else R.string.onboarding_done_notifications_off))
         }
-        StatusRow(environmentReady, stringResource(if (environmentReady) R.string.onboarding_done_linux_on else R.string.onboarding_done_linux_off))
+        if (installing) {
+            KitRow(
+                title = stringResource(R.string.onboarding_done_linux_installing),
+                trailing = { KitTag(stringResource(R.string.flow_tag_installing), tone = Tone.Accent) },
+            )
+        } else {
+            StatusRow(environmentReady, stringResource(if (environmentReady) R.string.onboarding_done_linux_on else R.string.onboarding_done_linux_off))
+        }
     }
     ProseText(stringResource(R.string.onboarding_done_settings_note), Modifier.padding(horizontal = Kit.control.hPad, vertical = Kit.space.m), muted = true)
 }

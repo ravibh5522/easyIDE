@@ -6,6 +6,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -19,6 +21,7 @@ import dev.easyide.app.ui.appViewModel
 import dev.easyide.app.ui.devtools.devToolsEntries
 import dev.easyide.app.ui.devtools.devToolsRoutes
 import dev.easyide.app.ui.foundation.NavTransitions
+import dev.easyide.app.ui.screens.demo.DemoScreen
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsScreen
 import dev.easyide.app.ui.screens.diagnostics.DiagnosticsViewModel
 import dev.easyide.app.ui.screens.newproject.NewProjectScreen
@@ -36,6 +39,8 @@ import dev.easyide.app.ui.shell.host.ShellDeps
 import dev.easyide.app.ui.shell.host.ShellExits
 import dev.easyide.app.ui.shell.host.ShellHost
 import dev.easyide.app.ui.shell.host.ShellViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * Top-level nav graph. Home is the stack root; everything else is one level
@@ -50,12 +55,15 @@ fun AppNavHost(
     shell: ShellViewModel,
     onOnboardingComplete: () -> Unit,
     navController: NavHostController = rememberNavController(),
+    modifier: Modifier = Modifier,
 ) {
     val transitions = NavTransitions(motionEnabled)
+    val scope = rememberCoroutineScope()
     LaunchRedirect(container, navController, startAtOnboarding)
     CrashRecovery(container, navController, startAtOnboarding)
 
     NavHost(
+        modifier = modifier,
         navController = navController,
         startDestination = if (startAtOnboarding) Destination.Onboarding.route else Destination.Home.route,
         enterTransition = transitions.enter(),
@@ -71,7 +79,21 @@ fun AppNavHost(
                     navController.navigate(Destination.Home.route) {
                         popUpTo(Destination.Onboarding.route) { inclusive = true }
                     }
+                    // The demo needs Linux; a user who skipped installing it goes straight to Home.
+                    scope.launch {
+                        if (container.environmentManager.environments.first().isNotEmpty()) navController.navigate(Destination.Demo.route)
+                    }
                 },
+            )
+        }
+
+        composable(Destination.Demo.route) {
+            DemoScreen(
+                viewModel = appViewModel(viewModelFactory),
+                onOpenProject = { id ->
+                    navController.navigate(Destination.Workspace.routeFor(id)) { popUpTo(Destination.Demo.route) { inclusive = true } }
+                },
+                onSkip = { navController.popBackStack() },
             )
         }
 
@@ -124,6 +146,8 @@ fun AppNavHost(
             val uiState by workspaceViewModel.uiState.collectAsStateWithLifecycle()
             val gitState by workspaceViewModel.gitState.collectAsStateWithLifecycle()
             LaunchedEffect(projectId) { if (openTerminal) workspaceViewModel.revealTerminal() }
+            // From the first-run demo: show its file and run it, once.
+            LaunchedEffect(projectId) { container.demoHandoff.take(projectId)?.let { workspaceViewModel.openAndRun(it.file, it.command) } }
 
             val ignoreIndex by workspaceViewModel.editing.files.ignore.collectAsStateWithLifecycle()
             ProjectSettingsScope(container, projectId, environmentId) {

@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowCompat
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -29,6 +30,7 @@ import dev.easyide.app.data.settings.SettingsSnapshot
 import dev.easyide.app.session.SessionPolicy
 import dev.easyide.app.ui.AppViewModelFactory
 import dev.easyide.app.ui.screens.announcement.AnnouncementDialog
+import dev.easyide.app.ui.screens.onboarding.InstallStatusBar
 import dev.easyide.app.ui.screens.privacy.TelemetryGate
 import dev.easyide.app.ui.commands.Keymap
 import dev.easyide.app.ui.foundation.LocalKeymap
@@ -87,6 +89,7 @@ class MainActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle(initialValue = null)
             val gateAnswered by container.uiPreferences.telemetryGateAnswered
                 .collectAsStateWithLifecycle(initialValue = null)
+            val installStage by container.backgroundInstaller.stage.collectAsStateWithLifecycle()
             val announcement by container.pushInbox.pending.collectAsStateWithLifecycle(initialValue = null)
             val keymap by container.keymap.collectAsStateWithLifecycle(initialValue = null)
             val settings = storedSettings ?: SettingsSnapshot.DEFAULTS
@@ -149,7 +152,9 @@ class MainActivity : ComponentActivity() {
                                 onExit = ::finishAffinity,
                             )
                         } else {
+                            Column(Modifier.fillMaxSize()) {
                             AppNavHost(
+                                modifier = Modifier.weight(1f),
                                 startAtOnboarding = !complete,
                                 motionEnabled = LocalMotionEnabled.current,
                                 container = container,
@@ -161,6 +166,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                             )
+                            // Onboarding draws its own bar; once it is done the install keeps showing here.
+                            if (complete) InstallStatusBar(installStage)
+                            }
                             // Over whatever screen is open, but never over first-run setup.
                             announcement?.takeIf { complete }?.let {
                                 val image = remember(it) { container.pushInbox.image()?.asImageBitmap() }

@@ -25,6 +25,7 @@ class InstallProgressTest {
         assertEquals(0.80f, f(InstallEvent.Extracting(10, 10)), 0.001f)
         assertEquals(0.80f, f(InstallEvent.Setup(1, 2, "apt-get update")), 0.001f)
         assertEquals(0.90f, f(InstallEvent.Setup(2, 2, "apt-get install")), 0.001f)
+        assertEquals(0.95f, f(InstallEvent.Setup(2, 2, "apt-get install", 0.5f)), 0.001f)
     }
 
     @Test fun `a bare image spends the whole tail on extraction`() {

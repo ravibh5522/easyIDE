@@ -32,6 +32,8 @@ internal object GuestNode {
         #!/bin/sh
         # easyIDE: install the current Node.js LTS from nodejs.org unless Node $MIN_MAJOR+ is already present.
         set -eu
+        progress() { [ -z "${'$'}{EASYIDE_PROGRESS:-}" ] || echo "easyide-progress:${'$'}1"; }
+        progress 2
         if command -v node >/dev/null 2>&1 && [ "${'$'}(node -p 'process.versions.node.split(".")[0]')" -ge $MIN_MAJOR ]; then exit 0; fi
         case "${'$'}(uname -m)" in
           aarch64|arm64) arch=arm64 ;;
@@ -42,17 +44,22 @@ internal object GuestNode {
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y curl ca-certificates xz-utils
         fi
+        progress 5
         base=https://nodejs.org/dist/latest-$LTS_LINE
         tmp=${'$'}(mktemp -d)
         trap 'rm -rf "${'$'}tmp"' EXIT
         curl -fsSL "${'$'}base/SHASUMS256.txt" -o "${'$'}tmp/sums"
         line=${'$'}(grep "linux-${'$'}arch.tar.xz" "${'$'}tmp/sums" | head -n 1)
         [ -n "${'$'}line" ] || { echo "easyide-install-node: no linux-${'$'}arch build listed" >&2; exit 1; }
+        progress 10
         sum=${'$'}{line%% *}
         name=${'$'}{line##* }
         curl -fsSL "${'$'}base/${'$'}name" -o "${'$'}tmp/node.tar.xz"
+        progress 60
         echo "${'$'}sum  ${'$'}tmp/node.tar.xz" | sha256sum -c - >/dev/null
+        progress 70
         tar -xJf "${'$'}tmp/node.tar.xz" -C /usr/local --strip-components=1 --exclude='*/CHANGELOG.md' --exclude='*/LICENSE' --exclude='*/README.md'
+        progress 100
         node --version
     """.trimIndent() + "\n"
 }

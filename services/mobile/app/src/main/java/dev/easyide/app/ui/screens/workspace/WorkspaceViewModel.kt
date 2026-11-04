@@ -501,6 +501,12 @@ class WorkspaceViewModel(
 
     fun revealTerminal() = terminals.reveal()
 
+    /** Shows [file] and runs [command] in a new terminal: what the first-run demo does on arrival. */
+    fun openAndRun(file: String, command: String) {
+        openFileByPath(file)
+        terminals.newShell(initialCommand = command)
+    }
+
     fun onRenameTerminal(id: String, title: String) = terminals.rename(id, title)
 
     fun onSelectTerminal(id: String) = terminals.select(id)
