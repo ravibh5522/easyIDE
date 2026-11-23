@@ -47,6 +47,10 @@ import dev.easyide.app.ui.foundation.LocalKeymap
 import dev.easyide.app.ui.foundation.LocalWindowSize
 import dev.easyide.app.ui.kit.Kit
 import dev.easyide.app.ui.kit.KitIconButton
+import dev.easyide.app.ui.kit.Tone
+import dev.easyide.app.data.settings.EditorSettingsSchema
+import dev.easyide.app.ui.foundation.LocalSettingsEditor
+import dev.easyide.app.ui.icons.iconFor
 import dev.easyide.app.ui.screens.workspace.decor.DecorationRegistry
 import dev.easyide.app.ui.screens.workspace.ext.ContributedMenu
 import dev.easyide.app.ui.screens.workspace.ext.EditorTitleActions
@@ -457,10 +461,23 @@ private fun RowScope.EditorActions(file: EditorTab?, callbacks: WorkspaceCallbac
             callbacks.onTogglePreview,
         )
     }
+    if (file.editable) AutoSaveToggle()
     EditorTitleActions(
         title = contributions.menu(MenuIds.EDITOR_TITLE, env.commands),
         context = contributions.menu(MenuIds.EDITOR_CONTEXT, env.commands),
         onRun = { contributions.run(it) },
+    )
+}
+
+/** The title-bar switch for `files.autoSave`; lit while on. */
+@Composable
+private fun AutoSaveToggle() {
+    val on = LocalSettings.current[EditorSettingsSchema.autoSave]
+    val editor = LocalSettingsEditor.current
+    KitIconButton(
+        iconFor("save"), stringResource(R.string.editor_auto_save),
+        { editor?.set(EditorSettingsSchema.autoSave, !on) },
+        tone = if (on) Tone.Accent else Tone.Neutral,
     )
 }
 

@@ -20,7 +20,8 @@
     "capabilities": [
       "lsp.spawn",
       "network(archive.ubuntu.com,security.ubuntu.com,ports.ubuntu.com)",
-      "sandbox.install"
+      "sandbox.install",
+      "sandbox.exec"
     ],
     "languageServers": [
       {
@@ -57,6 +58,64 @@
         "apt-get remove -y clangd"
       ]
     },
-    "memoryBudgetMb": 550
+    "memoryBudgetMb": 550,
+    "actions": {
+      "cpp.runFile": {
+        "type": "runInTerminal",
+        "terminal": "C++",
+        "cwd": "${fileDirname}",
+        "command": "g++ -std=c++17 ${file} -o /tmp/easyide-run && /tmp/easyide-run; rm -f /tmp/easyide-run"
+      },
+      "cpp.runCFile": {
+        "type": "runInTerminal",
+        "terminal": "C",
+        "cwd": "${fileDirname}",
+        "command": "gcc ${file} -o /tmp/easyide-run && /tmp/easyide-run; rm -f /tmp/easyide-run"
+      }
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "cpp.runFile",
+        "title": "Run C++ File",
+        "shortTitle": "Run",
+        "category": "C/C++",
+        "icon": "play_arrow",
+        "enablement": "envState == ready && resourcePath"
+      },
+      {
+        "command": "cpp.runCFile",
+        "title": "Run C File",
+        "shortTitle": "Run",
+        "category": "C/C++",
+        "icon": "play_arrow",
+        "enablement": "envState == ready && resourcePath"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "cpp.runFile",
+          "when": "editorLangId == cpp",
+          "group": "navigation@1"
+        },
+        {
+          "command": "cpp.runCFile",
+          "when": "editorLangId == c",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "cpp.runFile",
+          "when": "editorLangId == cpp"
+        },
+        {
+          "command": "cpp.runCFile",
+          "when": "editorLangId == c"
+        }
+      ]
+    }
   }
 }

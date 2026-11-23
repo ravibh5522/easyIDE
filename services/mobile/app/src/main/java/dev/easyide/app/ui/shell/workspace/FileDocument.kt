@@ -2,6 +2,10 @@ package dev.easyide.app.ui.shell.workspace
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.LaunchedEffect
+import dev.easyide.app.data.settings.EditorSettingsSchema
+import dev.easyide.app.ui.foundation.LocalSettings
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,6 +39,7 @@ private fun FileEditor(uri: DocumentUri, modifier: Modifier) {
     val overlays by env.lsp.semanticTokens.overlays.collectAsState()
     // Where the pointer was pressed, so the context menu opens under it; null while closed.
     var menuAt by remember { mutableStateOf<IntOffset?>(null) }
+    AutoSave(env, path)
     Column(modifier) {
         EditorBreadcrumbs(env, path)
         Box(Modifier.fillMaxWidth().weight(1f).onFocusChanged { env.actions.onEditorFocus(it.hasFocus) }) {
@@ -63,5 +68,20 @@ private fun FileEditor(uri: DocumentUri, modifier: Modifier) {
                 at = menuAt,
             )
         }
+    }
+}
+
+/** Saves [path] once the user has stopped typing for the configured delay, when `files.autoSave` is on. */
+@Composable
+private fun AutoSave(env: WorkspaceEnv, path: String) {
+    val settings = LocalSettings.current
+    val on = settings[EditorSettingsSchema.autoSave]
+    val delayMs = settings[EditorSettingsSchema.autoSaveDelay].toLong()
+    val content = env.ui.openTabs.find { it.relativePath == path }?.takeIf { it.isDirty }?.content
+    // Keyed on the text so every keystroke restarts the wait; null (clean) cancels it.
+    LaunchedEffect(on, content) {
+        if (!on || content == null) return@LaunchedEffect
+        delay(delayMs)
+        env.callbacks.onSaveTabs(listOf(path)) {}
     }
 }

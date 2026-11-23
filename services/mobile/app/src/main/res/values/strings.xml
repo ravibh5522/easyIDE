@@ -98,4 +98,9 @@
 
     <string name="workspace_project_not_found">Project not found. It may have been deleted.</string>
     <string name="workspace_back_home">Back to projects</string>
+    <string name="setting_auto_save_title">Auto save</string>
+    <string name="setting_auto_save_desc">Save a file automatically shortly after you stop typing.</string>
+    <string name="setting_auto_save_delay_title">Auto save delay (ms)</string>
+    <string name="setting_auto_save_delay_desc">How long to wait after the last edit before saving.</string>
+    <string name="editor_auto_save">Auto save</string>
 </resources>

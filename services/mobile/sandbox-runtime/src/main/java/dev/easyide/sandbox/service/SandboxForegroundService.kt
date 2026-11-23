@@ -30,6 +30,11 @@ class SandboxForegroundService : Service() {
         // Within seconds of startForegroundService, whatever the intent is.
         startForeground(NOTIFICATION_ID, buildNotification(SandboxKeepAlive.sessions))
         if (intent?.action == ACTION_STOP_ALL) SandboxKeepAlive.host?.endAllSessions()
+        // A stop that raced the start: stopService() before this point crashes the app, so stop is a start too.
+        if (intent?.action == ACTION_STOP) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         // Nothing live in this process (the system re-created us, or the last session just ended).
         if (SandboxKeepAlive.sessions <= 0) stopSelf()
         // Not sticky: a restarted service would find no sessions, because they died with the process.
@@ -85,6 +90,7 @@ class SandboxForegroundService : Service() {
         private const val CHANNEL_ID = "sandbox_runtime"
         private const val NOTIFICATION_ID = 1001
         private const val ACTION_STOP_ALL = "dev.easyide.sandbox.action.STOP_ALL"
+        private const val ACTION_STOP = "dev.easyide.sandbox.action.STOP"
 
         fun start(context: Context) {
             val intent = Intent(context, SandboxForegroundService::class.java)
@@ -92,7 +98,13 @@ class SandboxForegroundService : Service() {
         }
 
         fun stop(context: Context) {
-            context.stopService(Intent(context, SandboxForegroundService::class.java))
+            val intent = Intent(context, SandboxForegroundService::class.java).setAction(ACTION_STOP)
+            // Background-start limits refuse this; the service cannot be mid-start then, so a plain stop is safe.
+            try {
+                context.startForegroundService(intent)
+            } catch (e: IllegalStateException) {
+                context.stopService(Intent(context, SandboxForegroundService::class.java))
+            }
         }
     }
 }

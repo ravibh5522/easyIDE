@@ -119,8 +119,18 @@ object EditorSettingsSchema {
         id = WordWrap::id,
     )
 
+    val autoSave = Setting.Bool(
+        "files.autoSave", C, R.string.setting_auto_save_title, R.string.setting_auto_save_desc,
+        default = false, scope = SettingScope.G,
+    )
+
+    val autoSaveDelay = Setting.IntRange(
+        "files.autoSaveDelay", C, R.string.setting_auto_save_delay_title, R.string.setting_auto_save_delay_desc,
+        default = 1000, scope = SettingScope.G, min = 200, max = 10_000, step = 100,
+    )
+
     val all: List<Setting<*>> = listOf(
-        fontFamily, lineHeight, letterSpacing, cursorStyle, cursorWidth, lineNumbers, renderLineHighlight,
+        autoSave, autoSaveDelay, fontFamily, lineHeight, letterSpacing, cursorStyle, cursorWidth, lineNumbers, renderLineHighlight,
         matchBrackets, indentGuides, scrollbarVertical, wordWrap,
     )
 

@@ -14,6 +14,7 @@ import dev.easyide.app.extensions.adapters.TaskSpec
 import dev.easyide.app.extensions.adapters.Tasks
 import dev.easyide.app.extensions.host.ActiveDocument
 import dev.easyide.app.extensions.host.TextEdits
+import dev.easyide.app.extensions.host.Toolchains
 import dev.easyide.app.extensions.host.WorkspaceBridge
 import dev.easyide.app.ui.commands.CommandRegistry
 import dev.easyide.app.ui.screens.workspace.EditorSelections
@@ -266,6 +267,12 @@ class WorkspaceExtensionHost(
     // ---- terminals and processes
 
     override suspend fun runInTerminal(request: TerminalRequest) = withContext(Dispatchers.Main.immediate) {
+        val missing = Toolchains.toolIn(request.commandLine)?.takeUnless { hasTool(it) }
+        if (missing != null) {
+            // Installing needs root, so install and run in one root shell: the first run of a language just works.
+            terminals.newShell(initialCommand = "${Toolchains.installFor(missing)} && ${request.commandLine}")
+            return@withContext
+        }
         val tab = terminals.namedTerminal(request.owner, request.terminalName) ?: return@withContext
         if (request.clear) tab.session.write(CLEAR_SCREEN)
         tab.session.write(request.commandLine + ENTER)
@@ -273,6 +280,20 @@ class WorkspaceExtensionHost(
             terminals.select(tab.id)
             stages.tryEmit(StageRequest(StagePlacement.BOTTOM, focus = true))
         }
+    }
+
+    /** Whether [tool] is on the guest's PATH; a probe that cannot start counts as present, so Run falls back to plain. */
+    private suspend fun hasTool(tool: String): Boolean = withContext(Dispatchers.IO) {
+        val probe = try {
+            startCaptured(listOf("sh", "-c", "command -v \"\$0\" >/dev/null 2>&1", tool), null, emptyMap())
+        } catch (e: Exception) {
+            return@withContext true
+        }
+        probe.outputStream.close()
+        val found = probe.waitFor() == 0
+        probe.inputStream.close()
+        probe.errorStream.close()
+        found
     }
 
     override suspend fun runCommandTerminal(title: String, argv: List<String>, cwd: String?, env: Map<String, String>, timeoutMs: Long): ExecOutcome =
